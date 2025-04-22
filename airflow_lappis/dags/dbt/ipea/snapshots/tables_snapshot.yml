@@ -5,9 +5,8 @@ snapshots:
       schema: snapshots
       database: analytics
       unique_key: id
-      strategy: timestamp
-      updated_at: updated_at
-      dbt_valid_to_current: "to_timestamp('9999-12-31', 'YYYY-MM-DD')"
+      strategy: check
+      check_cols: [situacao, num_parcelas, valor_parcela, valor_global, valor_acumulado]
       
   - name: faturas_snapshot
     relation: ref('faturas')
@@ -15,19 +14,17 @@ snapshots:
       schema: snapshots
       database: analytics
       unique_key: [id, id_empenho]
-      strategy: timestamp
-      updated_at: updated_at
-      dbt_valid_to_current: "to_timestamp('9999-12-31', 'YYYY-MM-DD')"
+      strategy: check
+      check_cols: [situacao, valor, juros, multa, glosa]
 
   - name: empenhos_snapshot
     relation: ref('empenhos')
     config:
       schema: snapshots
       database: analytics
-      unique_key: id
-      strategy: timestamp
-      updated_at: updated_at
-      dbt_valid_to_current: "to_timestamp('9999-12-31', 'YYYY-MM-DD')"
+      unique_key: [id, contrato_id]
+      strategy: check
+      check_cols: [empenhado, aliquidar, liquidado, pago, rpinscrito, rpaliquidar, rpliquidado, rppago]
 
   - name: cronogramas_snapshot
     relation: ref('cronogramas')
@@ -35,6 +32,5 @@ snapshots:
       schema: snapshots
       database: analytics
       unique_key: id
-      strategy: timestamp
-      updated_at: updated_at
-      dbt_valid_to_current: "to_timestamp('9999-12-31', 'YYYY-MM-DD')"
+      strategy: check
+      check_cols: [valor, retroativo, observacao]
