@@ -13,8 +13,7 @@ with
             anoref::integer as anoref,
             retroativo::text as retroativo,
             replace(replace(valor::text, '.', ''), ',', '.')::numeric(15, 2) as valor,
-            vencimento::date as vencimento,
-            now() as updated_at
+            vencimento::date as vencimento
         from {{ source("compras_gov", "cronograma") }}
     ),
 
