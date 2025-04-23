@@ -1,0 +1,117 @@
+# Este arquivo deve ser usado para descrições dos modelos
+# e para configurar testes
+
+version: 2
+
+models:
+
+  # Contratos DBT
+
+  ## Bronze
+  - name: contratos
+    description: >
+      Tabela com informações sobre contratos, incluindo detalhes como o valor do contrato, a data de início e término, e o status do contrato.
+      Esta tabela é fundamental para entender a execução e o cumprimento dos contratos firmados.
+      A tabela é atualizada diariamente e contém dados de contratos firmados pelo IPEA.
+    columns:
+      - name: id
+        description: >
+          Identificador único do contrato, utilizado para referenciar o contrato em outras tabelas e análises.
+  
+  - name: cronogramas
+    description: >
+      Essa tabela contém informações sobre as despesas mensais programadas cada contrato.
+
+  - name: faturas
+    description: "Essa tabela contém informações sobre as faturas emitidas mensalmente de cada contrato."
+
+  - name: empenhos
+    description: >
+      Essa tabela contém informações sobre os empenhos de cada contrato.
+
+  - name: empenhos_tesouro
+    description: >
+      Essa tabela contém informações sobre movimentação financeira dos empenhos extraídos do SIAFI.
+
+  - name: estagios
+    description: >
+      Essa tabela contém informações sobre os evento de cada empenho discriminados por mês.
+
+  ## Silver
+  - name: contratos_empenhos
+    description: Essa tabela combina as informações de movimentação financeira dos empenhos com os ids de contrato do IPEA.
+
+  - name: contratos_estagios
+    description: >
+      Essa tabela combina as informações de movimentação financeira dos empenhos com os ids de contrato do IPEA mensalmente.
+  
+  - name: estagios_mensal
+    description: >
+      Essa tabela discrimina os valores empenhados, liquidados e pagos mensalmente extraídos do SIAFI para cada contrato.
+  
+  - name: cronogramas_fatura_mensal
+    description: >
+      Essa tabela discrimina os falores programados e faturados mensalmente pelo ComprasGov para cada contrato.
+
+  ## Golds
+  - name: contratos_resumo
+    description: >
+      Essa tabela contém um resumo dos contratos, informações contratuais como valor global e valor pago, 
+      e situação atual, como em vigência ou pendente de baixa.
+
+  - name: contratos_comparativo_mensal
+    description: >
+      Essa tabela contém um comparativo mensal dos contratos, discriminando 
+      os valores empenhados, liquidados e pagos do SIAFI, 
+      programados e faturados do ComprasGov.
+
+  ## View
+  - name: identificadores
+    description: >
+      Essa tabela contém os identificadores dos contratos, empenhos e faturas, 
+      Essa tabela é utilizada para facilitar joins.
+
+  # Pessoas DBT
+
+  # TED DBT
+  - name: pf_tesouro
+    description: >
+      Dados das programações financeiras extraídas do SIAFI, com informações sobre o tipo de programação, a data de execução e o valor.
+      Essa tabela é atualizada diariamente.
+
+  - name: empenhos_plano_acao
+    description: >
+      Dados dos empenhos extraídos do SIAFI, incluído o identificador do plano de ação.
+      Essa tabela é atualizada diariamente.
+
+  - name: nc_plano_acao
+    description: >
+      Dados das notas de crédito extraídas do SIAFI, incluso o identificador do plano de ação.
+      Essa tabela é atualizada diariamente.
+
+  - name: pf_plano_acao
+    description: >
+      Dados das programações financeiras extraídas do SIAFI, includo o identificador do plano de ação.
+      Essa tabela é atualizada diariamente.
+
+macros:
+  - name: create_udfs
+    description: >
+      Função que cria as UDFs necessárias para o funcionamento do projeto.
+      Essa função deve ser chamada no início de cada run para garantir que todas as UDFs estejam disponíveis.
+  
+  - name: generate_schema_name
+    description: >
+      Função que gera o nome do schema a ser utilizado no projeto.
+      A função dentro desta macro é built-in do dbt.
+  
+  ## UDFS
+  - name: create_f_parse_dates
+    description: >
+      Função que cria a UDF f_parse_dates, que é utilizada para converter texto no formato MÊS(texto)/ANO(numero) em datas.
+    arguments:
+      - name: in_text
+        type: text
+        description: >
+          Texto a ser convertido em data.
+          O texto deve estar no formato MÊS(texto)/ANO(numero). Ex.: FEV/2024 -> 2024-02-01
