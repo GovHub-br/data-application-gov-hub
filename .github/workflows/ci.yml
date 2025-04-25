@@ -1,0 +1,84 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Poetry
+        run: |
+          pip install poetry==1.8.5
+          poetry config virtualenvs.in-project true
+          poetry install --no-root --with dev
+
+      - name: Cache Poetry & Pip
+        uses: actions/cache@v3
+        with:
+          path: |
+            .cache/pip
+            .cache/poetry
+            .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+  lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use cached environment
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('/poetry.lock') }}
+      - name: Run lint
+        run: |
+          source .venv/bin/activate
+          make lint
+
+  test:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use cached environment
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('/poetry.lock') }}
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          poetry run pytest tests --junitxml=report.xml
+
+  docker-build-and-push:
+    if: github.ref == 'refs/heads/main'
+    needs: setup
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE_TAG=ghcr.io/${{ github.repository }}/airflow-ipea:${{ github.sha }}
+          docker build -t $IMAGE_TAG .
+          docker push $IMAGE_TAG
