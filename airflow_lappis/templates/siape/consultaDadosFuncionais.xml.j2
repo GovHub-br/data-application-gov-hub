@@ -1,0 +1,14 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://servico.wssiapenet">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <ser:consultaDadosFuncionais>
+      <siglaSistema>{{ siglaSistema }}</siglaSistema>
+      <nomeSistema>{{ nomeSistema }}</nomeSistema>
+      <senha>{{ senha }}</senha>
+      <cpf>{{ cpf }}</cpf>
+      <codOrgao>{{ codOrgao }}</codOrgao>
+      <parmExistPag>{{ parmExistPag }}</parmExistPag>
+      <parmTipoVinculo>{{ parmTipoVinculo }}</parmTipoVinculo>
+    </ser:consultaDadosFuncionais>
+  </soapenv:Body>
+</soapenv:Envelope>
