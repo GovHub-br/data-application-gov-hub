@@ -1,25 +1,34 @@
-from typing import Dict, Any
-from requests import Session
+from typing import Dict
 import requests
+import xml.etree.ElementTree as ET
+from jinja2 import Environment, FileSystemLoader
 
-from zeep import Transport, Client
 
-
-class ClienteSiape(object):
+class ClienteSiape:
+    """
+    Client to consume the SIAPE SOAP API using OAuth2 authentication
+    and dynamic XML generation with Jinja2 templates.
+    """
 
     BEARER_ENDPOINT = (
         "https://apigateway.conectagov.estaleiro.serpro.gov.br/oauth2/jwt-token/"
     )
     SOAP_ENDPOINT = "https://apigateway.conectagov.estaleiro.serpro.gov.br/api-consulta-siape/v1/consulta-siape"
 
-    def __init__(self, oauth_username: str, oauth_password: str) -> None:
-        token = ClienteSiape._get_token(oauth_username, oauth_password)
-        headers = ClienteSiape._get_headers(token)
-        session = Session()
-        session.headers.update(headers)
-        transport = Transport(session=session)
-        self.base_url = ClienteSiape.SOAP_ENDPOINT
-        self.client = Client(ClienteSiape.SOAP_ENDPOINT, transport=transport)
+    def __init__(
+        self, oauth_username: str, oauth_password: str, cpf_usuario: str
+    ) -> None:
+        """
+        Initialize the SIAPE client with authentication and request headers.
+
+        Args:
+            oauth_username (str): OAuth username for token retrieval.
+            oauth_password (str): OAuth password for token retrieval.
+            cpf_usuario (str): CPF used in the 'x-cpf-usuario' header for SIAPE requests.
+        """
+        token = self._get_token(oauth_username, oauth_password)
+        self.headers = self._get_headers(token, cpf_usuario)
+        self.env = Environment(loader=FileSystemLoader("templates/siape"))
 
     @staticmethod
     def _get_token(oauth_username: str, oauth_password: str) -> str:
@@ -27,22 +36,24 @@ class ClienteSiape(object):
         Gets the token for the client.
 
         Args:
-            oauth_username (str): The OAuth username.
-            oauth_password (str): The OAuth password.
+            oauth_username (str): OAuth username.
+            oauth_password (str): OAuth password.
 
         Returns:
-            str: The token.
+            str: Access token.
         """
-        auth_response = requests.get(
+        data = {"grant_type": "client_credentials"}
+        response = requests.post(
             ClienteSiape.BEARER_ENDPOINT,
             auth=(oauth_username, oauth_password),
+            data=data,
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
-        auth_json = auth_response.json()
-        return str(auth_json.get("access_token", ""))
+        response.raise_for_status()
+        return str(response.json()["access_token"])
 
     @staticmethod
-    def _get_headers(token: str) -> Dict[str, str]:
+    def _get_headers(token: str, cpf_usuario: str) -> Dict[str, str]:
         """
         Builds the headers for the client.
 
@@ -52,20 +63,77 @@ class ClienteSiape(object):
         Returns:
             Dict[str, str]: The headers.
         """
-        return {"Authorization": f"Bearer {token}"}
+        return {
+            "Authorization": f"Bearer {token}",
+            "x-cpf-usuario": cpf_usuario,
+            "Content-Type": "application/xml",
+        }
 
-    def method(self, method_name: str) -> Any:
+    def render_xml(self, template_name: str, context: Dict[str, str]) -> str:
         """
-        Applies the method to the client.
+        Render XML from a Jinja2 template and context.
 
         Args:
-            method_name (str): The method name.
+            template_name (str): Template filename
+            (e.g. 'consultaDadosFuncionais.xml.j2').
+            context (Dict[str, str]): Data to inject into the template.
 
         Returns:
-            Any: The response.
+            str: Rendered XML string.
         """
-        try:
-            response = getattr(self.client.service, method_name)
-            return response
-        except Exception as e:
-            raise Exception(f"Error making SOAP request: {str(e)}")
+        template = self.env.get_template(template_name)
+        return template.render(context)
+
+    def enviar_soap(self, xml: str) -> str:
+        """
+        Send the XML payload to the SIAPE SOAP endpoint.
+
+        Args:
+            xml (str): The complete XML request.
+
+        Returns:
+            str: The raw XML response.
+        """
+        response = requests.post(
+            ClienteSiape.SOAP_ENDPOINT, headers=self.headers, data=xml
+        )
+        response.raise_for_status()
+        return response.text
+
+    def call(self, template_name: str, context: Dict[str, str]) -> str:
+        """
+        Execute a SOAP request using a Jinja2 template and parameters.
+
+        Args:
+            template_name (str): Jinja2 template file name.
+            context (Dict[str, str]): Parameters for rendering the XML.
+
+        Returns:
+            str: The raw XML response.
+        """
+        xml = self.render_xml(template_name, context)
+        return self.enviar_soap(xml)
+
+    @staticmethod
+    def parse_xml_to_dict(xml_string: str) -> Dict[str, str]:
+        """
+        Parse a SOAP XML response and return a dictionary with tag names and values.
+
+        Args:
+            xml_string (str): SOAP XML response.
+
+        Returns:
+            Dict[str, str]: Flattened dictionary of XML data.
+        """
+        ns = {"soapenv": "http://schemas.xmlsoap.org/soap/envelope/"}
+        root = ET.fromstring(xml_string)
+        body = root.find("soapenv:Body", ns)
+        if body is None:
+            return {"error": "Missing SOAP Body"}
+
+        response_elem = list(body)[0]
+        return {
+            child.tag.split("}")[-1]: child.text.strip()
+            for child in response_elem.iter()
+            if child.text and child.text.strip()
+        }
