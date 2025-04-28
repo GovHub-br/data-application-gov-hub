@@ -19,7 +19,10 @@ my_cosmos_dag = DbtDag(
     execution_config=ExecutionConfig(
         dbt_executable_path=f"{os.environ['AIRFLOW_REPO_BASE']}/.local/bin/dbt",
     ),
-    schedule_interval="@daily",
+    # Expressãp cron para agendar a execução do DAG diariamente às 01:00
+    # Futuralmente isso pode ser substituído por um cronograma mais específico
+    # com dependências entre os DAGs
+    schedule_interval=" 0 1 * * *",
     start_date=datetime(2025, 1, 1),
     catchup=False,
     dag_id="ipea_cosmos_dag",
