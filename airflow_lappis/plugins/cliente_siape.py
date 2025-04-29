@@ -1,4 +1,5 @@
-from typing import Dict
+import os
+from typing import Dict, Any
 import requests
 import xml.etree.ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
@@ -15,19 +16,22 @@ class ClienteSiape:
     )
     SOAP_ENDPOINT = "https://apigateway.conectagov.estaleiro.serpro.gov.br/api-consulta-siape/v1/consulta-siape"
 
-    def __init__(
-        self, oauth_username: str, oauth_password: str, cpf_usuario: str
-    ) -> None:
+    def __init__(self) -> None:
         """
-        Initialize the SIAPE client with authentication and request headers.
+        Initialize the SIAPE client using environment variables:
+        - SIAPE_BEARER_USER
+        - SIAPE_BEARER_PASSWORD
+        - SIAPE_CPF_USER
+        """
+        self.oauth_user = os.getenv("SIAPE_BEARER_USER")
+        self.oauth_password = os.getenv("SIAPE_BEARER_PASSWORD")
+        self.cpf_usuario = os.getenv("SIAPE_CPF_USER")
 
-        Args:
-            oauth_username (str): OAuth username for token retrieval.
-            oauth_password (str): OAuth password for token retrieval.
-            cpf_usuario (str): CPF used in the 'x-cpf-usuario' header for SIAPE requests.
-        """
-        token = self._get_token(oauth_username, oauth_password)
-        self.headers = self._get_headers(token, cpf_usuario)
+        if not all([self.oauth_user, self.oauth_password, self.cpf_usuario]):
+            raise ValueError("Variáveis de ambiente do SIAPE estão incompletas")
+
+        token = self._get_token(self.oauth_user, self.oauth_password)
+        self.headers = self._get_headers(token, self.cpf_usuario)
         self.env = Environment(loader=FileSystemLoader("templates/siape"))
 
     @staticmethod
@@ -49,8 +53,8 @@ class ClienteSiape:
             data=data,
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
-        response.raise_for_status()
-        return str(response.json()["access_token"])
+        json_response: dict[str, Any] = response.json()
+        return str(json_response["access_token"])
 
     @staticmethod
     def _get_headers(token: str, cpf_usuario: str) -> Dict[str, str]:
