@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://servico.wssiapenet">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <ser:consultaDadosPessoais>
+      <siglaSistema>{{ siglaSistema }}</siglaSistema>
+      <nomeSistema>{{ nomeSistema }}</nomeSistema>
+      <senha>{{ senha }}</senha>
+      <cpf>{{ cpf }}</cpf>
+      <codOrgao>{{ codOrgao }}</codOrgao>
+      <parmExistPag>{{ parmExistPag }}</parmExistPag>
+      <parmTipoVinculo>{{ parmTipoVinculo }}</parmTipoVinculo>
+    </ser:consultaDadosPessoais>
+  </soapenv:Body>
+</soapenv:Envelope>
