@@ -8,10 +8,10 @@ with
             processo as processo_contrato,
             numero as numero_contrato,
             objeto as objeto_contrato
-        from {{ ref("bronze", "contratos") }}
+        from {{ ref("contratos") }}
     ),
 
-    faturas_base as (select * from {{ ref("bronze", "faturas") }})
+    faturas_base as (select * from {{ ref("faturas") }})
 
 select
     f.id,
@@ -47,7 +47,6 @@ select
     f.id_empenho,
     f.numero_empenho,
     f.valor_empenho,
-    f.subelemento,
-    f.updated_at
+    f.subelemento
 from faturas_base f
 left join contratos c on f.contrato_id = c.contrato_id
