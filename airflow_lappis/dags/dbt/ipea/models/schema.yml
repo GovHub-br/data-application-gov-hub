@@ -17,25 +17,268 @@ models:
       - name: id
         description: >
           Identificador único do contrato, utilizado para referenciar o contrato em outras tabelas e análises.
-  
+    data_tests: 
+      - row_count_match:
+          source_table: compras_gov.contratos
+          target_table: contratos.contratos
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'num_parcelas'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'valor_inicial'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'valor_global'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'valor_parcela'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'valor_acumulado'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'data_assinatura'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'data_publicacao'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'data_proposta_comercial'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'vigencia_inicio'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'vigencia_fim'
+          tipo_esperado: 'date'
+
   - name: cronogramas
     description: >
       Essa tabela contém informações sobre as despesas mensais programadas cada contrato.
+    data_tests: 
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'id'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'contrato_id'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'mesref'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'anoref'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'valor'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'vencimento'
+          tipo_esperado: 'date'
 
   - name: faturas
     description: "Essa tabela contém informações sobre as faturas emitidas mensalmente de cada contrato."
+    data_tests:
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'id'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'contrato_id'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'emissao'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'prazo'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'vencimento'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'valor'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'juros'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'multa'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'glosa'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'valorliquido'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'protocolo'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'ateste'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'mesref'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'anoref'
+          tipo_esperado: 'integer'
 
   - name: empenhos
     description: >
       Essa tabela contém informações sobre os empenhos de cada contrato.
+    data_tests: 
+      - row_count_match:
+          source_table: compras_gov.empenhos
+          target_table: contratos.empenhos
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'empenhado'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'aliquidar'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'liquidado'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'pago'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'rpinscrito'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'rpaliquidar'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'rpliquidado'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'rppago'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'data_emissao'
+          tipo_esperado: 'date'
+
 
   - name: empenhos_tesouro
     description: >
       Essa tabela contém informações sobre movimentação financeira dos empenhos extraídos do SIAFI.
 
+    data_tests:
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'ne_ccor_ano_emissao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'despesas_empenhadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'despesas_liquidadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'despesas_pagas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'restos_a_pagar_inscritos'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'restos_a_pagar_pagos'
+          tipo_esperado: 'numeric'
+
   - name: estagios
     description: >
       Essa tabela contém informações sobre os evento de cada empenho discriminados por mês.
+    data_tests:
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.estagios'
+          nome_coluna: 'natureza_despesa'
+          tipo_esperado: 'integer'
+
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.estagios'
+          nome_coluna: 'natureza_despesa_detalhada'
+          tipo_esperado: 'integer'
+
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.estagios'
+          nome_coluna: 'ano_lancamento'
+          tipo_esperado: 'integer'
+
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.estagios'
+          nome_coluna: 'ne_ccor_ano_emissao'
+          tipo_esperado: 'integer'
+
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.estagios'
+          nome_coluna: 'despesas_empenhadas_controle_empenho_saldo_moeda_origem'
+          tipo_esperado: 'numeric'
+
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.estagios'
+          nome_coluna: 'despesas_empenhadas_controle_empenho_movim_liquido_moeda_origem'
+          tipo_esperado: 'numeric'
+
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.estagios'
+          nome_coluna: 'despesas_liquidadas_controle_empenho_saldo_moeda_origem'
+          tipo_esperado: 'numeric'
+
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.estagios'
+          nome_coluna: 'despesas_liquidadas_controle_empenho_movim_liquido_moeda_origem'
+          tipo_esperado: 'numeric'
+
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.estagios'
+          nome_coluna: 'despesas_pagas_controle_empenho_saldo_moeda_origem'
+          tipo_esperado: 'numeric'
+
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.estagios'
+          nome_coluna: 'despesas_pagas_controle_empenho_movim_liquido_moeda_origem'
+          tipo_esperado: 'numeric'
 
   ## Silver
   - name: contratos_empenhos
@@ -78,6 +321,15 @@ models:
     description: >
       Dados das programações financeiras extraídas do SIAFI, com informações sobre o tipo de programação, a data de execução e o valor.
       Essa tabela é atualizada diariamente.
+    data_tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.pf_tesouro'
+            nome_coluna: 'emissao_dia'
+            tipo_esperado: 'date'
+        - verificacao_tipagem:
+            nome_tabela: 'ted.pf_tesouro'
+            nome_coluna: 'pf_valor_linha'
+            tipo_esperado: 'numeric'
 
   - name: empenhos_plano_acao
     description: >
