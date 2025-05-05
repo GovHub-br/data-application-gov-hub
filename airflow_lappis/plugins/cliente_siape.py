@@ -32,7 +32,9 @@ class ClienteSiape:
 
         token = self._get_token(self.oauth_user, self.oauth_password)
         self.headers = self._get_headers(token, self.cpf_usuario)
-        self.env = Environment(loader=FileSystemLoader("templates/siape"))
+        base_path = os.environ["AIRFLOW_REPO_BASE"]
+        templates_path = f"{base_path}/templates/siape"
+        self.env = Environment(loader=FileSystemLoader(templates_path))
 
     @staticmethod
     def _get_token(oauth_username: str, oauth_password: str) -> str:
