@@ -11,7 +11,7 @@ with
     nc_siafi as (
         select distinct
             left(nc, 6) as ug, right(nc, 12) as nc, nt.nc_transferencia as num_transf
-        from {{ source("siafi", "ncs_tesouro") }} nt
+        from {{ source("siafi", "nc_tesouro") }} nt
         where nc_transferencia != '-8'
     ),
 

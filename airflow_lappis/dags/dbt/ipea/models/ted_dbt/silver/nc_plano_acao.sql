@@ -1,10 +1,6 @@
 with
 
-    raw_data as (
-        select *
-        from {{ source("siafi", "ncs_tesouro") }} nt
-        where nc_transferencia != '-8'
-    ),
+    raw_data as (select * from {{ ref("nc_tesouro") }} nt where nc_transferencia != '-8'),
 
     planos_de_acao as (
         select distinct *
@@ -20,12 +16,13 @@ with
             nc_fonte_recursos,
             ptres,
             nc_natureza_despesa,
+            nc_evento,
             nc_evento_descr,
             -- aplica o sinal correto a depender do tipo de evento
             case
                 when nc_evento in ('300302', '300308', '300311', '300083')
-                then (-1) * replace(nc_valor_linha, ',', '.')::numeric
-                else replace(nc_valor_linha, ',', '.')::numeric
+                then (-1) * nc_valor_linha
+                else nc_valor_linha
             end as nc_valor
         from raw_data rd
         left join planos_de_acao pda on rd.nc_transferencia = pda.num_transf
