@@ -143,3 +143,37 @@ class ClienteSiape:
             for child in response_elem.iter()
             if child.text and child.text.strip()
         }
+
+    @staticmethod
+    def parse_xml_to_list(
+        xml_string: str, element_tag: str, namespaces: Dict[str, str]
+    ) -> list[dict[str, str | None]]:
+        """
+        Parse a SOAP XML response and return a list of dictionaries,
+        one per repeated element.
+
+        Args:
+            xml_string (str): SOAP XML response.
+            element_tag (str): Tag do elemento que se repete (ex: 'ns2:Uorg').
+            namespaces (Dict[str, str]): Mapeamento de namespaces.
+
+        Returns:
+            list[dict[str, str]]: Lista de registros extraídos.
+        """
+        root = ET.fromstring(xml_string)
+        body = root.find("soapenv:Body", namespaces)
+        if body is None:
+            return []
+
+        response_elem = list(body)[0]
+        items = response_elem.findall(f".//{element_tag}", namespaces)
+
+        resultado = []
+        for item in items:
+            row = {}
+            for elem in item:
+                tag = elem.tag.split("}")[-1]
+                row[tag] = elem.text.strip() if elem.text else None
+            resultado.append(row)
+
+        return resultado
