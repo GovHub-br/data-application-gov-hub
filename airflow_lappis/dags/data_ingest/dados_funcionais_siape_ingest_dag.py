@@ -54,7 +54,7 @@ def siape_dados_funcionais_dag() -> None:
 
                 db.insert_data(
                     [dados],
-                    table_name="dados_funcionais",
+                    table_name="dados_funcionais_siape",
                     conflict_fields=["matriculaSiape"],
                     primary_key=["matriculaSiape"],
                     schema="siape",
