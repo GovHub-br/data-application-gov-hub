@@ -16,13 +16,17 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["siape", "dados_funcionais"],
+    tags=["siape", "dados_pessoais"],
 )
-def siape_dados_funcionais_dag() -> None:
+def siape_dados_pessoais_dag() -> None:
+    """
+    DAG que consome o endpoint consultaDadosPessoais da API SIAPE
+    e armazena os dados pessoais de servidores públicos no schema 'siape'.
+    """
 
     @task
-    def fetch_and_store_dados_funcionais() -> None:
-        logging.info("Iniciando extração de dados funcionais por CPF")
+    def fetch_and_store_dados_pessoais() -> None:
+        logging.info("Iniciando extração de dados pessoais por CPF")
         cliente_siape = ClienteSiape()
         postgres_conn_str = get_postgres_conn()
         db = ClientPostgresDB(postgres_conn_str)
@@ -43,38 +47,36 @@ def siape_dados_funcionais_dag() -> None:
                     "parmTipoVinculo": "c",
                 }
 
-                resposta_xml = cliente_siape.call(
-                    "consultaDadosFuncionais.xml.j2", context
-                )
+                resposta_xml = cliente_siape.call("consultaDadosPessoais.xml.j2", context)
                 dados = ClienteSiape.parse_xml_to_dict(resposta_xml)
 
                 if not dados:
-                    logging.warning(f"Nenhum dado funcional encontrado para CPF {cpf}")
+                    logging.warning(f"Nenhum dado pessoal encontrado para CPF {cpf}")
                     continue
 
                 dados["cpf"] = cpf
 
                 db.alter_table(
                     data=dados,
-                    table_name="dados_funcionais",
+                    table_name="dados_pessoais",
                     schema="siape",
                 )
 
                 db.insert_data(
                     [dados],
-                    table_name="dados_funcionais",
+                    table_name="dados_pessoais",
                     conflict_fields=["cpf"],
                     primary_key=["cpf"],
                     schema="siape",
                 )
 
-                logging.info(f"Dado funcional inserido para CPF {cpf}")
+                logging.info(f"Dado pessoal inserido para CPF {cpf}")
 
             except Exception as e:
                 logging.error(f"Erro ao processar CPF {cpf}: {e}")
                 continue
 
-    fetch_and_store_dados_funcionais()
+    fetch_and_store_dados_pessoais()
 
 
-dag_instance = siape_dados_funcionais_dag()
+dag_instance = siape_dados_pessoais_dag()
