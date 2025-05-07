@@ -54,7 +54,7 @@ def siape_dados_funcionais_dag() -> None:
 
                 db.alter_table(
                     data=dados,
-                    table_name="dados_funcionais_siape",
+                    table_name="dados_funcionais",
                     schema="siape",
                 )
 
