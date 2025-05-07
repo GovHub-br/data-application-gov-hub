@@ -52,9 +52,15 @@ def siape_dados_funcionais_dag() -> None:
                     logging.warning(f"Nenhum dado funcional encontrado para CPF {cpf}")
                     continue
 
+                db.alter_table(
+                    data=dados,
+                    table_name="dados_funcionais_siape",
+                    schema="siape",
+                )
+
                 db.insert_data(
                     [dados],
-                    table_name="dados_funcionais_siape",
+                    table_name="dados_funcionais",
                     conflict_fields=["matriculaSiape"],
                     primary_key=["matriculaSiape"],
                     schema="siape",
