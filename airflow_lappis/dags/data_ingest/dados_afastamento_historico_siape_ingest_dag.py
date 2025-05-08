@@ -74,21 +74,22 @@ def siape_afastamento_historico_dag() -> None:
                 for row in dados:
                     row["cpf"] = cpf
 
-                db.alter_table(
-                    data=dados[0],
-                    table_name="afastamento_historico",
-                    schema="siape",
-                )
+                if dados:
+                    db.alter_table(
+                        data=dados[0],
+                        table_name="afastamento_historico",
+                        schema="siape",
+                    )
 
-                db.insert_data(
-                    dados,
-                    table_name="afastamento_historico",
-                    conflict_fields=None,
-                    primary_key=None,
-                    schema="siape",
-                )
+                    db.insert_data(
+                        dados,
+                        table_name="afastamento_historico",
+                        conflict_fields=None,
+                        primary_key=None,
+                        schema="siape",
+                    )
 
-                logging.info(f"{len(dados)} registros inseridos para CPF {cpf}")
+                    logging.info(f"{len(dados)} registros inseridos para CPF {cpf}")
 
             except Exception as e:
                 logging.error(f"Erro ao processar CPF {cpf}: {e}")

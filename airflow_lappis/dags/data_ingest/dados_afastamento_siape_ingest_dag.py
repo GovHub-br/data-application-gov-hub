@@ -56,21 +56,24 @@ def siape_dados_afastamento_dag() -> None:
                     logging.warning(f"Nenhum dado de afastamento para CPF {cpf}")
                     continue
 
-                db.alter_table(
-                    data=dados,
-                    table_name="dados_afastamento",
-                    schema="siape",
-                )
+                dados["cpf"] = cpf
 
-                db.insert_data(
-                    [dados],
-                    table_name="dados_afastamento",
-                    conflict_fields=["cpf"],
-                    primary_key=["cpf"],
-                    schema="siape",
-                )
+                if dados:
+                    db.alter_table(
+                        data=dados,
+                        table_name="dados_afastamento",
+                        schema="siape",
+                    )
 
-                logging.info(f"Dado de afastamento inserido para CPF {cpf}")
+                    db.insert_data(
+                        [dados],
+                        table_name="dados_afastamento",
+                        conflict_fields=["cpf"],
+                        primary_key=["cpf"],
+                        schema="siape",
+                    )
+
+                    logging.info(f"Dado de afastamento inserido para CPF {cpf}")
 
             except Exception as e:
                 logging.error(f"Erro ao processar CPF {cpf}: {e}")
