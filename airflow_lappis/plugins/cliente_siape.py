@@ -149,16 +149,15 @@ class ClienteSiape:
         xml_string: str, element_tag: str, namespaces: Dict[str, str]
     ) -> list[dict[str, str | None]]:
         """
-        Parse a SOAP XML response and return a list of dictionaries,
-        one per repeated element.
+        Generic parser for repeating XML elements (like lista servidores).
 
         Args:
             xml_string (str): SOAP XML response.
-            element_tag (str): Tag do elemento que se repete (ex: 'ns2:Uorg').
-            namespaces (Dict[str, str]): Mapeamento de namespaces.
+            element_tag (str): Tag do elemento que se repete.
+            namespaces (Dict[str, str]): XML namespaces.
 
         Returns:
-            list[dict[str, str]]: Lista de registros extraídos.
+            list[dict[str, str | None]]: Lista de registros.
         """
         root = ET.fromstring(xml_string)
         body = root.find("soapenv:Body", namespaces)
@@ -177,3 +176,82 @@ class ClienteSiape:
             resultado.append(row)
 
         return resultado
+
+    @staticmethod
+    def parse_afastamento_historico(xml_string: str) -> list[dict[str, Any]]:
+        """
+        Custom parser for afastamento histórico: extrai DadosFerias e DadosOcorrencias.
+
+        Args:
+            xml_string (str): SOAP XML response.
+
+        Returns:
+            list[dict[str, str | None]]: Lista de registros combinando
+            férias e ocorrências.
+        """
+        ns = {
+            "soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
+            "ns2": "http://tipo.servico.wssiapenet",
+        }
+        root = ET.fromstring(xml_string)
+        body = root.find("soapenv:Body", ns)
+        if body is None:
+            return []
+
+        dados = []
+        for item in body.findall(".//ns2:DadosFerias", ns):
+            registro = {}
+            for elem in item:
+                tag = elem.tag.split("}")[-1]
+                registro[tag] = elem.text.strip() if elem.text else None
+            dados.append(registro)
+
+        for item in body.findall(".//ns2:DadosOcorrencias", ns):
+            registro = {}
+            for elem in item:
+                tag = elem.tag.split("}")[-1]
+                registro[tag] = elem.text.strip() if elem.text else None
+            dados.append(registro)
+
+        return dados
+
+    @staticmethod
+    def parse_dependentes(xml_string: str) -> list[dict[str, Any]]:
+        """
+        Custom parser para consultaDadosDependentes: extrai dados do
+        dependente e seus benefícios.
+
+        Args:
+            xml_string (str): SOAP XML response.
+
+        Returns:
+            list[dict[str, Any]]: Lista de dependentes com campo
+            `arrayBeneficios` como sublista.
+        """
+        ns = {
+            "soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
+            "ns2": "http://tipo.servico.wssiapenet",
+        }
+        root = ET.fromstring(xml_string)
+        body = root.find("soapenv:Body", ns)
+        if body is None:
+            return []
+
+        dependentes = []
+        for item in body.findall(".//ns2:DadosDependentes", ns):
+            registro: dict[str, Any] = {}
+            for elem in item:
+                tag = elem.tag.split("}")[-1]
+                if tag == "arrayBeneficios":
+                    beneficios = []
+                    for b in elem:
+                        beneficio = {
+                            e.tag.split("}")[-1]: e.text.strip() for e in b if e.text
+                        }
+                        beneficios.append(beneficio)
+                    registro[tag] = beneficios
+                else:
+                    registro[tag] = elem.text.strip() if elem.text else None
+            dependentes.append(registro)
+
+        return dependentes

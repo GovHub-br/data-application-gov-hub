@@ -35,12 +35,6 @@ def siape_afastamento_historico_dag() -> None:
         cpfs = [row[0] for row in db.execute_query(query)]
         logging.info(f"Total de CPFs encontrados: {len(cpfs)}")
 
-        ns = {
-            "soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
-            "ns1": "http://servico.wssiapenet",
-            "ns2": "http://entidade.wssiapenet",
-        }
-
         for cpf in cpfs:
             try:
                 context = {
@@ -61,11 +55,7 @@ def siape_afastamento_historico_dag() -> None:
                     "consultaDadosAfastamentoHistorico.xml.j2", context
                 )
 
-                dados = ClienteSiape.parse_xml_to_list(
-                    xml_string=resposta_xml,
-                    element_tag="ns2:AfastamentoHistorico",
-                    namespaces=ns,
-                )
+                dados = ClienteSiape.parse_afastamento_historico(resposta_xml)
 
                 if not dados:
                     logging.info(f"Nenhum dado de afastamento histórico para CPF {cpf}")

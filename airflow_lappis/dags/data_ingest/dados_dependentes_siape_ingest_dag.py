@@ -35,11 +35,6 @@ def siape_dados_dependentes_dag() -> None:
         cpfs = [row[0] for row in db.execute_query(query)]
         logging.info(f"Total de CPFs encontrados: {len(cpfs)}")
 
-        ns = {
-            "soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
-            "ns2": "http://entidade.wssiapenet",
-        }
-
         for cpf in cpfs:
             try:
                 context = {
@@ -55,15 +50,14 @@ def siape_dados_dependentes_dag() -> None:
                 resposta_xml = cliente_siape.call(
                     "consultaDadosDependentes.xml.j2", context
                 )
-                dados = ClienteSiape.parse_xml_to_list(
-                    xml_string=resposta_xml,
-                    element_tag="ns2:Dependente",
-                    namespaces=ns,
-                )
+                dados = ClienteSiape.parse_dependentes(resposta_xml)
 
                 if not dados:
                     logging.warning(f"Nenhum dependente encontrado para CPF {cpf}")
                     continue
+
+                for row in dados:
+                    row["cpf"] = cpf
 
                 db.alter_table(
                     data=dados[0],
@@ -74,8 +68,8 @@ def siape_dados_dependentes_dag() -> None:
                 db.insert_data(
                     dados,
                     table_name="dados_dependentes",
-                    conflict_fields=["cpf", "nomeDependente"],
-                    primary_key=["cpf", "nomeDependente"],
+                    conflict_fields=["cpf", "nome"],
+                    primary_key=["cpf", "nome"],
                     schema="siape",
                 )
 
