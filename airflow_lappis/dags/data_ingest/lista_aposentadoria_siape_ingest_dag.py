@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 from datetime import datetime, timedelta
 from airflow.decorators import dag, task
@@ -31,20 +32,23 @@ def siape_lista_info_aposentadoria_dag() -> None:
         postgres_conn_str = get_postgres_conn()
         db = ClientPostgresDB(postgres_conn_str)
 
-        query = "SELECT DISTINCT cpf FROM siape.lista_servidores WHERE cpf IS NOT NULL"
-        cpfs = [row[0] for row in db.execute_query(query)]
-        logging.info(f"Total de CPFs encontrados: {len(cpfs)}")
+        query = """
+            SELECT DISTINCT cpf, matriculaSiape
+            FROM siape.lista_servidores
+            WHERE cpf IS NOT NULL AND matriculaSiape IS NOT NULL
+        """
+        registros = db.execute_query(query)
+        logging.info(f"Total de registros encontrados: {len(registros)}")
 
-        for cpf in cpfs:
+        for cpf, matricula in registros:
             try:
                 context = {
                     "siglaSistema": "PETRVS-IPEA",
                     "nomeSistema": "PDG-PETRVS-IPEA",
                     "senha": os.getenv("SIAPE_PASSWORD_USER"),
                     "cpf": cpf,
-                    "codOrgao": "45206",
-                    "parmExistPag": "b",
-                    "parmTipoVinculo": "c",
+                    "orgao": "45206",
+                    "matricula": matricula,
                 }
 
                 resposta_xml = cliente_siape.call(
@@ -74,6 +78,8 @@ def siape_lista_info_aposentadoria_dag() -> None:
             except Exception as e:
                 logging.error(f"Erro ao processar CPF {cpf}: {e}")
                 continue
+
+            time.sleep(0.1)
 
     fetch_and_store_aposentadoria_info()
 
