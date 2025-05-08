@@ -56,6 +56,8 @@ def siape_dados_financeiros_dag() -> None:
                     logging.warning(f"Nenhum dado financeiro encontrado para CPF {cpf}")
                     continue
 
+                dados["cpf"] = cpf
+
                 db.alter_table(
                     data=dados,
                     table_name="dados_financeiros",
