@@ -11,10 +11,12 @@ with
     result_table as (
         select
             pda.plano_acao,
+            emissao_dia,
             nc_transferencia,
             right(nc, 12) as nc,
             nc_fonte_recursos,
             ptres,
+            left(nc, 6) as ug_emitente,
             nc_natureza_despesa,
             nc_evento,
             nc_evento_descr,
