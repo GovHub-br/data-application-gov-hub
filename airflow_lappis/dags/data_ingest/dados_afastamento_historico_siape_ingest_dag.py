@@ -51,11 +51,16 @@ def siape_afastamento_historico_dag() -> None:
                     "codOrgao": "45206",
                     "parmExistPag": "b",
                     "parmTipoVinculo": "c",
+                    "anoInicial": "2024",
+                    "mesInicial": "01",
+                    "anoFinal": "2025",
+                    "mesFinal": "12",
                 }
 
                 resposta_xml = cliente_siape.call(
                     "consultaDadosAfastamentoHistorico.xml.j2", context
                 )
+
                 dados = ClienteSiape.parse_xml_to_list(
                     xml_string=resposta_xml,
                     element_tag="ns2:AfastamentoHistorico",
