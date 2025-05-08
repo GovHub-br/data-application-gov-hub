@@ -33,9 +33,9 @@ def siape_lista_info_aposentadoria_dag() -> None:
         db = ClientPostgresDB(postgres_conn_str)
 
         query = """
-            SELECT DISTINCT cpf, matriculaSiape
-            FROM siape.lista_servidores
-            WHERE cpf IS NOT NULL AND matriculaSiape IS NOT NULL
+            SELECT DISTINCT cpf, matriculasiape
+            FROM siape.dados_funcionais
+            WHERE cpf IS NOT NULL AND matriculasiape IS NOT NULL
         """
         registros = db.execute_query(query)
         logging.info(f"Total de registros encontrados: {len(registros)}")
