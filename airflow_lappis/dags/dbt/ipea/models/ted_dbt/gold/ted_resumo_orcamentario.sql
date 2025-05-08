@@ -4,7 +4,7 @@ with
 
     -- Valor firmado
     valor_firmado_tb as (
-        select id_plano_acao, vl_total_plano_acao as valor_firmado_tb
+        select id_plano_acao as plano_acao, vl_total_plano_acao as valor_firmado_tb
         from {{ ref("planos_acao") }}
     ),
 
@@ -12,7 +12,7 @@ with
     -- Orçamento devolvido
     valores_orcamentos_tb as (
         select
-            plano_acao as id_plano_acao,
+            plano_acao,
             sum(
                 case when nc_evento not in ('300301', '300307') then nc_valor else 0 end
             ) as orcamento_recebido,
@@ -30,7 +30,7 @@ with
     -- Utilizado/pago
     valores_empenhados_tb as (
         select
-            plano_acao as id_plano_acao,
+            plano_acao,
             sum(
                 case when despesas_empenhadas > 0 then despesas_empenhadas else 0 end
             ) as empenhado,
@@ -49,7 +49,7 @@ with
     -- Utilizado/pago
     valores_financeiro_tb as (
         select
-            plano_acao as id_plano_acao,
+            plano_acao,
             sum(
                 case when pf_acao = 'TRANSFERENCIA' then pf_valor_linha else 0 end
             ) as financeiro_recebido,
@@ -67,7 +67,7 @@ with
 -- Final
 select *
 from valor_firmado_tb
-left join valores_orcamentos_tb using (id_plano_acao)
-left join valores_empenhados_tb using (id_plano_acao)
-left join valores_financeiro_tb using (id_plano_acao)
+left join valores_orcamentos_tb using (plano_acao)
+left join valores_empenhados_tb using (plano_acao)
+left join valores_financeiro_tb using (plano_acao)
 where id_plano_acao is not null
