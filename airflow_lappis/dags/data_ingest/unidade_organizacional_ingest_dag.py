@@ -14,7 +14,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["estrutura_organizacional"],
+    tags=["estrutura_organizacional", "siorg"],
 )
 def api_unidade_organizacional_dag() -> None:
     """DAG para buscar e armazenar dados da Estrutura Organizacional

@@ -55,6 +55,7 @@ with DAG(
     schedule_interval="0 13 * * 1-6",
     start_date=datetime(2023, 12, 1),
     catchup=False,
+    tags=["email", "ncs", "tesouro"],
 ) as dag:
 
     def process_email_data_enviadas(**context: Dict[str, Any]) -> Optional[List[Dict]]:

@@ -14,7 +14,7 @@ from postgres_helpers import get_postgres_conn
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["faturas_api"],
+    tags=["faturas_api", "compras_gov"],
 )
 def api_faturas_dag() -> None:
     """DAG para buscar e armazenar faturas de uma API no PostgreSQL."""

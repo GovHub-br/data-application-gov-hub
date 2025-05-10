@@ -18,7 +18,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["contratos_api"],
+    tags=["contratos_api", "compras_gov"],
 )
 def api_contratos_dag() -> None:
     """DAG para buscar e armazenar contratos por órgão definido."""
