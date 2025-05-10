@@ -15,7 +15,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["empenhos_api"],
+    tags=["empenhos_api", "compras_gov"],
 )
 def api_empenhos_dag() -> None:
     """DAG para buscar e armazenar empenhos de uma API no PostgreSQL."""

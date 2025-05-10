@@ -1,12 +1,10 @@
 from typing import Optional, Dict, Any
-
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models import Variable
 from datetime import datetime, timedelta
 import logging
 import json
-
 from postgres_helpers import get_postgres_conn
 from cliente_email import fetch_and_process_email
 from cliente_postgres import ClientPostgresDB
@@ -54,6 +52,7 @@ with DAG(
     schedule_interval="0 13 * * 1-6",
     start_date=datetime(2023, 12, 1),
     catchup=False,
+    tags=["email", "estagios", "tesouro"],
 ) as dag:
 
     def process_email_data(**context: Dict[str, Any]) -> Optional[str]:

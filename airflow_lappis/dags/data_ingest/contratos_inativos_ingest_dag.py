@@ -17,7 +17,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["contratos_inativos_api"],
+    tags=["contratos_inativos_api", "compras_gov"],
 )
 def api_contratos_inativos_dag() -> None:
     """DAG para buscar e armazenar contratos inativos de uma API no PostgreSQL."""

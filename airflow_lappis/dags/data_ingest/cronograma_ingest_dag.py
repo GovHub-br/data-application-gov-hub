@@ -14,7 +14,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["cronogramas_api"],
+    tags=["cronogramas_api", "compras_gov"],
 )
 def api_cronogramas_dag() -> None:
     """DAG para buscar e armazenar cronogramas de uma API no PostgreSQL."""
