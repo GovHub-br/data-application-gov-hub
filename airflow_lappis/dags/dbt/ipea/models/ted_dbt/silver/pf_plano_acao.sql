@@ -3,6 +3,7 @@ with
     programacoes_financeira as (
         select
             pf,
+            pf_inscricao as num_transf,
             emissao_mes,
             emissao_dia,
             ug_emitente,
