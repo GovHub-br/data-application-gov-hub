@@ -1,8 +1,10 @@
 import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
+from airflow.models import Param
 from postgres_helpers import get_postgres_conn
 from cliente_postgres import ClientPostgresDB
+from typing import Dict
 
 
 @dag(
@@ -15,29 +17,39 @@ from cliente_postgres import ClientPostgresDB
         "retry_delay": timedelta(minutes=5),
     },
     tags=["siape", "admin", "drop"],
+    params={
+        "tabela": Param("", description="Nome da tabela a ser dropada"),
+        "schema": Param("siape", description="Schema onde está a tabela"),
+    },
 )
-def drop_siape_tabelas_dag() -> None:
+def drop_tabela_parametrizada_dag() -> None:
     """
-    DAG para remover tabelas antigas do schema siape.
-    Útil para limpar estrutura antes de reingestão.
+    DAG para remover uma tabela específica de um schema no Postgres.
+    Tabela e schema devem ser informados via parâmetros 'tabela' e 'schema'.
     """
 
     @task
-    def drop_tabelas() -> None:
-        logging.info("Iniciando remoção de tabelas antigas do schema siape")
+    def drop_tabela(params: Dict[str, str]) -> None:
+        tabela = params.get("tabela")
+        schema = params.get("schema")
+
+        if not tabela:
+            raise ValueError("Parâmetro 'tabela' não informado.")
+        if not schema:
+            raise ValueError("Parâmetro 'schema' não informado.")
+
+        logging.info(f"Iniciando remoção da tabela {schema}.{tabela}")
         conn_str = get_postgres_conn()
         db = ClientPostgresDB(conn_str)
 
-        tabelas = ["dados_funcionais", "dados_funcionais_siape"]
+        try:
+            db.drop_table_if_exists(tabela, schema=schema)
+            logging.info(f"Tabela {schema}.{tabela} removida com sucesso.")
+        except Exception as e:
+            logging.error(f"Erro ao remover tabela {schema}.{tabela}: {e}")
+            raise
 
-        for tabela in tabelas:
-            try:
-                db.drop_table_if_exists(tabela, schema="siape")
-                logging.info(f"Tabela {tabela} removida com sucesso.")
-            except Exception as e:
-                logging.error(f"Erro ao remover tabela {tabela}: {e}")
-
-    drop_tabelas()
+    drop_tabela(drop_tabela_parametrizada_dag.params)
 
 
-dag_instance = drop_siape_tabelas_dag()
+dag_instance = drop_tabela_parametrizada_dag()
