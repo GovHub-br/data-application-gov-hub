@@ -12,7 +12,7 @@ with
         select
             pda.plano_acao,
             emissao_dia,
-            nc_transferencia,
+            nc_transferencia as num_transf,
             right(nc, 12) as nc,
             nc_fonte_recursos,
             ptres,
