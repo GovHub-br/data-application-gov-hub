@@ -2,7 +2,9 @@ import logging
 import yaml
 from airflow.decorators import dag, task
 from airflow.models import Variable
+from airflow.models.param import Param
 from datetime import datetime, timedelta
+from typing import Dict, Any
 from cliente_siafi import ClienteSiafi
 from cliente_postgres import ClientPostgresDB
 from postgres_helpers import get_postgres_conn
@@ -17,11 +19,25 @@ from postgres_helpers import get_postgres_conn
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
+    params={
+        "ano_inicio": Param(
+            default=None,
+            type=["integer", "null"],
+            title="Ano de Início",
+            description="Backfill: Ano inicio para busca de notas de empenho. (type=int)",
+        ),
+        "ano_fim": Param(
+            default=None,
+            type=["integer", "null"],
+            title="Ano de Fim",
+            description="Backfill: Ano final para busca de notas de empenho. (type=int)",
+        ),
+    },
     tags=["nota_empenho", "siafi_api"],
 )
 def nota_empenho_siafi_ingest_dag() -> None:
     @task
-    def fetch_and_store_notas_empenho() -> None:
+    def fetch_and_store_notas_empenho(**context: Dict[str, Any]) -> None:
         logging.info("Iniciando fetch_and_store_notas_empenho")
 
         orgao_alvo = Variable.get("airflow_orgao", default_var=None)
@@ -41,10 +57,19 @@ def nota_empenho_siafi_ingest_dag() -> None:
         cliente = ClienteSiafi()
         postgres_conn_str = get_postgres_conn()
         db = ClientPostgresDB(postgres_conn_str)
+
+        params = context["params"]
+        ano_inicio = params.get("ano_inicio")
+        ano_fim = params.get("ano_fim")
+
         ano_atual = datetime.now().year
+        ano_inicio = ano_inicio or ano_atual
+        ano_fim = ano_fim or ano_atual
+
+        anos_consulta = list(range(ano_inicio, ano_fim + 1))
 
         for ug in ugs_emitentes:
-            for ano in range(2023, ano_atual + 1):
+            for ano in anos_consulta:
                 num_empenho = 1
                 while True:
                     num_empenho_str = str(num_empenho).zfill(6)
