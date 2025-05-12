@@ -225,8 +225,7 @@ class ClienteSiape:
             xml_string (str): SOAP XML response.
 
         Returns:
-            list[dict[str, Any]]: Lista de dependentes com campo
-            `arrayBeneficios` como sublista.
+            list[dict[str, Any]]: Lista de registros normalizados de dependentes.
         """
         ns = {
             "soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
@@ -237,21 +236,28 @@ class ClienteSiape:
         if body is None:
             return []
 
-        dependentes = []
+        resultado = []
         for item in body.findall(".//ns2:DadosDependentes", ns):
-            registro: dict[str, Any] = {}
+            base_info: dict[str, Any] = {}
+            beneficios: list[dict[str, str]] = []
+
             for elem in item:
                 tag = elem.tag.split("}")[-1]
                 if tag == "arrayBeneficios":
-                    beneficios = []
                     for b in elem:
                         beneficio = {
                             e.tag.split("}")[-1]: e.text.strip() for e in b if e.text
                         }
                         beneficios.append(beneficio)
-                    registro[tag] = beneficios
                 else:
-                    registro[tag] = elem.text.strip() if elem.text else None
-            dependentes.append(registro)
+                    base_info[tag] = elem.text.strip() if elem.text else None
 
-        return dependentes
+            if not beneficios:
+                resultado.append(base_info)
+            else:
+                for beneficio in beneficios:
+                    row = base_info.copy()
+                    row.update(beneficio)
+                    resultado.append(row)
+
+        return resultado
