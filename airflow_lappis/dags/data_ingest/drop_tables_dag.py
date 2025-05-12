@@ -19,7 +19,7 @@ from typing import Dict
     tags=["siape", "admin", "drop"],
     params={
         "tabela": Param("", description="Nome da tabela a ser dropada"),
-        "schema": Param("siape", description="Schema onde está a tabela"),
+        "schema": Param("", description="Schema onde está a tabela"),
     },
 )
 def drop_tabela_parametrizada_dag() -> None:
@@ -29,9 +29,9 @@ def drop_tabela_parametrizada_dag() -> None:
     """
 
     @task
-    def drop_tabela(params: Dict[str, str]) -> None:
-        tabela = params.get("tabela")
-        schema = params.get("schema")
+    def drop_tabela(task_params: Dict[str, str]) -> None:
+        tabela = task_params.get("tabela")
+        schema = task_params.get("schema")
 
         if not tabela:
             raise ValueError("Parâmetro 'tabela' não informado.")
@@ -49,7 +49,7 @@ def drop_tabela_parametrizada_dag() -> None:
             logging.error(f"Erro ao remover tabela {schema}.{tabela}: {e}")
             raise
 
-    drop_tabela(drop_tabela_parametrizada_dag.params)
+    drop_tabela({"tabela": "{{ params.tabela }}", "schema": "{{ params.schema }}"})
 
 
 dag_instance = drop_tabela_parametrizada_dag()
