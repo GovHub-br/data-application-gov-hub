@@ -11,6 +11,7 @@ with
             pf_evento,
             pf_evento_descricao,
             right(pf, 12) as pf,
+            pf_inscricao,
             pf_acao,
             pf_acao_descricao,
             pf_fonte_recursos,
