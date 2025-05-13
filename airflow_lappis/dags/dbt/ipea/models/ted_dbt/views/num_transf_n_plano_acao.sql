@@ -15,12 +15,22 @@ with
         where nc_transferencia != '-8'
     ),
 
-    result_table as (
+    joined as (
         select distinct num_transf, id_plano_acao as plano_acao
         from nc_siafi
         left join nc_transfere_gov using (nc, ug)
+    ),
+
+    ranked as (
+        select
+            *,
+            row_number() over (
+                partition by num_transf
+                order by case when plano_acao is not null then 1 else 2 end
+            ) as rn
+        from joined
     )
 
---
-select *
-from result_table
+select num_transf, plano_acao
+from ranked
+where rn = 1
