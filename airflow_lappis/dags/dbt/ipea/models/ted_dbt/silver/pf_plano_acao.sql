@@ -17,18 +17,26 @@ with
 
     pf_transfere_gov as (
         select
-            id_plano_acao as plano_acao,
+            tx_numero_programacao as pf,
             ug_emitente_programacao as ug_emitente,
-            tx_numero_programacao as pf
+            id_plano_acao as plano_acao
         from {{ source("transfere_gov", "programacao_financeira") }}
     ),
 
-    joined_table as (
-        select *
-        from programacoes_financeira
-        inner join pf_transfere_gov using (pf, ug_emitente)
+    joined_by_transfere_gov as (
+        select pf.*, t.plano_acao
+        from programacoes_financeira pf
+        inner join pf_transfere_gov t using (pf, ug_emitente)
+    ),
+
+    joined_by_num_transf as (
+        select pf.*, v.plano_acao
+        from programacoes_financeira pf
+        inner join {{ ref("num_transf_n_plano_acao") }} v using (num_transf)
     )
 
---
 select *
-from joined_table
+from joined_by_transfere_gov
+union
+select *
+from joined_by_num_transf
