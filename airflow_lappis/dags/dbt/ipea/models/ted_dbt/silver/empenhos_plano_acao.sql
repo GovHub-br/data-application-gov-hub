@@ -7,7 +7,7 @@ with
             (
                 regexp_match(
                     ne_ccor_descricao,
-                    '(FERENCIA|NUMERO|Nº|TED|CRICAO|TRANSF.)(\s|^|-|)([0-9]{6}|1\w{5}|[0-9]{3}\.[0-9]{3})(\s|$|\.|,|-|\/)'
+                    '(FERENCIA|NUMERO|Nº|TED|CRICAO|TRANSF.)(\s|^|-|)([0-9]{6}|1\w{5}|([0-9]{3}?:\.[0-9]{3}))(\s|$|\.|,|-|\/)'
                 )
             )[3] as num_transf,
             {{ target.schema }}.format_nc(
