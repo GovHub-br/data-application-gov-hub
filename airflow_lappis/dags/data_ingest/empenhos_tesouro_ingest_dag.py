@@ -114,6 +114,9 @@ with DAG(
                 "ne_ccor_ano_emissao",
                 "emissao_dia",
                 "emissao_mes",
+                "despesas_empenhadas",
+                "despesas_liquidadas",
+                "despesas_pagas",
             ]
 
             db.insert_data(
