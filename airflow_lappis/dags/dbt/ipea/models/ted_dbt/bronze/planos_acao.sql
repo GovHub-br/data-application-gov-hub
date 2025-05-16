@@ -5,6 +5,11 @@ with
             id_plano_acao,
             id_programa,
             sigla_unidade_descentralizada,
+            case
+                when sigla_unidade_descentralizada = 'IPEA'
+                then 'beneficiario'
+                else 'emitente'
+            end as ted_beneficiario_emitente,
             unidade_descentralizada,
             sigla_unidade_responsavel_execucao,
             unidade_responsavel_execucao,
