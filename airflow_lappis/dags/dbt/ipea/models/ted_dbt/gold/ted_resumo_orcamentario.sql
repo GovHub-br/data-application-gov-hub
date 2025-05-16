@@ -4,7 +4,11 @@ with
 
     -- Valor firmado
     valor_firmado_tb as (
-        select id_plano_acao as plano_acao, vl_total_plano_acao as valor_firmado
+        select
+            id_plano_acao as plano_acao,
+            vl_total_plano_acao as valor_firmado,
+            sigla_unidade_descentralizada,
+            ted_beneficiario_emitente
         from {{ ref("planos_acao") }}
     ),
 
@@ -80,6 +84,14 @@ with
 select
     plano_acao,
     num_transf,
+    sigla_unidade_descentralizada,
+    case
+        when ted_beneficiario_emitente = 'beneficiario'
+        then 'beneficiario'
+        when ted_beneficiario_emitente = 'emitente'
+        then 'emitente'
+        else 'nao_indicado'
+    end as ted_beneficiario_emitente,
     valor_firmado,
     orcamento_recebido,
     orcamento_devolvido,
