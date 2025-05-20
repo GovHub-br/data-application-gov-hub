@@ -19,7 +19,9 @@ with
             mes_lancamento,
             valor_empenhado,
             valor_liquidado,
-            valor_pago
+            valor_pago,
+            restos_a_pagar,
+            restos_a_pagar_pago
         from {{ ref("estagios_mensal") }}
         left join id_table_1 using (ne, cnpj_cpf)
     ),
@@ -48,7 +50,9 @@ with
             mes_lancamento,
             valor_empenhado,
             valor_liquidado,
-            valor_pago
+            valor_pago,
+            restos_a_pagar,
+            restos_a_pagar_pago
         from empenhos_restantes_1 l
         left join id_table_2 r using (cnpj_cpf, num_processo)
     ),
@@ -75,7 +79,9 @@ with
             mes_lancamento,
             valor_empenhado,
             valor_liquidado,
-            valor_pago
+            valor_pago,
+            restos_a_pagar,
+            restos_a_pagar_pago
         from empenhos_restantes_2 l
         left join id_table_3 r using (cnpj_cpf, info_complementar)
     ),
@@ -92,7 +98,15 @@ with
     )
 
 --
-select contrato_id, mes_lancamento, valor_empenhado, valor_liquidado, valor_pago
+select
+    contrato_id,
+    mes_lancamento,
+    sum(valor_empenhado) as valor_empenhado,
+    sum(valor_liquidado) as valor_liquidado,
+    sum(valor_pago) as valor_pago,
+    sum(restos_a_pagar) as restos_a_pagar,
+    sum(restos_a_pagar_pago) as restos_a_pagar_pago
 from result_table
 where contrato_id is not null
+group by 1, 2
 order by contrato_id, mes_lancamento
