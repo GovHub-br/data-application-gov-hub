@@ -97,7 +97,7 @@ with
             valor_liquidado,
             valor_pago,
             case
-                when ano_efetivo > ano_lancamento
+                when ano_efetivo = ano_lancamento
                 then restos_a_pagar
                 else - restos_a_pagar
             end as restos_a_pagar,

@@ -17,7 +17,9 @@ with
             c.saldo_contratual_disponivel as comprasgov_saldo_contratual_disponivel,
             s.valor_empenhado as siafi_valor_empenhado,
             s.valor_liquidado as siafi_valor_liquidado,
-            s.valor_pago as siafi_valor_pago
+            s.valor_pago as siafi_valor_pago,
+            s.restos_a_pagar as siafi_restos_a_pagar,
+            s.restos_a_pagar_pago as siafi_restos_a_pagar_pago
         from compras_gov_data as c
         full join siafi_data as s using (contrato_id, mes_ref)
 
@@ -34,6 +36,8 @@ select
     comprasgov_saldo_contratual_disponivel,
     siafi_valor_empenhado,
     siafi_valor_liquidado,
-    siafi_valor_pago
+    siafi_valor_pago,
+    siafi_restos_a_pagar,
+    siafi_restos_a_pagar_pago
 from partial_result
 full join preenchimento using (contrato_id, mes_ref)
