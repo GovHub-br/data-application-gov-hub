@@ -377,3 +377,16 @@ class ClientPostgresDB:
                 f"Erro ao remover duplicados ou otimizar {schema}.{table_name}: {str(e)}"
             )
             raise
+
+    def get_codigo_unidade(self) -> list[int]:
+        """Retorna o código da unidade da tabela unidade_organizacional."""
+        query = (
+            "SELECT regexp_replace(codigounidade, '.*/', '') "
+            "FROM siorg.unidade_organizacional"
+        )
+
+        with psycopg2.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                codigo_unidade = [int(row[0]) for row in cursor.fetchall()]
+                return codigo_unidade

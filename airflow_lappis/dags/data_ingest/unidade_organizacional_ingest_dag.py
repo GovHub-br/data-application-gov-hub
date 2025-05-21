@@ -2,7 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from postgres_helpers import get_postgres_conn
-from cliente_estrutura import ClienteEstrutura
+from cliente_siorg import ClienteSiorg
 from cliente_postgres import ClientPostgresDB
 
 
@@ -26,7 +26,7 @@ def api_unidade_organizacional_dag() -> None:
             "[unidade_organizacional_ingest_dag.py] "
             "Starting fetch_estrutura_organizacional_resumida task"
         )
-        api = ClienteEstrutura()
+        api = ClienteSiorg()
         postgres_conn_str = get_postgres_conn()
         db = ClientPostgresDB(postgres_conn_str)
 
