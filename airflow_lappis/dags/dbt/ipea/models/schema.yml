@@ -1219,6 +1219,91 @@ models:
         description: >
           Nome do país de origem (para estrangeiros).
         data_type: varchar
+    
+  - name: dados_pa
+    description: >
+      Tabela bronze contendo dados de beneficiários de pensões e informações relacionadas,
+      após limpeza básica e padronização de formatos a partir da fonte bruta.
+
+    columns:
+      - name: agencia_beneficiario
+        description: >
+          Código da agência bancária do beneficiário, contendo apenas dígitos.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: banco_beneficiario
+        description: >
+          Código do banco do beneficiário.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: cod_orgao
+        description: >
+          Código do órgão pagador.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: conta_beneficiario
+        description: >
+          Número da conta bancária do beneficiário, limpo e padronizado para maiúsculas
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: cpf_beneficiario
+        description: >
+          CPF do beneficiário, contendo apenas dígitos.
+          Pode ter comprimento variável se a fonte não for padronizada para 11 dígitos.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: matricula_servidor
+        description: >
+          Matrícula do servidor ao qual a pensão está vinculada.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: nome_beneficiario
+        description: >
+          Nome completo do beneficiário da pensão.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: valor_ultima_pensao
+        description: >
+          Valor da última pensão registrada, como string.
+        data_type: varchar
+
+      - name: cpf_servidor
+        description: >
+          CPF do servidor ao qual a pensão está vinculada, contendo apenas os 11 dígitos.
+        data_type: varchar(11)
+        # tests:
+        #   - not_null
+        #   - dbt_utils.equal_length:
+        #       value: 11
+
+      - name: cod_vinculo_servidor
+        description: >
+          Código do tipo de vínculo do alimentado com o servidor.
+        data_type: varchar
+
+      - name: nome_alimentado
+        description: >
+          Nome da pessoa alimentada (dependente/beneficiário da pensão, se diferente do beneficiário principal).
+        data_type: varchar
+
+      - name: nome_vinculo_servidor
+        description: >
+          Nome descritivo do tipo de vínculo do alimentado com o servidor (ex: FILHO(A), EX-CONJUGE).
+        data_type: varchar
 
   # Pessoas DBT
 

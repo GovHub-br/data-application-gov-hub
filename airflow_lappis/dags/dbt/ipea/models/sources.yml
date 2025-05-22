@@ -31,4 +31,5 @@ sources:
       - name: lista_servidores
       - name: dados_uorg
       - name: dados_pessoais
+      - name: dados_pa
 
