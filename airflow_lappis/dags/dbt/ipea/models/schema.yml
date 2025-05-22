@@ -944,19 +944,154 @@ models:
 
   # SIAPE DBT
   ## Bronze 
-  - name: uorgs 
+  - name: lista_uorgs 
     description: >
       Modelo bronze para dados de uorg. Inclui limpeza básica, tipagem, transformação de datas
     columns:
       - name: codigo 
         description: >
           codigo da uorg
-      - name: dataultimatransacao
+      - name: dt_ultima_transacao
         description: >
           data da última transação
       - name: nome
         description: >
+          nome
+
+  - name: lista_servidores 
+    description: >
+      Modelo bronze para dados de servidores. Inclui limpeza básica, tipagem, transformação de datas
+    columns:
+      - name: cod_uorg 
+        description: >
+          codigo da uorg
+      - name: dt_ultima_transacao
+        description: >
           data da última transação
+      - name: cpf
+        description: >
+          registro pessoa física
+
+  - name: dados_uorg 
+    description: >
+      Tabela bronze contendo dados de Unidades Organizacionais (UORG),
+      após limpeza básica, padronização de tipos e formatos a partir da fonte bruta.
+      Esta tabela serve como uma representação fiel e limpa dos dados de origem.
+    columns:
+      - name: bairro_uorg
+        description: >
+          Bairro do endereço da UORG.
+        data_type: varchar
+
+      - name: cep_uorg
+        description: >
+          CEP (Código de Endereçamento Postal) da UORG,
+          contendo apenas dígitos (limpo).
+        data_type: varchar(8)
+        # tests:
+        #   - dbt_utils.equal_length:
+        #       value: 8
+        #       config:
+        #         severity: warn
+
+      - name: codigo_matricula
+        description: >
+          Código de matrícula associado à UORG.
+          Pode conter zeros à esquerda ou ser alfanumérico.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: codigo_municipio_uorg
+        description: >
+          Código do município da UORG.
+        data_type: varchar
+
+      - name: codigo_orgao
+        description: >
+          Código do órgão ao qual a UORG pertence.
+        data_type: varchar
+
+      - name: codigo_orgao_uorg
+        description: >
+          Código identificador único da UORG dentro do órgão.
+        data_type: varchar
+        # tests:
+        #   - not_null
+        #   - unique
+
+      - name: email_uorg
+        description: >
+          Endereço de e-mail da UORG, padronizado para minúsculas.
+        data_type: varchar
+        # tests:
+        #   - dbt_utils.expression_is_true:
+        #       expression: > # Exemplo de como aplicar em expressões também
+        #         email_uorg LIKE '%@%.%'
+        #       config:
+        #         severity: warn
+
+      - name: tipo_endereco_uorg
+        description: >
+          Tipo ou descrição principal do endereço da UORG (ex: ENDERECO PRINCIPAL).
+        data_type: varchar
+
+      - name: logradouro_uorg
+        description: >
+          Logradouro (rua, avenida, etc.) do endereço da UORG.
+        data_type: varchar
+
+      - name: nome_municipio_uorg
+        description: >
+          Nome do município onde a UORG está localizada.
+        data_type: varchar
+
+      - name: nome_uorg
+        description: >
+          Nome completo da Unidade Organizacional (UORG).
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: telefone_uorg
+        description: >
+          Número de telefone da UORG, contendo apenas dígitos (limpo).
+        data_type: varchar
+
+      - name: numero_endereco_uorg
+        description: >
+          Número do endereço da UORG. Pode conter 'S/N' para 'Sem Número'.
+        data_type: varchar
+
+      - name: sigla_uorg
+        description: >
+          Sigla ou nome curto da UORG.
+        data_type: varchar
+
+      - name: uf_uorg
+        description: >
+          Sigla da Unidade Federativa (Estado) da UORG, padronizada para maiúsculas.
+        data_type: varchar(2)
+
+      - name: cpf
+        description: >
+          CPF associado à UORG, contendo apenas os 11 dígitos (limpo).
+        data_type: varchar(11)
+        # tests:
+          # - dbt_utils.equal_length:
+          #     value: 11
+          #     config:
+          #       severity: warn
+
+      - name: complemento_endereco_uorg
+        description: >
+          Complemento do endereço da UORG (ex: Sala, Bloco, Apartamento).
+        data_type: varchar
+
+      - name: fax_uorg
+        description: >
+          Número de fax da UORG, contendo apenas dígitos (limpo).
+        data_type: varchar
 
   # Pessoas DBT
 

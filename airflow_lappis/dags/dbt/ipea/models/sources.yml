@@ -28,4 +28,6 @@ sources:
     schema: siape 
     tables:
       - name: lista_uorgs 
+      - name: lista_servidores
+      - name: dados_uorg
 
