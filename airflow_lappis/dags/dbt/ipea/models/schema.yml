@@ -942,6 +942,21 @@ models:
         description: >
           Número da nota de empenho relacionada ao contrato, combinando informações de contratos, empenhos e faturas.
 
+  # SIAPE DBT
+  ## Bronze 
+  - name: uorgs 
+    description: >
+      Modelo bronze para dados de uorg. Inclui limpeza básica, tipagem, transformação de datas
+    columns:
+      - name: codigo 
+        description: >
+          codigo da uorg
+      - name: dataultimatransacao
+        description: >
+          data da última transação
+      - name: nome
+        description: >
+          data da última transação
 
   # Pessoas DBT
 

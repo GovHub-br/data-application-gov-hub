@@ -24,4 +24,8 @@ sources:
       - name: planos_acao
       - name: programacao_financeira
       - name: programas
+  - name: siape 
+    schema: siape 
+    tables:
+      - name: lista_uorgs 
 

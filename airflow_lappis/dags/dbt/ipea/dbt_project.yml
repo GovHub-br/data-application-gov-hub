@@ -37,6 +37,11 @@ models:
       +schema: ted
       views:
         +materialized: view
+    siape_dbt: 
+      +materialized: table 
+      +schema: siape 
+      views:
+        +materialized: view
 
 on-run-start:
   - '{{create_udfs()}}'
