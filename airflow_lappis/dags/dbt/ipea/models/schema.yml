@@ -1093,6 +1093,133 @@ models:
           Número de fax da UORG, contendo apenas dígitos (limpo).
         data_type: varchar
 
+  - name: dados_pessoais
+    description: >
+      Tabela bronze contendo dados pessoais de indivíduos, após limpeza básica,
+      padronização de tipos e formatos a partir da fonte bruta.
+    columns:
+      - name: cod_cor
+        description: >
+          Código da cor/raça do indivíduo.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: cod_estado_civil
+        description: >
+          Código do estado civil do indivíduo.
+        data_type: varchar
+
+      - name: cod_nacionalidade
+        description: >
+          Código da nacionalidade do indivíduo.
+        data_type: varchar
+
+      - name: cod_sexo
+        description: >
+          Código do sexo do indivíduo (ex: M, F).
+        data_type: varchar(1) 
+
+      - name: dt_nascimento
+        description: >
+          Data de nascimento do indivíduo, convertida para o tipo DATE.
+        data_type: date
+        # tests:
+        #   - not_null
+
+      - name: grupo_sanguineo
+        description: >
+          Grupo sanguíneo e fator RH do indivíduo (ex: A +, O -).
+        data_type: varchar
+
+      - name: nome_pessoa
+        description: >
+          Nome completo do indivíduo.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: nome_cor
+        description: >
+          Nome descritivo da cor/raça do indivíduo.
+        data_type: varchar
+
+      - name: nome_estado_civil
+        description: >
+          Nome descritivo do estado civil do indivíduo.
+        data_type: varchar
+
+      - name: nome_mae
+        description: >
+          Nome completo da mãe do indivíduo.
+        data_type: varchar
+
+      - name: nome_municipio_nascimento
+        description: >
+          Nome do município de nascimento do indivíduo.
+        data_type: varchar
+
+      - name: nome_nacionalidade
+        description: >
+          Nome descritivo da nacionalidade do indivíduo (ex: BRASILEIRO NATO).
+        data_type: varchar
+
+      - name: nome_pai
+        description: >
+          Nome completo do pai do indivíduo. 'NAO DECLARADO' é convertido para NULL.
+        data_type: varchar
+
+      - name: nome_sexo
+        description: >
+          Nome descritivo do sexo do indivíduo (ex: MASCULINO, FEMININO).
+        data_type: varchar
+
+      - name: num_pispasep
+        description: >
+          Número do PIS/PASEP do indivíduo, contendo apenas dígitos.
+        data_type: varchar # Para preservar zeros à esquerda e pelo tamanho
+        # tests:
+        #   - dbt_utils.equal_length:
+        #       value: 11 # PIS/PASEP tem 11 dígitos
+
+      - name: uf_nascimento
+        description: >
+          Sigla da Unidade Federativa (Estado) de nascimento, padronizada para maiúsculas.
+        data_type: varchar(2)
+        # tests:
+        #   - dbt_utils.equal_length:
+        #       value: 2
+
+      - name: cpf
+        description: >
+          CPF do indivíduo, contendo apenas os 11 dígitos.
+        data_type: varchar(11)
+        # tests:
+        #   - not_null
+        #   - unique
+        #   - dbt_utils.equal_length:
+        #       value: 11
+
+      - name: cod_deficiencia_fisica
+        description: >
+          Código da deficiência física, se houver.
+        data_type: varchar
+
+      - name: nome_deficiencia_fisica
+        description: >
+          Nome da deficiência física, se houver.
+        data_type: varchar
+
+      - name: dt_chegada_brasil
+        description: >
+          Data de chegada ao Brasil (para estrangeiros), convertida para o tipo DATE.
+        data_type: date
+
+      - name: nome_pais_origem
+        description: >
+          Nome do país de origem (para estrangeiros).
+        data_type: varchar
+
   # Pessoas DBT
 
   # TED DBT
