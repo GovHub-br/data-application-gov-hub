@@ -1,5 +1,7 @@
+
+
 SELECT
     cast(codigo AS INT) AS codigo,
-    dataultimatransacao,
+    TO_DATE(dataultimatransacao, 'DDMMYYYY') AS dataultimatransacao,
     nome
 FROM {{ source('siape', 'lista_uorgs') }}
