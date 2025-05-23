@@ -25,3 +25,9 @@ sources:
       - name: programacao_financeira
       - name: programas
 
+  - name: siorg
+    schema: siorg
+    tables:
+      - name: estrutura_organizacional_cargos
+      - name: cargos_funcao
+      - name: unidade_organizacional
