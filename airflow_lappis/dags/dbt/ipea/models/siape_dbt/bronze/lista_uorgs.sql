@@ -1,10 +1,11 @@
+with
+    lista_uorgs as (
+        select
+            cast(codigo as int) as codigo,
+            to_date(dataultimatransacao, 'DDMMYYYY') as dt_ultima_transacao,
+            nome
+        from {{ source("siape", "lista_uorgs") }}
+    )
 
-WITH lista_uorgs AS (
-    SELECT
-        cast(codigo AS INT) AS codigo,
-        TO_DATE(dataultimatransacao, 'DDMMYYYY') AS dt_ultima_transacao,
-        nome
-    FROM {{ source('siape', 'lista_uorgs') }}
-)
-
-SELECT * FROM lista_uorgs
+select *
+from lista_uorgs

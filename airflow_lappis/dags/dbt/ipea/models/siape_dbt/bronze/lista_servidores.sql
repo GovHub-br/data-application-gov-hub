@@ -1,9 +1,11 @@
-WITH lista_servidores AS (
-	SELECT
-		cpf,
-		TO_DATE(dataultimatransacao, 'DDMMYYYY') AS dt_ultima_transacao,
-		coduorg AS cod_uorg
-	FROM {{ source('siape', 'lista_servidores') }}
-)
+with
+    lista_servidores as (
+        select
+            cpf,
+            to_date(dataultimatransacao, 'DDMMYYYY') as dt_ultima_transacao,
+            coduorg as cod_uorg
+        from {{ source("siape", "lista_servidores") }}
+    )
 
-SELECT * FROM lista_servidores
+select *
+from lista_servidores
