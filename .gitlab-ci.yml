@@ -6,7 +6,7 @@ variables:
   POETRY_HOME: "/opt/poetry"
   POETRY_VERSION: "1.8.5"
   POETRY_VIRTUALENVS_IN_PROJECT: "true"
-  POETRY_CACHE_DIR: "$CI_PROJECT_DIR/.cache/poetry"
+  POETRY_CACHE_DIR: "/tmp/poetry-cache"
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   DBT_PROJECT_DIR: "${CI_PROJECT_DIR}/plugins/dbt"
   GIT_CI_USER: "ci bot"
@@ -16,7 +16,7 @@ variables:
 
 cache:
   paths:
-    - .cache/poetry
+    # - .cache/poetry
     - .cache/pip
     - .venv
     - .cache/docker
@@ -61,7 +61,7 @@ scan:
   stage: test
   image: sonarsource/sonar-scanner-cli:latest
   script:
-    - sonar-scanner -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORG -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
+    - sonar-scanner -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORG -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN -Dsonar.exclusions=**/.cache/poetry/**/*,**/.venv/**/*,**/.cache/pip/**/*
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - changes:
