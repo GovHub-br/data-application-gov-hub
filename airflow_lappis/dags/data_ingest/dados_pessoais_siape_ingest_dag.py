@@ -37,6 +37,8 @@ def siape_dados_pessoais_dag() -> None:
 
         for cpf in cpfs:
             try:
+                logging.info(f"Processando CPF: {cpf}")
+
                 context = {
                     "siglaSistema": "PETRVS-IPEA",
                     "nomeSistema": "PDG-PETRVS-IPEA",
@@ -48,13 +50,17 @@ def siape_dados_pessoais_dag() -> None:
                 }
 
                 resposta_xml = cliente_siape.call("consultaDadosPessoais.xml.j2", context)
+                logging.debug(f"XML bruto para CPF {cpf}:\n{resposta_xml}")
+
                 dados = ClienteSiape.parse_xml_to_dict(resposta_xml)
+                logging.debug(f"Dados parseados para CPF {cpf}: {dados}")
 
                 if not dados:
                     logging.warning(f"Nenhum dado pessoal encontrado para CPF {cpf}")
                     continue
 
                 dados["cpf"] = cpf
+                logging.info(f"Dados finais prontos para inserção: {dados}")
 
                 db.alter_table(
                     data=dados,
@@ -70,10 +76,10 @@ def siape_dados_pessoais_dag() -> None:
                     schema="siape",
                 )
 
-                logging.info(f"Dado pessoal inserido para CPF {cpf}")
+                logging.info(f"Dado pessoal inserido com sucesso para CPF {cpf}")
 
             except Exception as e:
-                logging.error(f"Erro ao processar CPF {cpf}: {e}")
+                logging.error(f"Erro ao processar CPF {cpf}: {e}", exc_info=True)
                 continue
 
     fetch_and_store_dados_pessoais()
