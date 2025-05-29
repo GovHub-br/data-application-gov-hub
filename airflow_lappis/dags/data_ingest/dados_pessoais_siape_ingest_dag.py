@@ -70,7 +70,7 @@ def siape_dados_pessoais_dag() -> None:
         END
         $$;
         """
-        db.execute_query(ddl)
+        db.execute_non_query(ddl)
         logging.info("Estrutura da tabela verificada/criada com sucesso.")
 
         # --- Continua fluxo normal ---

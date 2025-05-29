@@ -390,3 +390,23 @@ class ClientPostgresDB:
                 cursor.execute(query)
                 codigo_unidade = [int(row[0]) for row in cursor.fetchall()]
                 return codigo_unidade
+
+    def execute_non_query(self, query: str) -> None:
+        """
+        Executa uma query que não retorna resultados (como DDL ou blocos DO $$).
+
+        Args:
+            query (str): Comando SQL que não retorna resultados.
+        """
+        logging.info(f"[cliente_postgres.py] Executando non-query: {query}")
+        with psycopg2.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                try:
+                    cursor.execute(query)
+                    conn.commit()
+                    logging.info("[cliente_postgres.py] Non-query executado com sucesso")
+                except psycopg2.Error as e:
+                    logging.error(
+                        f"[cliente_postgres.py] Erro ao executar non-query. Erro: {e}"
+                    )
+                    raise RuntimeError("Erro ao executar comando SQL sem retorno") from e
