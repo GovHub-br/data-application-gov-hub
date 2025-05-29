@@ -31,6 +31,49 @@ def siape_dados_pessoais_dag() -> None:
         postgres_conn_str = get_postgres_conn()
         db = ClientPostgresDB(postgres_conn_str)
 
+        # --- Garantia de schema, tabela e PRIMARY KEY ---
+        logging.info("Verificando existência da tabela e constraint PRIMARY KEY")
+        ddl = """
+        DO $$
+        BEGIN
+            -- Cria schema se não existir
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.schemata WHERE schema_name = 'siape'
+            ) THEN
+                EXECUTE 'CREATE SCHEMA siape';
+            END IF;
+
+            -- Cria tabela se não existir
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = 'siape' AND table_name = 'dados_pessoais'
+            ) THEN
+                EXECUTE '
+                    CREATE TABLE siape.dados_pessoais (
+                        cpf TEXT PRIMARY KEY -- Define cpf como PK já na criação
+                    )
+                ';
+            END IF;
+
+            -- Adiciona PK se a tabela existe mas ainda não tem
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.table_constraints
+                WHERE table_schema = 'siape'
+                AND table_name = 'dados_pessoais'
+                AND constraint_type = 'PRIMARY KEY'
+            ) THEN
+                EXECUTE (
+                    'ALTER TABLE siape.dados_pessoais ADD CONSTRAINT dados_pessoais_pkey '
+                    'PRIMARY KEY (cpf)'
+                );
+            END IF;
+        END
+        $$;
+        """
+        db.execute_query(ddl)
+        logging.info("Estrutura da tabela verificada/criada com sucesso.")
+
+        # --- Continua fluxo normal ---
         query = "SELECT DISTINCT cpf FROM siape.lista_servidores WHERE cpf IS NOT NULL"
         cpfs = [row[0] for row in db.execute_query(query)]
         logging.info(f"Total de CPFs encontrados: {len(cpfs)}")
