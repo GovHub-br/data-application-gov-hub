@@ -31,12 +31,49 @@ def siape_dados_pa_dag() -> None:
         postgres_conn_str = get_postgres_conn()
         db = ClientPostgresDB(postgres_conn_str)
 
+        # Garante que schema, tabela e chave primária existam
+        ddl = """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.schemata WHERE schema_name = 'siape'
+            ) THEN
+                EXECUTE 'CREATE SCHEMA siape';
+            END IF;
+
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = 'siape' AND table_name = 'dados_pa'
+            ) THEN
+                EXECUTE '
+                    CREATE TABLE siape.dados_pa (
+                        cpf TEXT PRIMARY KEY
+                    )
+                ';
+            END IF;
+
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.table_constraints
+                WHERE table_schema = 'siape'
+                AND table_name = 'dados_pa'
+                AND constraint_type = 'PRIMARY KEY'
+            ) THEN
+                EXECUTE 'ALTER TABLE siape.dados_pa ADD CONSTRAINT dados_pa_pkey ' ||
+                    'PRIMARY KEY (cpf)';
+            END IF;
+        END
+        $$;
+        """
+        db.execute_non_query(ddl)  # Assumindo que esse método executa sem fetch
+        logging.info("Estrutura da tabela verificada/criada com sucesso.")
+
         query = "SELECT DISTINCT cpf FROM siape.lista_servidores WHERE cpf IS NOT NULL"
         cpfs = [row[0] for row in db.execute_query(query)]
         logging.info(f"Total de CPFs encontrados: {len(cpfs)}")
 
         for cpf in cpfs:
             try:
+                logging.info(f"Processando CPF: {cpf}")
                 context = {
                     "siglaSistema": "PETRVS-IPEA",
                     "nomeSistema": "PDG-PETRVS-IPEA",
@@ -73,7 +110,7 @@ def siape_dados_pa_dag() -> None:
                 logging.info(f"Plano de atuação inserido para CPF {cpf}")
 
             except Exception as e:
-                logging.error(f"Erro ao processar CPF {cpf}: {e}")
+                logging.error(f"Erro ao processar CPF {cpf}: {e}", exc_info=True)
                 continue
 
     fetch_and_store_dados_pa()
