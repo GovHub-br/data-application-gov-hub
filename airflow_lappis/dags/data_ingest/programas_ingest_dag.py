@@ -1,5 +1,6 @@
 import logging
 from airflow.decorators import dag, task
+from airflow.models import Variable
 from datetime import datetime, timedelta
 from postgres_helpers import get_postgres_conn
 from cliente_ted import ClienteTed
@@ -53,7 +54,32 @@ def api_programas_dag() -> None:
 
         logging.info(f"Completed processing {total_processed} programs")
 
+    @task
+    def fetch_and_update_programas_by_sigla() -> None:
+        logging.info("Starting fetch_and_update_programas_by_sigla - IPEA")
+        api = ClienteTed()
+        postgres_conn_str = get_postgres_conn()
+        db = ClientPostgresDB(postgres_conn_str)
+        sigla = Variable.get("airflow_orgao", default_var="IPEA").upper()
+        programas_data = api.get_programas_by_sigla_unidade_descentralizadora(sigla)
+        if programas_data and len(programas_data) > 0:
+            for programa in programas_data:
+                db.alter_table(programa, "programas", schema="transfere_gov")
+            db.insert_data(
+                programas_data,
+                "programas",
+                primary_key=["id_programa"],
+                conflict_fields=["id_programa"],
+                schema="transfere_gov",
+            )
+            logging.info(f"Inserted/updated {len(programas_data)} programas for IPEA")
+        else:
+            logging.warning(
+                "No programas data found for sigla_unidade_descentralizadora=IPEA"
+            )
+
     fetch_and_update_programas()
+    fetch_and_update_programas_by_sigla()
 
 
 dag_instance = api_programas_dag()

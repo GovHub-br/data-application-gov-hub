@@ -133,3 +133,22 @@ class ClienteTed(ClienteBase):
                 f"{id_programa} with status: {status}"
             )
             return None
+
+    def get_programas_by_sigla_unidade_descentralizadora(self, sigla: str) -> list | None:
+        endpoint = f"programa?sigla_unidade_descentralizadora=eq.{sigla}"
+        logging.info(f"Fetching programas for sigla_unidade_descentralizadora: {sigla}")
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER
+        )
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            logging.info(
+                f"Successfully fetched programas for sigla_unidade_descentralizadora: "
+                f"{sigla}"
+            )
+            return data
+        else:
+            logging.warning(
+                f"Failed to fetch programas for sigla_unidade_descentralizadora: "
+                f"{sigla} with status: {status}"
+            )
+            return None
