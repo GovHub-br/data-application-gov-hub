@@ -159,3 +159,33 @@ class ClienteContratos(ClienteBase):
                 f"{contrato_id} with status: {status}"
             )
             return None
+
+    def get_terceirizados_by_contrato_id(self, contrato_id: str) -> list | None:
+        """
+        Obter todos os terceirizados de um contrato específico.
+
+        Args:
+            contrato_id (str): id do contrato
+
+        Returns:
+            list: os terceirizados de um contrato específico.
+        """
+        endpoint = f"/contrato/{contrato_id}/terceirizados"
+        logging.info(
+            f"[cliente_contratos.py] Fetching terceirizados for contrato: {contrato_id}"
+        )
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER
+        )
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            logging.info(
+                "[cliente_contratos.py] Successfully fetched terceirizados for contrato: "
+                f"{contrato_id}"
+            )
+            return data
+        else:
+            logging.warning(
+                "[cliente_contratos.py] Failed to fetch terceirizados for contrato ID: "
+                f"{contrato_id} with status: {status}"
+            )
+            return None

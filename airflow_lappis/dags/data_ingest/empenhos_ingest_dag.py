@@ -18,7 +18,7 @@ from cliente_postgres import ClientPostgresDB
     tags=["empenhos_api", "compras_gov"],
 )
 def api_empenhos_dag() -> None:
-    """DAG para buscar e armazenar empenhos de uma API no PostgreSQL."""
+    """DAG para buscar e armazenar dados de empenhos de uma API."""
 
     @task
     def fetch_empenhos() -> None:
