@@ -47,7 +47,7 @@ def siape_dados_pa_dag() -> None:
             ) THEN
                 EXECUTE '
                     CREATE TABLE siape.dados_pa (
-                        cpf TEXT PRIMARY KEY
+                        cpf_servidor TEXT PRIMARY KEY
                     )
                 ';
             END IF;
@@ -59,7 +59,7 @@ def siape_dados_pa_dag() -> None:
                 AND constraint_type = 'PRIMARY KEY'
             ) THEN
                 EXECUTE 'ALTER TABLE siape.dados_pa ADD CONSTRAINT dados_pa_pkey ' ||
-                    'PRIMARY KEY (cpf)';
+                    'PRIMARY KEY (cpf_servidor)';
             END IF;
         END
         $$;
