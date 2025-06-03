@@ -55,6 +55,10 @@ def siape_lista_uorgs_dag() -> None:
             logging.warning("Nenhum dado retornado da API listaUorgs")
             return
 
+        for item in dados_lista:
+            if "dataultimatransacao" in item:
+                item["dt_ultima_transacao"] = item.pop("dataultimatransacao")
+
         postgres_conn_str = get_postgres_conn()
         db = ClientPostgresDB(postgres_conn_str)
 
