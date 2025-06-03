@@ -91,7 +91,7 @@ def siape_dados_pa_dag() -> None:
                     logging.warning(f"Nenhum dado PA encontrado para CPF {cpf}")
                     continue
 
-                dados["cpf"] = cpf
+                dados["cpf_servidor"] = cpf
 
                 db.alter_table(
                     data=dados,
@@ -102,8 +102,8 @@ def siape_dados_pa_dag() -> None:
                 db.insert_data(
                     [dados],
                     table_name="dados_pa",
-                    conflict_fields=["cpf"],
-                    primary_key=["cpf"],
+                    conflict_fields=["cpf_servidor"],
+                    primary_key=["cpf_servidor"],
                     schema="siape",
                 )
 
