@@ -74,6 +74,24 @@ def siape_lista_uorgs_dag() -> None:
 
         logging.info("Inserindo dados no banco de dados")
 
+        ddl = """
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.table_constraints
+                WHERE table_schema = 'siape'
+                AND table_name = 'lista_uorgs'
+                AND constraint_type = 'PRIMARY KEY'
+            ) THEN
+                ALTER TABLE siape.lista_uorgs
+                ADD CONSTRAINT lista_uorgs_pkey
+                PRIMARY KEY (codigo);
+            END IF;
+        END
+        $$;
+        """
+        db.execute_non_query(ddl)
+
         db.insert_data(
             dados_lista,
             table_name="lista_uorgs",
