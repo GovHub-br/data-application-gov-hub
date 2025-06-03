@@ -1,7 +1,8 @@
 import os
 import logging
+from datetime import datetime
 from airflow.decorators import dag, task
-from datetime import datetime, timedelta
+from datetime import timedelta
 from postgres_helpers import get_postgres_conn
 from cliente_siape import ClienteSiape
 from cliente_postgres import ClientPostgresDB
@@ -40,7 +41,6 @@ def siape_lista_uorgs_dag() -> None:
 
         resposta_xml = cliente_siape.call("listaUorgs.xml.j2", context)
 
-        # Define os namespaces e o elemento que queremos extrair
         ns = {
             "soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
             "ns1": "http://servico.wssiapenet",
@@ -57,7 +57,17 @@ def siape_lista_uorgs_dag() -> None:
 
         for item in dados_lista:
             if "dataUltimaTransacao" in item:
-                item["dt_ultima_transacao"] = item.pop("dataUltimaTransacao")
+                valor_bruto = item.pop("dataUltimaTransacao")
+                try:
+                    if valor_bruto and valor_bruto.isdigit() and len(valor_bruto) == 8:
+                        item["dt_ultima_transacao"] = (
+                            datetime.strptime(valor_bruto, "%d%m%Y").date().isoformat()
+                        )
+                    else:
+                        item["dt_ultima_transacao"] = None
+                except Exception as e:
+                    logging.warning(f"Erro ao converter data: {valor_bruto} - {e}")
+                    item["dt_ultima_transacao"] = None
 
         postgres_conn_str = get_postgres_conn()
         db = ClientPostgresDB(postgres_conn_str)
