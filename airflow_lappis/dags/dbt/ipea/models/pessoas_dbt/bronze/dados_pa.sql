@@ -9,29 +9,6 @@ with
             matricula,
             nomebeneficiario,
             valorultimapensao,
-            cpf,
-            codvinculoservidor,
-            nomealimentado,
-            nomevinculoservidor
-        from {{ source("siape", "dados_pa") }}
-    )
-
-    << <<
-    << < head
-    == ==
-    == =
-
-with
-    dados_pa as (
-        select
-            agenciabeneficiario,
-            bancobeneficiario,
-            codorgao,
-            contabeneficiario,
-            cpfbeneficiario,
-            matricula,
-            nomebeneficiario,
-            valorultimapensao,
             cpf_servidor,
             codvinculoservidor,
             nomealimentado,
@@ -39,8 +16,6 @@ with
         from {{ source("siape", "dados_pa") }}
     )
 
-    >> >>
-    >> > 2884731 (changed tenant siape dbt to pessoas dbt)
 select
     regexp_replace(
         nullif(trim(agenciabeneficiario), ''), '[^0-9]', '', 'g'
@@ -56,11 +31,7 @@ select
     nullif(trim(matricula), '') as matricula_servidor,
     nullif(trim(nomebeneficiario), '') as nome_beneficiario,
     nullif(trim(valorultimapensao), '') as valor_ultima_pensao,
-    << << << < head
-    regexp_replace(nullif(trim(cpf), ''), '[^0-9]', '', 'g') as cpf_servidor,
-    == == == =
     regexp_replace(nullif(trim(cpf_servidor), ''), '[^0-9]', '', 'g') as cpf_servidor,
-    >> >> >> > 2884731 (changed tenant siape dbt to pessoas dbt)
     nullif(trim(codvinculoservidor), '') as cod_vinculo_servidor,
     nullif(trim(nomealimentado), '') as nome_alimentado,
     nullif(trim(nomevinculoservidor), '') as nome_vinculo_servidor
