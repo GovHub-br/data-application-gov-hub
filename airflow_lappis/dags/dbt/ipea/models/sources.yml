@@ -32,6 +32,13 @@ sources:
       - name: dados_uorg
       - name: dados_pessoais
       - name: dados_pa
+      - name: dados_funcionais
+      - name: dados_financeiros
+      - name: dados_escolares
+      - name: dados_dependentes
+      - name: dados_curriculo
+      - name: dados_afastamento
+      - name: afastamento_historico
 
   - name: siorg
     schema: siorg

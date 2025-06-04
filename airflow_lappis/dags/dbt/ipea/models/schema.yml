@@ -788,6 +788,417 @@ models:
         description: >
           Diferença entre o valor programado no cronograma e a soma dos valores faturados (pagos e pendentes).
 
+  #Siape
+  - name: servidores_detalhados
+    description: >
+      Esta tabela consolida informações detalhadas sobre os servidores, combinando dados pessoais, funcionais,
+      educacionais (uma das formações ou todas, dependendo da cardinalidade da junção com dados_escolares), 
+      informações da última transação e detalhes da UORG associada ao servidor.
+      Serve como uma base rica para análises e relatórios sobre o quadro de pessoal.
+    columns:
+      - name: cpf
+        description: >
+          CPF do servidor, utilizado como chave primária para junção de dados.
+      - name: nome_pessoa
+        description: >
+          Nome completo do servidor.
+      - name: dt_nascimento
+        description: >
+          Data de nascimento do servidor.
+      - name: grupo_sanguineo
+        description: >
+          Grupo sanguíneo do servidor.
+      - name: nome_cor
+        description: >
+          Nome da cor ou raça declarada pelo servidor.
+      - name: cod_cor
+        description: >
+          Código da cor ou raça declarada pelo servidor.
+      - name: nome_estado_civil
+        description: >
+          Nome do estado civil do servidor.
+      - name: cod_estado_civil
+        description: >
+          Código do estado civil do servidor.
+      - name: nome_mae
+        description: >
+          Nome da mãe do servidor.
+      - name: nome_pai
+        description: >
+          Nome do pai do servidor.
+      - name: nome_municipio_nascimento
+        description: >
+          Nome do município de nascimento do servidor.
+      - name: nome_nacionalidade
+        description: >
+          Nome da nacionalidade do servidor.
+      - name: cod_nacionalidade
+        description: >
+          Código da nacionalidade do servidor.
+      - name: nome_sexo
+        description: >
+          Nome do sexo declarado pelo servidor.
+      - name: cod_sexo
+        description: >
+          Código do sexo declarado pelo servidor.
+      - name: num_pispasep
+        description: >
+          Número do PIS/PASEP do servidor.
+      - name: uf_nascimento
+        description: >
+          UF (Unidade Federativa) de nascimento do servidor.
+      - name: cod_deficiencia_fisica
+        description: >
+          Código da deficiência física do servidor, se houver.
+      - name: nome_deficiencia_fisica
+        description: >
+          Nome da deficiência física do servidor, se houver.
+      - name: dt_chegada_brasil
+        description: >
+          Data de chegada ao Brasil, para servidores estrangeiros.
+      - name: nome_pais_origem
+        description: >
+          Nome do país de origem, para servidores estrangeiros.
+      - name: cod_atividade_funcao
+        description: >
+          Código da atividade da função desempenhada pelo servidor.
+      - name: cod_funcao
+        description: >
+          Código da função ou cargo comissionado do servidor.
+      - name: cod_jornada
+        description: >
+          Código da jornada de trabalho do servidor.
+      - name: cod_ocorr_ingresso_orgao
+        description: >
+          Código da ocorrência de ingresso do servidor no órgão.
+      - name: cod_ocorr_ingresso_serv_publico
+        description: >
+          Código da ocorrência de ingresso do servidor no serviço público.
+      - name: cod_orgao_funcional
+        description: >
+          Código do órgão funcional do servidor.
+      - name: cod_padrao
+        description: >
+          Código do padrão do cargo do servidor.
+      - name: cod_situacao_funcional
+        description: >
+          Código da situação funcional do servidor.
+      - name: cod_uorg_exercicio
+        description: >
+          Código da UORG (Unidade Organizacional) de exercício do servidor.
+      - name: cod_upag
+        description: >
+          Código da UPAG (Unidade Pagadora) do servidor.
+      - name: cod_orgao_origem
+        description: >
+          Código do órgão de origem do servidor.
+      - name: cpf_chefia_imediata
+        description: >
+          CPF da chefia imediata do servidor.
+      - name: dt_exercicio_no_orgao
+        description: >
+          Data de início do exercício do servidor no órgão.
+      - name: dt_fim_vale_ar
+        description: >
+          Data de término do Vale AR (contexto específico do SIAPE).
+      - name: dt_ingresso_funcao
+        description: >
+          Data de ingresso do servidor na função ou cargo comissionado.
+      - name: dt_ocorr_ingresso_orgao
+        description: >
+          Data da ocorrência de ingresso do servidor no órgão.
+      - name: dt_ocorr_ingresso_serv_publico
+        description: >
+          Data da ocorrência de ingresso do servidor no serviço público.
+      - name: email_chefia_imediata
+        description: >
+          Email da chefia imediata do servidor.
+      - name: email_institucional
+        description: >
+          Email institucional do servidor.
+      - name: email_servidor
+        description: >
+          Email pessoal do servidor (registrado no sistema).
+      - name: ident_unica_funcional
+        description: >
+          Identificador único funcional do servidor.
+      - name: matricula_siape
+        description: >
+          Matrícula SIAPE do servidor.
+      - name: modalidade_pgd
+        description: >
+          Modalidade do PGD (Programa de Gestão de Desempenho) do servidor.
+      - name: nome_atividade_funcao
+        description: >
+          Nome da atividade da função desempenhada pelo servidor.
+      - name: nome_chefe_uorg
+        description: >
+          Nome do chefe da UORG do servidor.
+      - name: nome_funcao
+        description: >
+          Nome da função ou cargo comissionado do servidor.
+      - name: nome_jornada
+        description: >
+          Nome da jornada de trabalho do servidor.
+      - name: nome_ocorr_ingresso_orgao
+        description: >
+          Nome da ocorrência de ingresso do servidor no órgão.
+      - name: nome_ocorr_ingresso_serv_publico
+        description: >
+          Nome da ocorrência de ingresso do servidor no serviço público.
+      - name: nome_orgao_funcional
+        description: >
+          Nome do órgão funcional do servidor.
+      - name: nome_regime_juridico
+        description: >
+          Nome do regime jurídico do servidor.
+      - name: nome_situacao_funcional
+        description: >
+          Nome da situação funcional do servidor.
+      - name: nome_uorg_exercicio
+        description: >
+          Nome da UORG de exercício do servidor.
+      - name: nome_upag
+        description: >
+          Nome da UPAG (Unidade Pagadora) do servidor.
+      - name: participa_pgd
+        description: >
+          Indicador se o servidor participa do PGD.
+      - name: percentual_ts
+        description: >
+          Percentual de Tempo de Serviço.
+      - name: sigla_orgao_funcional
+        description: >
+          Sigla do órgão funcional do servidor.
+      - name: sigla_orgao_origem
+        description: >
+          Sigla do órgão de origem do servidor.
+      - name: sigla_regime_juridico
+        description: >
+          Sigla do regime jurídico do servidor.
+      - name: sigla_uorg_exercicio
+        description: >
+          Sigla da UORG de exercício do servidor.
+      - name: sigla_upag
+        description: >
+          Sigla da UPAG (Unidade Pagadora) do servidor.
+      - name: cod_cargo
+        description: >
+          Código do cargo efetivo do servidor.
+      - name: cod_classe
+        description: >
+          Código da classe do cargo do servidor.
+      - name: cod_ocorr_aposentadoria
+        description: >
+          Código da ocorrência de aposentadoria do servidor.
+      - name: dt_ini_vale_ar
+        description: >
+          Data de início do Vale AR (contexto específico do SIAPE).
+      - name: dt_ocorr_aposentadoria
+        description: >
+          Data da ocorrência de aposentadoria do servidor.
+      - name: nome_cargo
+        description: >
+          Nome do cargo efetivo do servidor.
+      - name: nome_classe
+        description: >
+          Nome da classe do cargo do servidor.
+      - name: nome_ocorr_aposentadoria
+        description: >
+          Nome da ocorrência de aposentadoria do servidor.
+      - name: sigla_nivel_cargo
+        description: >
+          Sigla do nível do cargo do servidor.
+      - name: tipo_vale_ar
+        description: >
+          Tipo do Vale AR (contexto específico do SIAPE).
+      - name: cod_ocorr_isencao_ir
+        description: >
+          Código da ocorrência de isenção de Imposto de Renda do servidor.
+      - name: dt_ini_ocorr_isencao_ir
+        description: >
+          Data de início da ocorrência de isenção de IR do servidor.
+      - name: nome_ocorr_isencao_ir
+        description: >
+          Nome da ocorrência de isenção de IR do servidor.
+      - name: cod_uorg_lotacao
+        description: >
+          Código da UORG de lotação do servidor.
+      - name: nome_uorg_lotacao
+        description: >
+          Nome da UORG de lotação do servidor.
+      - name: sigla_uorg_lotacao
+        description: >
+          Sigla da UORG de lotação do servidor.
+      - name: dt_fim_ocorr_isencao_ir
+        description: >
+          Data de fim da ocorrência de isenção de IR do servidor.
+      - name: cod_ocorr_exclusao
+        description: >
+          Código da ocorrência de exclusão do servidor.
+      - name: dt_ocorr_exclusao
+        description: >
+          Data da ocorrência de exclusão do servidor.
+      - name: nome_ocorr_exclusao
+        description: >
+          Nome da ocorrência de exclusão do servidor.
+      - name: dt_uorg_lotacao
+        description: >
+          Data de movimentação para a UORG de lotação do servidor.
+      - name: cod_vale_transporte
+        description: >
+          Código do vale transporte do servidor.
+      - name: valor_vale_transporte
+        description: >
+          Valor do vale transporte do servidor.
+      - name: dt_uorg_exercicio
+        description: >
+          Data de movimentação para a UORG de exercício do servidor.
+      - name: pontuacao_desempenho
+        description: >
+          Pontuação de desempenho do servidor.
+      - name: nome_escolaridade_principal
+        description: >
+          Nome da escolaridade do servidor (proveniente de dados_escolares).
+      - name: cod_escolaridade_principal
+        description: >
+          Código da escolaridade do servidor (proveniente de dados_escolares).
+      - name: nome_titulacao_principal
+        description: >
+          Nome da titulação do servidor (proveniente de dados_escolares).
+      - name: cod_titulacao_principal
+        description: >
+          Código da titulação do servidor (proveniente de dados_escolares).
+      - name: dt_ultima_transacao_servidor
+        description: >
+          Data da última transação do servidor registrada no sistema SIAPE (proveniente de lista_servidores).
+      - name: bairro_uorg
+        description: >
+          Bairro da UORG associada ao servidor (proveniente de dados_uorg).
+      - name: cep_uorg
+        description: >
+          CEP da UORG associada ao servidor.
+      - name: codigo_matricula
+        description: >
+          Código de matrícula associado ao registro da UORG do servidor (contexto dados_uorg).
+      - name: codigo_municipio_uorg
+        description: >
+          Código do município da UORG associada ao servidor.
+      - name: codigo_orgao
+        description: >
+          Código do órgão da UORG associada ao servidor.
+      - name: codigo_orgao_uorg
+        description: >
+          Código da UORG (identificador da UORG em dados_uorg) associada ao servidor.
+      - name: email_uorg
+        description: >
+          Email da UORG associada ao servidor.
+      - name: tipo_endereco_uorg
+        description: >
+          Tipo de endereço da UORG associada ao servidor.
+      - name: logradouro_uorg
+        description: >
+          Logradouro da UORG associada ao servidor.
+      - name: nome_municipio_uorg
+        description: >
+          Nome do município da UORG associada ao servidor.
+      - name: nome_uorg
+        description: >
+          Nome da UORG associada ao servidor (conforme dados_uorg).
+      - name: telefone_uorg
+        description: >
+          Telefone da UORG associada ao servidor.
+      - name: numero_endereco_uorg
+        description: >
+          Número do endereço da UORG associada ao servidor.
+      - name: sigla_uorg
+        description: >
+          Sigla da UORG associada ao servidor (conforme dados_uorg).
+      - name: uf_uorg
+        description: >
+          UF da UORG associada ao servidor.
+      - name: complemento_endereco_uorg
+        description: >
+          Complemento do endereço da UORG associada ao servidor.
+      - name: fax_uorg
+        description: >
+          Fax da UORG associada ao servidor.
+
+  - name: afastamento_consolidado
+    description: >
+      Esta tabela consolida todos os registros de afastamentos, licenças e férias dos servidores,
+      unindo dados atuais (de 'dados_afastamento') com dados históricos (de 'afastamento_historico').
+      Inclui detalhes sobre os períodos, tipos de ocorrência, amparo legal e informações financeiras relacionadas, como adiantamentos.
+      A coluna 'origem_dados' indica a fonte original de cada registro.
+    columns:
+      - name: adiantamento_salario_ferias
+        description: >
+          Indica se houve adiantamento de salário referente ao período de férias.
+      - name: ano_exercicio
+        description: >
+          Ano de exercício a que o afastamento ou as férias se referem.
+      - name: dt_fim
+        description: >
+          Data de término do período de afastamento ou férias.
+      - name: dt_fim_aquisicao
+        description: >
+          Data final do período aquisitivo de férias.
+      - name: dt_ini
+        description: >
+          Data de início do período de afastamento ou férias.
+      - name: dt_inicio_aquisicao
+        description: >
+          Data inicial do período aquisitivo de férias.
+      - name: dt_inicio_ferias_interrompidas
+        description: >
+          Data de início de um período de férias que foi posteriormente interrompido.
+      - name: dias_restantes
+        description: >
+          Quantidade de dias restantes de um período de férias ou afastamento, usualmente após uma interrupção.
+      - name: gratificacao_natalina
+        description: >
+          Indicador se o afastamento está relacionado ao gozo ou adiantamento da gratificação natalina (13º salário).
+      - name: numero_parcela
+        description: >
+          Número da parcela, caso o afastamento ou férias seja dividido em múltiplos períodos.
+      - name: parcela_continuacao_interrupcao
+        description: >
+          Indicador se a parcela é uma continuação de um período anterior ou uma interrupção.
+      - name: parcelainterrompida
+        description: >
+          Indicador se a parcela de férias em questão foi interrompida.
+      - name: qtde_dias
+        description: >
+          Quantidade total de dias do afastamento ou do período de férias.
+      - name: cpf
+        description: >
+          CPF do servidor ao qual o registro de afastamento se refere.
+      - name: cod_diploma_afastamento
+        description: >
+          Código do diploma legal (lei, decreto, portaria) que fundamenta o afastamento.
+      - name: cod_ocorrencia
+        description: >
+          Código numérico ou alfanumérico que identifica o tipo de ocorrência (ex: tipo de licença, férias).
+      - name: dt_publicacao_afastamento
+        description: >
+          Data em que o ato de concessão do afastamento foi publicado oficialmente.
+      - name: desc_diploma_afastamento
+        description: >
+          Descrição textual do diploma legal que fundamenta o afastamento.
+      - name: desc_ocorrencia
+        description: >
+          Descrição textual do tipo de ocorrência (ex: 'FÉRIAS REGULAMENTARES', 'LICENÇA MÉDICA').
+      - name: numero_diploma_afastamento
+        description: >
+          Número do diploma legal (lei, decreto, portaria) que fundamenta o afastamento.
+      - name: gr_matricula
+        description: >
+          Matrícula GR (Guia de Recolhimento) associada ao afastamento. Pode ser nulo para registros históricos.
+      - name: origem_dados
+        description: >
+          Indica a tabela de origem do registro, sendo 'dados_afastamento' para registros mais recentes
+          e 'afastamento_historico' para registros mais antigos.
+
   ## Golds
   - name: contratos_resumo
     description: >
@@ -1304,6 +1715,818 @@ models:
         description: >
           Nome descritivo do tipo de vínculo do alimentado com o servidor (ex: FILHO(A), EX-CONJUGE).
         data_type: varchar
+
+  - name: dados_servidores 
+    description: >
+      Tabela bronze contendo dados funcionais e de vínculo de servidores,
+      após limpeza básica e padronização de formatos a partir da fonte bruta.
+    columns:
+      - name: cod_atividade_funcao
+        description: >
+          Código da atividade da função.
+        data_type: varchar
+      - name: cod_funcao
+        description: >
+          Código da função exercida.
+        data_type: varchar
+      - name: cod_jornada
+        description: >
+          Código da jornada de trabalho.
+        data_type: varchar
+      - name: cod_ocorr_ingresso_orgao
+        description: >
+          Código da ocorrência de ingresso no órgão.
+        data_type: varchar
+      - name: cod_ocorr_ingresso_serv_publico
+        description: >
+          Código da ocorrência de ingresso no serviço público.
+        data_type: varchar
+      - name: cod_orgao
+        description: >
+          Código do órgão.
+        data_type: varchar
+      - name: cod_padrao
+        description: >
+          Código do padrão de vencimento.
+        data_type: varchar
+      - name: cod_situacao_funcional
+        description: >
+          Código da situação funcional.
+        data_type: varchar
+      - name: cod_uorg_exercicio
+        description: >
+          Código da Unidade Organizacional de exercício.
+        data_type: varchar
+      - name: cod_upag
+        description: >
+          Código da Unidade Pagadora (UPAG).
+        data_type: varchar
+      - name: cod_orgao_origem
+        description: >
+          Código do órgão de origem do servidor.
+        data_type: varchar
+      - name: cpf_chefia_imediata
+        description: >
+          CPF da chefia imediata, limpo (apenas dígitos).
+        data_type: varchar(11)
+      - name: dt_exercicio_no_orgao
+        description: >
+          Data de início do exercício no órgão.
+        data_type: date
+      - name: dt_fim_vale_ar
+        description: >
+          Data final de validade do vale AR (Alimentação/Refeição).
+        data_type: date
+      - name: dt_ingresso_funcao
+        description: >
+          Data de ingresso na função atual.
+        data_type: date
+      - name: dt_ocorr_ingresso_orgao
+        description: >
+          Data da ocorrência de ingresso no órgão.
+        data_type: date
+      - name: dt_ocorr_ingresso_serv_publico
+        description: >
+          Data da ocorrência de ingresso no serviço público.
+        data_type: date
+      - name: email_chefia_imediata
+        description: >
+          E-mail da chefia imediata.
+        data_type: varchar
+      - name: email_institucional
+        description: >
+          E-mail institucional do servidor.
+        data_type: varchar
+      - name: email_servidor
+        description: >
+          E-mail pessoal do servidor.
+        data_type: varchar
+      - name: ident_unica
+        description: >
+          Identificador único do servidor.
+        data_type: varchar
+      - name: matricula_siape
+        description: >
+          Matrícula SIAPE do servidor.
+        data_type: varchar
+        # tests:
+        #   - not_null
+        #   - unique
+      - name: modalidade_pgd
+        description: >
+          Modalidade do Programa de Gestão de Desempenho (PGD).
+        data_type: varchar
+      - name: nome_atividade_funcao
+        description: >
+          Nome da atividade da função.
+        data_type: varchar
+      - name: nome_chefe_uorg
+        description: >
+          Nome da chefia da UORG.
+        data_type: varchar
+      - name: nome_funcao
+        description: >
+          Nome da função exercida.
+        data_type: varchar
+      - name: nome_jornada
+        description: >
+          Nome descritivo da jornada de trabalho.
+        data_type: varchar
+      - name: nome_ocorr_ingresso_orgao
+        description: >
+          Nome descritivo da ocorrência de ingresso no órgão.
+        data_type: varchar
+      - name: nome_ocorr_ingresso_serv_publico
+        description: >
+          Nome descritivo da ocorrência de ingresso no serviço público.
+        data_type: varchar
+      - name: nome_orgao
+        description: >
+          Nome do órgão.
+        data_type: varchar
+      - name: nome_regime_juridico
+        description: >
+          Nome do regime jurídico do servidor.
+        data_type: varchar
+      - name: nome_situacao_funcional
+        description: >
+          Nome descritivo da situação funcional (ex: ATIVO PERMANENTE, APOSENTADO).
+        data_type: varchar
+      - name: nome_uorg_exercicio
+        description: >
+          Nome da Unidade Organizacional de exercício.
+        data_type: varchar
+      - name: nome_upag
+        description: >
+          Nome da Unidade Pagadora (UPAG).
+        data_type: varchar
+      - name: participa_pgd
+        description: >
+          Indica se o servidor participa do PGD (ex: sim, não).
+        data_type: varchar
+      - name: percentual_ts
+        description: >
+          Percentual de Tempo de Serviço (TS), como valor numérico (ex: 12% = 0.12)
+        data_type: numeric
+      - name: sigla_orgao
+        description: >
+          Sigla do órgão.
+        data_type: varchar
+      - name: sigla_orgao_origem
+        description: >
+          Sigla do órgão de origem.
+        data_type: varchar
+      - name: sigla_regime_juridico
+        description: >
+          Sigla do regime jurídico.
+        data_type: varchar
+      - name: sigla_uorg_exercicio
+        description: >
+          Sigla da UORG de exercício.
+        data_type: varchar
+      - name: sigla_upag
+        description: >
+          Sigla da UPAG.
+        data_type: varchar
+      - name: cpf
+        description: >
+          CPF do servidor, contendo apenas os 11 dígitos.
+        data_type: varchar(11)
+        # tests:
+        #   - not_null
+        #   - dbt_utils.equal_length:
+        #       value: 11
+      - name: cod_cargo
+        description: >
+          Código do cargo do servidor.
+        data_type: varchar
+      - name: cod_classe
+        description: >
+          Código da classe do cargo.
+        data_type: varchar
+      - name: cod_ocorr_aposentadoria
+        description: >
+          Código da ocorrência de aposentadoria.
+        data_type: varchar
+      - name: dt_ini_vale_ar
+        description: >
+          Data inicial de validade do vale AR.
+        data_type: date
+      - name: dt_ocorr_aposentadoria
+        description: >
+          Data da ocorrência de aposentadoria.
+        data_type: date
+      - name: nome_cargo
+        description: >
+          Nome do cargo do servidor.
+        data_type: varchar
+      - name: nome_classe
+        description: >
+          Nome da classe do cargo.
+        data_type: varchar
+      - name: nome_ocorr_aposentadoria
+        description: >
+          Nome descritivo da ocorrência de aposentadoria.
+        data_type: varchar
+      - name: sigla_nivel_cargo
+        description: >
+          Sigla do nível do cargo (ex: NS, NI).
+        data_type: varchar
+      - name: tipo_vale_ar
+        description: >
+          Tipo do vale AR (ex: ALIMENTACAO, REFEICAO).
+        data_type: varchar
+      - name: cod_ocorr_isencao_ir
+        description: >
+          Código da ocorrência de isenção de Imposto de Renda.
+        data_type: varchar
+      - name: dt_ini_ocorr_isencao_ir
+        description: >
+          Data inicial da ocorrência de isenção de IR.
+        data_type: date
+      - name: nome_ocorr_isencao_ir
+        description: >
+          Nome descritivo da ocorrência de isenção de IR.
+        data_type: varchar
+      - name: cod_uorg_lotacao
+        description: >
+          Código da Unidade Organizacional de lotação.
+        data_type: varchar
+      - name: nome_uorg_lotacao
+        description: >
+          Nome da Unidade Organizacional de lotação.
+        data_type: varchar
+      - name: sigla_uorg_lotacao
+        description: >
+          Sigla da UORG de lotação.
+        data_type: varchar
+      - name: dt_fim_ocorr_isencao_ir
+        description: >
+          Data final da ocorrência de isenção de IR.
+        data_type: date
+      - name: cod_ocorr_exclusao
+        description: >
+          Código da ocorrência de exclusão.
+        data_type: varchar
+      - name: dt_ocorr_exclusao
+        description: >
+          Data da ocorrência de exclusão.
+        data_type: date
+      - name: nome_ocorr_exclusao
+        description: >
+          Nome descritivo da ocorrência de exclusão.
+        data_type: varchar
+      - name: dt_uorg_lotacao
+        description: >
+          Data de lotação na UORG.
+        data_type: date
+      - name: cod_vale_transporte
+        description: >
+          Código do vale transporte.
+        data_type: varchar
+      - name: valor_vale_transporte
+        description: >
+          Valor do vale transporte (como string).
+        data_type: numeric
+      - name: dt_uorg_exercicio
+        description: >
+          Data de exercício na UORG.
+        data_type: date
+      - name: pontuacao_desempenho
+        description: >
+          Pontuação de desempenho (mantido como string).
+        data_type: varchar
+
+  - name: dados_financeiros 
+    description: >
+      Tabela bronze contendo dados de rubricas financeiras ou de pagamento,
+      após limpeza básica e padronização de formatos
+    columns:
+      - name: cod_rubrica
+        description: >
+          Código da rubrica.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: indicador_rd
+        description: >
+          Indicador de Rendimento/Desconto (ex: D).
+        data_type: varchar
+
+      - name: nome_rubrica
+        description: >
+          Nome descritivo da rubrica.
+        data_type: varchar
+
+      - name: numero_sequencia
+        description: >
+          Número sequencial associado à rubrica.
+        data_type: varchar
+
+      - name: valor_rubrica
+        description: >
+          Valor monetário associado à rubrica, convertido para NUMERIC.
+        data_type: numeric
+        # tests:
+        #   - not_null
+
+      - name: data_anomes_rubrica
+        description: >
+          Mês e ano da rubrica, convertido para DATE (representa o 1º dia do mês).
+        data_type: date 
+
+      - name: prazo_rubrica
+        description: >
+          Prazo associado à rubrica (ex: 001).
+        data_type: varchar
+
+      - name: mes_ano_pagamento
+        description: >
+          Mês e ano do pagamento, convertido para DATE (representa o 1º dia do mês).
+        data_type: date 
+
+      - name: cpf
+        description: >
+          CPF do indivíduo associado, contendo apenas os 11 dígitos.
+        data_type: varchar(11)
+        # tests:
+        #   - not_null
+        #   - dbt_utils.equal_length:
+        #       value: 11
+
+      - name: indicador_mov_supl
+        description: >
+          Indicador de movimento suplementar.
+        data_type: varchar
+
+      - name: periodo_rubrica
+        description: >
+          Período da rubrica.
+        data_type: varchar
+    
+  - name: dados_escolares
+    description: >
+      Tabela bronze contendo dados acadêmicos e de formação de indivíduos,
+      após limpeza básica e padronização de formatos a partir da fonte bruta.
+    columns:
+      - name: cod_curso
+        description: >
+          Código do curso.
+        data_type: varchar
+
+      - name: nome_curso
+        description: >
+          Nome do curso.
+        data_type: varchar
+
+      - name: cod_matricula
+        description: >
+          Código da matrícula associada ao curso ou indivíduo.
+        data_type: varchar
+        # tests:
+        #   - not_null # Se for uma chave
+
+      - name: cod_orgao
+        description: >
+          Código do órgão (possivelmente da instituição de ensino ou do servidor).
+        data_type: varchar
+
+      - name: cod_titulacao
+        description: >
+          Código da titulação obtida (ex: Doutorado, Graduação).
+        data_type: varchar
+
+      - name: nome_titulacao
+        description: >
+          Nome descritivo da titulação.
+        data_type: varchar
+
+      - name: cod_escolaridade
+        description: >
+          Código do nível de escolaridade.
+        data_type: varchar
+
+      - name: nome_escolaridade
+        description: >
+          Nome descritivo do nível de escolaridade.
+        data_type: varchar
+
+      - name: cpf
+        description: >
+          CPF do indivíduo, contendo apenas os 11 dígitos.
+        data_type: varchar(11)
+        # tests:
+        #   - not_null
+        #   - dbt_utils.equal_length:
+        #       value: 11
+models:
+  - name: dados_dependentes 
+    description: >
+      Tabela bronze contendo dados de dependentes e benefícios associados,
+      após limpeza básica e padronização de formatos a partir da fonte bruta.
+
+    columns:
+      - name: cod_condicao
+        description: >
+          Código da condição do dependente.
+        data_type: varchar
+
+      - name: cod_grau_parentesco
+        description: >
+          Código do grau de parentesco do dependente.
+        data_type: varchar
+
+      - name: cod_orgao
+        description: >
+          Código do órgão do servidor principal.
+        data_type: varchar
+
+      - name: cpf
+        description: >
+          CPF do dependente, contendo apenas os 11 dígitos (se aplicável).
+        data_type: varchar(11)
+        # tests:
+        #   - dbt_utils.equal_length:
+        #       value: 11
+        #       config:
+        #         severity: warn
+
+      - name: matricula
+        description: >
+          Matrícula do servidor principal.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: nome_dependente
+        description: >
+          Nome completo do dependente.
+        data_type: varchar
+        # tests:
+        #   - not_null
+
+      - name: nome_condicao
+        description: >
+          Nome descritivo da condição do dependente.
+        data_type: varchar
+
+      - name: nome_grau_parentesco
+        description: >
+          Nome descritivo do grau de parentesco do dependente.
+        data_type: varchar
+
+      - name: cod_beneficio
+        description: >
+          Código do benefício associado ao dependente.
+        data_type: varchar
+
+      - name: dt_fim
+        description: >
+          Data final do benefício ou da condição, convertida para DATE.
+        data_type: date
+
+      - name: dt_inicio
+        description: >
+          Data inicial do benefício ou da condição, convertida para DATE.
+        data_type: date
+
+      - name: nome_beneficio
+        description: >
+          Nome descritivo do benefício.
+        data_type: varchar
+
+  - name: dados_curriculo 
+    description: >
+      Tabela bronze contendo dados de experiência
+      após limpeza básica e padronização de formatos a partir da fonte bruta.
+
+    columns:
+      - name: cpf
+        description: >
+          CPF do indivíduo, contendo apenas os 11 dígitos.
+        data_type: varchar(11)
+        # tests:
+        #   - not_null
+
+      - name: ident_unica
+        description: >
+          Identificador único associado.
+        data_type: varchar
+
+      - name: codigo_experiencia
+        description: >
+          Código geral da experiência/qualificação.
+        data_type: varchar
+
+      - name: cod_curso
+        description: >
+          Código do curso, se aplicável.
+        data_type: varchar
+
+      - name: nome_curso
+        description: >
+          Nome do curso, se aplicável.
+        data_type: varchar
+
+      - name: dt_mes_conclusao
+        description: >
+          Data de conclusão (formato YYYYMM), convertida para DATE (1º dia do mês).
+        data_type: date
+
+      - name: nome_instituicao
+        description: >
+          Nome da instituição de ensino ou empresa.
+        data_type: varchar
+
+      - name: nome_area_experiencia
+        description: >
+          Nome da área ou tipo de experiência (ex: Licitação, Auditoria).
+        data_type: varchar
+
+      - name: carga_horaria
+        description: >
+          Carga horária associada.
+        data_type: varchar # Mantido como varchar, pode ser convertido para integer/numeric no silver
+
+      - name: nome_cargo
+        description: >
+          Nome do cargo ocupado.
+        data_type: varchar
+
+      - name: dt_mes_inicio
+        description: >
+          Data de início da experiência (formato YYYYMM), convertida para DATE (1º dia do mês).
+        data_type: date
+
+      - name: nome_orgao_empresa
+        description: >
+          Nome do órgão ou empresa onde a experiência ocorreu.
+        data_type: varchar
+
+      - name: dt_mes_fim
+        description: >
+          Data de fim da experiência (formato YYYYMM), convertida para DATE (1º dia do mês).
+        data_type: date
+
+      - name: descricao_projeto
+        description: >
+          Descrição detalhada do projeto ou atividades realizadas.
+        data_type: text # Usar 'text' para campos potencialmente longos ou multi-linha
+
+      - name: informacoes_adicionais
+        description: >
+          Informações adicionais sobre a experiência.
+        data_type: text # Usar 'text' para campos potencialmente longos ou multi-linha
+
+      - name: tipo_descricao
+        description: >
+          Tipo de descrição ou categoria adicional.
+        data_type: varchar
+
+  - name: dados_afastamento 
+    description: >
+      Tabela bronze contendo dados de férias e afastamentos de servidores,
+      após limpeza básica e padronização de formatos a partir da fonte bruta.
+      Valores de data inválidos ou malformados na origem são convertidos para NULL.
+
+    columns:
+      - name: adiantamento_salario_ferias
+        description: >
+          Indicador de adiantamento de salário nas férias (ex: N, S).
+        data_type: varchar
+
+      - name: ano_exercicio
+        description: >
+          Ano de exercício das férias ou afastamento.
+        data_type: varchar # ou integer se sempre for numérico e sem zeros à esquerda significativos
+
+      - name: dt_fim
+        description: >
+          Data de fim das férias ou afastamento.
+          Convertida para DATE; strings de origem inválidas (ex: "0", comprimento incorreto) resultam em NULL.
+        data_type: date
+
+      - name: dt_fim_aquisicao
+        description: >
+          Data de fim do período aquisitivo.
+          Convertida para DATE; strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: dt_ini
+        description: >
+          Data de início das férias ou afastamento.
+          Convertida para DATE; strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: dt_inicio_aquisicao
+        description: >
+          Data de início do período aquisitivo.
+          Convertida para DATE; strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: gratificacao_natalina
+        description: >
+          Indicador de gratificação natalina (13º salário) (ex: N, S).
+        data_type: varchar
+
+      - name: numero_parcela
+        description: >
+          Número da parcela das férias.
+        data_type: integer
+
+      - name: parcela_continuacao_interrupcao
+        description: >
+          Indicador se a parcela é continuação ou interrupção.
+        data_type: varchar
+
+      - name: parcela_interrompida
+        description: >
+          Indicador se a parcela foi interrompida.
+        data_type: varchar
+
+      - name: qtde_dias
+        description: >
+          Quantidade de dias de férias/afastamento.
+        data_type: integer
+
+      - name: gr_matricula
+        description: >
+          Matrícula do servidor (possivelmente com código GR ou outro prefixo).
+        data_type: varchar
+
+      - name: cpf
+        description: >
+          CPF do servidor, contendo apenas os 11 dígitos.
+        data_type: varchar(11)
+        # tests:
+        #   - not_null
+        #   - dbt_utils.equal_length:
+        #       value: 11
+
+      - name: cod_diploma_afastamento
+        description: >
+          Código do diploma legal do afastamento.
+        data_type: varchar
+
+      - name: cod_ocorrencia
+        description: >
+          Código da ocorrência (férias/afastamento).
+        data_type: varchar
+
+      - name: dt_publicacao_afastamento
+        description: >
+          Data de publicação do ato de afastamento.
+          Convertida para DATE (formato de origem YYYYMMDD); strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: desc_diploma_afastamento
+        description: >
+          Descrição do diploma legal do afastamento (ex: PORTARIA).
+        data_type: varchar
+
+      - name: desc_ocorrencia
+        description: >
+          Descrição da ocorrência de afastamento.
+        data_type: varchar
+
+      - name: numero_diploma_afastamento
+        description: >
+          Número do diploma legal do afastamento.
+        data_type: integer
+
+      - name: dt_inicio_ferias_interrompidas
+        description: >
+          Data de início das férias que foram interrompidas.
+          Convertida para DATE; strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: dias_restantes
+        description: >
+          Quantidade de dias restantes de férias após interrupção.
+        data_type: integer
+
+  - name: afastamento_historico 
+    description: >
+      Tabela bronze contendo dados históricos de férias e afastamentos de servidores, (semelhante a dados_afastamento)
+      após limpeza básica e padronização de formatos a partir da fonte bruta.
+      Valores de data inválidos ou malformados na origem são convertidos para NULL.
+
+    columns:
+      - name: adiantamento_salario_ferias
+        description: >
+          Indicador de adiantamento de salário nas férias (ex: N, S).
+        data_type: varchar
+
+      - name: gr_matricula
+        description: >
+          Matrícula do servidor (Não está presenta aqui, ficou como placeholder tudo null).
+        data_type: varchar
+
+      - name: ano_exercicio
+        description: >
+          Ano de exercício das férias ou afastamento.
+        data_type: varchar
+
+      - name: dt_fim
+        description: >
+          Data de fim das férias ou afastamento.
+          Convertida para DATE; strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: dt_fim_aquisicao
+        description: >
+          Data de fim do período aquisitivo.
+          Convertida para DATE; strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: dt_ini
+        description: >
+          Data de início das férias ou afastamento.
+          Convertida para DATE; strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: dt_inicio_aquisicao
+        description: >
+          Data de início do período aquisitivo.
+          Convertida para DATE; strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: dt_inicio_ferias_interrompidas
+        description: >
+          Data de início das férias que foram interrompidas.
+          Convertida para DATE; strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: dias_restantes
+        description: >
+          Quantidade de dias restantes de férias após interrupção.
+        data_type: integer
+
+      - name: gratificacao_natalina
+        description: >
+          Indicador de gratificação natalina (13º salário) (ex: N, S).
+        data_type: varchar
+
+      - name: numero_parcela
+        description: >
+          Número da parcela das férias.
+        data_type: integer
+
+      - name: parcela_continuacao_interrupcao
+        description: >
+          Indicador se a parcela é continuação ou interrupção.
+        data_type: varchar
+
+      - name: parcela_interrompida
+        description: >
+          Indicador se a parcela foi interrompida.
+        data_type: varchar
+
+      - name: qtde_dias
+        description: >
+          Quantidade de dias de férias/afastamento.
+        data_type: integer
+
+      - name: cpf
+        description: >
+          CPF do servidor, contendo apenas os 11 dígitos.
+        data_type: varchar(11)
+        # tests:
+        #   - not_null
+        #   - dbt_utils.equal_length:
+        #       value: 11
+
+      - name: cod_diploma_afastamento
+        description: >
+          Código do diploma legal do afastamento.
+        data_type: varchar
+
+      - name: cod_ocorrencia
+        description: >
+          Código da ocorrência (férias/afastamento).
+        data_type: varchar
+
+      - name: dt_publicacao_afastamento
+        description: >
+          Data de publicação do ato de afastamento.
+          Convertida para DATE (formato de origem YYYYMMDD); strings de origem inválidas resultam em NULL.
+        data_type: date
+
+      - name: desc_diploma_afastamento
+        description: >
+          Descrição do diploma legal do afastamento (ex: PORTARIA).
+        data_type: varchar
+
+      - name: desc_ocorrencia
+        description: >
+          Descrição da ocorrência de afastamento.
+        data_type: varchar
+
+      - name: numero_diploma_afastamento
+        description: >
+          Número do diploma legal do afastamento.
+        data_type: integer
 
   # Pessoas DBT
 
