@@ -378,18 +378,21 @@ class ClientPostgresDB:
             )
             raise
 
-    def get_codigo_unidade(self) -> list[int]:
-        """Retorna o código da unidade da tabela unidade_organizacional."""
-        query = (
-            "SELECT regexp_replace(codigounidade, '.*/', '') "
-            "FROM siorg.unidade_organizacional"
-        )
+    def get_codigo_unidade(self) -> list[dict]:
+        """Retorna código da unidade e ordem de grandeza da tabela."""
+        query = """
+            SELECT codigounidade, ordem_grandeza
+            FROM pessoas.unidade_organizacional
+        """
 
         with psycopg2.connect(self.conn_str) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
-                codigo_unidade = [int(row[0]) for row in cursor.fetchall()]
-                return codigo_unidade
+                rows = cursor.fetchall()
+                return [
+                    {"codigounidade": int(row[0]), "ordem_grandeza": int(row[1])}
+                    for row in rows
+                ]
 
     def execute_non_query(self, query: str) -> None:
         """

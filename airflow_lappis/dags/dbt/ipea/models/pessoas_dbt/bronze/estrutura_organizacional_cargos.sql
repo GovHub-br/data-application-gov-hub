@@ -1,12 +1,25 @@
 with
     fonte as (
-        select codigounidade, nomeunidade, siglaunidade, municipio, uf, cargos
+        select
+            codigounidade,
+            nomeunidade,
+            siglaunidade,
+            municipio,
+            uf,
+            cargos,
+            ordem_grandeza
         from {{ source("siorg", "estrutura_organizacional_cargos") }}
     ),
 
     cargos_expandidos as (
         select
-            f.codigounidade, f.nomeunidade, f.siglaunidade, f.municipio, f.uf, cargo_elem
+            f.codigounidade,
+            f.nomeunidade,
+            f.siglaunidade,
+            f.municipio,
+            f.uf,
+            f.ordem_grandeza,
+            cargo_elem
         from
             fonte f,
             lateral jsonb_array_elements(
@@ -21,6 +34,7 @@ with
             ce.siglaunidade,
             ce.municipio,
             ce.uf,
+            ce.ordem_grandeza,
             cargo_elem ->> 'denominacao' as denominacao,
             cargo_elem ->> 'funcao' as funcao,
             instancia_elem ->> 'codigoInstancia' as codigo_instancia,
@@ -29,6 +43,20 @@ with
         from
             cargos_expandidos ce,
             lateral jsonb_array_elements(cargo_elem -> 'instancias') as instancia_elem
+    ),
+
+    instancias_filtradas as (
+        select *
+        from
+            (
+                select
+                    *,
+                    row_number() over (
+                        partition by codigo_instancia order by ordem_grandeza desc
+                    ) as rn
+                from instancias_expandidas
+            ) t
+        where rn = 1
     )
 
 select
@@ -39,7 +67,8 @@ select
     uf,
     denominacao,
     funcao,
-    codigo_instancia::bigint as codigo_instancia,
+    codigo_instancia,
     nome_titular,
-    cpf_titular
-from instancias_expandidas
+    cpf_titular,
+    ordem_grandeza
+from instancias_filtradas
