@@ -27,13 +27,18 @@ def api_estrutura_organizacional_cargos_dag() -> None:
                 logging.warning("Nenhum código de unidade encontrado.")
                 return
 
-            for codigo_unidade in codigo_unidades:
+            for unidade in codigo_unidades:
+                codigo_unidade = unidade["codigounidade"]
+                ordem_grandeza = unidade["ordem_grandeza"]
+
                 try:
                     estrutura_cargos = api.get_estrutura_organizacional_cargos(
                         codigo_unidade
                     )
 
                     if estrutura_cargos:
+                        estrutura_cargos["ordem_grandeza"] = ordem_grandeza
+
                         db.insert_data(
                             [estrutura_cargos],
                             "estrutura_organizacional_cargos",
