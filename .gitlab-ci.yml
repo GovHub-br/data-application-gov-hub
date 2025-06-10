@@ -8,7 +8,7 @@ variables:
   POETRY_VIRTUALENVS_IN_PROJECT: "true"
   POETRY_CACHE_DIR: "/tmp/poetry-cache"
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  DBT_PROJECT_DIR: "${CI_PROJECT_DIR}/plugins/dbt"
+  DBT_PROJECT_DIR: "${CI_PROJECT_DIR}/airflow_lappis/dags/dbt/ipea"
   GIT_CI_USER: "ci bot"
   GIT_CI_EMAIL: "ci.lappis.rocks@gmail.com"
   DOCKER_TLS_CERTDIR: "/certs"
@@ -16,7 +16,7 @@ variables:
 
 cache:
   paths:
-    # - .cache/poetry
+    - .cache/poetry
     - .cache/pip
     - .venv
     - .cache/docker
@@ -25,6 +25,7 @@ stages:
   - lint
   - test
   - build
+  - deploy
 
 .install-poetry:
   before_script:
@@ -70,6 +71,46 @@ scan:
       - src/**
       - tests/**
 
+pages:
+  stage: deploy
+  image: python:3.11-slim
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  before_script:
+    - apt-get update && apt-get install -y openvpn iputils-ping
+    - mkdir -p /etc/openvpn ci/dbt
+    - cat "$CLIENT_OVPN" >/etc/openvpn/client.ovpn
+    - cat "$VPN_P12" | base64 --decode > /etc/openvpn/openvpn_ipea_vpn.p12
+    - chmod 600 /etc/openvpn/openvpn_ipea_vpn.p12
+    - echo "$VPN_USER" >/etc/openvpn/cred.txt
+    - echo "$VPN_PWD" >>/etc/openvpn/cred.txt
+    - chmod 600 /etc/openvpn/cred.txt
+    - openvpn --config /etc/openvpn/client.ovpn --auth-user-pass /etc/openvpn/cred.txt --verb 3 --daemon --log /tmp/ovpn.log
+    - |
+      timeout=60
+      until grep -q 'Initialization Sequence Completed' /tmp/ovpn.log; do
+        sleep 1
+        (( timeout-- ))
+        if (( timeout == 0 )); then
+          echo "❌ VPN não inicializou em 60s" >&2
+          cat /tmp/ovpn.log
+          exit 1
+        fi
+      done
+    - ping -c 4 10.0.0.73 || true
+    - pip install dbt-core dbt-postgres
+  script:
+    - cd "$DBT_PROJECT_DIR"
+    - dbt deps
+    - dbt docs generate
+    - mkdir -p "${CI_PROJECT_DIR}/public"
+    - mv target/* "${CI_PROJECT_DIR}/public/"
+    - pkill openvpn || true
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 week
+
 docker-build-and-push:
   stage: build
   image: docker:20.10.16
@@ -86,3 +127,4 @@ docker-build-and-push:
       - Dockerfile
       - requirements.txt
       - pyproject.toml
+      
