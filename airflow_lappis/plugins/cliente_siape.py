@@ -261,3 +261,34 @@ class ClienteSiape:
                     resultado.append(row)
 
         return resultado
+
+    @staticmethod
+    def parse_pensoes_instituidas(xml_string: str) -> list[dict[str, Any]]:
+        """
+        Custom parser para consultaPensoesInstituidas: extrai dados do
+        ArrayPensoesInstituidas.
+
+        Args:
+            xml_string (str): SOAP XML response.
+
+        Returns:
+            list[dict[str, str | None]]: Lista de registros de pensões instituídas.
+        """
+        ns = {
+            "soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
+            "ns2": "http://tipo.servico.wssiapenet",
+        }
+        root = ET.fromstring(xml_string)
+        body = root.find("soapenv:Body", ns)
+        if body is None:
+            return []
+
+        resultado = []
+        for item in body.findall(".//ns2:DadosPensoesInstituidas", ns):
+            registro = {}
+            for elem in item:
+                tag = elem.tag.split("}")[-1]
+                registro[tag] = elem.text.strip() if elem.text else None
+            resultado.append(registro)
+
+        return resultado
