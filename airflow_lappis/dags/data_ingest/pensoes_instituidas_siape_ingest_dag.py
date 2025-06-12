@@ -1,5 +1,6 @@
 import os
 import logging
+import requests
 from datetime import datetime, timedelta
 from airflow.decorators import dag, task
 from postgres_helpers import get_postgres_conn
@@ -56,9 +57,15 @@ def siape_pensoes_instituidas_dag() -> None:
                     logging.warning(f"Nenhum dado de pensão instituída para CPF {cpf}")
                     continue
 
-                # Adiciona CPF a cada registro
-                for registro in dados:
+                # Adiciona CPF a cada registro e gera ID único
+                for i, registro in enumerate(dados):
                     registro["cpf"] = cpf
+                    # Cria ID único baseado em CPF + índice + campos únicos
+                    base_id = f"{cpf}_{i}"
+                    cpf_pensionista = registro.get("cpfPensionista", "")
+                    matricula_pensionista = registro.get("matriculaPensionista", "")
+                    identificador = f"{base_id}_{cpf_pensionista}_{matricula_pensionista}"
+                    registro["id_registro"] = identificador
 
                 if dados:
                     # Usa o primeiro registro para criar/ajustar a estrutura da tabela
@@ -71,15 +78,21 @@ def siape_pensoes_instituidas_dag() -> None:
                     db.insert_data(
                         dados,
                         table_name="pensoes_instituidas",
-                        conflict_fields=["cpf"],
-                        primary_key=["cpf"],
+                        conflict_fields=["id_registro"],
+                        primary_key=["id_registro"],
                         schema="siape",
                     )
 
                     logging.info(
-                        f"Inseridos {len(dados)} registros de pensões instituídas: {cpf}"
+                        f"Inseridos {len(dados)} registros de pensões para CPF {cpf}"
                     )
 
+            except requests.exceptions.HTTPError as e:
+                if "500" in str(e):
+                    logging.warning(f"Servidor retornou erro 500 para CPF {cpf}")
+                else:
+                    logging.error(f"Erro HTTP ao processar CPF {cpf}: {e}")
+                continue
             except Exception as e:
                 logging.error(f"Erro ao processar CPF {cpf}: {e}")
                 continue
