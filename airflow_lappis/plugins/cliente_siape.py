@@ -276,7 +276,7 @@ class ClienteSiape:
         """
         ns = {
             "soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
-            "ns2": "http://tipo.servico.wssiapenet",
+            "ns1": "http://tipo.servico.wssiapenet",
         }
         root = ET.fromstring(xml_string)
         body = root.find("soapenv:Body", ns)
@@ -284,11 +284,17 @@ class ClienteSiape:
             return []
 
         resultado = []
-        for item in body.findall(".//ns2:DadosPensoesInstituidas", ns):
+
+        # Busca por PensoesInstituidas dentro da estrutura ArrayPensoesInstituidas
+        pensoes_items = body.findall(".//ns1:PensoesInstituidas", ns)
+
+        for item in pensoes_items:
             registro = {}
             for elem in item:
                 tag = elem.tag.split("}")[-1]
-                registro[tag] = elem.text.strip() if elem.text else None
+                # Pula elementos complexos como arrayFichaFinanceira
+                if tag != "arrayFichaFinanceira":
+                    registro[tag] = elem.text.strip() if elem.text else None
             resultado.append(registro)
 
         return resultado
