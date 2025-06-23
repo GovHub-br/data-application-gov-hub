@@ -8,9 +8,7 @@ with
             nome_pessoa,
             dt_ocorr_ingresso_serv_publico,
             dt_ocorr_aposentadoria,
-            to_date(
-                to_char(dt_ocorr_aposentadoria, 'YYYY-MM'), 'YYYY-MM'
-            ) as mes_aposentadoria,
+            date_trunc('month', dt_ocorr_aposentadoria) as mes_aposentadoria,
             nome_situacao_funcional,
             nome_ocorr_aposentadoria,
             nome_cargo,

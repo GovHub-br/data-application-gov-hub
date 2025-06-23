@@ -8,6 +8,7 @@ sources:
       - name: faturas
       - name: empenhos
       - name: cronograma
+      - name: terceirizados
   
   - name: siafi
     schema: siafi
