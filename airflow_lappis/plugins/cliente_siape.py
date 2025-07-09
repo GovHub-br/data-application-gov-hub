@@ -88,7 +88,8 @@ class ClienteSiape:
             str: Rendered XML string.
         """
         template = self.env.get_template(template_name)
-        return template.render(context)
+        rendered_xml: str = template.render(context)
+        return rendered_xml
 
     def enviar_soap(self, xml: str) -> str:
         """
@@ -104,7 +105,8 @@ class ClienteSiape:
             ClienteSiape.SOAP_ENDPOINT, headers=self.headers, data=xml
         )
         response.raise_for_status()
-        return response.text
+        response_text: str = response.text
+        return response_text
 
     def call(self, template_name: str, context: Dict[str, str]) -> str:
         """
@@ -117,8 +119,9 @@ class ClienteSiape:
         Returns:
             str: The raw XML response.
         """
-        xml = self.render_xml(template_name, context)
-        return self.enviar_soap(xml)
+        xml: str = self.render_xml(template_name, context)
+        soap_response: str = self.enviar_soap(xml)
+        return soap_response
 
     @staticmethod
     def parse_xml_to_dict(xml_string: str) -> Dict[str, str]:

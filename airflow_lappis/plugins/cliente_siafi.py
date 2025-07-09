@@ -49,7 +49,7 @@ class ClienteSiafi:
             return None
 
         session = Session()
-        session.verify = self.cert_path
+        session.verify = True  # Verificar certificados SSL
         session.cert = (self.cert_path, self.key_path)
 
         transport = Transport(session=session)
