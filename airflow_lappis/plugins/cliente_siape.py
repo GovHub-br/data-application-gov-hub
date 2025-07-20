@@ -1,8 +1,10 @@
 import os
+import logging
 from typing import Dict, Any
 import requests
 import xml.etree.ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
+from dados_funcionais_handler import DadosFuncionaisHandler
 
 
 class ClienteSiape:
@@ -301,3 +303,39 @@ class ClienteSiape:
             resultado.append(registro)
 
         return resultado
+
+    @staticmethod
+    def parse_dado_funcional(xml_string: str) -> Dict[str, str | None]:
+        """
+        Custom parser para consultaDadosFuncionais: extrai múltiplos DadosFuncionais
+        e retorna apenas o registro ativo (sem dataOcorrExclusao).
+
+        Args:
+            xml_string (str): SOAP XML response contendo múltiplos DadosFuncionais.
+
+        Returns:
+            Dict[str, str]: Registro funcional ativo (mais atual).
+        """
+        try:
+            handler = DadosFuncionaisHandler()
+
+            # Extrai elementos DadosFuncionais
+            dados_funcionais_items = handler.extract_dados_funcionais_elements(xml_string)
+
+            if not dados_funcionais_items:
+                logging.warning("Nenhum elemento DadosFuncionais encontrado")
+                return {}
+
+            # Converte elementos para registros
+            registros = handler.convert_elements_to_registros(dados_funcionais_items)
+            logging.info(f"Encontrados {len(registros)} registros funcionais")
+
+            # Seleciona o melhor registro
+            return handler.select_best_registro(registros)
+
+        except ET.ParseError as e:
+            logging.error(f"Erro ao fazer parse do XML: {e}")
+            return {}
+        except Exception as e:
+            logging.error(f"Erro inesperado no parse_dado_funcional: {e}")
+            return {}

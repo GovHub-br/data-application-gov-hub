@@ -46,7 +46,7 @@ def siape_dados_funcionais_dag() -> None:
                 resposta_xml = cliente_siape.call(
                     "consultaDadosFuncionais.xml.j2", context
                 )
-                dados = ClienteSiape.parse_xml_to_dict(resposta_xml)
+                dados = ClienteSiape.parse_dado_funcional(resposta_xml)
 
                 if not dados:
                     logging.warning(f"Nenhum dado funcional encontrado para CPF {cpf}")
