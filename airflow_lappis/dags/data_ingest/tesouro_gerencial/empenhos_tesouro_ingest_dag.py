@@ -56,7 +56,7 @@ with DAG(
     tags=["email", "empenhos", "tesouro"],
 ) as dag:
 
-    def process_email_data(**context: Dict[str, Any]) -> Optional[str]:
+    def process_email_data(**context: Dict[str, Any]) -> Optional[Any]:
         creds = json.loads(Variable.get("email_credentials"))
 
         EMAIL = creds["email"]
