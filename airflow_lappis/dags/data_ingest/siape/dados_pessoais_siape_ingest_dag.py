@@ -76,11 +76,12 @@ def siape_dados_pessoais_dag() -> None:
         # --- Continua fluxo normal ---
         query = "SELECT DISTINCT cpf FROM siape.lista_servidores WHERE cpf IS NOT NULL"
         cpfs = [row[0] for row in db.execute_query(query)]
-        logging.info(f"Total de CPFs encontrados: {len(cpfs)}")
+        total_cpfs = len(cpfs)
+        logging.info(f"Total de CPFs encontrados: {total_cpfs}")
 
-        for cpf in cpfs:
+        for idx, cpf in enumerate(cpfs, 1):
             try:
-                logging.info(f"Processando CPF: {cpf}")
+                logging.info(f"Consultando CPF {cpf} [{idx}/{total_cpfs}]")
 
                 context = {
                     "siglaSistema": "PETRVS-IPEA",
@@ -99,10 +100,13 @@ def siape_dados_pessoais_dag() -> None:
                 logging.debug(f"Dados parseados para CPF {cpf}: {dados}")
 
                 if not dados:
-                    logging.warning(f"Nenhum dado pessoal encontrado para CPF {cpf}")
+                    logging.warning(
+                        f"Nenhum dado encontrado para CPF {cpf} [{idx}/{total_cpfs}]"
+                    )
                     continue
 
                 dados["cpf"] = cpf
+                dados["dt_ingest"] = datetime.now().isoformat()
                 logging.info(f"Dados finais prontos para inserção: {dados}")
 
                 db.alter_table(
@@ -119,10 +123,15 @@ def siape_dados_pessoais_dag() -> None:
                     schema="siape",
                 )
 
-                logging.info(f"Dado pessoal inserido com sucesso para CPF {cpf}")
+                logging.info(
+                    f"Dado inserido com sucesso para CPF {cpf} [{idx}/{total_cpfs}]"
+                )
 
             except Exception as e:
-                logging.error(f"Erro ao processar CPF {cpf}: {e}", exc_info=True)
+                logging.error(
+                    f"Erro ao processar CPF {cpf} [{idx}/{total_cpfs}]: {e}",
+                    exc_info=True,
+                )
                 continue
 
     fetch_and_store_dados_pessoais()
