@@ -56,6 +56,8 @@ def siape_dados_curriculo_dag() -> None:
                     logging.warning(f"Nenhum dado de currículo encontrado para CPF {cpf}")
                     continue
 
+                dados["dt_ingest"] = datetime.now().isoformat()
+
                 db.alter_table(
                     data=dados,
                     table_name="dados_curriculo",

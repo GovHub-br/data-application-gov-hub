@@ -38,6 +38,7 @@ def api_estrutura_organizacional_cargos_dag() -> None:
 
                     if estrutura_cargos:
                         estrutura_cargos["ordem_grandeza"] = ordem_grandeza
+                        estrutura_cargos["dt_ingest"] = datetime.now().isoformat()
 
                         db.insert_data(
                             [estrutura_cargos],

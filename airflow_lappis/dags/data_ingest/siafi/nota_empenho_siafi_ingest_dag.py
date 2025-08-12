@@ -76,6 +76,7 @@ def nota_empenho_siafi_ingest_dag() -> None:
                     resultado = cliente.consultar_nota_empenho(ug, ano, num_empenho_str)
                     if not resultado:
                         break
+                    resultado["dt_ingest"] = datetime.now().isoformat()
                     db.insert_data(
                         [resultado],
                         "notas_empenho",

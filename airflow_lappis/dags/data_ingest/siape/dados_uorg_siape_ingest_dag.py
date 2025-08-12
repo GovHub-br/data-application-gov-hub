@@ -55,6 +55,7 @@ def siape_dados_uorg_dag() -> None:
                     continue
 
                 dados["cpf"] = cpf
+                dados["dt_ingest"] = datetime.now().isoformat()
 
                 db.alter_table(
                     data=dados,

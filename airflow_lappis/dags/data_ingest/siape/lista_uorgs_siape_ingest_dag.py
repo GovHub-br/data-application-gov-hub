@@ -55,6 +55,10 @@ def siape_lista_uorgs_dag() -> None:
             logging.warning("Nenhum dado retornado da API listaUorgs")
             return
 
+        # Adicionar dt_ingest a cada registro
+        for registro in dados_lista:
+            registro["dt_ingest"] = datetime.now().isoformat()
+
         for item in dados_lista:
             if "dataUltimaTransacao" in item:
                 valor_bruto = item.pop("dataUltimaTransacao")

@@ -104,6 +104,10 @@ with DAG(
             df = df[df["ne_ccor_ano_emissao"].astype(str).str.startswith("20")]
             data = df.to_dict(orient="records")
 
+            # Adicionar dt_ingest a cada registro
+            for record in data:
+                record["dt_ingest"] = datetime.now().isoformat()
+
             postgres_conn_str = get_postgres_conn()
             db = ClientPostgresDB(postgres_conn_str)
 

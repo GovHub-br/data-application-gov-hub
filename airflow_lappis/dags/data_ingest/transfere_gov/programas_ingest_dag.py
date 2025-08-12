@@ -33,6 +33,7 @@ def api_programas_dag() -> None:
             programas_data = api.get_programa_by_id_programa(id_programa)
             if programas_data and len(programas_data) > 0:
                 programa = programas_data[0]
+                programa["dt_ingest"] = datetime.now().isoformat()
 
                 # Alter table to add any new columns needed
                 db.alter_table(programa, "programas", schema="transfere_gov")
@@ -64,6 +65,7 @@ def api_programas_dag() -> None:
         programas_data = api.get_programas_by_sigla_unidade_descentralizadora(sigla)
         if programas_data and len(programas_data) > 0:
             for programa in programas_data:
+                programa["dt_ingest"] = datetime.now().isoformat()
                 db.alter_table(programa, "programas", schema="transfere_gov")
             db.insert_data(
                 programas_data,

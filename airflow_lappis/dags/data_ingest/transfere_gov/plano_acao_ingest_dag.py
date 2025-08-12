@@ -31,6 +31,9 @@ def api_planos_acao_dag() -> None:
         for id_programa in id_programas:
             planos_acao_data = api.get_planos_acao_by_id_programa(id_programa)
             if planos_acao_data:
+                # Adicionar dt_ingest a cada plano
+                for plano in planos_acao_data:
+                    plano["dt_ingest"] = datetime.now().isoformat()
 
                 db.insert_data(
                     planos_acao_data,

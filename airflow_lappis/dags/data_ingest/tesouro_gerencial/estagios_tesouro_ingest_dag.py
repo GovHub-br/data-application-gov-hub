@@ -102,7 +102,18 @@ with DAG(
             postgres_conn_str = get_postgres_conn()
             db = ClientPostgresDB(postgres_conn_str)
 
-            db.insert_csv_data(csv_data, "estagios_tesouro", schema="siafi")
+            # Adicionar dt_ingest aos dados antes da inserção
+            # Se csv_data for uma string, precisamos convertê-la para uma lista de dicts
+            if isinstance(csv_data, str):
+                import ast
+
+                csv_data = ast.literal_eval(csv_data)
+
+            # Adicionar dt_ingest a cada registro
+            for record in csv_data:
+                record["dt_ingest"] = datetime.now().isoformat()
+
+            db.insert_data(csv_data, "estagios_tesouro", schema="siafi")
             logging.info("Dados inseridos com sucesso no banco de dados.")
         except Exception as e:
             logging.error("Erro ao inserir dados no banco: %s", str(e))

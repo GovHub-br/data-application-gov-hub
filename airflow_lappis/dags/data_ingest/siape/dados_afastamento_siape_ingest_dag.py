@@ -57,6 +57,7 @@ def siape_dados_afastamento_dag() -> None:
                     continue
 
                 dados["cpf"] = cpf
+                dados["dt_ingest"] = datetime.now().isoformat()
 
                 if dados:
                     db.alter_table(

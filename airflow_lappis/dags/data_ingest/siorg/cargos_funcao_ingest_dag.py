@@ -34,6 +34,7 @@ def api_cargos_funcao_dag() -> None:
                 if "cargosFuncoes" in tipo and "cargoFuncao" in tipo["cargosFuncoes"]:
                     for cargo in tipo["cargosFuncoes"]["cargoFuncao"]:
                         registro = {**tipo_base, **cargo}
+                        registro["dt_ingest"] = datetime.now().isoformat()
                         registros.append(registro)
             if registros:
                 db.insert_data(

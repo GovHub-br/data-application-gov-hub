@@ -43,6 +43,7 @@ def nota_credito_siafi_dag() -> None:
             )
             if response:
                 response["ano"] = ano
+                response["dt_ingest"] = datetime.now().isoformat()
                 db.insert_data(
                     [response],
                     "nota_credito",

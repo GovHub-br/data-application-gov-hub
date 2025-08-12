@@ -48,6 +48,10 @@ def api_contratos_inativos_dag() -> None:
             logging.info(f"Buscando contratos inativos para UG: {ug_code}")
             contratos = api.get_contratos_inativos_by_ug(ug_code)
             if contratos:
+                # Adicionar dt_ingest a cada contrato
+                for contrato in contratos:
+                    contrato["dt_ingest"] = datetime.now().isoformat()
+
                 logging.info(
                     f"Inserindo contratos inativos da UG {ug_code} no schema compras_gov"
                 )

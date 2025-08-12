@@ -33,6 +33,11 @@ def api_terceirizados_dag() -> None:
                 logging.info(f"Fetching terceirizados for contrato ID: " f"{contrato_id}")
                 terceirizados = api.get_terceirizados_by_contrato_id(str(contrato_id))
 
+                # Adicionar dt_ingest a cada terceirizado
+                if terceirizados:
+                    for terceirizado in terceirizados:
+                        terceirizado["dt_ingest"] = datetime.now().isoformat()
+
                 logging.info(
                     f"Inserting terceirizados for contrato ID: "
                     f"{contrato_id} into PostgreSQL"

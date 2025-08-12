@@ -45,6 +45,10 @@ def programacao_financeira_dag() -> None:
         for ug_code in ug_codes:
             programacao_financeira = api.get_programacao_financeira_by_ug(ug_code)
             if programacao_financeira:
+                # Adicionar dt_ingest a cada item
+                for item in programacao_financeira:
+                    item["dt_ingest"] = datetime.now().isoformat()
+
                 db.insert_data(
                     programacao_financeira,
                     "programacao_financeira",

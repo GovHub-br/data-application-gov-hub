@@ -58,6 +58,7 @@ def siape_dados_dependentes_dag() -> None:
 
                 for row in dados:
                     row["cpf"] = cpf
+                    row["dt_ingest"] = datetime.now().isoformat()
 
                 db.alter_table(
                     data=dados[0],

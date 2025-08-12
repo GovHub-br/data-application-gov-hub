@@ -39,6 +39,7 @@ def api_empenhos_dag() -> None:
                 if empenhos:
                     for empenho in empenhos:
                         empenho["contrato_id"] = contrato_id
+                        empenho["dt_ingest"] = datetime.now().isoformat()
 
                 logging.info(
                     f"[empenhos_ingest_dag.py] Inserting empenhos for contrato ID: "

@@ -50,6 +50,10 @@ def api_contratos_dag() -> None:
             contratos = api.get_contratos_by_ug(ug_code)
 
             if contratos:
+                # Adicionar dt_ingest a cada contrato
+                for contrato in contratos:
+                    contrato["dt_ingest"] = datetime.now().isoformat()
+
                 logging.info(f"Inserindo contratos da UG {ug_code} no schema compras_gov")
                 db.insert_data(
                     contratos,

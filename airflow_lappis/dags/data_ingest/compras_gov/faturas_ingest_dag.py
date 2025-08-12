@@ -35,6 +35,11 @@ def api_faturas_dag() -> None:
                 )
                 faturas = api.get_faturas_by_contrato_id(str(contrato_id))
 
+                # Adicionar dt_ingest a cada fatura
+                if faturas:
+                    for fatura in faturas:
+                        fatura["dt_ingest"] = datetime.now().isoformat()
+
                 logging.info(
                     f"[faturas_ingest_dag.py] Inserting faturas for contrato ID: "
                     f"{contrato_id} into PostgreSQL"

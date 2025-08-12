@@ -63,6 +63,7 @@ def siape_afastamento_historico_dag() -> None:
 
                 for row in dados:
                     row["cpf"] = cpf
+                    row["dt_ingest"] = datetime.now().isoformat()
 
                 if dados:
                     db.alter_table(
