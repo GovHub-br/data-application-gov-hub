@@ -46,6 +46,10 @@ def api_unidade_organizacional_dag() -> None:
                 codigo_unidade=codigo_unidade,
             )
             if estrutura_resumida:
+                # Adicionar dt_ingest a cada item
+                for item in estrutura_resumida:
+                    item["dt_ingest"] = datetime.now().isoformat()
+
                 logging.info(
                     "[unidade_organizacional_ingest_dag.py] "
                     "Inserting estrutura organizacional resumida for "

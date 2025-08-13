@@ -92,6 +92,7 @@ def siape_dados_pa_dag() -> None:
                     continue
 
                 dados["cpf_servidor"] = cpf
+                dados["dt_ingest"] = datetime.now().isoformat()
 
                 db.alter_table(
                     data=dados,

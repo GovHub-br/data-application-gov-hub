@@ -221,6 +221,10 @@ with DAG(
 
             # Converte para CSV string
             df = pd.DataFrame(processed_data)
+
+            # Adicionar dt_ingest a cada registro
+            df["dt_ingest"] = datetime.now().isoformat()
+
             csv_string = df.to_csv(index=False)
 
             logging.info(

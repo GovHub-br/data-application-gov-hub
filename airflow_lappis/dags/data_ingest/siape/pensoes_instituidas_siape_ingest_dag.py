@@ -68,6 +68,10 @@ def siape_pensoes_instituidas_dag() -> None:
                     registro["id_registro"] = identificador
 
                 if dados:
+                    # Adicionar dt_ingest a cada registro
+                    for registro in dados:
+                        registro["dt_ingest"] = datetime.now().isoformat()
+
                     # Usa o primeiro registro para criar/ajustar a estrutura da tabela
                     db.alter_table(
                         data=dados[0],

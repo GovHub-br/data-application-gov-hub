@@ -57,6 +57,7 @@ def siape_dados_financeiros_dag() -> None:
                     continue
 
                 dados["cpf"] = cpf
+                dados["dt_ingest"] = datetime.now().isoformat()
 
                 db.alter_table(
                     data=dados,

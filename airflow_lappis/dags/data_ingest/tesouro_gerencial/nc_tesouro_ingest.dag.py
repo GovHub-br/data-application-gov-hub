@@ -157,6 +157,10 @@ with DAG(
 
             combined_data = enviadas_data + recebidas_data
 
+            # Adicionar dt_ingest a cada registro
+            for record in combined_data:
+                record["dt_ingest"] = datetime.now().isoformat()
+
             logging.info(f"Dados combinados: {len(combined_data)} registros no total.")
             return combined_data
         except Exception as e:

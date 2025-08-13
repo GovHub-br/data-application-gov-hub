@@ -60,6 +60,8 @@ def siape_lista_info_aposentadoria_dag() -> None:
                     logging.warning(f"Nenhum dado encontrado para CPF {cpf}")
                     continue
 
+                dados["dt_ingest"] = datetime.now().isoformat()
+
                 db.alter_table(
                     data=dados,
                     table_name="info_aposentadoria",

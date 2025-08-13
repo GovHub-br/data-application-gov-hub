@@ -186,6 +186,10 @@ with DAG(
             df = pd.read_csv(io.StringIO(combined_data))
             data = df.to_dict(orient="records")
 
+            # Adicionar dt_ingest a cada registro
+            for record in data:
+                record["dt_ingest"] = datetime.now().isoformat()
+
             postgres_conn_str = get_postgres_conn()
             db = ClientPostgresDB(postgres_conn_str)
 

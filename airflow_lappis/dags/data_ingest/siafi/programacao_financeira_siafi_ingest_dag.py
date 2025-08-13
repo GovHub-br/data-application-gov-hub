@@ -34,6 +34,7 @@ def programacao_financeira_siafi_dag() -> None:
                 ug_emitente, ano, num_lista
             )
             if response:
+                response["dt_ingest"] = datetime.now().isoformat()
                 db.insert_data(
                     [response],
                     "programacao_financeira_siafi",

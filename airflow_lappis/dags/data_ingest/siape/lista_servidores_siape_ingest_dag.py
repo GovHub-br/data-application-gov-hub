@@ -59,6 +59,7 @@ def siape_lista_servidores_dag() -> None:
 
                 for row in dados:
                     row["codUorg"] = str(cod)
+                    row["dt_ingest"] = datetime.now().isoformat()
 
                 db.insert_data(
                     dados,

@@ -39,6 +39,10 @@ def api_cronogramas_dag() -> None:
             )
             cronograma = api.get_cronograma_by_contrato_id(contrato_id)
             if cronograma:
+                # Adicionar dt_ingest a cada item do cronograma
+                for item in cronograma:
+                    item["dt_ingest"] = datetime.now().isoformat()
+
                 logging.info(
                     f"[cronograma_ingest_dag.py] Inserting cronograma for contrato ID: "
                     f"{contrato_id} into PostgreSQL"

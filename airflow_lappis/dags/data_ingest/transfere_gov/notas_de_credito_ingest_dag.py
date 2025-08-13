@@ -45,6 +45,10 @@ def notas_de_credito_dag() -> None:
         for ug_code in ug_codes:
             notas_de_credito = api.get_notas_de_credito_by_ug(ug_code)
             if notas_de_credito:
+                # Adicionar dt_ingest a cada nota
+                for nota in notas_de_credito:
+                    nota["dt_ingest"] = datetime.now().isoformat()
+
                 db.insert_data(
                     notas_de_credito,
                     "notas_de_credito",
