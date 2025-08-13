@@ -2120,7 +2120,7 @@ models:
         #   - not_null
         #   - dbt_utils.equal_length:
         #       value: 11
-models:
+
   - name: dados_dependentes 
     description: >
       Tabela bronze contendo dados de dependentes e benefícios associados,
