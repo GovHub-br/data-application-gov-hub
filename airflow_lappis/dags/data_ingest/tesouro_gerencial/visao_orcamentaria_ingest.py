@@ -101,6 +101,23 @@ with DAG(
             and elemento_desp not in ["", '""']
         )
 
+    def _clean_value(value: str) -> str:
+        """
+        Limpa e padroniza valores para inserção no banco.
+        Mantém todos os dados como TEXT para evitar problemas de conversão.
+        """
+        if not value or value in ["nan", "NaN", "None", "null", ""]:
+            return ""
+
+        # Remove aspas desnecessárias
+        cleaned = str(value).strip('"').strip()
+
+        # Trata valores especiais
+        if cleaned in ["nan", "NaN", "None", "null"]:
+            return ""
+
+        return cleaned
+
     def _process_data_block(data_lines: List[str], year: str) -> List[Dict[str, Any]]:
         """Processa um bloco de dados de um ano específico."""
         block_data = []
@@ -115,12 +132,13 @@ with DAG(
             # Remove aspas e limpa colunas
             columns = [col.strip('"').strip() for col in columns]
 
-            # Cria registro com mapeamento de colunas
-            row_data = {
-                col_name: columns[col_index] if col_index < len(columns) else ""
-                for col_index, col_name in COLUMN_MAPPING.items()
-            }
-            row_data["ano_exercicio"] = year
+            # Cria registro com mapeamento de colunas e limpeza de valores
+            row_data = {}
+            for col_index, col_name in COLUMN_MAPPING.items():
+                raw_value = columns[col_index] if col_index < len(columns) else ""
+                row_data[col_name] = _clean_value(raw_value)
+
+            row_data["ano_exercicio"] = str(year)
             block_data.append(row_data)
 
         return block_data
@@ -219,11 +237,14 @@ with DAG(
                 logging.warning("Nenhum dado foi processado do CSV.")
                 return None
 
-            # Converte para CSV string
             df = pd.DataFrame(processed_data)
 
             # Adicionar dt_ingest a cada registro
             df["dt_ingest"] = datetime.now().isoformat()
+
+            # Garantir que todos os valores sejam strings para evitar problemas de tipo
+            for col in df.columns:
+                df[col] = df[col].astype(str)
 
             csv_string = df.to_csv(index=False)
 
@@ -248,6 +269,13 @@ with DAG(
                 return
 
             df = pd.read_csv(io.StringIO(csv_data))
+
+            # Garantir que todos os valores sejam strings para evitar problemas de tipo
+            for col in df.columns:
+                df[col] = df[col].astype(str)
+                # Limpar valores NaN/None que podem ter sido introduzidos pelo pandas
+                df[col] = df[col].replace(["nan", "NaN", "None"], "")
+
             data = df.to_dict(orient="records")
 
             postgres_conn_str = get_postgres_conn()
@@ -266,9 +294,13 @@ with DAG(
             )
 
             # Remove duplicados
-            column_mapping_with_year = {**COLUMN_MAPPING, 30: "ano_exercicio"}
+            column_mapping_with_year = {
+                **COLUMN_MAPPING,
+                30: "ano_exercicio",
+                31: "dt_ingest",
+            }
             db.remove_duplicates(
-                "visao_orcamentaria_total_ipea", column_mapping_with_year, schema="siafi"
+                "visao_orcamentaria_total", column_mapping_with_year, schema="siafi"
             )
 
             logging.info("Limpeza de duplicados concluída com sucesso.")
