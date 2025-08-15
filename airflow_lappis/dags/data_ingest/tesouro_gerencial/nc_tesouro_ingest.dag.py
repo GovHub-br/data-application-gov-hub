@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, List, cast
+from typing import Dict, Any, cast
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models import Variable
@@ -43,9 +43,19 @@ COLUMN_MAPPING = {
     19: "movimento_liquido",
 }
 
-# Assuntos dos emails a serem processados
-EMAIL_SUBJECT_ENVIADAS = "notas_credito_enviadas_devolvidas_a_partir_de_2024"
-EMAIL_SUBJECT_RECEBIDAS = "notas_credito_recebidas_a_partir_de_2024"
+# Configurações dos emails
+EMAIL_CONFIGS = {
+    "enviadas": {
+        "subject": "notas_credito_enviadas_devolvidas_a_partir_de_2024",
+        "column_mapping": COLUMN_MAPPING,
+        "skiprows": 7,
+    },
+    "recebidas": {
+        "subject": "notas_credito_recebidas_a_partir_de_2024",
+        "column_mapping": None,
+        "skiprows": 3,
+    },
+}
 
 # Configurações da DAG
 with DAG(
@@ -58,111 +68,93 @@ with DAG(
     tags=["email", "ncs", "tesouro"],
 ) as dag:
 
-    def process_email_data_enviadas(**context: Dict[str, Any]) -> Optional[List[Dict]]:
+    def process_email_data(email_type: str, **context: Dict[str, Any]) -> pd.DataFrame:
         """
-        Função para processar os emails com notas de crédito enviadas.
+        Função genérica para processar emails de notas de crédito.
         """
-        creds = json.loads(Variable.get("email_credentials"))
-
-        EMAIL = creds["email"]
-        PASSWORD = creds["password"]
-        IMAP_SERVER = creds["imap_server"]
-        SENDER_EMAIL = creds["sender_email"]
+        config = EMAIL_CONFIGS[email_type]
+        creds_data = json.loads(Variable.get("email_credentials"))
+        creds = cast(Dict[str, str], creds_data)
+        config = cast(Dict[str, Any], config)
 
         try:
-            logging.info("Iniciando o processamento das NCs enviadas/devolvidas")
-            csv_data = cast(
-                Optional[List[Dict[Any, Any]]],
-                fetch_and_process_email(
-                    IMAP_SERVER,
-                    EMAIL,
-                    PASSWORD,
-                    SENDER_EMAIL,
-                    EMAIL_SUBJECT_ENVIADAS,
-                    COLUMN_MAPPING,
-                    skiprows=7,
-                ),
+            logging.info(f"Iniciando o processamento das NCs {email_type}")
+            csv_data = fetch_and_process_email(
+                creds["imap_server"],
+                creds["email"],
+                creds["password"],
+                creds["sender_email"],
+                config["subject"],
+                config["column_mapping"],
+                skiprows=config["skiprows"],
             )
+
             if not csv_data:
-                logging.warning("Nenhum e-mail encontrado com o assunto de NCs enviadas")
-                return []
+                logging.warning(f"Nenhum e-mail encontrado para NCs {email_type}")
+                return pd.DataFrame()
+
+            df = pd.read_csv(io.StringIO(csv_data))
+
+            # Se não tem mapeamento de colunas (recebidas), aplicar o mapeamento padrão
+            if config["column_mapping"] is None and not df.empty:
+                expected_columns = list(COLUMN_MAPPING.values())
+                if len(df.columns) == len(expected_columns):
+                    df.columns = pd.Index(expected_columns)
+                else:
+                    logging.warning(
+                        f"N coluna incompatível:{len(expected_columns)},{len(df.columns)}"
+                    )
 
             logging.info(
-                "CSV de NCs enviadas processado com sucesso. Dados encontrados: %s",
-                len(csv_data),
+                f"CSV de NCs {email_type} processado com sucesso: {len(df)} registros"
             )
-            return csv_data
+            return df
+
         except Exception as e:
             logging.error(
-                "Erro no processamento dos emails de notas de crédito enviadas: %s",
-                str(e),
+                f"Erro no processamento dos emails de NCs {email_type}: {str(e)}"
             )
             raise
 
-    def process_email_data_recebidas(**context: Dict[str, Any]) -> Optional[List[Dict]]:
-        """
-        Função para processar os emails com notas de crédito recebidas.
-        """
-        creds = json.loads(Variable.get("email_credentials"))
+    def process_email_data_enviadas(**context: Dict[str, Any]) -> pd.DataFrame:
+        """Wrapper para processar emails enviadas."""
+        return process_email_data("enviadas", **context)
 
-        EMAIL = creds["email"]
-        PASSWORD = creds["password"]
-        IMAP_SERVER = creds["imap_server"]
-        SENDER_EMAIL = creds["sender_email"]
+    def process_email_data_recebidas(**context: Dict[str, Any]) -> pd.DataFrame:
+        """Wrapper para processar emails recebidas."""
+        return process_email_data("recebidas", **context)
 
-        try:
-            logging.info("Iniciando o processamento das NCs recebidas...")
-            csv_data = cast(
-                Optional[List[Dict[Any, Any]]],
-                fetch_and_process_email(
-                    IMAP_SERVER,
-                    EMAIL,
-                    PASSWORD,
-                    SENDER_EMAIL,
-                    EMAIL_SUBJECT_RECEBIDAS,
-                    column_mapping=None,
-                    skiprows=3,
-                ),
-            )
-            if not csv_data:
-                logging.warning(
-                    "Nenhum e-mail encontrado com o assunto de NCs recebidas."
-                )
-                return []
-
-            logging.info(
-                "CSV de NCs recebidas processado com sucesso. Dados encontrados: %s",
-                len(csv_data),
-            )
-            return csv_data
-        except Exception as e:
-            logging.error(
-                "Erro no processamento dos emails de notas de crédito recebidas: %s",
-                str(e),
-            )
-            raise
-
-    def combine_data(**context: Dict[str, Any]) -> List[Dict]:
+    def combine_data(**context: Dict[str, Any]) -> pd.DataFrame:
         """
         Função para combinar os dados dos dois emails.
         """
         try:
             task_instance: Any = context["ti"]
-            enviadas_data = (
-                task_instance.xcom_pull(task_ids="process_emails_enviadas") or []
+            df_enviadas = cast(
+                pd.DataFrame, task_instance.xcom_pull(task_ids="process_emails_enviadas")
             )
-            recebidas_data = (
-                task_instance.xcom_pull(task_ids="process_emails_recebidas") or []
+            df_recebidas = cast(
+                pd.DataFrame, task_instance.xcom_pull(task_ids="process_emails_recebidas")
             )
 
-            combined_data = enviadas_data + recebidas_data
+            # Combinar DataFrames válidos
+            dfs = [
+                df
+                for df in [df_enviadas, df_recebidas]
+                if df is not None and not df.empty
+            ]
 
-            # Adicionar dt_ingest a cada registro
-            for record in combined_data:
-                record["dt_ingest"] = datetime.now().isoformat()
+            if not dfs:
+                logging.warning("Nenhum dado foi encontrado para combinar.")
+                return pd.DataFrame()
 
-            logging.info(f"Dados combinados: {len(combined_data)} registros no total.")
-            return combined_data
+            # Combinar os DataFrames e adicionar dt_ingest
+            combined_df = pd.concat(dfs, ignore_index=True)
+            combined_df["dt_ingest"] = datetime.now().isoformat()
+
+            logging.info(f"Dados combinados: {len(combined_df)} registros no total.")
+            return combined_df
+
         except Exception as e:
             logging.error(f"Erro ao combinar os dados: {str(e)}")
             raise
@@ -170,18 +162,16 @@ with DAG(
     def insert_data_to_db(**context: Dict[str, Any]) -> None:
         """
         Função para inserir os dados no banco de dados.
-        Os dados combinados são recuperados do XCom.
         """
         try:
             task_instance: Any = context["ti"]
-            combined_data = task_instance.xcom_pull(task_ids="combine_data")
+            combined_df = task_instance.xcom_pull(task_ids="combine_data")
 
-            if not combined_data:
+            if combined_df is None or combined_df.empty:
                 logging.warning("Nenhum dado para inserir no banco.")
                 return
 
-            df = pd.read_csv(io.StringIO(combined_data))
-            data = df.to_dict(orient="records")
+            data = combined_df.to_dict(orient="records")
 
             postgres_conn_str = get_postgres_conn()
             db = ClientPostgresDB(postgres_conn_str)
