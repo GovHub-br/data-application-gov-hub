@@ -297,7 +297,6 @@ with DAG(
             column_mapping_with_year = {
                 **COLUMN_MAPPING,
                 30: "ano_exercicio",
-                31: "dt_ingest",
             }
             db.remove_duplicates(
                 "visao_orcamentaria_total", column_mapping_with_year, schema="siafi"
