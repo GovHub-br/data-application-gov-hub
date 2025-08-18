@@ -37,6 +37,11 @@ models:
       +schema: ted
       views:
         +materialized: view
+    orcamento_dbt:
+      +materialized: table
+      +schema: orcamento
+      views:
+        +materialized: view
     # siape_dbt: 
     #   +materialized: table 
     #   +schema: siape 
