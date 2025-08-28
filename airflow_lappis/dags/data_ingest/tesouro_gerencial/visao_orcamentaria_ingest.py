@@ -273,13 +273,22 @@ with DAG(
             # Garantir que todos os valores sejam strings para evitar problemas de tipo
             for col in df.columns:
                 df[col] = df[col].astype(str)
-                # Limpar valores NaN/None que podem ter sido introduzidos pelo pandas
                 df[col] = df[col].replace(["nan", "NaN", "None"], "")
 
             data = df.to_dict(orient="records")
 
+            if not data:
+                logging.warning(
+                    "DataFrame está vazio após o processamento. Nada será inserido."
+                )
+                return
+
             postgres_conn_str = get_postgres_conn()
             db = ClientPostgresDB(postgres_conn_str)
+
+            # Dropa a tabela antes de inserir novos dados
+            db.drop_table_if_exists("visao_orcamentaria_total", schema="siafi")
+            logging.info("Tabela siafi.visao_orcamentaria_total dropada com sucesso.")
 
             # Insere os dados
             db.insert_data(
@@ -293,19 +302,8 @@ with DAG(
                 f"{len(data)} registros"
             )
 
-            # Remove duplicados
-            column_mapping_with_year = {
-                **COLUMN_MAPPING,
-                30: "ano_exercicio",
-            }
-            db.remove_duplicates(
-                "visao_orcamentaria_total", column_mapping_with_year, schema="siafi"
-            )
-
-            logging.info("Limpeza de duplicados concluída com sucesso.")
-
         except Exception as e:
-            logging.error(f"Erro ao inserir dados ou limpar duplicados: {str(e)}")
+            logging.error(f"Erro ao inserir dados: {str(e)}")
             raise
 
     # Definição das tarefas
