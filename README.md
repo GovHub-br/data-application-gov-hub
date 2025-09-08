@@ -4,7 +4,7 @@ O Gov Hub BR é uma iniciativa para enfrentar os desafios da fragmentação, red
 
 Potencializamos informações de sistemas como TransfereGov, Siape, Siafi, ComprasGov e Siorg para gerar diagnósticos estratégicos, indicadores confiáveis e decisões baseadas em evidências.
 
-![Informações do Projeto](docs/land/dist/images/imagem_informacoes.jpg)
+![Informações do Projeto](https://github.com/GovHub-br/gov-hub/blob/main/docs/land/dist/images/imagem_informacoes.jpg)
 
 - Transparência pública e cultura de dados abertos
 - Indicadores confiáveis para acompanhamento e monitoramento
@@ -16,9 +16,9 @@ Potencializamos informações de sistemas como TransfereGov, Siape, Siafi, Compr
 
 A arquitetura do Gov Hub BR é baseada na Arquitetura Medallion,  em um fluxo de dados que permite a coleta, transformação e visualização de dados.
 
-![Fluxo de Dados](fluxo_dados.jpg)
+![Fluxo de Dados](https://github.com/GovHub-br/gov-hub/blob/main/fluxo_dados.jpg)
 
-Para mais informações sobre o projeto, veja o nosso [e-book](docs/land/dist/ebook/GovHub_Livro-digital_0905.pdf).
+Para mais informações sobre o projeto, veja o nosso [e-book](https://github.com/GovHub-br/gov-hub/blob/main/docs/land/dist/ebook/GovHub_Livro-digital_0905.pdf).
 E temos também alguns slides falando do projeto e como ele pode ajudar a transformar a gestão pública.
 
 [Slides](https://www.figma.com/slides/PlubQE0gaiBBwFAV5GcVlH/Gov-Hub---F%C3%B3rum-IA---Giga-candanga?node-id=5-131&t=hlLiJiwfyPEPRFys-1)
@@ -30,6 +30,7 @@ Esse trabalho  é mantido pelo [Lab Livre](https://www.instagram.com/lab.livre/)
 ## Contato
 
 Para dúvidas, sugestões ou para contribuir com o projeto, entre em contato conosco: [lablivreunb@gmail.com](mailto:lablivreunb@gmail.com)
+
 
 # Data Pipeline Project
 
