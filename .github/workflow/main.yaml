@@ -1,0 +1,228 @@
+name: Python CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+    paths:
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  POETRY_VERSION: "1.8.5"
+  POETRY_VIRTUALENVS_IN_PROJECT: "true"
+  POETRY_CACHE_DIR: "/home/runner/.cache/poetry"
+  DBT_PROJECT_DIR: "${{ github.workspace }}/airflow_lappis/dags/dbt/ipea"
+  IMAGE_TAG: "ghcr.io/${{ github.repository }}/airflow-ipea:${{ github.sha }}"
+
+jobs:
+  analise_de_codigo:
+    name: Analisar Código
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o Repositório
+        uses: actions/checkout@v4
+
+      - name: Configuração do Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache de Dependências do Poetry
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.POETRY_CACHE_DIR }}
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Instalar Dependências do Projeto
+        run: |
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry config virtualenvs.in-project true
+          poetry install --no-root --with dev --no-interaction
+
+      - name: Executar Linter (Black, Flake8, MyPy, etc.)
+        run: poetry run make lint
+    
+  ---
+
+  testes_unitarios:
+    name: Executar Testes Unitários
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache de Dependências do Poetry
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.POETRY_CACHE_DIR }}
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Instalar Dependências do Projeto
+        run: |
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry config virtualenvs.in-project true
+          poetry install --no-root --with dev --no-interaction
+
+      - name: Executar Pytest
+        run: poetry run pytest tests --junitxml=report.xml --cov-report=xml:coverage.xml
+
+      - name: Enviar Relatório de Testes
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-junit
+          path: report.xml
+
+      - name: Enviar Relatório de Cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-cobertura
+          path: coverage.xml
+    
+  ---
+
+  analise_sonarcloud:
+    name: Análise com SonarCloud
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Baixar o Repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Instalar Dependências do Projeto
+        run: |
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry install --no-root --with dev --no-interaction
+
+      - name: Gerar Relatório de Cobertura
+        run: poetry run pytest tests --cov-report=xml:coverage.xml
+
+      - name: Executar Análise SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v2.2.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORG }}
+        with:
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
+          args: >
+            -Dsonar.exclusions=**/.cache/poetry/**/*,**/.venv/**/*,**/.cache/pip/**/*
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+
+  ---
+
+  construir_e_publicar_docker:
+    name: Construir & Publicar Imagem Docker
+    runs-on: ubuntu-latest
+    needs: [analise_de_codigo, testes_unitarios, analise_sonarcloud]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+    steps:
+      - name: Baixar o Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Acessar o GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construir e Publicar Imagem Docker
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ env.IMAGE_TAG }}
+          context: .
+
+  ---
+
+  deploy_docs_dbt:
+    name: Deploy da Documentação do DBT
+    runs-on: ubuntu-latest
+    needs: [construir_e_publicar_docker]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Baixar o Repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Dependências do DBT
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install openvpn iputils-ping
+          pip install dbt-core dbt-postgres
+
+      - name: Conectar à VPN Privada
+        env:
+          VPN_P12: ${{ secrets.VPN_P12 }}
+          VPN_USER: ${{ secrets.VPN_USER }}
+          VPN_PWD: ${{ secrets.VPN_PWD }}
+          CLIENT_OVPN: ${{ secrets.CLIENT_OVPN }}
+        run: |
+          mkdir -p /etc/openvpn
+          echo "$CLIENT_OVPN" > /etc/openvpn/client.ovpn
+          echo "$VPN_P12" | base64 --decode > /etc/openvpn/openvpn_ipea_vpn.p12
+          chmod 600 /etc/openvpn/openvpn_ipea_vpn.p12
+          echo "$VPN_USER" >/etc/openvpn/cred.txt
+          echo "$VPN_PWD" >>/etc/openvpn/cred.txt
+          chmod 600 /etc/openvpn/cred.txt
+          sudo openvpn --config /etc/openvpn/client.ovpn --auth-user-pass /etc/openvpn/cred.txt --verb 3 --daemon --log /tmp/ovpn.log
+          timeout=60
+          until grep -q 'Initialization Sequence Completed' /tmp/ovpn.log; do
+            sleep 1
+            (( timeout-- ))
+            if (( timeout == 0 )); then
+              echo "❌ VPN não inicializou em 60s" >&2
+              cat /tmp/ovpn.log
+              exit 1
+            fi
+          done
+          ping -c 4 10.0.0.73 || true
+
+      - name: Gerar Documentação do DBT
+        run: |
+          cd ${{ env.DBT_PROJECT_DIR }}
+          dbt deps
+          dbt docs generate
+          mkdir -p "${{ github.workspace }}/public"
+          mv target/* "${{ github.workspace }}/public/"
+
+      - name: Fazer o Upload dos Artefatos para o GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'public'
+
+      - name: Finalizar Processo da VPN
+        if: always()
+        run: sudo pkill openvpn || true
+      
+      - name: Concluir Deploy para o GitHub Pages
+        uses: actions/deploy-pages@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+
