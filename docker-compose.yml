@@ -86,7 +86,9 @@ services:
 
   # Analytics Tools
   superset:
-    image: apache/superset:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.superset  # Custom Dockerfile with PostgreSQL drivers
     environment:
       SUPERSET_SECRET_KEY: 'supersetadmin'
       SUPERSET_ENV: development
@@ -95,6 +97,12 @@ services:
       - "8088:8088"
     depends_on:
       - postgres
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8088/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     command: >
       /bin/sh -c "
       superset fab create-admin --username admin --firstname Admin --lastname User --email admin@superset.com --password admin &&
