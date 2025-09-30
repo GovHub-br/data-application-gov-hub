@@ -9,6 +9,7 @@ dist/
 **/*.lock
 __pycache__/
 .poetry/
+requirements.generated.txt
 
 # Cache directories
 .cache/

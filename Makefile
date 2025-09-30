@@ -7,7 +7,7 @@ setup:
 	poetry config warnings.export false
 	poetry lock
 	poetry install --no-root --with dev
-	poetry export --without-hashes --format=requirements.txt > requirements.txt
+	poetry export --without-hashes --format=requirements.txt > requirements.generated.txt
 	bash setup-git-hooks.sh
 
 format:
