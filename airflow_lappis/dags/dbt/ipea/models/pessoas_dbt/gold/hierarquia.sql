@@ -61,7 +61,7 @@ with
         left join
             {{ ref("unidade_organizacional") }} as uo
             on df.sigla_uorg_exercicio = uo.sigla
-        where dt_ocorr_aposentadoria is null
+        where dt_ocorr_aposentadoria is null and dt_ocorr_exclusao is null
     ),
 
     -- select count(*) from codigos_siape;
