@@ -48,12 +48,12 @@ EMAIL_CONFIGS = {
     "enviadas": {
         "subject": "notas_credito_enviadas_devolvidas_a_partir_de_2024",
         "column_mapping": COLUMN_MAPPING,
-        "skiprows": 7,
+        "skiprows": 10,
     },
     "recebidas": {
         "subject": "notas_credito_recebidas_a_partir_de_2024",
         "column_mapping": None,
-        "skiprows": 3,
+        "skiprows": 6,
     },
 }
 
