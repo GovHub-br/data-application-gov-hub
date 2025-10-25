@@ -52,66 +52,6 @@ class ClienteTed(ClienteBase):
             )
             return None
 
-    def get_notas_de_credito_by_ug(self, ug_code: int) -> list | None:
-        endpoint_1 = f"nota_credito?cd_ug_favorecida_nota=eq.{ug_code}"
-        endpoint_2 = f"nota_credito?cd_ug_emitente_nota=eq.{ug_code}"
-
-        logging.info(f"Buscando notas de crédito para UG: {ug_code}")
-
-        status_1, data_1 = self.request(
-            http.HTTPMethod.GET, endpoint_1, headers=self.BASE_HEADER
-        )
-        status_2, data_2 = self.request(
-            http.HTTPMethod.GET, endpoint_2, headers=self.BASE_HEADER
-        )
-
-        if status_1 == http.HTTPStatus.OK and isinstance(data_1, list):
-            logging.info(f"Notas de crédito (favorecida) obtidas para UG {ug_code}")
-        else:
-            logging.warning(f"Falha ao buscar notas de crédito - Status: {status_1}")
-            data_1 = []
-
-        if status_2 == http.HTTPStatus.OK and isinstance(data_2, list):
-            logging.info(f"Notas de crédito (emitente) obtidas para UG {ug_code}")
-        else:
-            logging.warning(f"Falha ao buscar notas de crédito - Status: {status_2}")
-            data_2 = []
-
-        data = data_1 + data_2
-        return data if data else None
-
-    def get_programacao_financeira_by_ug(self, ug_code: int) -> list | None:
-        endpoint_1 = f"programacao_financeira?ug_favorecida_programacao=eq.{ug_code}"
-        endpoint_2 = f"programacao_financeira?ug_emitente_programacao=eq.{ug_code}"
-
-        logging.info(f"Buscando programação financeira para UG: {ug_code}")
-
-        status_1, data_1 = self.request(
-            http.HTTPMethod.GET, endpoint_1, headers=self.BASE_HEADER
-        )
-        status_2, data_2 = self.request(
-            http.HTTPMethod.GET, endpoint_2, headers=self.BASE_HEADER
-        )
-
-        if status_1 == http.HTTPStatus.OK and isinstance(data_1, list):
-            logging.info(f"Programação financeira (favorecida) obtida para UG {ug_code}")
-        else:
-            logging.warning(
-                f"Falha ao buscar programação financeira - Status: {status_1}"
-            )
-            data_1 = []
-
-        if status_2 == http.HTTPStatus.OK and isinstance(data_2, list):
-            logging.info(f"Programação financeira (emitente) obtida para UG {ug_code}")
-        else:
-            logging.warning(
-                f"Falha ao buscar programação financeira - Status: {status_2}"
-            )
-            data_2 = []
-
-        data = data_1 + data_2
-        return data if data else None
-
     def get_planos_acao_by_id_programa(self, id_programa: str) -> list | None:
 
         endpoint = f"plano_acao?id_programa=eq.{id_programa}"
@@ -151,4 +91,36 @@ class ClienteTed(ClienteBase):
                 f"Failed to fetch programas for sigla_unidade_descentralizadora: "
                 f"{sigla} with status: {status}"
             )
+            return None
+
+    def get_notas_de_credito_by_id_plano_acao(self, id_plano_acao: int) -> list | None:
+        endpoint = f"nota_credito?id_plano_acao=eq.{id_plano_acao}"
+
+        logging.info(f"Buscando notas de crédito pelo plano de ação: {id_plano_acao}")
+
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER
+        )
+       
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            logging.info(f"Notas de crédito obtidas para plano de ação {id_plano_acao}")
+            return data
+        else:
+            logging.warning(f"Falha ao buscar notas de crédito - Status: {status}")
+            return None
+    
+    def get_programacao_financeira_by_id_plano_acao(self, id_plano_acao: int) -> list | None:
+        endpoint = f"programacao_financeira?id_plano_acao=eq.{id_plano_acao}"
+
+        logging.info(f"Buscando programação financeira pelo plano de ação: {id_plano_acao}")
+
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER
+        )
+       
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            logging.info(f"Programação financeira obtidas para plano de ação {id_plano_acao}")
+            return data
+        else:
+            logging.warning(f"Falha ao buscar programação financeira - Status: {status}")
             return None
