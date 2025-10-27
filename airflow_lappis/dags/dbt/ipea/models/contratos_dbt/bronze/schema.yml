@@ -1,0 +1,465 @@
+version: 2
+
+models:
+
+  # Contratos DBT
+
+  ## Bronze
+  - name: contratos
+    description: >
+      Tabela com informações sobre contratos, incluindo detalhes como o valor do contrato, a data de início e término, e o status do contrato.
+      Esta tabela é fundamental para entender a execução e o cumprimento dos contratos firmados.
+      A tabela é atualizada diariamente e contém dados de contratos firmados pelo IPEA.
+      A tabela realiza validações e limpezas dos dados extraídos do ComprasGov, incluindo formatação adequada de valores numéricos,
+      remoção de caracteres especiais em CPF/CNPJ e normalização de datas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id
+        description: >
+          Identificador único do contrato, utilizado para referenciar o contrato em outras tabelas e análises.
+      - name: receita_despesa
+        description: >
+          Indica se o contrato é de receita ou despesa.
+      - name: numero
+        description: >
+          Número do contrato no sistema ComprasGov.
+      - name: fornecedor_tipo
+        description: >
+          Tipo do fornecedor (PF, PJ, IDGENERICO para empresas do exterior).
+      - name: fornecedor_nome
+        description: >
+          Nome do fornecedor contratado.
+      - name: tipo
+        description: >
+          Tipo de contrato ( Contrato, Empenho, Termo de Compromisso, etc.).
+      - name: situacao
+        description: >
+          Situação atual do contrato ( Ativo, Inativo).
+      - name: categoria
+        description: >
+          Categoria do contrato ( Informática, Serviços, Mão de Obra, Serviços de Engenharia, etc.).
+      - name: objeto
+        description: >
+          Descrição do objeto contratado.
+      - name: codigo_modalidade
+        description: >
+          Código que identifica a modalidade do contrato.
+      - name: modalidade
+        description: >
+          Modalidade do contrato ( Pregão, Dispensa, Inexigibilidade, etc.).
+      - name: num_parcelas
+        description: >
+          Número de parcelas para pagamento do contrato.
+      - name: valor_inicial
+        description: >
+          Valor inicial do contrato, formatado como numérico.
+      - name: valor_global
+        description: >
+          Valor total do contrato após eventuais aditivos, formatado como numérico.
+      - name: valor_parcela
+        description: >
+          Valor de cada parcela do contrato, formatado como numérico.
+      - name: valor_acumulado
+        description: >
+          Valor acumulado já realizado do contrato, formatado como numérico.
+      - name: fornecedor_cnpj_cpf_idgener
+        description: >
+          CNPJ, CPF ou identificador genérico do fornecedor, com formatação padronizada para remoção de caracteres especiais.
+      - name: processo
+        description: >
+          Número do processo administrativo relacionado ao contrato, formatado para remover caracteres especiais.
+      - name: data_assinatura
+        description: >
+          Data em que o contrato foi assinado, validada e convertida para formato de data padrão.
+      - name: data_publicacao
+        description: >
+          Data de publicação do contrato no Diário Oficial, validada e convertida para formato de data padrão.
+      - name: vigencia_inicio
+        description: >
+          Data de início da vigência do contrato, validada e convertida para formato de data padrão.
+      - name: vigencia_fim
+        description: >
+          Data de término da vigência do contrato, validada e convertida para formato de data padrão.
+    data_tests: 
+      - row_count_match:
+          source_table: compras_gov.contratos
+          target_table: contratos.contratos
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'num_parcelas'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'valor_inicial'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'valor_global'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'valor_parcela'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'valor_acumulado'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'data_assinatura'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'data_publicacao'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'data_proposta_comercial'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'vigencia_inicio'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'vigencia_fim'
+          tipo_esperado: 'date'
+
+  - name: cronogramas
+    description: >
+      Essa tabela contém informações sobre as despesas mensais programadas para cada contrato.
+      Os dados são extraídos da tabela cronograma do ComprasGov, com valores formatados adequadamente.
+      Apresenta o planejamento financeiro do contrato distribuído em parcelas mensais.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id
+        description: >
+          Identificador único do cronograma.
+      - name: contrato_id
+        description: >
+          Identificador do contrato relacionado ao cronograma.
+      - name: tipo
+        description: >
+          Tipo de cada item do cronograma.
+      - name: mesref
+        description: >
+          Mês de referência do cronograma.
+      - name: anoref
+        description: >
+          Ano de referência do cronograma.
+      - name: valor
+        description: >
+          Valor programado para o mês e ano de referência, formatado como numérico.
+      - name: vencimento
+        description: >
+          Data de vencimento da parcela do cronograma.
+    data_tests: 
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'id'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'contrato_id'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'mesref'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'anoref'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'valor'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'vencimento'
+          tipo_esperado: 'date'
+
+  - name: faturas
+    description: >
+      Essa tabela contém informações sobre as faturas emitidas mensalmente de cada contrato.
+      Os dados são extraídos da tabela faturas do ComprasGov com formatação adequada de valores numéricos e datas.
+      A tabela inclui um processamento adicional para extrair informações dos empenhos a partir do campo JSON dados_empenho.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id
+        description: >
+          Identificador único da fatura.
+      - name: contrato_id
+        description: >
+          Identificador do contrato relacionado à fatura.
+      - name: numero
+        description: >
+          Número da fatura emitida pelo fornecedor.
+      - name: emissao
+        description: >
+          Data de emissão da fatura pelo fornecedor.
+      - name: prazo
+        description: >
+          Data limite para pagamento da fatura.
+      - name: vencimento
+        description: >
+          Data de vencimento da fatura.
+      - name: valor
+        description: >
+          Valor bruto da fatura, formatado como numérico.
+      - name: juros
+        description: >
+          Valor de juros aplicados à fatura, formatado como numérico.
+      - name: multa
+        description: >
+          Valor de multa aplicada à fatura, formatado como numérico.
+      - name: glosa
+        description: >
+          Valor de glosa aplicada à fatura, formatado como numérico.
+      - name: valorliquido
+        description: >
+          Valor líquido da fatura após subtrações de glosas, multas ou juros, formatado como numérico.
+      - name: situacao
+        description: >
+          Status atual da fatura (Pago ou Pendente).
+      - name: mesref
+        description: >
+          Mês de referência da fatura.
+      - name: anoref
+        description: >
+          Ano de referência da fatura.
+      - name: id_empenho
+        description: >
+          Identificador do empenho extraído do campo JSON dados_empenho.
+      - name: numero_empenho
+        description: >
+          Número do empenho relacionado à fatura, extraído do campo JSON dados_empenho e convertido para maiúsculas.
+      - name: valor_empenho
+        description: >
+          Valor do empenho extraído do campo JSON dados_empenho.
+    data_tests:
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'id'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'contrato_id'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'emissao'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'prazo'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'vencimento'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'valor'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'juros'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'multa'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'glosa'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'valorliquido'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'protocolo'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'ateste'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'mesref'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'anoref'
+          tipo_esperado: 'integer'
+
+  - name: empenhos
+    description: >
+      Essa tabela contém informações sobre os empenhos de cada contrato extraídos do ComprasGov.
+      Os dados são formatados adequadamente para garantir consistência nos tipos numéricos e de data.
+      Registra os compromissos de pagamento assumidos pela administração para cada contrato.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id
+        description: >
+          Identificador único do empenho no ComprasGov.
+      - name: contrato_id
+        description: >
+          Identificador do contrato relacionado ao empenho.
+      - name: nota_empenho
+        description: >
+          Número da nota de empenho registrada no sistema.
+      - name: credor
+        description: >
+          Nome ou razão social do credor do empenho.
+      - name: credor_obj_cnpj_cpf_idgener
+        description: >
+          CNPJ, CPF ou identificador genérico do credor do empenho.
+      - name: empenhado
+        description: >
+          Valor total empenhado, formatado como numérico.
+      - name: aliquidar
+        description: >
+          Valor a liquidar do empenho, formatado como numérico.
+      - name: liquidado
+        description: >
+          Valor já liquidado do empenho, formatado como numérico.
+      - name: pago
+        description: >
+          Valor já pago do empenho, formatado como numérico.
+      - name: rpinscrito
+        description: >
+          Valor inscrito em restos a pagar, formatado como numérico.
+      - name: rpaliquidar
+        description: >
+          Valor inscrito em restos a pagar a liquidar, formatado como numérico.
+      - name: rpliquidado
+        description: >
+          Valor inscrito em restos a pagar já liquidado, formatado como numérico.
+      - name: rppago
+        description: >
+          Valor inscrito em restos a pagar já pago, formatado como numérico.
+      - name: data_emissao
+        description: >
+          Data de emissão do empenho, validada e convertida para formato de data padrão.
+    data_tests: 
+      - row_count_match:
+          source_table: compras_gov.empenhos
+          target_table: contratos.empenhos
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'empenhado'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'aliquidar'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'liquidado'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'pago'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'rpinscrito'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'rpaliquidar'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'rpliquidado'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'rppago'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'data_emissao'
+          tipo_esperado: 'date'
+
+  - name: empenhos_tesouro
+    description: >
+      Essa tabela contém informações sobre movimentação financeira dos empenhos extraídos do SIAFI.
+      Contém dados de empenhos do Tesouro Nacional com formatação de valores financeiros através da macro parse_financial_value.
+      Apresenta valores para as diferentes etapas da execução orçamentária (empenho, liquidação, pagamento).
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: emissao_mes
+        description: >
+          Mês de emissão do empenho.
+      - name: emissao_dia
+        description: >
+          Data específica de emissão do empenho.
+      - name: ne_ccor
+        description: >
+          Número completo da nota de empenho no SIAFI.
+      - name: ne_num_processo
+        description: >
+          Número do processo relacionado ao empenho, com formatação para remover caracteres especiais.
+      - name: ne_info_complementar
+        description: >
+          Informações complementares sobre o empenho.
+      - name: ne_ccor_favorecido
+        description: >
+          CNPJ ou CPF do favorecido, formatado em caixa alta.
+      - name: ne_ccor_ano_emissao
+        description: >
+          Ano de emissão do empenho, filtrado para incluir apenas empenhos a partir do ano 2000.
+      - name: despesas_empenhadas
+        description: >
+          Valor das despesas empenhadas, formatado como numérico.
+      - name: despesas_liquidadas
+        description: >
+          Valor das despesas liquidadas, formatado como numérico.
+      - name: despesas_pagas
+        description: >
+          Valor das despesas pagas, formatado como numérico.
+      - name: restos_a_pagar_inscritos
+        description: >
+          Valor dos restos a pagar inscritos, formatado como numérico.
+      - name: restos_a_pagar_pagos
+        description: >
+          Valor dos restos a pagar pagos, formatado como numérico.
+    data_tests:
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'ne_ccor_ano_emissao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'despesas_empenhadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'despesas_liquidadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'despesas_pagas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'restos_a_pagar_inscritos'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'restos_a_pagar_pagos'
+          tipo_esperado: 'numeric'
