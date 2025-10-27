@@ -24,26 +24,13 @@ def programacao_financeira_dag() -> None:
     def fetch_and_store_programacao_financeira() -> None:
         logging.info("Iniciando fetch_and_store_programacao_financeira")
 
-        orgao_alvo = Variable.get("airflow_orgao", default_var=None)
-        if not orgao_alvo:
-            logging.error("Variável airflow_orgao não definida!")
-            raise ValueError("airflow_orgao não definida")
-
-        orgaos_config_str = Variable.get("airflow_variables", default_var="{}")
-        orgaos_config = yaml.safe_load(orgaos_config_str)
-
-        ug_codes = orgaos_config.get(orgao_alvo, {}).get("codigos_ug", [])
-
-        if not ug_codes:
-            logging.warning(f"Nenhum código UG encontrado para o órgão '{orgao_alvo}'")
-            return
-
         api = ClienteTed()
         postgres_conn_str = get_postgres_conn()
         db = ClientPostgresDB(postgres_conn_str)
+        id_planos_acao = db.get_id_planos_acao()
 
-        for ug_code in ug_codes:
-            programacao_financeira = api.get_programacao_financeira_by_ug(ug_code)
+        for id_plano_acao in id_planos_acao:
+            programacao_financeira = api.get_programacao_financeira_by_id_plano_acao(id_plano_acao)
             if programacao_financeira:
                 # Adicionar dt_ingest a cada item
                 for item in programacao_financeira:
@@ -58,7 +45,7 @@ def programacao_financeira_dag() -> None:
                 )
             else:
                 logging.warning(
-                    f"Nenhuma programação financeira encontrada para UG {ug_code}"
+                    f"Nenhuma programação financeira encontrada plano de ação {id_plano_acao}"
                 )
 
     fetch_and_store_programacao_financeira()
