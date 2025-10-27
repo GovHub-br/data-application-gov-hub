@@ -1,0 +1,320 @@
+version: 2
+
+models:
+
+
+  # Silver
+  - name: afastamento_consolidado
+    description: >
+      Tabela gold que consolida os registros de afastamento dos servidores, integrando as fontes 
+      `dados_afastamento` e `afastamento_historico`, com enriquecimento de informações vindas de 
+      `dados_pessoais` (nome do servidor) e `dados_funcionais` (função e unidade de exercício).
+      O processo inclui deduplicação inteligente priorizando os registros mais confiáveis, 
+      utilizando lógica de ranking e partição por CPF e data de início do afastamento.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: adiantamento_salario_ferias
+        description: Indica se houve adiantamento de salário junto às férias no período do afastamento.
+      - name: ano_exercicio
+        description: Ano de exercício a que o afastamento se refere.
+      - name: dt_fim
+        description: Data de término do afastamento.
+      - name: dt_fim_aquisicao
+        description: Data final do período aquisitivo das férias relacionadas ao afastamento.
+      - name: dt_ini
+        description: Data de início do afastamento.
+      - name: dt_inicio_aquisicao
+        description: Data inicial do período aquisitivo de férias.
+      - name: dt_inicio_ferias_interrompidas
+        description: Data de início das férias interrompidas, se houver.
+      - name: dias_restantes
+        description: Quantidade de dias restantes de férias ou afastamento.
+      - name: gratificacao_natalina
+        description: Indica se houve gratificação natalina no período do afastamento.
+      - name: numero_parcela
+        description: Número da parcela relacionada ao afastamento.
+      - name: parcela_continuacao_interrupcao
+        description: Indica se o afastamento é continuação ou interrupção de uma parcela anterior.
+      - name: parcela_interrompida
+        description: Indica se a parcela foi interrompida.
+      - name: qtde_dias
+        description: Quantidade total de dias do afastamento.
+      - name: cpf
+        description: CPF do servidor.
+      - name: cod_diploma_afastamento
+        description: Código do diploma legal que ampara o afastamento.
+      - name: cod_ocorrencia
+        description: Código da ocorrência de afastamento.
+      - name: dt_publicacao_afastamento
+        description: Data de publicação do afastamento no diário oficial ou sistema correspondente.
+      - name: desc_diploma_afastamento
+        description: Descrição textual do diploma legal de afastamento.
+      - name: desc_ocorrencia
+        description: Descrição da ocorrência relacionada ao afastamento.
+      - name: numero_diploma_afastamento
+        description: Número do diploma legal do afastamento.
+      - name: gr_matricula
+        description: Número da matrícula do servidor no sistema GRH, quando disponível.
+      - name: origem_dados
+        description: Origem do dado de afastamento (`dados_afastamento` ou `afastamento_historico`).
+      - name: nome_pessoa
+        description: Nome completo do servidor, obtido a partir da tabela de dados pessoais.
+      - name: cod_funcao
+        description: Código da função de chefia ou cargo de confiança ocupado pelo servidor no momento do afastamento.
+      - name: sigla_uorg_exercicio
+        description: Sigla da unidade organizacional onde o servidor exercia suas funções.
+
+
+
+  - name: quantitativo_alocados_ocupados
+    description: >
+      Tabela gold que consolida e compara os quantitativos de cargos ocupados e cargos previstos
+      em funções de chefia, correlacionando os dados dos sistemas SIAPE e SIORG. A lógica aplica
+      uma combinação heurística de códigos de função com base na estrutura dos códigos e siglas
+      das unidades organizacionais, com objetivo de identificar inconsistências, sobras ou
+      vacâncias entre as vagas disponíveis e as efetivamente ocupadas.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: codigo_siape
+        description: Código da função do servidor registrado no SIAPE (`cod_funcao`), representando funções ocupadas.
+      - name: codigo_siorg
+        description: Código da função de chefia conforme registrado no SIORG (`funcao`), representando vagas previstas.
+      - name: nomeunidade
+        description: Nome da unidade organizacional, obtido da base SIORG ou SIAPE (com prioridade para SIORG).
+      - name: siglaunidade
+        description: Sigla da unidade organizacional, unificada a partir das duas fontes (com prioridade para SIORG). 
+      - name: nome_cargo
+        description: Nome ou denominação do cargo/função de chefia, com base em SIORG ou SIAPE.
+      - name: qtd_vagas_cargo
+        description: Quantidade de vagas previstas para o cargo de chefia na estrutura organizacional (dados do SIORG).
+      - name: qtd_vagas_ocupadas
+        description: Quantidade de cargos de chefia efetivamente ocupados, com base nos registros de servidores no SIAPE.
+      - name: qtd_cargos_vagos
+        description: >
+          Diferença entre o número de vagas previstas (`qtd_vagas_cargo`) e as ocupadas (`qtd_vagas_ocupadas`).
+          Indica o total de cargos vagos. Retorna `null` se a quantidade de vagas previstas não estiver disponível.
+
+
+  - name: servidores_detalhados
+    description: >
+      Tabela gold que consolida dados pessoais, funcionais, educacionais e organizacionais dos servidores.
+      Integra informações de múltiplas fontes do SIAPE, combinando registros de identificação, vínculo funcional,
+      escolaridade, endereço da unidade de exercício e metadados de transações. Essa visão é útil para análises
+      completas do perfil dos servidores ativos e inativos, permitindo estudos sociodemográficos, funcionais e
+      institucionais detalhados.
+    meta:
+      tags:
+        - silver
+    columns:
+      # Dados pessoais
+      - name: cpf
+        description: CPF do servidor, utilizado como chave primária de junção entre as bases.
+      - name: nome_pessoa
+        description: Nome completo do servidor.
+      - name: dt_nascimento
+        description: Data de nascimento do servidor.
+      - name: nome_cor
+        description: Cor/raça autodeclarada do servidor.
+      - name: nome_estado_civil
+        description: Estado civil declarado.
+      - name: nome_mae
+        description: Nome da mãe do servidor.
+      - name: nome_pai
+        description: Nome do pai do servidor.
+      - name: nome_municipio_nascimento
+        description: Município de nascimento do servidor.
+      - name: nome_nacionalidade
+        description: Nacionalidade declarada.
+      - name: nome_sexo
+        description: Sexo/gênero do servidor.
+
+      # Dados funcionais
+      - name: matricula_siape
+        description: Matrícula SIAPE do servidor.
+      - name: nome_funcao
+        description: Nome da função de chefia ou cargo comissionado exercido, se houver.
+      - name: cod_funcao
+        description: Código da função exercida.
+      - name: nome_cargo
+        description: Nome do cargo efetivo.
+      - name: cod_cargo
+        description: Código do cargo efetivo.
+      - name: nome_jornada
+        description: Jornada de trabalho do servidor.
+      - name: dt_ingresso_funcao
+        description: Data de ingresso na função atual.
+      - name: nome_regime_juridico
+        description: Regime jurídico do vínculo funcional.
+      - name: nome_situacao_funcional
+        description: Situação funcional (ativo, cedido, aposentado etc).
+      - name: participa_pgd
+        description: Indica se o servidor participa do Programa de Gestão (teletrabalho).
+
+      # Escolaridade e titulação
+      - name: nome_escolaridade_principal
+        description: Nível de escolaridade mais elevado do servidor.
+      - name: nome_titulacao_principal
+        description: Título acadêmico mais elevado do servidor ( mestrado, doutorado).
+
+      # Unidade organizacional
+      - name: nome_uorg_exercicio
+        description: Nome da unidade organizacional onde o servidor exerce atualmente.
+      - name: sigla_uorg_exercicio
+        description: Sigla da unidade de exercício.
+      - name: nome_uorg_lotacao
+        description: Nome da unidade de lotação original.
+      - name: sigla_uorg_lotacao
+        description: Sigla da unidade de lotação.
+      - name: nome_orgao_funcional
+        description: Nome do órgão funcional ao qual o servidor está vinculado.
+      - name: sigla_orgao_funcional
+        description: Sigla do órgão funcional.
+
+      # Endereço da unidade
+      - name: logradouro_uorg
+        description: Nome do logradouro da unidade.
+      - name: numero_endereco_uorg
+        description: Número do endereço da unidade.
+      - name: complemento_endereco_uorg
+        description: Complemento do endereço.
+      - name: bairro_uorg
+        description: Bairro onde a unidade está localizada.
+      - name: cep_uorg
+        description: CEP da unidade.
+      - name: nome_municipio_uorg
+        description: Município da unidade.
+      - name: uf_uorg
+        description: Unidade federativa da unidade.
+
+      # Contatos institucionais
+      - name: email_institucional
+        description: Email institucional do servidor.
+      - name: email_servidor
+        description: Email alternativo do servidor.
+      - name: email_chefia_imediata
+        description: Email da chefia imediata.
+      - name: telefone_uorg
+        description: Telefone da unidade de exercício.
+      - name: fax_uorg
+        description: Fax da unidade de exercício.
+
+      # Metadados e auditoria
+      - name: ident_unica_funcional
+        description: Identificador único funcional, usado para rastreamento interno.
+      - name: dt_ultima_transacao_servidor
+        description: Data da última transação registrada no sistema para o servidor.
+
+      # Informações complementares
+      - name: cod_ocorr_aposentadoria
+        description: Código da ocorrência de aposentadoria (se houver).
+      - name: dt_ocorr_aposentadoria
+        description: Data da aposentadoria.
+      - name: cod_vale_transporte
+        description: Código do vale transporte.
+      - name: valor_vale_transporte
+        description: Valor mensal do vale transporte recebido.
+      - name: pontuacao_desempenho
+        description: Pontuação de desempenho do servidor, se aplicável.
+
+
+
+
+  - name: tabela_correlacao_cargos
+    description: >
+      Tabela final que correlaciona cargos entre os sistemas SIAPE e SIORG, utilizando 
+      combinações de códigos e unidades organizacionais. Cada linha representa um servidor 
+      com informações enriquecidas da função e da chefia, além da hierarquia do cargo e 
+      dados pessoais básicos. Essa tabela é útil para analisar discrepâncias, estruturar 
+      a hierarquia funcional e verificar se as funções atribuídas no SIAPE estão 
+      corretamente refletidas no SIORG.
+
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: codigo_siape
+        description: Código da função no SIAPE.
+      - name: codigo_siorg
+        description: Código da função no SIORG.
+      - name: codigo_combinacao_siape
+        description: Código combinado utilizado para comparar cargos no SIAPE.
+      - name: codigo_combinacao_siorg
+        description: Código combinado utilizado para comparar cargos no SIORG.
+      - name: matricula_siape
+        description: Matrícula do servidor no sistema SIAPE.
+      - name: cpf
+        description: CPF do servidor titular do cargo.
+      - name: cpf_chefia_imediata
+        description: CPF da chefia imediata do servidor.
+      - name: cod_situacao_funcional
+        description: Código da situação funcional do servidor no SIAPE.
+      - name: nome_situacao_funcional
+        description: Descrição da situação funcional.
+      - name: hierarquia_cargo
+        description: Valor numérico que representa a posição hierárquica do cargo. Quanto menor, mais alto o cargo.
+      - name: servidor
+        description: Nome do servidor titular do cargo.
+      - name: dt_nascimento
+        description: Data de nascimento do servidor.
+      - name: nome_sexo
+        description: Sexo do servidor.
+      - name: nome_estado_civil
+        description: Estado civil do servidor.
+      - name: nome_nacionalidade
+        description: Nacionalidade do servidor.
+      - name: nome_cor
+        description: Cor/raça autodeclarada pelo servidor.
+      - name: uf_nascimento
+        description: Unidade Federativa (UF) de nascimento.
+      - name: nome_municipio_nascimento
+        description: Município de nascimento do servidor.
+      - name: nome_chefia
+        description: Nome da chefia imediata, obtido pelo CPF da chefia.
+      - name: codigounidade
+        description: Código da unidade organizacional onde o cargo está lotado.
+      - name: codigounidadepai
+        description: Código da unidade organizacional imediatamente superior.
+      - name: caminho_unidade
+        description: Caminho hierárquico da unidade organizacional, representando sua posição na estrutura.
+      - name: ordem_grandeza
+        description: Nível de profundidade da unidade na hierarquia institucional.
+      - name: nomeunidade
+        description: Nome da unidade organizacional.
+      - name: siglaunidade
+        description: Sigla da unidade organizacional.
+      - name: nome_cargo
+        description: Denominação do cargo ocupado, conforme SIAPE ou SIORG.
+      - name: servidores_carreira
+        description: Classificação se o cargo é de carreira ou nomeação livre.
+
+
+  - name: unidades_organizacionais_siorg_siape
+    description: >
+      Tabela que correlaciona as unidades organizacionais do SIAPE e do SIORG,
+      com base na correspondência entre os códigos e siglas das unidades. 
+      Essa tabela é utilizada para identificar quais unidades estão presentes 
+      em ambos os sistemas, apenas no SIAPE ou apenas no SIORG.
+
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: nome_unidade
+        description: Nome da unidade organizacional, proveniente do SIAPE ou SIORG.
+      - name: sigla_uorg
+        description: Sigla da unidade organizacional. Pode vir do SIAPE (dados_uorg) ou do SIORG (unidade_organizacional).
+      - name: codigo_unidade_siape
+        description: Código da unidade organizacional segundo o SIAPE (extraído de dados_uorg).
+      - name: codigo_unidade_siorg
+        description: Código da unidade organizacional segundo o SIORG (coluna codigounidade).
+      - name: tipo_correlacao
+        description: >
+          Tipo de correspondência encontrada entre os sistemas:
+          - "ambos": unidade presente no SIAPE e SIORG.
+          - "apenas_siorg": presente apenas no SIORG.
+          - "apenas_siape": presente apenas no SIAPE.
+
