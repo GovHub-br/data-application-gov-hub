@@ -1,0 +1,225 @@
+version: 2
+
+models:
+
+  # TED DBT
+  - name: pf_tesouro
+    description: >
+      Esta tabela contém registros de Programações Financeiras extraídas do SIAFI, detalhando informações como tipo de programação, data de execução e valor. 
+      A tabela é atualizada diariamente e reflete as autorizações de movimentação financeira no âmbito da execução orçamentária federal.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: emissao_mes
+      description: >
+        Mês de emissão da Programação Financeira.
+    - name: emissao_dia
+      description: >
+        Dia de emissão da Programação Financeira.
+    - name: ug_emitente
+      description: >
+        Código da Unidade Gestora responsável pela emissão da Programação Financeira.
+    - name: ug_emitente_descricao
+      description: >
+        Nome ou descrição da Unidade Gestora emitente da Programação Financeira.
+    - name: ug_favorecido
+      description: >
+        Código da Unidade Gestora favorecida pela Programação Financeira.
+    - name: ug_favorecido_descricao
+      description: >
+        Nome ou descrição da Unidade Gestora favorecida pela Programação Financeira.
+    - name: pf_evento
+      description: >
+        Código do evento contábil associado à Programação Financeira, representando a natureza da transação.
+    - name: pf_evento_descricao
+      description: >
+        Descrição do evento contábil vinculado à Programação Financeira.
+    - name: pf
+      description: >
+        Número identificador único da Programação Financeira.
+    - name: pf_inscricao
+      description: >
+        Número de inscrição da Programação Financeira, utilizado para controle e acompanhamento.
+    - name: pf_acao
+      description: >
+        Código da ação orçamentária associada à Programação Financeira.
+    - name: pf_acao_descricao
+      description: >
+        Descrição da ação orçamentária vinculada à Programação Financeira.
+    - name: pf_fonte_recursos
+      description: >
+        Código da fonte de recursos associada à Programação Financeira, indicando a origem dos recursos utilizados.
+    - name: pf_fonte_recursos_descricao
+      description: >
+        Descrição textual da fonte de recursos vinculada à Programação Financeira.
+    - name: pf_vinculacao_pagamento
+      description: >
+        Código da vinculação de pagamento associada à Programação Financeira.
+    - name: pf_vinculacao_pagamento_descricao
+      description: >
+        Descrição da vinculação de pagamento vinculada à Programação Financeira.
+    - name: pf_categoria_gasto
+      description: >
+        Código da categoria de gasto associada à Programação Financeira, conforme classificação orçamentária.
+    - name: pf_recurso
+      description: >
+        Código do recurso associado à Programação Financeira.
+    - name: pf_recurso_descricao
+      description: >
+        Descrição do recurso vinculado à Programação Financeira.
+    - name: doc_observacao
+      description: >
+        Observações adicionais relacionadas à Programação Financeira.
+    - name: pf_valor_linha
+      description: >
+        Valor monetário individual da linha da Programação Financeira.
+    data_tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.pf_tesouro'
+            nome_coluna: 'emissao_dia'
+            tipo_esperado: 'date'
+        - verificacao_tipagem:
+            nome_tabela: 'ted.pf_tesouro'
+            nome_coluna: 'pf_valor_linha'
+            tipo_esperado: 'numeric'
+
+  - name: nc_tesouro
+    description: >
+      Esta tabela registra informações detalhadas sobre as Notas de Crédito emitidas no âmbito da execução orçamentária e financeira do governo federal. 
+      As Notas de Crédito representam autorizações para a realização de despesas, sendo fundamentais para o controle e acompanhamento da execução orçamentária.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: emissao_mes
+      description: >
+        Mês de emissão da Nota de Crédito.
+    - name: emissao_dia
+      description: >
+        Dia de emissão da Nota de Crédito.
+    - name: nc
+      description: >
+        Número identificador único da Nota de Crédito.
+    - name: nc_transferencia
+      description: >
+        Indicador de que a Nota de Crédito refere-se a uma transferência de recursos entre unidades gestoras.
+    - name: nc_fonte_recursos
+      description: >
+        Código da fonte de recursos associada à Nota de Crédito, indicando a origem dos recursos utilizados.
+    - name: nc_fonte_recursos_descricao
+      description: >
+        Descrição textual da fonte de recursos vinculada à Nota de Crédito.
+    - name: ptres
+      description: >
+        Código do Plano Interno de Trabalho (PTRES) relacionado à Nota de Crédito, utilizado para detalhar a alocação dos recursos.
+    - name: nc_evento
+      description: >
+        Código do evento contábil associado à Nota de Crédito, representando a natureza da transação.
+    - name: nc_evento_descricao
+      description: >
+        Descrição do evento contábil vinculado à Nota de Crédito.
+    - name: ug_responsavel
+      description: >
+        Código da Unidade Gestora responsável pela emissão da Nota de Crédito.
+    - name: ug_responsavel_descricao
+      description: >
+        Nome ou descrição da Unidade Gestora responsável pela emissão da Nota de Crédito.
+    - name: natureza_despesa
+      description: >
+        Código da natureza da despesa associada à Nota de Crédito, conforme classificação orçamentária.
+    - name: natureza_despesa_detalhada
+      description: >
+        Descrição detalhada da natureza da despesa vinculada à Nota de Crédito.
+    - name: plano_interno
+      description: >
+        Código do plano interno relacionado à Nota de Crédito, utilizado para controle interno da execução orçamentária.
+    - name: plano_detalhado_descricao1
+      description: >
+        Primeira descrição detalhada do plano interno associado à Nota de Crédito.
+    - name: plano_detalhado_descricao2
+      description: >
+        Segunda descrição detalhada do plano interno associado à Nota de Crédito.
+    - name: favorecido_doc
+      description: >
+        Documento de identificação (CPF ou CNPJ) do favorecido pela Nota de Crédito.
+    - name: favorecido_doc_descricao
+      description: >
+        Nome ou razão social do favorecido identificado na Nota de Crédito.
+    - name: nc_valor_linha
+      description: >
+        Valor monetário individual da linha da Nota de Crédito.
+    - name: movimento_liquido
+      description: >
+        Valor líquido do movimento financeiro associado à Nota de Crédito, após deduções ou acréscimos aplicáveis.
+
+  - name: planos_acao
+    description: >
+      Esta tabela armazena informações detalhadas sobre os Planos de Ação vinculados a programas públicos.
+      Ela consolida dados sobre as unidades envolvidas na execução, prazos de vigência, valores, justificativas,
+      formas de execução e instrumentos utilizados. Serve como base para o acompanhamento, análise e auditoria 
+      da implementação de ações públicas em diferentes formatos de execução.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: id_plano_acao
+      description: >
+        Identificador único do Plano de Ação.
+    - name: id_programa
+      description: >
+        Identificador único do programa ao qual o Plano de Ação está vinculado.
+    - name: sigla_unidade_descentralizada
+      description: >
+        Sigla da unidade descentralizada responsável pelo Plano de Ação.
+    - name: unidade_descentralizada
+      description: >
+        Nome completo da unidade descentralizada responsável pelo Plano de Ação.
+    - name: sigla_unidade_responsavel_execucao
+      description: >
+        Sigla da unidade responsável pela execução do Plano de Ação.
+    - name: unidade_responsavel_execucao
+      description: >
+        Nome completo da unidade responsável pela execução do Plano de Ação.
+    - name: vl_total_plano_acao
+      description: >
+        Valor total previsto para execução do Plano de Ação.
+    - name: dt_inicio_vigencia
+      description: >
+        Data de início da vigência do Plano de Ação.
+    - name: dt_fim_vigencia
+      description: >
+        Data final da vigência do Plano de Ação.
+    - name: tx_objeto_plano_acao
+      description: >
+        Descrição do objeto do Plano de Ação, informando seu propósito e escopo.
+    - name: tx_justificativa_plano_acao
+      description: >
+        Justificativa para a elaboração e execução do Plano de Ação.
+    - name: in_forma_execucao_direta
+      description: >
+        Indicador booleano que sinaliza se a execução do plano ocorrerá de forma direta.
+    - name: in_forma_execucao_particulares
+      description: >
+        Indicador booleano que sinaliza se a execução contará com a participação de particulares.
+    - name: in_forma_execucao_descentralizada
+      description: >
+        Indicador booleano que sinaliza se a execução será realizada de forma descentralizada.
+    - name: tx_situacao_plano_acao
+      description: >
+        Situação atual do Plano de Ação ( em elaboração, aprovado, em execução, concluído).
+    - name: aa_ano_plano_acao
+      description: >
+        Ano de referência do Plano de Ação.
+    - name: vl_beneficiario_especifico
+      description: >
+        Valor destinado especificamente a beneficiários definidos no Plano de Ação.
+    - name: vl_chamamento_publico
+      description: >
+        Valor previsto para execução por meio de chamamento público.
+    - name: sq_instrumento
+      description: >
+        Código sequencial do instrumento jurídico ou administrativo associado ao Plano de Ação.
+    - name: aa_instrumento
+      description: >
+        Ano de referência do instrumento associado ao Plano de Ação.
