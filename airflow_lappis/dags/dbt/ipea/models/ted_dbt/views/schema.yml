@@ -1,0 +1,16 @@
+version: 2
+
+models:
+
+  - name: num_transf_n_plano_acao
+    description: >
+      View responsável por mapear o número de transferência (`num_transf`) ao respectivo Plano de Ação (`plano_acao`). 
+      Utiliza dados de Notas de Crédito do TransfereGov e do SIAFI para realizar o cruzamento entre diferentes sistemas.
+    columns:
+    - name: num_transf
+      description: >
+        Número da transferência financeira obtido a partir dos registros do SIAFI (nota de crédito). Serve como chave para integrar informações entre diferentes fontes, como notas de crédito, programações financeiras e empenhos.
+    - name: plano_acao
+      description: >
+        Identificador único do Plano de Ação, conforme registrado no TransfereGov. É atribuído ao `num_transf` com base no cruzamento entre a nota de crédito (NC) e a unidade gestora emitente (UG).
+
