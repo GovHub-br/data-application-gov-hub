@@ -1,0 +1,14 @@
+version: 2
+
+models:
+
+  # Orçamento DBT
+
+  ## Bronze
+  - name: visao_orcamentaria_total
+    description: >
+      Esta tabela contém a visão consolidada da execução orçamentária total,
+      apresentando informações agregadas sobre os recursos disponíveis, empenhados, liquidados e pagos.
+    meta:
+      tags:
+        - bronze
