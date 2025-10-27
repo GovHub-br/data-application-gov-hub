@@ -1,0 +1,30 @@
+version: 2
+
+models:
+
+  ## View
+  - name: identificadores
+    description: >
+      Essa tabela contém os identificadores dos contratos, empenhos e faturas.
+      Consolida os números de empenho encontrados em diferentes fontes (contratos, faturas, empenhos) 
+      e padroniza informações como processo e CNPJ/CPF para facilitar joins entre as tabelas.
+      Também cria um campo info_complementar que combina unidade gestora, modalidade e número de contrato/licitação.
+    columns:
+      - name: contrato_id
+        description: >
+          Identificador único do contrato.
+      - name: categoria
+        description: >
+          Categoria do contrato ( Informática, Serviços, Mão de Obra).
+      - name: processo
+        description: >
+          Número do processo administrativo do contrato, formatado para remover caracteres não numéricos.
+      - name: cnpj_cpf
+        description: >
+          CNPJ ou CPF do fornecedor, formatado para remover caracteres especiais como barras, pontos e hífens.
+      - name: info_complementar
+        description: >
+          Informação complementar construída a partir da unidade gestora, código de modalidade e número do contrato ou licitação.
+      - name: ne
+        description: >
+          Número da nota de empenho relacionada ao contrato, combinando informações de contratos, empenhos e faturas.
