@@ -1,7 +1,5 @@
 import logging
-import yaml
 from airflow.decorators import dag, task
-from airflow.models import Variable
 from datetime import datetime, timedelta
 from postgres_helpers import get_postgres_conn
 from cliente_postgres import ClientPostgresDB
@@ -44,7 +42,9 @@ def notas_de_credito_dag() -> None:
                     schema="transfere_gov",
                 )
             else:
-                logging.warning(f"Nenhuma nota de crédito encontrada plano de ação {id_plano_acao}")
+                logging.warning(
+                    f"Nenhuma nota de crédito encontrada plano de ação {id_plano_acao}"
+                )
 
     fetch_and_store_notas_de_credito()
 

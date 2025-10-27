@@ -1,0 +1,61 @@
+version: 2
+
+models:
+
+  - name: ted_resumo_orcamentario
+    description: >
+      Tabela de consolidação orçamentária e financeira por Plano de Ação, baseada em informações de valores firmados, orçamentos recebidos e devolvidos, empenhos, despesas e transferências financeiras. 
+      Os dados são integrados de diferentes fontes (notas de crédito, empenhos e programações financeiras) para fornecer um resumo abrangente da execução orçamentária e financeira de transferências intergovernamentais.
+    meta:
+      tags:
+        - gold
+    columns:
+    - name: plano_acao
+      description: >
+        Identificador único do Plano de Ação associado aos registros orçamentários e financeiros.
+    - name: num_transf
+      description: >
+        Número da transferência utilizado como chave de ligação entre diferentes fontes de dados.
+    - name: sigla_unidade_descentralizada
+      description: >
+        Sigla da Unidade Descentralizada responsável pelo Plano de Ação.
+    - name: ted_beneficiario_emitente
+      description: >
+        Identifica se a Unidade do Plano de Ação é a beneficiária ou a emitente dos recursos da TED (Transferência Voluntária). Valores possíveis: 'beneficiario', 'emitente' ou 'nao_indicado'.
+    - name: valor_firmado
+      description: >
+        Valor total originalmente acordado no Plano de Ação como meta de transferência de recursos.
+    - name: orcamento_recebido
+      description: >
+        Total de créditos orçamentários efetivamente recebidos por meio de Notas de Crédito.
+    - name: orcamento_devolvido
+      description: >
+        Total de créditos orçamentários devolvidos, identificado por eventos contábeis específicos (ex.: 300301, 300307).
+    - name: empenhado
+      description: >
+        Soma dos valores empenhados, ou seja, das despesas formalizadas no orçamento, excluindo anulações.
+    - name: empenho_anulado
+      description: >
+        Total de valores de empenhos anulados, ou seja, revertidos após sua emissão.
+    - name: despesas_pagas_exercicio
+      description: >
+        Total de despesas pagas no exercício corrente.
+    - name: despesas_pagas_rap
+      description: >
+        Total de despesas pagas com recursos de Restos a Pagar.
+    - name: restos_a_pagar
+      description: >
+        Valor total inscrito como Restos a Pagar, ou seja, despesas empenhadas e não pagas até o fim do exercício.
+    - name: despesas_liquidada
+      description: >
+        Soma das despesas liquidadas, indicando bens ou serviços efetivamente entregues.
+    - name: financeiro_recebido
+      description: >
+        Total de recursos financeiros recebidos via Programação Financeira (TED), considerando apenas ações classificadas como 'TRANSFERENCIA'.
+    - name: financeiro_devolvido
+      description: >
+        Total de recursos financeiros devolvidos, com ações classificadas como 'DEVOLUCAO'.
+    - name: financeiro_cancelado
+      description: >
+        Valor total de cancelamentos financeiros identificados na programação, com ação 'CANCELAMENTO'.
+

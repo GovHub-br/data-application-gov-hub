@@ -1,0 +1,116 @@
+version: 2
+
+models:
+
+  - name: empenhos_plano_acao
+    description: >
+      Esta tabela estabelece a relação entre os empenhos registrados no SIAFI e os respectivos Planos de Ação, 
+      permitindo o rastreamento das despesas públicas desde a origem do crédito até sua execução. 
+    meta:
+      tags:
+        - silver
+    columns:
+    - name: ne
+      description: >
+        Número da Nota de Empenho, extraído dos 12 últimos dígitos do campo `ne_ccor`, representando o identificador do empenho no SIAFI.
+    - name: num_transf
+      description: >
+        Número da transferência identificado na descrição da nota de empenho (`ne_ccor_descricao`), utilizado para vincular o empenho ao Plano de Ação correspondente.
+    - name: nc
+      description: >
+        Código da Nota de Crédito associado ao empenho, extraído da descrição da nota de empenho e formatado conforme padrão estabelecido.
+    - name: plano_acao
+      description: >
+        Identificador do Plano de Ação relacionado ao empenho, obtido a partir da correspondência com o número de transferência (`num_transf`).
+    - name: ne_ccor
+      description: >
+        Campo original contendo o código completo da Nota de Empenho, utilizado como base para extração de identificadores.
+    - name: ne_ccor_descricao
+      description: >
+        Descrição textual da Nota de Empenho, de onde são extraídos os números de transferência e códigos de nota de crédito para associação com os Planos de Ação.
+    - name: demais_colunas
+      description: >
+        Outras colunas provenientes da tabela `empenhos_tesouro`, contendo informações adicionais sobre os empenhos, como data de emissão, valor, unidade gestora, entre outras.
+
+  - name: nc_plano_acao
+    description: >
+      Esta tabela estabelece a relação entre as Notas de Crédito registradas no SIAFI e os respectivos Planos de Ação, 
+      permitindo o rastreamento das movimentações financeiras desde a origem do crédito até sua aplicação. 
+    meta:
+      tags:
+        - silver
+    columns:
+    - name: plano_acao
+      description: >
+        Identificador do Plano de Ação relacionado à Nota de Crédito, obtido a partir da correspondência com o número de transferência (`nc_transferencia`).
+    - name: emissao_dia
+      description: >
+        Dia de emissão da Nota de Crédito.
+    - name: num_transf
+      description: >
+        Número da transferência associado à Nota de Crédito, utilizado para vincular a movimentação financeira ao Plano de Ação correspondente.
+    - name: nc
+      description: >
+        Código da Nota de Crédito, extraído dos 12 últimos dígitos do campo `nc`, representando o identificador da nota no SIAFI.
+    - name: nc_fonte_recursos
+      description: >
+        Código da fonte de recursos associada à Nota de Crédito, indicando a origem dos recursos utilizados.
+    - name: ptres
+      description: >
+        Código do Plano Interno de Trabalho (PTRES) vinculado à Nota de Crédito, representando a ação orçamentária correspondente.
+    - name: ug_emitente
+      description: >
+        Código da Unidade Gestora emitente da Nota de Crédito, extraído dos 6 primeiros dígitos do campo `nc`.
+    - name: nc_natureza_despesa
+      description: >
+        Código da natureza da despesa associada à Nota de Crédito, conforme classificação orçamentária.
+    - name: nc_evento
+      description: >
+        Código do evento contábil associado à Nota de Crédito, representando a natureza da transação.
+    - name: nc_evento_descr
+      description: >
+        Descrição do evento contábil vinculado à Nota de Crédito.
+    - name: nc_valor
+      description: >
+        Valor monetário da Nota de Crédito, ajustado conforme o tipo de evento contábil.
+
+  - name: pf_plano_acao
+    description: >
+      Esta tabela consolida as programações financeiras executadas no âmbito do SIAFI que estão relacionadas a Planos de Ação.
+    meta:
+      tags:
+        - silver
+    columns:
+    - name: pf
+      description: >
+        Número identificador da Programação Financeira, conforme registrado no SIAFI.
+    - name: num_transf
+      description: >
+        Número da transferência extraído do campo `pf_inscricao`, utilizado como chave alternativa para vinculação com Planos de Ação.
+    - name: emissao_mes
+      description: >
+        Mês da emissão da Programação Financeira, no formato numérico (1 a 12).
+    - name: emissao_dia
+      description: >
+        Dia da emissão da Programação Financeira, no formato numérico (1 a 31).
+    - name: ug_emitente
+      description: >
+        Código da Unidade Gestora responsável pela emissão da Programação Financeira.
+    - name: ug_favorecido
+      description: >
+        Código da Unidade Gestora favorecida pela Programação Financeira.
+    - name: pf_evento
+      description: >
+        Código do evento contábil associado à Programação Financeira, que descreve o tipo de movimentação registrada.
+    - name: pf_evento_descricao
+      description: >
+        Descrição do evento contábil da Programação Financeira, fornecendo contexto adicional sobre o tipo de operação realizada.
+    - name: pf_acao
+      description: >
+        Código da ação orçamentária extraído da descrição da programação financeira, representando a finalidade da despesa.
+    - name: pf_valor_linha
+      description: >
+        Valor programado para execução financeira, referente à linha específica da Programação Financeira.
+    - name: plano_acao
+      description: >
+        Identificador do Plano de Ação associado à Programação Financeira, determinado por correspondência direta com o sistema TransfereGov ou via número de transferência.

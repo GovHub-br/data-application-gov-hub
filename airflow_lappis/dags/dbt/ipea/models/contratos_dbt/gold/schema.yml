@@ -1,0 +1,139 @@
+version: 2
+
+models:
+
+  ## Golds
+  - name: contratos_resumo
+    description: >
+      Essa tabela contém um resumo dos contratos, informações contratuais como valor global e valor pago, 
+      e situação atual, como em vigência ou pendente de baixa.
+      Facilita a análise gerencial dos contratos com indicadores chave como status de pagamento, tipo de fornecedor,
+      e identificação de contratos continuados (com vigência superior a dois anos e mais de uma parcela).
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: contrato_id
+        description: >
+          Identificador único do contrato.
+      - name: fornecedor_cnpj_cpf
+        description: >
+          CNPJ ou CPF do fornecedor contratado, com formatação padronizada.
+      - name: numero
+        description: >
+          Número do contrato no sistema ComprasGov.
+      - name: categoria
+        description: >
+          Categoria do contrato ( Informática, Serviços, Mão de Obra).
+      - name: modalidade
+        description: >
+          Modalidade de licitação utilizada na contratação.
+      - name: tipo
+        description: >
+          Tipo de contrato ( Contrato, Empenho, Termo de Compromisso).
+      - name: situacao
+        description: >
+          Situação atual do contrato (Ativo ou Inativo).
+      - name: pendente_baixa
+        description: >
+          Indica se o contrato está pendente de baixa ('Sim' quando o valor pago for igual ao valor global, 'Não' caso contrário).
+      - name: fornecedor_nome
+        description: >
+          Nome ou razão social do fornecedor contratado.
+      - name: objeto
+        description: >
+          Descrição detalhada do objeto contratado.
+      - name: valor_global
+        description: >
+          Valor total do contrato após eventuais aditivos.
+      - name: despesas_pagas
+        description: >
+          Valor total já pago do contrato conforme registros do SIAFI.
+      - name: vigencia_inicio
+        description: >
+          Data de início da vigência do contrato.
+      - name: vigencia_fim
+        description: >
+          Data de término da vigência do contrato.
+      - name: num_parcelas
+        description: >
+          Número de parcelas para pagamento do contrato.
+      - name: fornecedor_tipo
+        description: >
+          Tipo do fornecedor, categorizado como 'Empresa do Exterior' para IDGENERICO.
+      - name: Unidade
+        description: >
+          Unidade gestora responsável pelo contrato, no formato "código - nome_resumido".
+      - name: continuado
+        description: >
+          Indica se o contrato é de prestação continuada ('Sim' quando a vigência for maior que 730 dias e tiver mais de uma parcela).
+
+  - name: contratos_comparativo_mensal
+    description: >
+      Essa tabela contém um comparativo mensal dos contratos, discriminando 
+      os valores empenhados, liquidados e pagos do SIAFI, 
+      programados e faturados do ComprasGov.
+      Permite a identificação de inconsistências entre os sistemas e o acompanhamento detalhado 
+      da execução financeira mensal de cada contrato.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: contrato_id
+        description: >
+          Identificador único do contrato.
+      - name: mes_ref
+        description: >
+          Mês de referência da informação financeira, preenchido para todos os meses entre o início e fim do contrato.
+      - name: comprasgov_valor_cronograma
+        description: >
+          Valor programado para o mês conforme cronograma registrado no ComprasGov.
+      - name: comprasgov_valor_faturas
+        description: >
+          Soma dos valores das faturas (pagas e pendentes) no mês de referência conforme ComprasGov.
+      - name: comprasgov_saldo_contratual_disponivel
+        description: >
+          Diferença entre o valor programado e o valor faturado no mês, indicando o saldo disponível.
+      - name: siafi_valor_empenhado
+        description: >
+          Valor empenhado no mês de referência conforme registros do SIAFI.
+      - name: siafi_valor_liquidado
+        description: >
+          Valor liquidado no mês de referência conforme registros do SIAFI.
+      - name: siafi_valor_pago
+        description: >
+          Valor pago no mês de referência conforme registros do SIAFI.
+
+  - name: contratos_somatorio
+    description: >
+      Essa tabela contém somatórios dos valores de cronograma, fatura, empenho, liquidação e pagamento para cada contrato.
+      Facilita análises agregadas sobre a execução financeira total de cada contrato, com indicadores importantes 
+      como o orçamento pendente de execução.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: contrato_id
+        description: >
+          Identificador único do contrato.
+      - name: total_cronograma
+        description: >
+          Soma de todos os valores programados no cronograma do contrato.
+      - name: total_faturas
+        description: >
+          Soma de todos os valores faturados (pagos e pendentes) para o contrato.
+      - name: total_saldo_disponivel
+        description: >
+          Diferença total entre valores programados e faturados, indicando o saldo contratual disponível.
+      - name: orcamento_a_executar
+        description: >
+          Soma dos valores programados em meses onde ainda não houve faturamento, indicando o orçamento pendente de execução.
+      - name: total_empenhado
+        description: >
+          Soma de todos os valores empenhados para o contrato segundo o SIAFI.
+      - name: total_liquidado
+        description: >
+          Soma de todos os valores liquidados para o contrato segundo o SIAFI.
+      - name: total_pago
+        description: >
+          Soma de todos os valores pagos para o contrato segundo o SIAFI.

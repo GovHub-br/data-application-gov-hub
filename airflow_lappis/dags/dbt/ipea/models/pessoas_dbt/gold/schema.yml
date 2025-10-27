@@ -1,0 +1,199 @@
+version: 2
+
+models:
+
+  # Gold
+  - name: aposentadorias_resumo
+    description: >
+      Tabela de resumo dos servidores aposentados, contendo informações detalhadas
+      sobre a data de ingresso no serviço público, data de aposentadoria e tempo
+      de serviço público calculado em anos, meses e dias. A granularidade da tabela
+      é por CPF, ou seja, cada linha representa um servidor aposentado único.
+
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: cpf
+        description: Número do CPF do servidor aposentado.
+      - name: nome_pessoa
+        description: Nome completo do servidor aposentado.
+      - name: dt_ocorr_ingresso_serv_publico
+        description: Data de ingresso do servidor no serviço público.
+      - name: dt_ocorr_aposentadoria
+        description: Data de aposentadoria do servidor.
+      - name: mes_aposentadoria
+        description: Mês da aposentadoria (arredondado para o primeiro dia do mês).
+      - name: nome_situacao_funcional
+        description: Situação funcional do servidor no momento da aposentadoria.
+      - name: nome_ocorr_aposentadoria
+        description: Tipo de ocorrência que levou à aposentadoria do servidor.
+      - name: nome_cargo
+        description: Cargo ocupado pelo servidor no momento da aposentadoria.
+      - name: sigla_nivel_cargo
+        description: Sigla do nível do cargo ocupado.
+      - name: classe_padrao
+        description: Classe e padrão do cargo, no formato "classe-padrão".
+      - name: age
+        description: Diferença completa entre as datas de ingresso e aposentadoria, em formato de intervalo.
+      - name: diff_anos
+        description: Quantidade de anos entre o ingresso no serviço público e a aposentadoria.
+      - name: diff_meses
+        description: Quantidade de meses entre o ingresso e a aposentadoria (ignora anos completos).
+      - name: diff_dias
+        description: Quantidade de dias entre o ingresso e a aposentadoria (ignora anos e meses completos).
+
+
+
+  - name: cargos_consolidado
+    description: >
+      Tabela que consolida informações de cargos ocupados e vagos no serviço público,
+      a partir da junção entre os dados do SIAPE (servidores ativos e detalhados) e
+      os dados do SIORG (estrutura de cargos disponíveis). Essa junção é feita com
+      base no CPF do titular do cargo. Quando os campos do SIAPE estão nulos, o cargo
+      provavelmente está vago. A tabela pode ser utilizada para identificar cargos
+      vagos por unidade organizacional.
+
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: siorg_cod_unidade
+        description: Código da unidade organizacional no SIORG.
+      - name: siorg_nome_unidade
+        description: Nome da unidade organizacional no SIORG.
+      - name: siorg_sigla_unidade
+        description: Sigla da unidade organizacional no SIORG.
+      - name: siorg_municipio_unidade
+        description: Município da unidade organizacional no SIORG.
+      - name: siorg_uf_unidade
+        description: Unidade federativa (UF) da unidade organizacional no SIORG.
+      - name: siorg_denominacao_cargo
+        description: Denominação do cargo conforme registrado no SIORG.
+      - name: siorg_funcao
+        description: Função comissionada associada ao cargo no SIORG.
+      - name: siorg_cod_instancia_cargo
+        description: Código da instância do cargo no SIORG.
+      - name: siorg_cpf_titular
+        description: CPF do titular do cargo segundo o SIORG.
+      - name: siorg_nome_titular
+        description: Nome do titular do cargo segundo o SIORG.
+
+      - name: siape_cpf
+        description: CPF do servidor conforme os dados do SIAPE.
+      - name: siape_nome_pessoa
+        description: Nome completo do servidor no SIAPE.
+      - name: siape_nome_cargo_efetivo
+        description: Nome do cargo efetivo ocupado pelo servidor no SIAPE.
+      - name: siape_nome_funcao_comissionada
+        description: Nome da função comissionada ocupada pelo servidor no SIAPE.
+      - name: siape_cod_uorg
+        description: Código da unidade de exercício do servidor no SIAPE.
+      - name: siape_nome_uorg
+        description: Nome da unidade de exercício do servidor no SIAPE.
+      - name: siape_sigla_uorg
+        description: Sigla da unidade de exercício do servidor no SIAPE.
+      - name: siape_uf_uorg
+        description: Unidade federativa (UF) da unidade de exercício no SIAPE.
+      - name: siape_situacao_funcional
+        description: Situação funcional atual do servidor segundo o SIAPE.
+
+
+
+  - name: hierarquia
+    description: >
+      Tabela que correlaciona dados do SIAPE (dados funcionais e pessoais dos servidores)
+      com a estrutura organizacional do SIORG, atribuindo uma métrica de hierarquia aos cargos
+      com base na codificação da função. A hierarquia é determinada por uma fórmula baseada
+      na categoria e no nível do cargo. A tabela também indica se o cargo é de carreira ou de
+      nomeação livre, além de consolidar informações sobre o servidor e sua chefia imediata.
+
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: codigo_siape
+        description: Código da função no SIAPE.
+      - name: codigo_siorg
+        description: Código da função no SIORG, com espaços removidos.
+      - name: codigo_combinacao_siape
+        description: Código combinado derivado da função no SIAPE, usado para correlação.
+      - name: codigo_combinacao_siorg
+        description: Código combinado derivado da função no SIORG, usado para correlação.
+      - name: matricula_siape
+        description: Matrícula funcional do servidor no SIAPE.
+      - name: cpf
+        description: CPF do servidor.
+      - name: cpf_chefia_imediata
+        description: CPF da chefia imediata do servidor.
+      - name: cod_situacao_funcional
+        description: Código da situação funcional do servidor.
+      - name: nome_situacao_funcional
+        description: Descrição da situação funcional do servidor.
+      - name: hierarquia_cargo
+        description: Indicador numérico da hierarquia do cargo (quanto menor, maior o cargo).
+      - name: servidor
+        description: Nome do servidor ocupante do cargo.
+      - name: dt_nascimento
+        description: Data de nascimento do servidor.
+      - name: nome_sexo
+        description: Sexo do servidor.
+      - name: nome_estado_civil
+        description: Estado civil do servidor.
+      - name: nome_nacionalidade
+        description: Nacionalidade do servidor.
+      - name: nome_cor
+        description: Cor/raça do servidor.
+      - name: uf_nascimento
+        description: Unidade federativa de nascimento do servidor.
+      - name: nome_municipio_nascimento
+        description: Município de nascimento do servidor.
+      - name: nome_chefia
+        description: Nome da chefia imediata do servidor.
+      - name: codigounidade
+        description: Código da unidade organizacional associada ao cargo.
+      - name: codigounidadepai
+        description: Código da unidade organizacional pai (superior).
+      - name: caminho_unidade
+        description: Caminho hierárquico completo da unidade.
+      - name: ordem_grandeza
+        description: Nível hierárquico da unidade na estrutura organizacional.
+      - name: nomeunidade
+        description: Nome da unidade organizacional.
+      - name: siglaunidade
+        description: Sigla da unidade organizacional.
+      - name: nome_cargo
+        description: Nome ou denominação do cargo ocupado.
+      - name: servidores_carreira
+        description: Indica se o servidor está em cargo de carreira ou em nomeação livre.
+
+
+  - name: resumo_quadro_pessoal
+    description: >
+      Tabela resumo com a distribuição dos servidores públicos por cargo efetivo, gênero,
+      situação funcional e unidade federativa da unidade de exercício (UF). A granularidade é agregada,
+      e cada linha representa uma combinação única desses atributos, com a respectiva contagem de servidores.
+
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: cargo_efetivo
+        description: >
+          Nome do cargo efetivo ocupado pelo servidor. Caso não informado, é preenchido com 'N/A'.
+      - name: genero
+        description: >
+          Gênero do servidor (masculino, feminino ou outro), conforme informado no cadastro pessoal.
+          Em casos de ausência de informação, é preenchido com 'N/A'.
+      - name: situacao_funcional
+        description: >
+          Situação funcional atual do servidor ( Ativo, Aposentado, Cedido, etc).
+          Valores ausentes são substituídos por 'N/A'.
+      - name: localidade_uf
+        description: >
+          Unidade Federativa (UF) da unidade organizacional onde o servidor exerce suas funções.
+          Valores ausentes são preenchidos com 'N/A'.
+      - name: quantidade_servidores
+        description: >
+          Quantidade total de servidores distintos (com base no CPF) que se enquadram na combinação dos atributos anteriores.
+

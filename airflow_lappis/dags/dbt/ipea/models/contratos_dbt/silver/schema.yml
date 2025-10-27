@@ -1,0 +1,257 @@
+version: 2
+
+models:
+
+  ## Silver
+  - name: contratos_empenhos
+    description: >
+      Essa tabela combina as informações de movimentação financeira dos empenhos com os ids de contrato do IPEA.
+      Realiza uma complexa estratégia de join entre os contratos e empenhos do tesouro, tentando várias abordagens
+      para relacionar os dados do SIAFI com os contratos do ComprasGov usando: 
+      1) número de empenho e CNPJ/CPF, 2) número de processo, 3) CNPJ/CPF único, e 4) informação complementar.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: contrato_id
+        description: >
+          Identificador único do contrato relacionado ao empenho.
+      - name: ne_transformed
+        description: >
+          Número da nota de empenho padronizado para facilitar joins entre diferentes fontes.
+      - name: ne_ccor
+        description: >
+          Número completo da nota de empenho no SIAFI.
+      - name: ne_info_complementar
+        description: >
+          Informações complementares sobre o empenho no SIAFI.
+      - name: ne_num_processo
+        description: >
+          Número do processo administrativo relacionado ao empenho, formatado para remover caracteres especiais.
+      - name: ne_ccor_descricao
+        description: >
+          Descrição da nota de empenho conforme registrado no SIAFI.
+      - name: doc_observacao
+        description: >
+          Observações registradas no documento do empenho.
+      - name: natureza_despesa
+        description: >
+          Código da natureza da despesa do empenho.
+      - name: natureza_despesa_descricao
+        description: >
+          Descrição da natureza da despesa do empenho.
+      - name: ne_ccor_favorecido
+        description: >
+          CNPJ ou CPF do favorecido do empenho.
+      - name: ne_ccor_ano_emissao
+        description: >
+          Ano de emissão do empenho.
+      - name: despesas_empenhadas
+        description: >
+          Valor total das despesas empenhadas para o contrato.
+      - name: despesas_liquidadas
+        description: >
+          Valor total das despesas liquidadas para o contrato.
+      - name: despesas_pagas
+        description: >
+          Valor total das despesas pagas para o contrato.
+
+  - name: contratos_estagios
+    description: >
+      Essa tabela combina as informações de movimentação financeira dos empenhos com os ids de contrato do IPEA mensalmente.
+      Utiliza uma estratégia de join em cascata, tentando correlacionar os estágios das despesas do SIAFI com os 
+      contratos do ComprasGov através de várias combinações de chaves, incluindo número de empenho, CNPJ/CPF, número 
+      de processo e informações complementares.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: contrato_id
+        description: >
+          Identificador único do contrato relacionado aos estágios.
+      - name: mes_lancamento
+        description: >
+          Mês em que o estágio da despesa foi registrado no SIAFI.
+      - name: valor_empenhado
+        description: >
+          Valor empenhado no mês de referência para o contrato.
+      - name: valor_liquidado
+        description: >
+          Valor liquidado no mês de referência para o contrato.
+      - name: valor_pago
+        description: >
+          Valor pago no mês de referência para o contrato.
+
+  - name: estagios_mensal
+    description: >
+      Essa tabela discrimina os valores empenhados, liquidados e pagos mensalmente extraídos do SIAFI para cada contrato.
+      Transforma e agrega os dados da tabela empenhos_tesouro do SIAFI, padronizando formatos e consolidando valores 
+      por número de empenho, mês e CNPJ/CPF.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: ne
+        description: >
+          Número da nota de empenho no formato padronizado, extraído das 12 últimas posições do ne_ccor.
+      - name: mes_lancamento
+        description: >
+          Mês de referência do lançamento, convertido para formato de data padrão.
+      - name: cnpj_cpf
+        description: >
+          CNPJ ou CPF do favorecido do empenho.
+      - name: info_complementar
+        description: >
+          Informação complementar extraída do ne_info_complementar.
+      - name: num_processo
+        description: >
+          Número do processo administrativo relacionado ao empenho.
+      - name: valor_empenhado
+        description: >
+          Valor total empenhado no mês e para o empenho específico.
+      - name: valor_liquidado
+        description: >
+          Valor total liquidado no mês e para o empenho específico.
+      - name: valor_pago
+        description: >
+          Valor total pago no mês e para o empenho específico.
+
+  - name: contratos_faturas
+    description: >
+      Essa tabela integra informações detalhadas de faturas com dados dos contratos relacionados.
+      Permite uma visão completa de cada fatura no contexto do seu contrato, incluindo dados como número de contrato,
+      processo, objeto e fornecedor. Facilita a análise financeira das faturas em conjunto com seus respectivos contratos.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: id
+        description: >
+          Identificador único da fatura.
+      - name: contrato_id
+        description: >
+          Identificador do contrato relacionado à fatura.
+      - name: numero_contrato
+        description: >
+          Número do contrato no sistema ComprasGov.
+      - name: contrato_processo
+        description: >
+          Número do processo administrativo relacionado ao contrato.
+      - name: fornecedor_cnpj_cpf_idgener
+        description: >
+          CNPJ, CPF ou identificador genérico do fornecedor do contrato.
+      - name: objeto_contrato
+        description: >
+          Descrição do objeto contratado.
+      - name: tipolistafatura_id
+        description: >
+          Identificador do tipo de lista de fatura.
+      - name: justificativafatura_id
+        description: >
+          Identificador da justificativa da fatura, quando aplicável.
+      - name: sfadrao_id
+        description: >
+          Identificador do padrão de sistema financeiro relacionado.
+      - name: numero
+        description: >
+          Número da fatura emitida pelo fornecedor.
+      - name: emissao
+        description: >
+          Data de emissão da fatura.
+      - name: prazo
+        description: >
+          Data limite para pagamento da fatura.
+      - name: vencimento
+        description: >
+          Data de vencimento da fatura.
+      - name: valor
+        description: >
+          Valor bruto da fatura.
+      - name: juros
+        description: >
+          Valor de juros aplicados à fatura.
+      - name: multa
+        description: >
+          Valor de multa aplicada à fatura.
+      - name: glosa
+        description: >
+          Valor de glosa aplicada à fatura.
+      - name: valorliquido
+        description: >
+          Valor líquido da fatura após subtrações de glosas, multas ou juros.
+      - name: processo
+        description: >
+          Número do processo administrativo específico da fatura, quando diferente do processo do contrato.
+      - name: protocolo
+        description: >
+          Data de protocolo da fatura no sistema.
+      - name: ateste
+        description: >
+          Data em que a fatura foi atestada, confirmando a entrega do produto ou serviço.
+      - name: repactuacao
+        description: >
+          Indica se a fatura está relacionada a uma repactuação contratual.
+      - name: infcomplementar
+        description: >
+          Informações complementares sobre a fatura.
+      - name: mesref
+        description: >
+          Mês de referência da fatura.
+      - name: anoref
+        description: >
+          Ano de referência da fatura.
+      - name: situacao
+        description: >
+          Status atual da fatura (Pago ou Pendente).
+      - name: chave_nfe
+        description: >
+          Chave da Nota Fiscal Eletrônica associada à fatura, quando disponível.
+      - name: dados_referencia
+        description: >
+          Dados de referência adicionais da fatura, geralmente em formato JSON.
+      - name: dados_item_faturado
+        description: >
+          Detalhamento dos itens faturados, geralmente em formato JSON.
+      - name: dados_empenho
+        description: >
+          Informações sobre o empenho relacionado à fatura, em formato JSON.
+      - name: id_empenho
+        description: >
+          Identificador do empenho extraído do campo JSON dados_empenho.
+      - name: numero_empenho
+        description: >
+          Número do empenho relacionado à fatura.
+      - name: valor_empenho
+        description: >
+          Valor do empenho relacionado à fatura.
+      - name: subelemento
+        description: >
+          Código do subelemento de despesa relacionado à fatura.
+
+  - name: cronogramas_faturas_mensal
+    description: >
+      Essa tabela discrimina os valores programados e faturados mensalmente pelo ComprasGov para cada contrato.
+      Combina dados dos cronogramas com as faturas pagas e pendentes, agrupando por contrato e mês de referência,
+      e calculando o saldo contratual disponível (diferença entre o valor programado e os valores faturados).
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: contrato_id
+        description: >
+          Identificador único do contrato.
+      - name: mes_ref
+        description: >
+          Mês de referência dos valores programados e faturados.
+      - name: valor_cronograma
+        description: >
+          Valor total programado para o mês de referência conforme cronograma do contrato.
+      - name: valor_faturas_pagas
+        description: >
+          Valor total de faturas com status "Pago" no mês de referência.
+      - name: valor_faturas_pendentes
+        description: >
+          Valor total de faturas com status "Pendente" no mês de referência.
+      - name: saldo_contratual_disponivel
+        description: >
+          Diferença entre o valor programado no cronograma e a soma dos valores faturados (pagos e pendentes).

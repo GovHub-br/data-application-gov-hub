@@ -1,7 +1,5 @@
 import logging
-import yaml
 from airflow.decorators import dag, task
-from airflow.models import Variable
 from datetime import datetime, timedelta
 from postgres_helpers import get_postgres_conn
 from cliente_postgres import ClientPostgresDB
@@ -30,7 +28,9 @@ def programacao_financeira_dag() -> None:
         id_planos_acao = db.get_id_planos_acao()
 
         for id_plano_acao in id_planos_acao:
-            programacao_financeira = api.get_programacao_financeira_by_id_plano_acao(id_plano_acao)
+            programacao_financeira = api.get_programacao_financeira_by_id_plano_acao(
+                id_plano_acao
+            )
             if programacao_financeira:
                 # Adicionar dt_ingest a cada item
                 for item in programacao_financeira:
@@ -45,7 +45,8 @@ def programacao_financeira_dag() -> None:
                 )
             else:
                 logging.warning(
-                    f"Nenhuma programação financeira encontrada plano de ação {id_plano_acao}"
+                    f"Nenhuma programação financeira encontrada "
+                    f"plano de ação {id_plano_acao}"
                 )
 
     fetch_and_store_programacao_financeira()

@@ -199,7 +199,7 @@ class ClientPostgresDB:
                 cursor.execute(query)
                 id_programas = [row[0] for row in cursor.fetchall()]
                 return id_programas
-            
+
     def get_id_planos_acao(self) -> List[int]:
         """Extrai todos os IDs de planos de ação da tabela de planos de ação."""
         query = "SELECT id_plano_acao FROM transfere_gov.planos_acao"

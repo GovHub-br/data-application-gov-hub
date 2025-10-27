@@ -1,0 +1,867 @@
+version: 2
+
+models:
+
+  # Pessoas DBT
+
+  ## Bronze
+  - name: afastamento_historico
+    description: >
+      Tabela bronze que armazena o histórico de afastamentos dos servidores.
+      Contém informações detalhadas sobre cada período de afastamento, incluindo datas, tipo, e amparo legal.
+      Os dados são limpos e padronizados a partir da fonte original.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: adiantamento_salario_ferias
+        description: "Indica se houve adiantamento de salário durante as férias."
+      - name: ano_exercicio
+        description: "Ano de exercício a que o afastamento se refere."
+      - name: dt_fim
+        description: "Data de término do afastamento."
+      - name: dt_fim_aquisicao
+        description: "Data final do período aquisitivo de férias."
+      - name: dt_ini
+        description: "Data de início do afastamento."
+      - name: dt_inicio_aquisicao
+        description: "Data inicial do período aquisitivo de férias."
+      - name: dt_inicio_ferias_interrompidas
+        description: "Data de início de férias que foram interrompidas."
+      - name: dias_restantes
+        description: "Dias restantes de afastamento."
+      - name: gratificacao_natalina
+        description: "Indica se o afastamento está relacionado à gratificação natalina."
+      - name: numero_parcela
+        description: "Número da parcela do afastamento."
+      - name: parcela_continuacao_interrupcao
+        description: "Indica se a parcela é uma continuação ou interrupção."
+      - name: parcelainterrompida
+        description: "Indica se a parcela foi interrompida."
+      - name: qtde_dias
+        description: "Quantidade de dias do afastamento."
+      - name: cpf
+        description: "CPF do servidor."
+      - name: cod_diploma_afastamento
+        description: "Código do diploma legal do afastamento."
+      - name: cod_ocorrencia
+        description: "Código da ocorrência do afastamento."
+      - name: dt_publicacao_afastamento
+        description: "Data de publicação do afastamento."
+      - name: desc_diploma_afastamento
+        description: "Descrição do diploma legal do afastamento."
+      - name: desc_ocorrencia
+        description: "Descrição da ocorrência do afastamento."
+      - name: numero_diploma_afastamento
+        description: "Número do diploma legal do afastamento."
+
+
+  - name: cargos_funcoes
+    description: >
+      Tabela bronze que representa as funções e cargos extraídos do sistema SIORG.
+      Ela contém informações sobre o código e nome do cargo/função, nível hierárquico,
+      categoria funcional, regras de autoridade, além de dados normativos (ato normativo)
+      e as diversas denominações associadas a cada cargo/função.
+      Os dados são expandidos a partir de arrays JSON para facilitar a análise.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: codigotipo
+        description: "Código que representa o tipo do cargo ou função."
+
+      - name: nome
+        description: "Nome completo do cargo ou função."
+
+      - name: sigla
+        description: "Sigla identificadora do cargo ou função."
+
+      - name: codigocargofuncao
+        description: "Código único que identifica o cargo ou função."
+
+      - name: categoria
+        description: "Categoria funcional do cargo, como direção, assessoramento, etc."
+
+      - name: nivel
+        description: "Nível hierárquico do cargo ou função."
+
+      - name: atonormativo__tipoato
+        description: "Tipo do ato normativo que criou ou regulamenta o cargo/função."
+
+      - name: atonormativo__codigounidade
+        description: "Código da unidade responsável pelo ato normativo."
+
+      - name: atonormativo__numero
+        description: "Número do ato normativo relacionado ao cargo ou função."
+
+      - name: atonormativo__dataassinatura
+        description: "Data em que o ato normativo foi assinado."
+
+      - name: atonormativo__datapublicacao
+        description: "Data de publicação do ato normativo no diário oficial."
+
+      - name: atonormativo__datavigencia
+        description: "Data em que o ato normativo passou a vigorar."
+
+      - name: atonormativo__ementa
+        description: "Ementa ou resumo descritivo do ato normativo."
+
+      - name: atonormativo__url
+        description: "URL de acesso ao conteúdo completo do ato normativo."
+
+      - name: atonormativo__codigotipo
+        description: "Código que representa o tipo de ato normativo."
+
+      - name: atonormativo__siglatipo
+        description: "Sigla que representa o tipo de ato normativo."
+
+      - name: denominacao_codigo
+        description: "Código individual da denominação expandida a partir do array JSON."
+
+      - name: denominacao_descricao
+        description: "Descrição da denominação expandida para o cargo/função."
+
+
+  - name: dados_afastamento
+    description: >
+      Tabela bronze com dados atuais de afastamentos dos servidores.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: adiantamento_salario_ferias
+        description: "Indica se houve adiantamento de salário durante as férias."
+      - name: ano_exercicio
+        description: "Ano de exercício a que o afastamento se refere."
+      - name: cod_diploma_afastamento
+        description: "Código do diploma legal do afastamento."
+      - name: cod_ocorrencia
+        description: "Código da ocorrência do afastamento."
+      - name: desc_diploma_afastamento
+        description: "Descrição do diploma legal do afastamento."
+      - name: desc_ocorrencia
+        description: "Descrição da ocorrência do afastamento."
+      - name: dt_fim
+        description: "Data de término do afastamento."
+      - name: dt_ini
+        description: "Data de início do afastamento."
+      - name: dt_inicio_aquisicao
+        description: "Data inicial do período aquisitivo de férias."
+      - name: dt_publicacao_afastamento
+        description: "Data de publicação do afastamento."
+      - name: dias_restantes
+        description: "Dias restantes de afastamento."
+      - name: gratificacao_natalina
+        description: "Indica se o afastamento está relacionado à gratificação natalina."
+      - name: gr_matricula
+        description: "Matrícula GR."
+      - name: numero_diploma_afastamento
+        description: "Número do diploma legal do afastamento."
+      - name: numero_parcela
+        description: "Número da parcela do afastamento."
+      - name: parcela_continuacao_interrupcao
+        description: "Indica se a parcela é uma continuação ou interrupção."
+      - name: qtde_dias
+        description: "Quantidade de dias do afastamento."
+      - name: cpf
+        description: "CPF do servidor."
+      - name: dt_fim_aquisicao
+        description: "Data final do período aquisitivo de férias."
+
+
+  - name: dados_curriculo
+    description: >
+      Tabela bronze que representa dados curriculares e experiências profissionais dos servidores públicos.
+      Inclui informações sobre cursos realizados, instituições de ensino, tempo de experiência, projetos desenvolvidos e vínculos com órgãos ou empresas.
+      As datas foram padronizadas para o primeiro dia do mês (`dt_mes_`) e os dados textuais foram limpos de caracteres inválidos.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: cpf
+        description: "CPF do servidor, formatado apenas com números."
+
+      - name: ident_unica
+        description: "Identificador único do servidor no sistema, usado para correlacionar registros."
+
+      - name: codigo_experiencia
+        description: "Código associado ao tipo de experiência do servidor ( 1 para formação, 2 para experiência profissional)."
+
+      - name: cod_curso
+        description: "Código do curso realizado, se disponível."
+
+      - name: nome_curso
+        description: "Nome do curso de formação acadêmica ou técnica. Exemplo: 'Ciências Contábeis', 'Administração'."
+
+      - name: dt_mes_conclusao
+        description: "Data de conclusão do curso, normalizada para o primeiro dia do mês. Exemplo: '1991-12-01'."
+
+      - name: nome_instituicao
+        description: "Nome da instituição onde o curso foi realizado. Exemplo: 'UDF', 'Universidade Católica de Brasília'."
+
+      - name: nome_area_experiencia
+        description: >
+          Grau ou situação da experiência/capacitação. Pode indicar o nível ou status como: 
+          'Concluído', 'Intermediário', 'Básico', 'Curso', 'Avançado'."
+
+      - name: carga_horaria
+        description: "Carga horária do curso, se disponível. Armazenado como texto."
+
+      - name: nome_cargo
+        description: "Nome do cargo ou função exercida durante a experiência profissional."
+
+      - name: dt_mes_inicio
+        description: "Data de início da experiência profissional, no formato 'YYYY-MM-01'."
+
+      - name: nome_orgao_empresa
+        description: "Nome da organização, empresa ou órgão público em que a experiência foi realizada."
+
+      - name: dt_mes_fim
+        description: "Data de término da experiência profissional, normalizada para o primeiro dia do mês."
+
+      - name: descricao_projeto
+        description: "Descrição de projetos relevantes associados à experiência."
+
+      - name: informacoes_adicionais
+        description: "Informações complementares que detalham a experiência ou formação."
+
+      - name: tipo_descricao
+        description: "Tipo da descrição curricular. Pode indicar se o registro refere-se a curso, experiência, projeto etc."
+
+
+  - name: dados_dependentes
+    description: >
+      Tabela bronze que contém informações sobre os dependentes dos servidores públicos.
+      Inclui grau de parentesco, condições de dependência, benefícios associados e o período em que a dependência esteve ativa.
+      Os dados foram tratados para remover valores inválidos como 'NaN' e '00000000', e datas foram convertidas para o formato `DATE`.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: cod_condicao
+        description: >
+          Código que representa a condição da dependência ( dependente econômico, legal, etc.).
+          Usado para classificar o tipo de vínculo do dependente com o servidor.
+
+      - name: cod_grau_parentesco
+        description: >
+          Código que indica o grau de parentesco do dependente com o servidor ( filho, cônjuge, pai, etc.).
+
+      - name: cod_orgao
+        description: "Código do órgão ao qual o servidor está vinculado."
+
+      - name: cpf
+        description: "CPF do servidor titular da matrícula, contendo apenas números."
+
+      - name: matricula
+        description: "Número da matrícula funcional do servidor ao qual o dependente está associado."
+
+      - name: nome_dependente
+        description: "Nome completo do dependente."
+
+      - name: nome_condicao
+        description: >
+          Descrição da condição do dependente ( 'Dependente para IR', 'Dependente para Plano de Saúde').
+
+      - name: nome_grau_parentesco
+        description: >
+          Descrição textual do grau de parentesco entre o servidor e o dependente ( 'Filho', 'Cônjuge').
+
+      - name: cod_beneficio
+        description: "Código que representa o tipo de benefício relacionado ao dependente, se houver."
+
+      - name: dt_fim
+        description: >
+          Data de término da condição de dependência, no formato 'DDMMYYYY', convertida para DATE.
+          Pode ser nula se a dependência ainda estiver ativa.
+
+      - name: dt_inicio
+        description: >
+          Data de início da condição de dependência, no formato 'DDMMYYYY', convertida para DATE.
+
+      - name: nome_beneficio
+        description: >
+          Nome do benefício associado ao dependente ( auxílio-saúde, plano de assistência etc.).
+
+
+  - name: dados_escolares
+    description: >
+      Tabela bronze que armazena dados sobre a formação educacional dos servidores públicos.
+      Inclui informações sobre escolaridade, titulação e cursos associados às matrículas funcionais.
+      Os dados foram limpos para remover valores vazios e o CPF foi padronizado contendo apenas dígitos.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: cod_curso
+        description: "Código identificador do curso realizado pelo servidor."
+
+      - name: nome_curso
+        description: "Nome do curso relacionado à formação do servidor."
+
+      - name: cod_matricula
+        description: "Código da matrícula funcional do servidor, vinculado ao curso."
+
+      - name: cod_orgao
+        description: "Código do órgão público ao qual o servidor está vinculado."
+
+      - name: cod_titulacao
+        description: "Código que representa a titulação do servidor ( especialização, mestrado, doutorado)."
+
+      - name: nome_titulacao
+        description: "Descrição textual da titulação ( 'Mestrado', 'Doutorado')."
+
+      - name: cod_escolaridade
+        description: "Código do nível de escolaridade ( ensino médio, superior, técnico)."
+
+      - name: nome_escolaridade
+        description: "Descrição do nível de escolaridade do servidor."
+
+      - name: cpf
+        description: "CPF do servidor, contendo apenas números, utilizado para identificação única."
+
+
+
+  - name: dados_financeiros
+    description: >
+      Tabela bronze que armazena dados financeiros associados a servidores públicos.
+      Contém informações detalhadas sobre rubricas (proventos e descontos), valores pagos,
+      períodos de referência e data de pagamento. Os dados passam por limpeza e transformação
+      de formatos monetários e temporais para garantir consistência e padronização.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: cod_rubrica
+        description: "Código da rubrica financeira (provento ou desconto) referente ao pagamento do servidor."
+
+      - name: indicador_rd
+        description: "Indicador que diferencia se a rubrica é de receita (R) ou despesa (D)."
+
+      - name: nome_rubrica
+        description: "Nome descritivo da rubrica, como 'Salário Base', 'Auxílio Alimentação', etc."
+
+      - name: numero_sequencia
+        description: "Número sequencial que identifica a ordem da rubrica na folha de pagamento."
+
+      - name: valor_rubrica
+        description: >
+          Valor monetário da rubrica, convertido de string para tipo numérico. 
+          Foi realizada limpeza dos pontos e substituição da vírgula decimal por ponto.
+
+      - name: data_anomes_rubrica
+        description: >
+          Data correspondente ao mês e ano de referência da rubrica, convertida do formato textual ( 'JAN2020') para uma data no formato YYYY-MM-DD
+          com o dia fixado em 01.
+
+      - name: prazo_rubrica
+        description: "Informação de prazo da rubrica (campo opcional e com dados variados, pode indicar vencimento ou parcelamento)."
+
+      - name: mes_ano_pagamento
+        description: >
+          Data correspondente ao mês e ano de efetivação do pagamento, convertida do formato textual ( 'JAN2020') para data com o dia fixado em 01.
+
+      - name: cpf
+        description: >
+          CPF do servidor, padronizado contendo apenas dígitos. Utilizado para vinculação com outras informações do servidor.
+
+      - name: indicador_mov_supl
+        description: >
+          Indicador que mostra se a movimentação financeira se refere a um pagamento suplementar ou retroativo (campo técnico da folha).
+
+      - name: periodo_rubrica
+        description: >
+          Período a que se refere a rubrica, podendo representar um agrupamento ou classificação contábil adicional."
+
+
+  - name: dados_funcionais
+    description: >
+      Tabela bronze que armazena os dados funcionais dos servidores, contendo informações
+      sobre cargos, funções, regimes jurídicos, ocorrências de ingresso e aposentadoria, e dados
+      de unidades organizacionais (lotação e exercício). As datas são padronizadas, os CPFs higienizados
+      e os valores tratados para garantir integridade e legibilidade dos dados.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: cod_atividade_funcao
+        description: "Código da atividade ou função exercida pelo servidor."
+
+      - name: cod_funcao
+        description: "Código identificador da função do servidor."
+
+      - name: cod_jornada
+        description: "Código da jornada de trabalho do servidor."
+
+      - name: cod_ocorr_ingresso_orgao
+        description: "Código da ocorrência referente ao ingresso no órgão."
+
+      - name: cod_ocorr_ingresso_serv_publico
+        description: "Código da ocorrência de ingresso no serviço público federal."
+
+      - name: cod_orgao
+        description: "Código do órgão atual de lotação ou exercício do servidor."
+
+      - name: cod_padrao
+        description: "Código do padrão do cargo ocupado."
+
+      - name: cod_situacao_funcional
+        description: "Código representando a situação funcional atual do servidor (ativo, afastado, etc.)."
+
+      - name: cod_uorg_exercicio
+        description: "Código da unidade organizacional onde o servidor exerce suas atividades."
+
+      - name: cod_upag
+        description: "Código da Unidade Pagadora responsável pelo pagamento ao servidor."
+
+      - name: cod_orgao_origem
+        description: "Código do órgão de origem, em caso de movimentação funcional."
+
+      - name: cpf_chefia_imediata
+        description: "CPF da chefia imediata, higienizado para conter apenas dígitos."
+
+      - name: dt_exercicio_no_orgao
+        description: "Data em que o servidor iniciou o exercício no órgão atual."
+
+      - name: dt_fim_vale_ar
+        description: "Data final da vigência do vale de auxílio-refeição."
+
+      - name: dt_ingresso_funcao
+        description: "Data de ingresso na função atual."
+
+      - name: dt_ocorr_ingresso_orgao
+        description: "Data da ocorrência de ingresso no órgão atual."
+
+      - name: dt_ocorr_ingresso_serv_publico
+        description: "Data da ocorrência de ingresso no serviço público."
+
+      - name: email_chefia_imediata
+        description: "E-mail institucional da chefia imediata, padronizado em minúsculo."
+
+      - name: email_institucional
+        description: "E-mail institucional do servidor, padronizado em minúsculo."
+
+      - name: email_servidor
+        description: "E-mail pessoal do servidor, padronizado em minúsculo."
+
+      - name: ident_unica
+        description: "Identificação única do servidor no sistema."
+
+      - name: matricula_siape
+        description: "Matrícula do servidor no sistema SIAPE."
+
+      - name: modalidade_pgd
+        description: "Modalidade de participação no Programa de Gestão e Desempenho (PGD)."
+
+      - name: nome_atividade_funcao
+        description: "Descrição textual da atividade ou função exercida."
+
+      - name: nome_chefe_uorg
+        description: "Nome da chefia imediata da unidade organizacional."
+
+      - name: nome_funcao
+        description: "Nome da função ocupada."
+
+      - name: nome_jornada
+        description: "Descrição da jornada de trabalho."
+
+      - name: nome_ocorr_ingresso_orgao
+        description: "Descrição da ocorrência de ingresso no órgão."
+
+      - name: nome_ocorr_ingresso_serv_publico
+        description: "Descrição da ocorrência de ingresso no serviço público."
+
+      - name: nome_orgao
+        description: "Nome do órgão onde o servidor está vinculado."
+
+      - name: nome_regime_juridico
+        description: "Nome do regime jurídico do servidor ( Estatutário, CLT)."
+
+      - name: nome_situacao_funcional
+        description: "Descrição da situação funcional do servidor."
+
+      - name: nome_uorg_exercicio
+        description: "Nome da unidade organizacional de exercício."
+
+      - name: nome_upag
+        description: "Nome da unidade pagadora responsável pelo servidor."
+
+      - name: participa_pgd
+        description: "Indica se o servidor participa do Programa de Gestão e Desempenho."
+
+      - name: percentual_ts
+        description: "Percentual de tempo de trabalho remoto (teletrabalho), convertido para valor numérico ( 0.75 representa 75%)."
+
+      - name: sigla_orgao
+        description: "Sigla do órgão atual."
+
+      - name: sigla_orgao_origem
+        description: "Sigla do órgão de origem."
+
+      - name: sigla_regime_juridico
+        description: "Sigla do regime jurídico do servidor."
+
+      - name: sigla_uorg_exercicio
+        description: "Sigla da unidade de exercício."
+
+      - name: sigla_upag
+        description: "Sigla da unidade pagadora."
+
+      - name: cpf
+        description: "CPF do servidor, com apenas dígitos."
+
+      - name: cod_cargo
+        description: "Código do cargo efetivo ocupado pelo servidor."
+
+      - name: cod_classe
+        description: "Código da classe funcional do cargo."
+
+      - name: cod_ocorr_aposentadoria
+        description: "Código da ocorrência de aposentadoria."
+
+      - name: dt_ini_vale_ar
+        description: "Data de início do benefício de auxílio-refeição."
+
+      - name: dt_ocorr_aposentadoria
+        description: "Data da ocorrência de aposentadoria."
+
+      - name: nome_cargo
+        description: "Nome do cargo efetivo."
+
+      - name: nome_classe
+        description: "Nome da classe funcional do cargo."
+
+      - name: nome_ocorr_aposentadoria
+        description: "Descrição da ocorrência de aposentadoria."
+
+      - name: sigla_nivel_cargo
+        description: "Sigla do nível do cargo ocupado."
+
+      - name: tipo_vale_ar
+        description: "Tipo de auxílio-refeição concedido."
+
+      - name: cod_ocorr_isencao_ir
+        description: "Código da ocorrência de isenção de imposto de renda."
+
+      - name: dt_ini_ocorr_isencao_ir
+        description: "Data de início da ocorrência de isenção de IR."
+
+      - name: nome_ocorr_isencao_ir
+        description: "Descrição da ocorrência de isenção de imposto de renda."
+
+      - name: cod_uorg_lotacao
+        description: "Código da unidade de lotação do servidor."
+
+      - name: nome_uorg_lotacao
+        description: "Nome da unidade de lotação do servidor."
+
+      - name: sigla_uorg_lotacao
+        description: "Sigla da unidade de lotação do servidor."
+
+      - name: dt_fim_ocorr_isencao_ir
+        description: "Data de término da isenção de IR."
+
+      - name: cod_ocorr_exclusao
+        description: "Código da ocorrência de exclusão do servidor do sistema."
+
+      - name: dt_ocorr_exclusao
+        description: "Data da ocorrência de exclusão do servidor."
+
+      - name: nome_ocorr_exclusao
+        description: "Descrição da ocorrência de exclusão do servidor."
+
+      - name: dt_uorg_lotacao
+        description: "Data da lotação na unidade organizacional atual."
+
+      - name: cod_vale_transporte
+        description: "Código do benefício de vale transporte."
+
+      - name: valor_vale_transporte
+        description: "Valor monetário do vale transporte."
+
+      - name: dt_uorg_exercicio
+        description: "Data de início do exercício na unidade organizacional atual."
+
+      - name: pontuacao_desempenho
+        description: >
+          Pontuação atribuída ao servidor conforme avaliação de desempenho. 
+          Pode conter letras (A, B, C) ou valores numéricos, depende da origem. Mantido como string.
+
+
+  - name: dados_pa
+    description: >
+      Tabela bronze com dados de pensionistas e alimentados.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: agencia_beneficiario
+        description: "Agência bancária do beneficiário."
+      - name: banco_beneficiario
+        description: "Banco do beneficiário."
+      - name: cod_orgao
+        description: "Código do órgão."
+      - name: conta_beneficiario
+        description: "Conta bancária do beneficiário."
+      - name: cpf_beneficiario
+        description: "CPF do beneficiário."
+      - name: matricula_servidor
+        description: "Matrícula do servidor instituidor da pensão."
+      - name: nome_beneficiario
+        description: "Nome do beneficiário."
+      - name: valor_ultima_pensao
+        description: "Valor da última pensão."
+      - name: cpf_servidor
+        description: "CPF do servidor instituidor da pensão."
+      - name: cod_vinculo_servidor
+        description: "Código do vínculo com o servidor."
+      - name: nome_alimentado
+        description: "Nome do alimentado."
+      - name: nome_vinculo_servidor
+        description: "Nome do vínculo com o servidor."
+
+  - name: dados_pessoais
+    description: >
+      Tabela bronze com dados pessoais dos servidores.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: cod_cor
+        description: "Código da cor/raça."
+      - name: cod_estado_civil
+        description: "Código do estado civil."
+      - name: cod_nacionalidade
+        description: "Código da nacionalidade."
+      - name: cod_sexo
+        description: "Código do sexo."
+      - name: dt_nascimento
+        description: "Data de nascimento."
+      - name: grupo_sanguineo
+        description: "Grupo sanguíneo."
+      - name: nome_pessoa
+        description: "Nome da pessoa."
+      - name: nome_cor
+        description: "Nome da cor/raça."
+      - name: nome_estado_civil
+        description: "Nome do estado civil."
+      - name: nome_mae
+        description: "Nome da mãe."
+      - name: nome_municipio_nascimento
+        description: "Nome do município de nascimento."
+      - name: nome_nacionalidade
+        description: "Nome da nacionalidade."
+      - name: nome_pai
+        description: "Nome do pai."
+      - name: nome_sexo
+        description: "Nome do sexo."
+      - name: num_pispasep
+        description: "Número do PIS/PASEP."
+      - name: uf_nascimento
+        description: "UF de nascimento."
+      - name: cpf
+        description: "CPF do servidor."
+      - name: cod_deficiencia_fisica
+        description: "Código de deficiência física."
+      - name: nome_deficiencia_fisica
+        description: "Nome da deficiência física."
+      - name: dt_chegada_brasil
+        description: "Data de chegada ao Brasil."
+      - name: nome_pais_origem
+        description: "Nome do país de origem."
+
+  - name: dados_uorg
+    description: >
+      Tabela bronze com dados das Unidades Organizacionais (UORGs).
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: bairro_uorg
+        description: "Bairro da UORG."
+      - name: cep_uorg
+        description: "CEP da UORG."
+      - name: codigo_matricula
+        description: "Código de matrícula."
+      - name: codigo_municipio_uorg
+        description: "Código do município da UORG."
+      - name: codigo_orgao
+        description: "Código do órgão."
+      - name: codigo_orgao_uorg
+        description: "Código da UORG no órgão."
+      - name: email_uorg
+        description: "Email da UORG."
+      - name: tipo_endereco_uorg
+        description: "Tipo de endereço da UORG."
+      - name: logradouro_uorg
+        description: "Logradouro da UORG."
+      - name: nome_municipio_uorg
+        description: "Nome do município da UORG."
+      - name: nome_uorg
+        description: "Nome da UORG."
+      - name: telefone_uorg
+        description: "Telefone da UORG."
+      - name: numero_endereco_uorg
+        description: "Número do endereço da UORG."
+      - name: sigla_uorg
+        description: "Sigla da UORG."
+      - name: uf_uorg
+        description: "UF da UORG."
+      - name: cpf
+        description: "CPF associado à UORG."
+      - name: complemento_endereco_uorg
+        description: "Complemento do endereço da UORG."
+      - name: fax_uorg
+        description: "Fax da UORG."
+
+
+  - name: estrutura_organizacional_cargos
+    description: >
+      Tabela gold contendo a estrutura organizacional de unidades com informações expandidas de cargos e instâncias.
+      Os dados foram transformados para extrair e normalizar os campos aninhados no JSON armazenado na coluna `cargos`.
+      A tabela inclui apenas uma instância por código, priorizando a de maior ordem de grandeza.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: codigounidade
+        description: Código da unidade organizacional.
+      - name: nomeunidade
+        description: Nome completo da unidade organizacional.
+      - name: siglaunidade
+        description: Sigla da unidade organizacional.
+      - name: municipio
+        description: Município onde a unidade está localizada.
+      - name: uf
+        description: Unidade federativa (UF) correspondente ao município.
+      - name: denominacao
+        description: Denominação do cargo.
+      - name: funcao
+        description: Função associada à denominação do cargo.
+      - name: codigo_instancia
+        description: Código da instância do cargo na estrutura.
+      - name: nome_titular
+        description: Nome do servidor titular do cargo.
+      - name: cpf_titular
+        description: CPF do servidor titular do cargo (com apenas dígitos numéricos).
+      - name: ordem_grandeza
+        description: Nível hierárquico da unidade na estrutura, utilizado para escolher a instância mais relevante.
+
+
+  - name: lista_servidores
+    description: >
+      Tabela bronze com a lista de servidores e suas UORGs.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: cod_uorg
+        description: "Código da UORG."
+      - name: dt_ultima_transacao
+        description: "Data da última transação."
+      - name: cpf
+        description: "CPF do servidor."
+
+  - name: lista_uorgs
+    description: >
+      Tabela bronze com a lista de UORGs.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: codigo
+        description: "Código da UORG."
+      - name: dt_ultima_transacao
+        description: "Data da última transação."
+      - name: nome
+        description: "Nome da UORG."
+
+  - name: terceirizados
+    description: >
+      Tabela gold contendo informações de trabalhadores terceirizados oriundos do sistema ComprasGov.
+      Inclui dados relacionados ao contrato, função, jornada, remuneração e benefícios, com tratamento de campos textuais e numéricos para padronização.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id
+        description: Identificador único do registro do trabalhador terceirizado.
+      - name: contrato_id
+        description: Identificador do contrato ao qual o trabalhador está vinculado.
+      - name: cpf
+        description: CPF do trabalhador, extraído da string `usuario`.
+      - name: nome
+        description: Nome do trabalhador, extraído da string `usuario`.
+      - name: funcao_id
+        description: Identificador da função exercida pelo trabalhador.
+      - name: descricao_complementar
+        description: Descrição complementar da função ou atividade do trabalhador.
+      - name: jornada
+        description: Quantidade de horas de jornada de trabalho semanal do trabalhador (convertido para numérico).
+      - name: unidade
+        description: Unidade organizacional onde o trabalhador presta serviço.
+      - name: salario
+        description: Valor do salário mensal do trabalhador (convertido para formato numérico padrão).
+      - name: custo
+        description: Custo total do trabalhador para a instituição (convertido para formato numérico padrão).
+      - name: escolaridade_id
+        description: Identificador do grau de escolaridade do trabalhador.
+      - name: data_inicio
+        description: Data de início do contrato do trabalhador, convertida para formato de data.
+      - name: data_fim
+        description: Data de término do contrato do trabalhador, convertida para formato de data.
+      - name: situacao
+        description: Situação atual do vínculo contratual do trabalhador (ativo, encerrado).
+      - name: aux_transporte
+        description: Valor mensal do auxílio transporte recebido pelo trabalhador (convertido para numérico).
+      - name: vale_alimentacao
+        description: Valor mensal do vale alimentação recebido pelo trabalhador (convertido para numérico).
+
+
+  - name: unidade_organizacional
+    description: >
+      Tabela gold que representa a hierarquia das unidades organizacionais extraídas do sistema Siorg.
+      A hierarquia é construída de forma recursiva, partindo de uma unidade raiz definida manualmente.
+      A tabela traz dados estruturados sobre as unidades, seus vínculos parentais e o nível de profundidade hierárquica.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: codigounidade
+        description: Código da unidade organizacional (sem prefixos de URI).
+      - name: codigounidadepai
+        description: Código da unidade organizacional pai, representando a hierarquia entre unidades.
+      - name: codigoorgaoentidade
+        description: Código do órgão ou entidade ao qual a unidade pertence.
+      - name: codigotipounidade
+        description: Código do tipo da unidade organizacional (departamento, secretaria).
+      - name: nome
+        description: Nome completo da unidade organizacional.
+      - name: sigla
+        description: Sigla da unidade organizacional.
+      - name: codigoesfera
+        description: Código da esfera governamental (federal, estadual, municipal).
+      - name: codigopoder
+        description: Código do poder ao qual a unidade está vinculada (Executivo, Judiciário).
+      - name: codigonaturezajuridica
+        description: Código da natureza jurídica da unidade.
+      - name: codigosubnaturezajuridica
+        description: Código da subnatureza jurídica da unidade.
+      - name: nivelnormatizacao
+        description: Nível de normatização da unidade organizacional.
+      - name: versaoconsulta
+        description: Número da versão da consulta no momento da extração dos dados.
+      - name: datafinalversaoconsulta
+        description: Data de finalização da versão da consulta.
+      - name: operacao
+        description: Tipo de operação registrada (inclusão, alteração, exclusão).
+      - name: codigounidadepaianterior
+        description: Código da unidade pai anterior (em caso de alteração estrutural).
+      - name: codigoorgaoentidadeanterior
+        description: Código do órgão/entidade anterior da unidade (em caso de mudança).
+      - name: ordem_grandeza
+        description: Nível hierárquico da unidade dentro da estrutura organizacional (quanto maior, mais profunda).
+      - name: caminho_unidade
+        description: Caminho hierárquico concatenado das siglas das unidades até o nível atual.
+
+
