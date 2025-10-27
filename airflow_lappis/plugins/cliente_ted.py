@@ -101,25 +101,31 @@ class ClienteTed(ClienteBase):
         status, data = self.request(
             http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER
         )
-       
+
         if status == http.HTTPStatus.OK and isinstance(data, list):
             logging.info(f"Notas de crédito obtidas para plano de ação {id_plano_acao}")
             return data
         else:
             logging.warning(f"Falha ao buscar notas de crédito - Status: {status}")
             return None
-    
-    def get_programacao_financeira_by_id_plano_acao(self, id_plano_acao: int) -> list | None:
+
+    def get_programacao_financeira_by_id_plano_acao(
+        self, id_plano_acao: int
+    ) -> list | None:
         endpoint = f"programacao_financeira?id_plano_acao=eq.{id_plano_acao}"
 
-        logging.info(f"Buscando programação financeira pelo plano de ação: {id_plano_acao}")
+        logging.info(
+            f"Buscando programação financeira pelo plano de ação: {id_plano_acao}"
+        )
 
         status, data = self.request(
             http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER
         )
-       
+
         if status == http.HTTPStatus.OK and isinstance(data, list):
-            logging.info(f"Programação financeira obtidas para plano de ação {id_plano_acao}")
+            logging.info(
+                f"Programação financeira obtidas para plano de ação {id_plano_acao}"
+            )
             return data
         else:
             logging.warning(f"Falha ao buscar programação financeira - Status: {status}")
