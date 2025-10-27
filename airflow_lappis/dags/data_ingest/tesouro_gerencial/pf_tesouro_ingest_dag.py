@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, List, cast
+from typing import Dict, Any
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models import Variable
@@ -47,7 +47,7 @@ COLUMN_MAPPING = {
 # Assuntos dos emails a serem processados
 EMAIL_SUBJECT_ENVIADAS = "programacoes_financeiras_enviadas_devolvidas_a_partir_de_2024"
 EMAIL_SUBJECT_RECEBIDAS = "programacoes_financeiras_recebidas_a_partir_de_2024"
-SKIPROWS = 3
+SKIPROWS = 6
 
 # Configurações da DAG
 with DAG(
@@ -60,7 +60,7 @@ with DAG(
     tags=["email", "pfs", "tesouro"],
 ) as dag:
 
-    def process_email_data_enviadas(**context: Dict[str, Any]) -> Optional[List[Dict]]:
+    def process_email_data_enviadas(**context: Dict[str, Any]) -> str:
         """
         Função para processar os emails com programações financeiras enviadas.
         """
@@ -75,28 +75,22 @@ with DAG(
             logging.info(
                 "Iniciando o processamento dos emails de programações enviadas/devolvidas"
             )
-            csv_data = cast(
-                Optional[List[Dict[Any, Any]]],
-                fetch_and_process_email(
-                    IMAP_SERVER,
-                    EMAIL,
-                    PASSWORD,
-                    SENDER_EMAIL,
-                    EMAIL_SUBJECT_ENVIADAS,
-                    COLUMN_MAPPING,
-                    skiprows=SKIPROWS,
-                ),
+            csv_data = fetch_and_process_email(
+                IMAP_SERVER,
+                EMAIL,
+                PASSWORD,
+                SENDER_EMAIL,
+                EMAIL_SUBJECT_ENVIADAS,
+                COLUMN_MAPPING,
+                skiprows=SKIPROWS,
             )
             if not csv_data:
                 logging.warning(
                     "Nenhum e-mail encontrado com o assunto de programações enviadas"
                 )
-                return []
+                return ""
 
-            logging.info(
-                "CSV de PFs enviadas processado com sucesso. Dados encontrados: %s",
-                len(csv_data),
-            )
+            logging.info("CSV de PFs enviadas processado com sucesso.")
             return csv_data
         except Exception as e:
             logging.error(
@@ -105,7 +99,7 @@ with DAG(
             )
             raise
 
-    def process_email_data_recebidas(**context: Dict[str, Any]) -> Optional[List[Dict]]:
+    def process_email_data_recebidas(**context: Dict[str, Any]) -> str:
         """
         Função para processar os emails com programações financeiras recebidas.
         """
@@ -120,28 +114,22 @@ with DAG(
             logging.info(
                 "Iniciando o processamento dos emails de programações recebidas..."
             )
-            csv_data = cast(
-                Optional[List[Dict[Any, Any]]],
-                fetch_and_process_email(
-                    IMAP_SERVER,
-                    EMAIL,
-                    PASSWORD,
-                    SENDER_EMAIL,
-                    EMAIL_SUBJECT_RECEBIDAS,
-                    column_mapping=None,
-                    skiprows=SKIPROWS,
-                ),
+            csv_data = fetch_and_process_email(
+                IMAP_SERVER,
+                EMAIL,
+                PASSWORD,
+                SENDER_EMAIL,
+                EMAIL_SUBJECT_RECEBIDAS,
+                column_mapping=None,
+                skiprows=SKIPROWS,
             )
             if not csv_data:
                 logging.warning(
                     "Nenhum e-mail encontrado com o assunto de programações recebidas."
                 )
-                return []
+                return ""
 
-            logging.info(
-                "CSV de PFs recebidas processado com sucesso. Dados encontrados: %s",
-                len(csv_data),
-            )
+            logging.info("CSV de PFs recebidas processado com sucesso.")
             return csv_data
         except Exception as e:
             logging.error(
@@ -149,22 +137,26 @@ with DAG(
             )
             raise
 
-    def combine_data(**context: Dict[str, Any]) -> List[Dict]:
+    def combine_data(**context: Dict[str, Any]) -> str:
         """
         Função para combinar os dados dos dois emails.
         """
         try:
             task_instance: Any = context["ti"]
             enviadas_data = (
-                task_instance.xcom_pull(task_ids="process_emails_enviadas") or []
+                task_instance.xcom_pull(task_ids="process_emails_enviadas") or ""
             )
             recebidas_data = (
-                task_instance.xcom_pull(task_ids="process_emails_recebidas") or []
+                task_instance.xcom_pull(task_ids="process_emails_recebidas") or ""
             )
 
             combined_data = enviadas_data + recebidas_data
 
-            logging.info(f"Dados combinados: {len(combined_data)} registros no total.")
+            if combined_data:
+                logging.info("Dados combinados com sucesso.")
+            else:
+                logging.warning("Nenhum dado encontrado em ambos os emails.")
+
             return combined_data
         except Exception as e:
             logging.error(f"Erro ao combinar os dados: {str(e)}")
