@@ -1,10 +1,8 @@
 import http
-import logging,sys
+import logging
 from typing import Any, Dict, List, Optional, Tuple
 from cliente_base import ClienteBase
-from typing import Any, Dict, List, Optional
 from safe_request import request_safe
-import time
 
 
 # logging.basicConfig(
@@ -35,13 +33,16 @@ class ClientePNCP(ClienteBase):
           idUsuario (int)
           pagina (int)
     """
+
     BASE_URL = "https://pncp.gov.br/api"
     BASE_HEADER = {"accept": "*/*"}
 
     def __init__(self, rate_limit_per_min: int = 120) -> None:
         super().__init__(base_url=ClientePNCP.BASE_URL)
-        logger.info("[cliente_pncp.py] Initialized ClientePNCP with base_url: %s", ClientePNCP.BASE_URL)
-
+        logger.info(
+            "[cliente_pncp.py] Initialized ClientePNCP with base_url: %s",
+            ClientePNCP.BASE_URL,
+        )
 
     def get_contratacoes_publicacao(
         self,
@@ -68,18 +69,8 @@ class ClientePNCP(ClienteBase):
             "dataFinal": data_final,
             "pagina": pagina,
         }
-        if codigo_modalidade_contratacao is not None:
-            params["codigoModalidadeContratacao"] = codigo_modalidade_contratacao
-        if uf:
-            params["uf"] = uf
-        if codigo_municipio_ibge is not None:
-            params["codigoMunicipioIbge"] = codigo_municipio_ibge
-        if cnpj:
-            params["cnpj"] = cnpj
-        if codigo_unidade_administrativa is not None:
-            params["codigoUnidadeAdministrativa"] = codigo_unidade_administrativa
-        if id_usuario is not None:
-            params["idUsuario"] = id_usuario
+        params["codigoModalidadeContratacao"] = codigo_modalidade_contratacao
+        params["cnpj"] = cnpj
 
         logger.info(
             "[cliente_pncp.py] Fetching PNCP | params=%s | pagina=%s",
@@ -87,13 +78,21 @@ class ClientePNCP(ClienteBase):
             pagina,
         )
 
-        status, data = request_safe(self,http.HTTPMethod.GET, endpoint, headers={"accept": "application/json"}, params=params)
+        status, data = request_safe(
+            self,
+            http.HTTPMethod.GET,
+            endpoint,
+            headers={"accept": "application/json"},
+            params=params,
+        )
 
         # Se não veio 200, não tente decodificar estrutura
         if status != http.HTTPStatus.OK:
             logger.warning(
                 "[cliente_pncp.py] HTTP %s | pagina=%s | tipo=%s",
-                status, pagina, type(data).__name__
+                status,
+                pagina,
+                type(data).__name__,
             )
             return [], 0
 
@@ -107,34 +106,33 @@ class ClientePNCP(ClienteBase):
         # 2) Se vier envelopado em dict
         elif isinstance(data, dict):
             # tente chaves comuns para itens
-            for key in ("data", "items", "results", "content"):
-                val = data.get(key)
-                if isinstance(val, list):
-                    itens = val
-                    break
+            key = "data"
+            val = data.get(key)
+            if isinstance(val, list):
+                itens = val
 
             # tente extrair total de páginas (se existir)
-            for k in ("totalPaginas", "total_pages", "totalPages"):
-                if isinstance(data.get(k), int):
-                    total_paginas = data[k]
-                    break
+            k = "totalPaginas"
+            if isinstance(data.get(k), int):
+                total_paginas = data[k]
 
             if not itens:
                 logger.warning(
                     "[cliente_pncp.py] 200 mas sem lista reconhecida. keys=%s",
-                    list(data.keys())
+                    list(data.keys()),
                 )
 
         # 3) Se vier string/None/outro tipo → trate como vazio
         else:
             logger.warning(
                 "[cliente_pncp.py] 200 mas resposta não-JSON-list/dict | tipo=%s",
-                type(data).__name__
+                type(data).__name__,
             )
 
         logger.info(
             "[cliente_pncp.py] OK | pagina=%s | rows=%s | total_paginas=%s",
-            pagina, len(itens), total_paginas
+            pagina,
+            len(itens),
+            total_paginas,
         )
         return itens, total_paginas
-
