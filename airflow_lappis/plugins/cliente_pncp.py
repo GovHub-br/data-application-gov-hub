@@ -15,6 +15,11 @@ from safe_request import request_safe
 logger = logging.getLogger(__name__)
 
 
+def _ymd(ano: int, mes: int, dia: int) -> str:
+    """Formata YYYYMMDD com zero-padding correto."""
+    return f"{ano:04d}{mes:02d}{dia:02d}"
+
+
 class ClientePNCP(ClienteBase):
     """
     Cliente para consultar publicações de contratações no PNCP.
@@ -136,3 +141,246 @@ class ClientePNCP(ClienteBase):
             total_paginas,
         )
         return itens, total_paginas
+
+    def get_contratacoes_publicacao_paginado(
+        self,
+        data_inicial: str,
+        data_final: str,
+        codigo_modalidade_contratacao: Optional[int] = None,
+        uf: Optional[str] = None,
+        codigo_municipio_ibge: Optional[int] = None,
+        cnpj: Optional[str] = None,
+        codigo_unidade_administrativa: Optional[int] = None,
+        id_usuario: Optional[int] = None,
+        pagina_inicial: int = 1,
+        max_paginas: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Busca publicações de contratações no PNCP, agregando múltiplas páginas.
+
+        Itera páginas até:
+          - retornar lista vazia/None,
+          - alcançar max_paginas (se fornecido).
+
+        Returns:
+            list: Lista agregada com todas as linhas coletadas.
+        """
+        agregados: List[Dict[str, Any]] = []
+        pagina = pagina_inicial
+        paginas_coletadas = 0
+
+        while True:
+            if max_paginas is not None and paginas_coletadas >= max_paginas:
+                logger.info("[cliente_pncp.py] Max de páginas atingido: %s", max_paginas)
+                break
+
+            page_data, max_paginas = self.get_contratacoes_publicacao(
+                data_inicial=data_inicial,
+                data_final=data_final,
+                codigo_modalidade_contratacao=codigo_modalidade_contratacao,
+                uf=uf,
+                codigo_municipio_ibge=codigo_municipio_ibge,
+                cnpj=cnpj,
+                codigo_unidade_administrativa=codigo_unidade_administrativa,
+                id_usuario=id_usuario,
+                pagina=pagina,
+            )
+
+            if not page_data:
+                logger.info(
+                    "[cliente_pncp.py] Fim da paginação (vazio/None) na página %s", pagina
+                )
+                break
+
+            agregados.extend(page_data)
+            paginas_coletadas += 1
+            pagina += 1
+
+        logger.info(
+            "[cliente_pncp.py] Coleta paginada concluída | total_paginas=%s | "
+            "total_registros=%s",
+            paginas_coletadas,
+            len(agregados),
+        )
+        return agregados
+
+    def get_contratacoes_publicacao_semestral(
+        self,
+        data_inicial: str,  # 'YYYYMMDD'
+        data_final: str,  # 'YYYYMMDD'
+        codigo_modalidade_contratacao: Optional[int] = None,
+        uf: Optional[str] = None,
+        codigo_municipio_ibge: Optional[int] = None,
+        cnpj: Optional[str] = None,
+        codigo_unidade_administrativa: Optional[int] = None,
+        id_usuario: Optional[int] = None,
+        pagina_inicial: int = 1,
+        max_paginas: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Varre semestralmente entre data_inicial e data_final usando janelas
+        half-open [início, fim).
+        Em cada janela, pagina até esgotar os resultados.
+        """
+        logger.info(
+            "[PNCP][semestral] INÍCIO | intervalo_solicitado=[%s, %s] | "
+            "filtros: modalidade=%s, uf=%s, ibge=%s, cnpj=%s, ua=%s, usuario=%s | "
+            "pagina_inicial=%s, max_paginas=%s",
+            data_inicial,
+            data_final,
+            codigo_modalidade_contratacao,
+            uf,
+            codigo_municipio_ibge,
+            cnpj,
+            codigo_unidade_administrativa,
+            id_usuario,
+            pagina_inicial,
+            max_paginas,
+        )
+
+        agregados: List[Dict[str, Any]] = []
+        try:
+            ano_ini = int(data_inicial[:4])
+            ano_fim = int(data_final[:4])
+        except Exception as e:
+            logger.error(
+                "[PNCP][semestral] ERRO ao parsear anos de data_inicial/data_final: %s",
+                e,
+                exc_info=True,
+            )
+            raise
+
+        limite_inicio = data_inicial
+        limite_fim = data_final
+
+        logger.debug(
+            "[PNCP][semestral] anos_detectados: ano_ini=%s, ano_fim=%s | "
+            "limites_clip=[%s, %s]",
+            ano_ini,
+            ano_fim,
+            limite_inicio,
+            limite_fim,
+        )
+
+        for ano in range(ano_ini, ano_fim + 1):
+            logger.info("[PNCP][semestral] Ano %s → preparando janelas H1 e H2", ano)
+
+            # H1: [ano-01-01, ano-07-01)
+            s1_ini = _ymd(ano, 1, 1)
+            s1_fim = _ymd(ano, 7, 1)
+
+            # H2: [ano-07-01, (ano+1)-01-01)
+            s2_ini = _ymd(ano, 7, 1)
+            s2_fim = _ymd(ano + 1, 1, 1)
+
+            # Clip com limites externos
+            s1_ini_clip = max(s1_ini, limite_inicio)
+            s1_fim_clip = min(s1_fim, limite_fim)
+            s2_ini_clip = max(s2_ini, limite_inicio)
+            s2_fim_clip = min(s2_fim, limite_fim)
+
+            logger.debug(
+                "[PNCP][semestral] Ano %s | H1=[%s, %s) → clip=[%s, %s) | "
+                "H2=[%s, %s) → clip=[%s, %s)",
+                ano,
+                s1_ini,
+                s1_fim,
+                s1_ini_clip,
+                s1_fim_clip,
+                s2_ini,
+                s2_fim,
+                s2_ini_clip,
+                s2_fim_clip,
+            )
+
+            # --- H1 ---
+            if s1_ini_clip < s1_fim_clip:
+                logger.info(
+                    "[PNCP][semestral] Ano %s | H1 CLIP válido: [%s, %s) → "
+                    "iniciando coleta paginada",
+                    ano,
+                    s1_ini_clip,
+                    s1_fim_clip,
+                )
+                try:
+                    page_data = self.get_contratacoes_publicacao_paginado(
+                        data_inicial=s1_ini_clip,
+                        data_final=s1_fim_clip,
+                        codigo_modalidade_contratacao=codigo_modalidade_contratacao,
+                        uf=uf,
+                        codigo_municipio_ibge=codigo_municipio_ibge,
+                        cnpj=cnpj,
+                        codigo_unidade_administrativa=codigo_unidade_administrativa,
+                        id_usuario=id_usuario,
+                        pagina_inicial=pagina_inicial,
+                        max_paginas=max_paginas,
+                    )
+                    n = len(page_data) if page_data else 0
+                    logger.info(
+                        "[PNCP][semestral] Ano %s | H1 coletado com sucesso | linhas=%s",
+                        ano,
+                        n,
+                    )
+                    if page_data:
+                        agregados.extend(page_data)
+                except Exception as e:
+                    logger.error(
+                        "[PNCP][semestral] Ano %s | H1 FALHOU: %s", ano, e, exc_info=True
+                    )
+            else:
+                logger.info(
+                    "[PNCP][semestral] Ano %s | H1 CLIP vazio/ignorado: [%s, %s)",
+                    ano,
+                    s1_ini_clip,
+                    s1_fim_clip,
+                )
+
+            # --- H2 ---
+            if s2_ini_clip < s2_fim_clip:
+                logger.info(
+                    "[PNCP][semestral] Ano %s | H2 CLIP válido: [%s, %s) → "
+                    "iniciando coleta paginada",
+                    ano,
+                    s2_ini_clip,
+                    s2_fim_clip,
+                )
+                try:
+                    page_data = self.get_contratacoes_publicacao_paginado(
+                        data_inicial=s2_ini_clip,
+                        data_final=s2_fim_clip,
+                        codigo_modalidade_contratacao=codigo_modalidade_contratacao,
+                        uf=uf,
+                        codigo_municipio_ibge=codigo_municipio_ibge,
+                        cnpj=cnpj,
+                        codigo_unidade_administrativa=codigo_unidade_administrativa,
+                        id_usuario=id_usuario,
+                        pagina_inicial=pagina_inicial,
+                        max_paginas=max_paginas,
+                    )
+                    n = len(page_data) if page_data else 0
+                    logger.info(
+                        "[PNCP][semestral] Ano %s | H2 coletado com sucesso | linhas=%s",
+                        ano,
+                        n,
+                    )
+                    if page_data:
+                        agregados.extend(page_data)
+                except Exception as e:
+                    logger.error(
+                        "[PNCP][semestral] Ano %s | H2 FALHOU: %s", ano, e, exc_info=True
+                    )
+            else:
+                logger.info(
+                    "[PNCP][semestral] Ano %s | H2 CLIP vazio/ignorado: [%s, %s)",
+                    ano,
+                    s2_ini_clip,
+                    s2_fim_clip,
+                )
+
+        logger.info(
+            "[PNCP][semestral] FIM | anos=%s..%s | total_linhas=%s",
+            ano_ini,
+            ano_fim,
+            len(agregados),
+        )
+        return agregados
