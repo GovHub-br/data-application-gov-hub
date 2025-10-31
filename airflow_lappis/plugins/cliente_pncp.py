@@ -15,6 +15,20 @@ from safe_request import request_safe
 logger = logging.getLogger(__name__)
 
 
+def parse_numero_controle(numero_controle: str) -> Tuple[str, str, str, str]:
+    """
+    Recebe string no formato 'CNPJ-DIGITO-SEQUENCIAL/ANO'
+    e retorna (cnpj, digito, sequencial, ano).
+    """
+    # Primeiro divide pelo '/' para separar ano
+    parte_esquerda, ano = numero_controle.split("/")
+
+    # Depois divide a parte esquerda pelos '-'
+    cnpj, digito, sequencial = parte_esquerda.split("-")
+
+    return cnpj, digito, sequencial, ano
+
+
 def _ymd(ano: int, mes: int, dia: int) -> str:
     """Formata YYYYMMDD com zero-padding correto."""
     return f"{ano:04d}{mes:02d}{dia:02d}"
@@ -188,7 +202,8 @@ class ClientePNCP(ClienteBase):
 
             if not page_data:
                 logger.info(
-                    "[cliente_pncp.py] Fim da paginação (vazio/None) na página %s", pagina
+                    "[cliente_pncp.py] Fim da paginação (vazio/None) na página %s",
+                    pagina,
                 )
                 break
 
@@ -384,3 +399,108 @@ class ClientePNCP(ClienteBase):
             len(agregados),
         )
         return agregados
+
+    def get_itens_e_resultados(
+        self, lista_chaves: List[Tuple[str, int, str]]
+    ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+        """
+        Recebe lista de numeroControlePNCP e retorna:
+          - lista com todos os itens de cada contratação
+          - lista com todos os resultados dos itens
+
+        Args:
+            lista_chaves: lista de tuplas (cnpj, ano, sequencial)
+
+        Returns:
+            Tuple:
+              - itens (List[Dict])
+              - resultados (List[Dict])
+        """
+        itens_total: List[Dict[str, Any]] = []
+        resultados_total: List[Dict[str, Any]] = []
+
+        for numeroControlePNCP in lista_chaves:
+            cnpj, digito, sequencial, ano = parse_numero_controle(numeroControlePNCP)
+            logger.info(
+                "[PNCP][itens/resultados] Iniciando para CNPJ=%s, ano=%s, seq=%s",
+                cnpj,
+                ano,
+                sequencial,
+            )
+
+            # 1) Buscar itens da contratação
+            endpoint_itens = f"/pncp/v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens"
+            status, data_itens = request_safe(
+                self, http.HTTPMethod.GET, endpoint_itens, headers=self.BASE_HEADER
+            )
+
+            if status == http.HTTPStatus.OK and isinstance(data_itens, list):
+                for item in data_itens:
+                    item["numeroControlePNCP"] = numeroControlePNCP
+                itens_total.extend(data_itens)
+                logger.info("[PNCP][itens] %s itens coletados", len(data_itens))
+            else:
+                logger.warning(
+                    "[PNCP][itens] Falha ao coletar itens | CNPJ=%s, ano=%s, seq=%s | "
+                    "status=%s",
+                    cnpj,
+                    ano,
+                    sequencial,
+                    status,
+                )
+                continue  # pula para próxima chave
+
+            # 2) Consultar quantidade de itens
+            endpoint_qtd = (
+                f"/pncp/v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/quantidade"
+            )
+            status, qtd = request_safe(
+                self, http.HTTPMethod.GET, endpoint_qtd, headers=self.BASE_HEADER
+            )
+            # time.sleep(1)  # Sleep after API call to avoid rate limiting
+            if status != http.HTTPStatus.OK or not isinstance(qtd, int):
+                logger.warning(
+                    "[PNCP][quantidade] Não foi possível obter quantidade de itens | "
+                    "CNPJ=%s, ano=%s, seq=%s",
+                    cnpj,
+                    ano,
+                    sequencial,
+                )
+                continue
+
+            # Após o narrowing acima, qtd é garantidamente int
+            qtd_int: int = qtd  # type: ignore[unreachable]
+
+            # 3) Para cada item, buscar resultados
+            if qtd_int > 0:
+                for numero_item in range(1, qtd_int + 1):
+                    endpoint_res = (
+                        f"/pncp/v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/"
+                        f"itens/{numero_item}/resultados"
+                    )
+                    status, data_res = request_safe(
+                        self, http.HTTPMethod.GET, endpoint_res, headers=self.BASE_HEADER
+                    )
+                    # Sleep after API call to avoid rate limiting (commented out)
+                    # time.sleep(1)
+
+                    if status == http.HTTPStatus.OK and isinstance(data_res, list):
+                        # for r in data_res:
+                        #     r["numeroControlePNCP"] = numeroControlePNCP
+                        resultados_total.extend(data_res)
+                        logger.info(
+                            "[PNCP][resultados] Item %s → %s resultados",
+                            numero_item,
+                            len(data_res),
+                        )
+                    else:
+                        logger.warning(
+                            "[PNCP][resultados] Falha no item %s | CNPJ=%s, ano=%s, "
+                            "seq=%s",
+                            numero_item,
+                            cnpj,
+                            ano,
+                            sequencial,
+                        )
+
+        return itens_total, resultados_total
