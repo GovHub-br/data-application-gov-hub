@@ -423,3 +423,84 @@ class ClientPostgresDB:
                         f"[cliente_postgres.py] Erro ao executar non-query. Erro: {e}"
                     )
                     raise RuntimeError("Erro ao executar comando SQL sem retorno") from e
+
+    def get_dashboard_kpis(self) -> Dict[str, int]:
+        """
+        Busca os KPIs do dashboard de servidores.
+
+        Returns:
+            Dict[str, int]: Dicionário com os KPIs
+        """
+        query = "SELECT kpi, valor FROM pessoas.kpis_servidores"
+
+        with psycopg2.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                results = cursor.fetchall()
+                return {row[0]: row[1] for row in results}
+
+    def get_dashboard_genero(self) -> Dict[str, float]:
+        """
+        Busca a distribuição por gênero para o dashboard.
+
+        Returns:
+            Dict[str, float]: Dicionário com percentuais por gênero
+        """
+        query = """
+            SELECT 
+                genero,
+                ROUND(percentual_distribuicao * 100, 1) as percentual
+            FROM pessoas.distribuicao_genero
+        """
+
+        with psycopg2.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                results = cursor.fetchall()
+                genero_data = {}
+                for row in results:
+                    genero = row[0].lower() if row[0] else "n/a"
+                    genero_data[f"{genero}_percent"] = float(row[1])
+                return genero_data
+
+    def get_dashboard_raca_cor(self) -> List[Dict[str, Any]]:
+        """
+        Busca a distribuição por raça/cor para o dashboard.
+
+        Returns:
+            List[Dict[str, Any]]: Lista de dicionários com raça/cor e quantidade
+        """
+        query = """
+            SELECT 
+                COALESCE(cor_raca, 'NÃO DECLARADA') as nome_cor,
+                quantidade_servidores as valor
+            FROM pessoas.distribuicao_raca_cor
+            ORDER BY quantidade_servidores DESC
+        """
+
+        with psycopg2.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                results = cursor.fetchall()
+                return [{"nome_cor": row[0], "valor": row[1]} for row in results]
+
+    def get_dashboard_situacao_funcional(self) -> List[Dict[str, Any]]:
+        """
+        Busca a distribuição por situação funcional para o dashboard.
+
+        Returns:
+            List[Dict[str, Any]]: Lista de dicionários com situação e quantidade
+        """
+        query = """
+            SELECT 
+                COALESCE(situacao_funcional, situacao_funcional_original) as label,
+                quantidade_servidores as valor
+            FROM pessoas.distribuicao_situacao_funcional
+            ORDER BY quantidade_servidores DESC
+        """
+
+        with psycopg2.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                results = cursor.fetchall()
+                return [{"label": row[0], "valor": row[1]} for row in results]

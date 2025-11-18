@@ -197,3 +197,90 @@ models:
         description: >
           Quantidade total de servidores distintos (com base no CPF) que se enquadram na combinação dos atributos anteriores.
 
+
+  - name: distribuicao_genero
+    description: >
+      Tabela agregada que apresenta a distribuição percentual de servidores por gênero,
+      enriquecida com informações de modalidade PGD, escolaridade e deficiência física.
+      A análise considera apenas servidores ativos com dados completos nas bases do SIAPE,
+      SIORG e dados de uorg. A granularidade é por gênero, com cálculo de percentual em relação ao total.
+
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: genero
+        description: Gênero do servidor (masculino, feminino, etc.) conforme cadastrado nos dados pessoais.
+      - name: quantidade_servidores
+        description: Quantidade total de servidores pertencentes a este gênero.
+      - name: percentual_distribuicao
+        description: >
+          Percentual de servidores deste gênero em relação ao total de servidores,
+          calculado como COUNT(*) * 1.0 / SUM(COUNT(*)) OVER ().
+
+
+  - name: distribuicao_raca_cor
+    description: >
+      Tabela agregada que apresenta a distribuição de servidores por raça/cor,
+      enriquecida com informações de modalidade PGD, escolaridade e deficiência física.
+      A análise considera apenas servidores ativos com dados completos nas bases do SIAPE,
+      SIORG e dados de uorg. A granularidade é por raça/cor, ordenada pela quantidade de servidores.
+
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: cor_raca
+        description: >
+          Cor ou raça do servidor (branca, parda, preta, amarela, indígena, não informada)
+          conforme autodeclaração registrada nos dados pessoais do SIAPE.
+      - name: quantidade_servidores
+        description: Quantidade total de servidores que se autodeclararam desta cor/raça.
+
+
+  - name: distribuicao_situacao_funcional
+    description: >
+      Tabela agregada que apresenta a distribuição de servidores por situação funcional,
+      categorizando e padronizando as diferentes situações registradas no SIAPE.
+      As situações funcionais são normalizadas em categorias como Ativo permanente, Cedido,
+      Requisitado, Aposentado, Pensionista, Cargo comissionado e Estagiário.
+      A análise inclui dados enriquecidos com informações de modalidade PGD e unidade organizacional.
+
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: situacao_funcional
+        description: >
+          Situação funcional normalizada do servidor (Ativo permanente, Cedido, Requisitado,
+          Aposentado, Pensionista, Cargo comissionado, Estagiário), derivada do campo
+          nome_situacao_funcional através de regras de categorização.
+      - name: situacao_funcional_original
+        description: >
+          Nome original da situação funcional conforme registrado no SIAPE, antes da normalização
+          (ATIVO PERMANENTE, ATIVO EM OUTRO ORGAO, APOSENTADO, etc.).
+      - name: quantidade_servidores
+        description: Quantidade total de servidores que se enquadram nesta combinação de situação funcional.
+
+
+  - name: kpis_servidores
+    description: >
+      Tabela de KPIs (Key Performance Indicators) consolidados sobre o quadro de pessoal,
+      incluindo métricas de contagem total de servidores, servidores ativos permanentes,
+      aposentados, estagiários e terceirizados. Esta tabela fornece uma visão rápida e consolidada
+      dos principais indicadores quantitativos de recursos humanos da organização.
+      Cada linha representa um KPI específico com seu respectivo valor.
+
+    meta:
+      tags:
+        - gold
+        - kpi
+    columns:
+      - name: kpi
+        description: >
+          Nome do indicador (total_servidores, servidores_ativos_permanentes, aposentados,
+          estagiarios, terceirizados).
+      - name: valor
+        description: >
+          Valor numérico do KPI, representando a contagem de CPFs ou IDs únicos conforme a métrica.
+
