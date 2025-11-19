@@ -2,7 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from postgres_helpers import get_postgres_conn
-from cliente_transfere_gov import ClienteTransfereGov
+from cliente_transferegov_emendas import ClienteTransfereGov
 from cliente_postgres import ClientPostgresDB
 
 
@@ -48,7 +48,7 @@ def api_programas_especiais_dag() -> None:
                 "programas_especiais",
                 conflict_fields=["id_programa"],
                 primary_key=["id_programa"],
-                schema="transfere_gov",
+                schema="transfere_gov_emendas",
             )
 
             logging.info(

@@ -2,7 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from postgres_helpers import get_postgres_conn
-from cliente_transfere_gov import ClienteTransfereGov
+from cliente_transferegov_emendas import ClienteTransfereGov
 from cliente_postgres import ClientPostgresDB
 
 
@@ -59,7 +59,7 @@ def api_planos_acao_especiais_dag() -> None:
                     "planos_acao_especiais",
                     conflict_fields=["id_plano_acao"],
                     primary_key=["id_plano_acao"],
-                    schema="transfere_gov",
+                    schema="transfere_gov_emendas",
                 )
                 total_planos += len(planos_data)
 
