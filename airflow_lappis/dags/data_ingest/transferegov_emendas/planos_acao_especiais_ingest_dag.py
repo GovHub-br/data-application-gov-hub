@@ -59,7 +59,7 @@ def api_planos_acao_especiais_dag() -> None:
                     "planos_acao_especiais",
                     conflict_fields=["id_plano_acao"],
                     primary_key=["id_plano_acao"],
-                    schema="transfere_gov_emendas",
+                    schema="transferegov_emendas",
                 )
                 total_planos += len(planos_data)
 

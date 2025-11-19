@@ -48,7 +48,7 @@ def api_programas_especiais_dag() -> None:
                 "programas_especiais",
                 conflict_fields=["id_programa"],
                 primary_key=["id_programa"],
-                schema="transfere_gov_emendas",
+                schema="transferegov_emendas",
             )
 
             logging.info(
