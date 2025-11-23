@@ -50,7 +50,7 @@ class ClienteGitHub:
             response = requests.get(url, headers=self.headers, params=params)
             if response.status_code == 200:
                 data = response.json()
-                sha = data.get("sha")
+                sha: Optional[str] = data.get("sha")
                 logging.info(f"[cliente_github.py] SHA obtido para {path}: {sha}")
                 return sha
             elif response.status_code == 404:
@@ -118,7 +118,7 @@ class ClienteGitHub:
             response = requests.put(url, headers=self.headers, json=payload)
 
             if response.status_code in [200, 201]:
-                data = response.json()
+                data: Dict[str, Any] = response.json()
                 logging.info(
                     f"[cliente_github.py] Arquivo {path} "
                     f"{'atualizado' if sha else 'criado'} com sucesso"
