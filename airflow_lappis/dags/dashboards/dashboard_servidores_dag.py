@@ -19,8 +19,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configurações do GitHub
-GITHUB_OWNER = "davi-aguiar-vieira"
-GITHUB_REPO = "IA-Portfolio"
+GITHUB_OWNER = "GovHub-br"
+GITHUB_REPO = "gov-hub"
 GITHUB_FILE_PATH = "docs/land/public/data/pessoas_visao_geral.json"
 GITHUB_BRANCH = "main"
 
@@ -31,7 +31,7 @@ GITHUB_BRANCH = "main"
     start_date=datetime(2025, 11, 16),
     catchup=False,
     default_args={
-        "owner": "airflow",
+        "owner": "Davi",
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
@@ -72,6 +72,12 @@ def dashboard_servidores_dag() -> None:
             logger.info("Buscando distribuição por situação funcional...")
             situacao_funcional = client.get_dashboard_situacao_funcional()
 
+            logger.info("Buscando distribuição geográfica por UF...")
+            mapa_uf = client.get_dashboard_mapa_uf()
+
+            logger.info("Buscando tabela de servidores agregada...")
+            tabela_servidores = client.get_dashboard_tabela_servidores(limit=100)
+
             # Montar estrutura do JSON
             dashboard_data = {
                 "meta": {"atualizado_em": datetime.now().isoformat() + "Z"},
@@ -86,19 +92,10 @@ def dashboard_servidores_dag() -> None:
                 },
                 "genero": genero,
                 "raca_cor": raca_cor,
+                "mapa_uf": mapa_uf,
                 "situacao_funcional": situacao_funcional,
+                "tabela_servidores": tabela_servidores,
             }
-
-            logger.info("Dados do dashboard gerados com sucesso")
-            logger.info(
-                f"Total de servidores: {dashboard_data['kpis']['total_servidores']}"
-            )
-            logger.info(f"Distribuição de gênero: {dashboard_data['genero']}")
-            logger.info(f"Raça/cor - {len(dashboard_data['raca_cor'])} categorias")
-            logger.info(
-                f"Situação funcional - "
-                f"{len(dashboard_data['situacao_funcional'])} categorias"
-            )
 
             return dashboard_data
 
@@ -153,7 +150,7 @@ def dashboard_servidores_dag() -> None:
                 "file_url": result.get("content", {}).get("html_url", ""),
             }
 
-            logger.info(f"Arquivo publicado com sucesso no GitHub!")
+            logger.info("Arquivo publicado com sucesso no GitHub!")
             logger.info(f"Commit SHA: {commit_info['commit_sha']}")
             logger.info(f"URL do arquivo: {commit_info['file_url']}")
 

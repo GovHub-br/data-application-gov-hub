@@ -284,3 +284,51 @@ models:
         description: >
           Valor numérico do KPI, representando a contagem de CPFs ou IDs únicos conforme a métrica.
 
+
+  - name: distribuicao_mapa_uf
+    description: >
+      Tabela com a distribuição geográfica completa de servidores por Unidade Federativa (UF).
+      Retorna todos os 27 estados brasileiros com suas respectivas contagens de servidores
+      e percentuais. Estados sem servidores aparecem com valor 0. Útil para visualizações
+      em mapas e análises de distribuição geográfica do quadro de pessoal.
+
+    meta:
+      tags:
+        - gold
+        - dashboard
+    columns:
+      - name: sigla_uf
+        description: Sigla da Unidade Federativa (AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO).
+      - name: nome_uf
+        description: Nome completo da Unidade Federativa em maiúsculas.
+      - name: valor
+        description: Quantidade total de servidores com unidade de exercício neste estado.
+      - name: percentual
+        description: Percentual de servidores deste estado em relação ao total, formatado como string com símbolo '%'.
+
+
+  - name: tabela_servidores_agregada
+    description: >
+      Tabela agregada de servidores com informações consolidadas por cargo, gênero,
+      situação funcional e localização (cidade/estado). Cada linha representa uma
+      combinação única desses atributos com a respectiva contagem de servidores.
+      Útil para análises detalhadas e exibição em tabelas de dashboard.
+
+    meta:
+      tags:
+        - gold
+        - dashboard
+    columns:
+      - name: cargo
+        description: Nome do cargo ocupado pelo servidor.
+      - name: genero
+        description: Gênero do servidor normalizado (Masculino, Feminino).
+      - name: situacao
+        description: Situação funcional normalizada (Ativo Permanente, Aposentado, Ativo em outro órgão, Estagiário, Cedido/Requisitado).
+      - name: cidade
+        description: Nome do município da unidade de exercício formatado em título (primeira letra maiúscula).
+      - name: estado
+        description: Sigla da UF da unidade de exercício em maiúsculas.
+      - name: total
+        description: Quantidade total de servidores únicos (CPF) nesta combinação de atributos.
+
