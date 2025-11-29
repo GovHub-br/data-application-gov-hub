@@ -3,6 +3,7 @@ from airflow.decorators import dag, task
 from airflow.models import Variable
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_ted import ClienteTed
 from cliente_postgres import ClientPostgresDB
@@ -20,7 +21,6 @@ from cliente_postgres import ClientPostgresDB
     tags=["ted_api", "programas"],
 )
 def api_programas_dag() -> None:
-
     @task
     def fetch_and_update_programas() -> None:
         logging.info("Starting api_programas_dag - Update Programs")
@@ -34,7 +34,7 @@ def api_programas_dag() -> None:
             programas_data = api.get_programa_by_id_programa(id_programa)
             if programas_data and len(programas_data) > 0:
                 programa = programas_data[0]
-                programa["dt_ingest"] = datetime.now().isoformat()
+                programa["dt_ingest"] = brasilia_now_iso()
 
                 # Alter table to add any new columns needed
                 db.alter_table(programa, "programas", schema="transfere_gov")

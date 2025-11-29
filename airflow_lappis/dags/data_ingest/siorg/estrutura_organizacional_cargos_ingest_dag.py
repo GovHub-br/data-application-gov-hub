@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_siorg import ClienteSiorg
 from cliente_postgres import ClientPostgresDB
@@ -39,7 +40,7 @@ def api_estrutura_organizacional_cargos_dag() -> None:
 
                     if estrutura_cargos:
                         estrutura_cargos["ordem_grandeza"] = ordem_grandeza
-                        estrutura_cargos["dt_ingest"] = datetime.now().isoformat()
+                        estrutura_cargos["dt_ingest"] = brasilia_now_iso()
 
                         db.insert_data(
                             [estrutura_cargos],

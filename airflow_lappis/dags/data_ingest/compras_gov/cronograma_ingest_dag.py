@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_contratos import ClienteContratos
 from cliente_postgres import ClientPostgresDB
@@ -42,7 +43,7 @@ def api_cronogramas_dag() -> None:
             if cronograma:
                 # Adicionar dt_ingest a cada item do cronograma
                 for item in cronograma:
-                    item["dt_ingest"] = datetime.now().isoformat()
+                    item["dt_ingest"] = brasilia_now_iso()
 
                 logging.info(
                     f"[cronograma_ingest_dag.py] Inserting cronograma for contrato ID: "

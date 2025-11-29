@@ -8,6 +8,7 @@ import json
 import pandas as pd
 import io
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from cliente_email import fetch_and_process_email
 from cliente_postgres import ClientPostgresDB
 from postgres_helpers import get_postgres_conn
@@ -151,7 +152,7 @@ with DAG(
 
             # Combinar os DataFrames e adicionar dt_ingest
             combined_df = pd.concat(dfs, ignore_index=True)
-            combined_df["dt_ingest"] = datetime.now().isoformat()
+            combined_df["dt_ingest"] = brasilia_now_iso()
 
             logging.info(f"Dados combinados: {len(combined_df)} registros no total.")
             return combined_df

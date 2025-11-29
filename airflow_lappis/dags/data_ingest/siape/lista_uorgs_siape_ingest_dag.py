@@ -4,6 +4,7 @@ from datetime import datetime
 from airflow.decorators import dag, task
 from datetime import timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_siape import ClienteSiape
 from cliente_postgres import ClientPostgresDB
@@ -58,7 +59,7 @@ def siape_lista_uorgs_dag() -> None:
 
         # Adicionar dt_ingest a cada registro
         for registro in dados_lista:
-            registro["dt_ingest"] = datetime.now().isoformat()
+            registro["dt_ingest"] = brasilia_now_iso()
 
         for item in dados_lista:
             if "dataUltimaTransacao" in item:

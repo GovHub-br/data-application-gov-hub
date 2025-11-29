@@ -4,6 +4,7 @@ import requests
 from datetime import datetime, timedelta
 from airflow.decorators import dag, task
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_siape import ClienteSiape
 from cliente_postgres import ClientPostgresDB
@@ -71,7 +72,7 @@ def siape_pensoes_instituidas_dag() -> None:
                 if dados:
                     # Adicionar dt_ingest a cada registro
                     for registro in dados:
-                        registro["dt_ingest"] = datetime.now().isoformat()
+                        registro["dt_ingest"] = brasilia_now_iso()
 
                     # Usa o primeiro registro para criar/ajustar a estrutura da tabela
                     db.alter_table(

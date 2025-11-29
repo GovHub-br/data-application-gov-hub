@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_contratos import ClienteContratos
 from cliente_postgres import ClientPostgresDB
@@ -40,7 +41,7 @@ def api_empenhos_dag() -> None:
                 if empenhos:
                     for empenho in empenhos:
                         empenho["contrato_id"] = contrato_id
-                        empenho["dt_ingest"] = datetime.now().isoformat()
+                        empenho["dt_ingest"] = brasilia_now_iso()
 
                 logging.info(
                     f"[empenhos_ingest_dag.py] Inserting empenhos for contrato ID: "

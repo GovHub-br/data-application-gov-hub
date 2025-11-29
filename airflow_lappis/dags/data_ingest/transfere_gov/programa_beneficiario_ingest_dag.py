@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_ted import ClienteTed
 from cliente_postgres import ClientPostgresDB
@@ -19,7 +20,6 @@ from cliente_postgres import ClientPostgresDB
     tags=["ted_api", "programa_beneficiario"],
 )
 def api_programa_beneficiario_dag() -> None:
-
     @task
     def fetch_and_store_programa_beneficiario() -> None:
         logging.info("Starting api_programa_beneficiario_dag DAG")
@@ -38,6 +38,9 @@ def api_programa_beneficiario_dag() -> None:
                 {"id_programa": id_prog}
                 for id_prog in {b["id_programa"] for b in beneficiario}
             ]
+
+            for programa in unique_id_programas:
+                programa["dt_ingest"] = brasilia_now_iso()
 
             db.insert_data(
                 unique_id_programas,

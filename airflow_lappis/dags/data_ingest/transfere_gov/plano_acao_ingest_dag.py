@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_ted import ClienteTed
 from cliente_postgres import ClientPostgresDB
@@ -19,7 +20,6 @@ from cliente_postgres import ClientPostgresDB
     tags=["ted_api", "planos_acao"],
 )
 def api_planos_acao_dag() -> None:
-
     @task
     def fetch_and_store_planos_acao() -> None:
         logging.info("Starting api_planos_acao_dag DAG")
@@ -34,7 +34,7 @@ def api_planos_acao_dag() -> None:
             if planos_acao_data:
                 # Adicionar dt_ingest a cada plano
                 for plano in planos_acao_data:
-                    plano["dt_ingest"] = datetime.now().isoformat()
+                    plano["dt_ingest"] = brasilia_now_iso()
 
                 db.insert_data(
                     planos_acao_data,

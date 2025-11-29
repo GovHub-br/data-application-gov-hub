@@ -5,6 +5,7 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.models import Variable
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_contratos import ClienteContratos
 from cliente_postgres import ClientPostgresDB
@@ -53,7 +54,7 @@ def api_contratos_dag() -> None:
             if contratos:
                 # Adicionar dt_ingest a cada contrato
                 for contrato in contratos:
-                    contrato["dt_ingest"] = datetime.now().isoformat()
+                    contrato["dt_ingest"] = brasilia_now_iso()
 
                 logging.info(f"Inserindo contratos da UG {ug_code} no schema compras_gov")
                 db.insert_data(

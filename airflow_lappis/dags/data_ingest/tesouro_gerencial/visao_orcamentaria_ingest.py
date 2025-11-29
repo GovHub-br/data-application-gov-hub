@@ -10,6 +10,7 @@ import io
 import re
 import zipfile
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from cliente_email import fetch_email_with_zip
 from cliente_postgres import ClientPostgresDB
 from postgres_helpers import get_postgres_conn
@@ -190,8 +191,7 @@ with DAG(
             data_lines = lines[data_start_index:]
             year_data = _process_data_block(data_lines, current_year)
             logging.info(
-                f"Processados {len(year_data)} registros para o último ano "
-                f"{current_year}"
+                f"Processados {len(year_data)} registros para o último ano {current_year}"
             )
             processed_data.extend(year_data)
 
@@ -241,8 +241,7 @@ with DAG(
             df = pd.DataFrame(processed_data)
 
             # Adicionar dt_ingest a cada registro
-            df["dt_ingest"] = datetime.now().isoformat()
-
+            df["dt_ingest"] = brasilia_now_iso()
             # Garantir que todos os valores sejam strings para evitar problemas de tipo
             for col in df.columns:
                 df[col] = df[col].astype(str)

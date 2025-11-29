@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_transferegov_emendas import ClienteTransfereGov
 from cliente_postgres import ClientPostgresDB
@@ -53,7 +54,7 @@ def api_planos_acao_especiais_dag() -> None:
 
             if planos_data:
                 for plano in planos_data:
-                    plano["dt_ingest"] = datetime.now().isoformat()
+                    plano["dt_ingest"] = brasilia_now_iso()
 
                 db.insert_data(
                     planos_data,

@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_transferegov_emendas import ClienteTransfereGov
 from cliente_postgres import ClientPostgresDB
@@ -37,7 +38,7 @@ def api_programas_especiais_dag() -> None:
         if programas_data and len(programas_data) > 0:
             # Adicionar dt_ingest a cada programa
             for programa in programas_data:
-                programa["dt_ingest"] = datetime.now().isoformat()
+                programa["dt_ingest"] = brasilia_now_iso()
 
             # Inserir/atualizar dados no banco
             logging.info(

@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_postgres import ClientPostgresDB
 from cliente_ted import ClienteTed
@@ -33,7 +34,7 @@ def notas_de_credito_dag() -> None:
             if notas_de_credito:
                 # Adicionar dt_ingest a cada nota
                 for nota in notas_de_credito:
-                    nota["dt_ingest"] = datetime.now().isoformat()
+                    nota["dt_ingest"] = brasilia_now_iso()
 
                 db.insert_data(
                     notas_de_credito,

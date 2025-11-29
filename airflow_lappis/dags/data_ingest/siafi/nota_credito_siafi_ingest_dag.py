@@ -1,6 +1,7 @@
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from cliente_siafi import ClienteSiafi
 from cliente_postgres import ClientPostgresDB
 from postgres_helpers import get_postgres_conn
@@ -44,7 +45,7 @@ def nota_credito_siafi_dag() -> None:
             )
             if response:
                 response["ano"] = ano
-                response["dt_ingest"] = datetime.now().isoformat()
+                response["dt_ingest"] = brasilia_now_iso()
                 db.insert_data(
                     [response],
                     "nota_credito",

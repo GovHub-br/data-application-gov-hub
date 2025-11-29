@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_contratos import ClienteContratos
 from cliente_postgres import ClientPostgresDB
@@ -37,7 +38,7 @@ def api_terceirizados_dag() -> None:
                 # Adicionar dt_ingest a cada terceirizado
                 if terceirizados:
                     for terceirizado in terceirizados:
-                        terceirizado["dt_ingest"] = datetime.now().isoformat()
+                        terceirizado["dt_ingest"] = brasilia_now_iso()
 
                 logging.info(
                     f"Inserting terceirizados for contrato ID: "

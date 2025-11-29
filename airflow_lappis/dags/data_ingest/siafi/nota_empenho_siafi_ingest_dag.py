@@ -6,6 +6,7 @@ from airflow.models.param import Param
 from datetime import datetime, timedelta
 from typing import Dict, Any
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from cliente_siafi import ClienteSiafi
 from cliente_postgres import ClientPostgresDB
 from postgres_helpers import get_postgres_conn
@@ -77,7 +78,7 @@ def nota_empenho_siafi_ingest_dag() -> None:
                     resultado = cliente.consultar_nota_empenho(ug, ano, num_empenho_str)
                     if not resultado:
                         break
-                    resultado["dt_ingest"] = datetime.now().isoformat()
+                    resultado["dt_ingest"] = brasilia_now_iso()
                     db.insert_data(
                         [resultado],
                         "notas_empenho",

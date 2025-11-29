@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timedelta
 from airflow.decorators import dag, task
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_siape import ClienteSiape
 from cliente_postgres import ClientPostgresDB
@@ -61,7 +62,7 @@ def siape_lista_info_aposentadoria_dag() -> None:
                     logging.warning(f"Nenhum dado encontrado para CPF {cpf}")
                     continue
 
-                dados["dt_ingest"] = datetime.now().isoformat()
+                dados["dt_ingest"] = brasilia_now_iso()
 
                 db.alter_table(
                     data=dados,

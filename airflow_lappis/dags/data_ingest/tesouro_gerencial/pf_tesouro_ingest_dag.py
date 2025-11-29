@@ -8,6 +8,7 @@ import json
 import pandas as pd
 import io
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from cliente_email import fetch_and_process_email
 from cliente_postgres import ClientPostgresDB
 from postgres_helpers import get_postgres_conn
@@ -181,7 +182,7 @@ with DAG(
 
             # Adicionar dt_ingest a cada registro
             for record in data:
-                record["dt_ingest"] = datetime.now().isoformat()
+                record["dt_ingest"] = brasilia_now_iso()
 
             postgres_conn_str = get_postgres_conn()
             db = ClientPostgresDB(postgres_conn_str)

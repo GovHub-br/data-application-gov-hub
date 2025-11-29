@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from cliente_contratos import ClienteContratos
 from cliente_postgres import ClientPostgresDB
 from postgres_helpers import get_postgres_conn
@@ -39,7 +40,7 @@ def api_faturas_dag() -> None:
                 # Adicionar dt_ingest a cada fatura
                 if faturas:
                     for fatura in faturas:
-                        fatura["dt_ingest"] = datetime.now().isoformat()
+                        fatura["dt_ingest"] = brasilia_now_iso()
 
                 logging.info(
                     f"[faturas_ingest_dag.py] Inserting faturas for contrato ID: "

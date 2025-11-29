@@ -3,6 +3,7 @@ import logging
 from datetime import datetime, timedelta
 from airflow.decorators import dag, task
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_siape import ClienteSiape
 from cliente_postgres import ClientPostgresDB
@@ -20,7 +21,6 @@ from cliente_postgres import ClientPostgresDB
     tags=["siape", "lista_servidores"],
 )
 def siape_lista_servidores_dag() -> None:
-
     @task
     def fetch_and_store_lista_servidores() -> None:
         logging.info("Iniciando extração de servidores por UORG")
@@ -60,7 +60,7 @@ def siape_lista_servidores_dag() -> None:
 
                 for row in dados:
                     row["codUorg"] = str(cod)
-                    row["dt_ingest"] = datetime.now().isoformat()
+                    row["dt_ingest"] = brasilia_now_iso()
 
                 db.insert_data(
                     dados,

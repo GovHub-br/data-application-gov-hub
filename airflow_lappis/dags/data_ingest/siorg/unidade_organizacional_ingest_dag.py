@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_siorg import ClienteSiorg
 from cliente_postgres import ClientPostgresDB
@@ -49,7 +50,7 @@ def api_unidade_organizacional_dag() -> None:
             if estrutura_resumida:
                 # Adicionar dt_ingest a cada item
                 for item in estrutura_resumida:
-                    item["dt_ingest"] = datetime.now().isoformat()
+                    item["dt_ingest"] = brasilia_now_iso()
 
                 logging.info(
                     "[unidade_organizacional_ingest_dag.py] "

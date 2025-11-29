@@ -2,6 +2,7 @@ import logging
 from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from schedule_loader import get_dynamic_schedule
+from time_utils import brasilia_now_iso
 from postgres_helpers import get_postgres_conn
 from cliente_postgres import ClientPostgresDB
 from cliente_ted import ClienteTed
@@ -35,7 +36,7 @@ def programacao_financeira_dag() -> None:
             if programacao_financeira:
                 # Adicionar dt_ingest a cada item
                 for item in programacao_financeira:
-                    item["dt_ingest"] = datetime.now().isoformat()
+                    item["dt_ingest"] = brasilia_now_iso()
 
                 db.insert_data(
                     programacao_financeira,
