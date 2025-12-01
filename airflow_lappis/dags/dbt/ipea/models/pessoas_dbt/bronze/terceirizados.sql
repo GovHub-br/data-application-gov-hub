@@ -16,5 +16,7 @@ select
     replace(replace(aux_transporte, '.', ''), ',', '.')::numeric(15, 2) as aux_transporte,
     replace(replace(vale_alimentacao, '.', ''), ',', '.')::numeric(
         15, 2
-    ) as vale_alimentacao
+    ) as vale_alimentacao,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from {{ source("compras_gov", "terceirizados") }}

@@ -21,7 +21,8 @@ with
             coddeffisica,
             nomedeffisica,
             datachegbrasil,
-            nomepais
+            nomepais,
+            dt_ingest
         from {{ source("siape", "dados_pessoais") }}
     )
 
@@ -46,5 +47,7 @@ select
     nullif(trim(coddeffisica), '') as cod_deficiencia_fisica,
     nullif(trim(nomedeffisica), '') as nome_deficiencia_fisica,
     to_date(nullif(trim(datachegbrasil), ''), 'DDMMYYYY') as dt_chegada_brasil,
-    nullif(trim(nomepais), '') as nome_pais_origem
+    nullif(trim(nomepais), '') as nome_pais_origem,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from dados_pessoais

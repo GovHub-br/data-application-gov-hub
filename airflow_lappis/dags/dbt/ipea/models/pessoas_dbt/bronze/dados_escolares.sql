@@ -9,7 +9,8 @@ with
             nometitulacao,
             codescolaridade,
             nomeescolaridade,
-            cpf
+            cpf,
+            dt_ingest
         from {{ source("siape", "dados_escolares") }}
     )
 
@@ -22,5 +23,7 @@ select
     nullif(trim(nometitulacao), '') as nome_titulacao,
     nullif(trim(codescolaridade), '') as cod_escolaridade,
     nullif(trim(nomeescolaridade), '') as nome_escolaridade,
-    regexp_replace(nullif(trim(cpf), ''), '[^0-9]', '', 'g') as cpf
+    regexp_replace(nullif(trim(cpf), ''), '[^0-9]', '', 'g') as cpf,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from dados_escolares_raw

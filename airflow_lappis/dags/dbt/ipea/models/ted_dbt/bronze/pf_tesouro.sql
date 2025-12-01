@@ -22,10 +22,13 @@ with
             pf_recurso,
             pf_recurso_descricao,
             doc_observacao,
-            replace(pf_valor_linha, ',', '.')::numeric(15, 2) as pf_valor_linha
+            replace(pf_valor_linha, ',', '.')::numeric(15, 2) as pf_valor_linha,
+            (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("siafi", "pf_tesouro") }}
     )
 
 --
-select *
+select
+    *,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from programacoes_financeira

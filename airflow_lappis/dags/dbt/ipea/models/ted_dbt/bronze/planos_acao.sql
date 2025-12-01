@@ -26,10 +26,13 @@ with
             vl_beneficiario_especifico::numeric(15, 2) as vl_beneficiario_especifico,
             vl_chamamento_publico::numeric(15, 2) as vl_chamamento_publico,
             sq_instrumento,
-            aa_instrumento
+            aa_instrumento,
+            (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("transfere_gov", "planos_acao") }}
     )
 
 --
-select *
+select
+    *,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from planos_acao

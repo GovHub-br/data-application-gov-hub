@@ -114,9 +114,12 @@ with
                     and cast(vigencia_fim as text) ~ '^\d{4}-\d{2}-\d{2}$'
                 -- Retorna NULL se não for uma data válida
                 then to_date(cast(vigencia_fim as text), 'YYYY-MM-DD')
-            end as vigencia_fim
+            end as vigencia_fim,
+            (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("compras_gov", "contratos") }}
-    )  --
+    ) 
 
-select *
+select
+    contratos_raw.*,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from contratos_raw

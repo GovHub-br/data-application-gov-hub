@@ -16,7 +16,8 @@ with recursive
             datafinalversaoconsulta,
             operacao,
             codigounidadepaianterior,
-            codigoorgaoentidadeanterior
+            codigoorgaoentidadeanterior,
+            (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("siorg", "unidade_organizacional") }}
     ),
 
@@ -37,5 +38,7 @@ with recursive
         join hierarquia h on f.codigounidadepai = h.codigounidade
     )
 
-select *
+select
+    *,  
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from hierarquia
