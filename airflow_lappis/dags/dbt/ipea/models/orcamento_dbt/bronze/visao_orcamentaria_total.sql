@@ -24,7 +24,6 @@ with
             uge_matriz_filial,
             ug_executora,
             ug_executora_desc,
-
             -- Campos financeiros/monetários
             {{ parse_financial_value("projeto_inicial_loa") }} as projeto_inicial_loa,
             {{ parse_financial_value("dotacao_inicial") }} as dotacao_inicial,
@@ -34,12 +33,9 @@ with
             {{ parse_financial_value("despesas_a_liquidar") }} as despesas_a_liquidar,
             {{ parse_financial_value("despesar_a_pagar") }} as despesar_a_pagar,
             {{ parse_financial_value("despesas_pagas") }} as despesas_pagas,
-            {{ parse_financial_value("restos_a_pagar_inscritos") }}
-            as restos_a_pagar_inscritos,
+            {{ parse_financial_value("restos_a_pagar_inscritos") }}            as restos_a_pagar_inscritos,
             {{ parse_financial_value("restos_a_pagar_pagos") }} as restos_a_pagar_pagos,
-
             dt_ingest::timestamp as dt_ingest
-
         from source_data
     )
 
