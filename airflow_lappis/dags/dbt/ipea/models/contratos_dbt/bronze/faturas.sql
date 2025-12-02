@@ -36,6 +36,7 @@ with
             ) as dados_empenho
         from {{ source("compras_gov", "faturas") }}
     ),
+
     -- Extrai os campos do JSON e transforma em colunas individuais
     faturas_dados_empenho as (
         select
@@ -45,6 +46,7 @@ with
             f.dados_empenho ->> 'valor_empenho' as valor_empenho,
             f.dados_empenho ->> 'subelemento' as subelemento
         from faturas_raw as f
-    )  --
+    )
+
 select *
 from faturas_dados_empenho

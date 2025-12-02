@@ -48,5 +48,5 @@ select
     f.numero_empenho,
     f.valor_empenho,
     f.subelemento
-from faturas_base f
-left join contratos c on f.contrato_id = c.contrato_id
+from faturas_base as f
+left join contratos as c on f.contrato_id = c.contrato_id

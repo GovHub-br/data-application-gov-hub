@@ -3,7 +3,7 @@ with
     cronograma_agg as (
         select contrato_id, vencimento as mes_ref, sum(valor) as valor_cronograma
         from {{ ref("cronogramas") }}
-        group by 1, 2
+        group by contrato_id, vencimento
         order by contrato_id, vencimento
     ),
 
@@ -33,7 +33,7 @@ with
             sum(juros + multa + glosa + valorliquido) as valor_faturas_pagas
         from faturas_parsed
         where situacao = 'Pago'
-        group by 1, 2
+        group by contrato_id, mes_ref
     ),
 
     faturas_pendente as (
@@ -48,14 +48,25 @@ with
             sum(juros + multa + glosa + valorliquido) as valor_faturas_pendentes
         from faturas_parsed
         where situacao = 'Pendente'
-        group by 1, 2
+        group by contrato_id, mes_ref
     ),
 
     joined_table as (
-        select *
+        select
+            cronograma_agg.contrato_id,
+            cronograma_agg.mes_ref,
+            cronograma_agg.valor_cronograma,
+            faturas_pago.valor_faturas_pagas,
+            faturas_pendente.valor_faturas_pendentes
         from cronograma_agg
-        left join faturas_pago using (contrato_id, mes_ref)
-        left join faturas_pendente using (contrato_id, mes_ref)
+        left join
+            faturas_pago
+            on cronograma_agg.contrato_id = faturas_pago.contrato_id
+            and cronograma_agg.mes_ref = faturas_pago.mes_ref
+        left join
+            faturas_pendente
+            on cronograma_agg.contrato_id = faturas_pendente.contrato_id
+            and cronograma_agg.mes_ref = faturas_pendente.mes_ref
     ),
 
     joined_ajustado as (

@@ -9,12 +9,28 @@ with
 
     contratos_gold as (
         select
-            *,
+            c.id,
+            c.fornecedor_cnpj_cpf_idgener,
+            c.numero,
+            c.categoria,
+            c.modalidade,
+            c.tipo,
+            c.situacao,
+            c.fornecedor_nome,
+            c.fornecedor_tipo,
+            c.objeto,
+            c.valor_global,
+            c.vigencia_inicio,
+            c.vigencia_fim,
+            c.num_parcelas,
+            c.contratante__orgao__unidade_gestora__codigo,
+            c.contratante__orgao__unidade_gestora__nome_resumido,
+            vp.despesas_pagas,
             case
                 when vp.despesas_pagas = c.valor_global then 'Sim' else 'Não'
             end as pendente_baixa
         from {{ ref("contratos") }} as c
-        left join valores_pagos_contratos as vp using (id)
+        left join valores_pagos_contratos as vp on c.id = vp.id
     )
 
 --
@@ -40,9 +56,9 @@ select
         else fornecedor_tipo
     end as fornecedor_tipo,
     concat(
-        contratante__orgao_origem__unidade_gestora_origem__codigo,
+        contratante__orgao__unidade_gestora__codigo,
         ' - ',
-        contratante__orgao_origem__unidade_gestora_origem__nome_resumido
+        contratante__orgao__unidade_gestora__nome_resumido
     ) as "Unidade",
     case
         when vigencia_fim - vigencia_inicio >= 730 and num_parcelas > 1

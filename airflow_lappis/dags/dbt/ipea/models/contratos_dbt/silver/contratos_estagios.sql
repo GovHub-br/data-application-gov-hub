@@ -12,8 +12,8 @@ with
     joined_table_1 as (
         select
             contrato_id,
-            cnpj_cpf,
-            ne,
+            es.cnpj_cpf,
+            es.ne,
             num_processo,
             info_complementar,
             mes_lancamento,
@@ -22,8 +22,9 @@ with
             valor_pago,
             restos_a_pagar,
             restos_a_pagar_pago
-        from {{ ref("estagios_mensal") }}
-        left join id_table_1 using (ne, cnpj_cpf)
+        from {{ ref("estagios_mensal") }} as es
+        left join
+            id_table_1 on es.ne = id_table_1.ne and es.cnpj_cpf = id_table_1.cnpj_cpf
     ),
 
     -- Part 2
@@ -31,11 +32,11 @@ with
 
     id_table_2 as (
         select distinct contrato_id, cnpj_cpf, processo as num_processo
-        from ids_filtrados l
+        from ids_filtrados as l
         where
             not exists (
-                select distinct contrato_id
-                from joined_table_1 r
+                select distinct l.contrato_id
+                from joined_table_1 as r
                 where r.contrato_id = l.contrato_id
             )
     ),
@@ -43,9 +44,9 @@ with
     joined_table_2 as (
         select
             r.contrato_id,
-            cnpj_cpf,
+            empenhos_restantes_1.cnpj_cpf,
             ne,
-            num_processo,
+            empenhos_restantes_1.num_processo,
             info_complementar,
             mes_lancamento,
             valor_empenhado,
@@ -53,8 +54,11 @@ with
             valor_pago,
             restos_a_pagar,
             restos_a_pagar_pago
-        from empenhos_restantes_1 l
-        left join id_table_2 r using (cnpj_cpf, num_processo)
+        from empenhos_restantes_1
+        left join
+            id_table_2 as r
+            on empenhos_restantes_1.cnpj_cpf = r.cnpj_cpf
+            and empenhos_restantes_1.num_processo = r.num_processo
     ),
 
     -- Part 3
@@ -62,9 +66,9 @@ with
 
     id_table_3 as (
         select distinct t0.contrato_id, t0.cnpj_cpf, t0.info_complementar
-        from ids_filtrados t0
-        left join id_table_1 t1 on t0.contrato_id = t1.contrato_id
-        left join id_table_2 t2 on t0.contrato_id = t2.contrato_id
+        from ids_filtrados as t0
+        left join id_table_1 as t1 on t0.contrato_id = t1.contrato_id
+        left join id_table_2 as t2 on t0.contrato_id = t2.contrato_id
         where t1.contrato_id is null or t2.contrato_id is null
 
     ),
@@ -72,18 +76,21 @@ with
     joined_table_3 as (
         select
             r.contrato_id,
-            cnpj_cpf,
+            empenhos_restantes_2.cnpj_cpf,
             ne,
             num_processo,
-            info_complementar,
+            empenhos_restantes_2.info_complementar,
             mes_lancamento,
             valor_empenhado,
             valor_liquidado,
             valor_pago,
             restos_a_pagar,
             restos_a_pagar_pago
-        from empenhos_restantes_2 l
-        left join id_table_3 r using (cnpj_cpf, info_complementar)
+        from empenhos_restantes_2
+        left join
+            id_table_3 as r
+            on empenhos_restantes_2.cnpj_cpf = r.cnpj_cpf
+            and empenhos_restantes_2.info_complementar = r.info_complementar
     ),
 
     result_table as (
@@ -108,5 +115,5 @@ select
     sum(restos_a_pagar_pago) as restos_a_pagar_pago
 from result_table
 where contrato_id is not null
-group by 1, 2
+group by contrato_id, mes_lancamento
 order by contrato_id, mes_lancamento

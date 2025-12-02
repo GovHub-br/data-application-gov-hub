@@ -202,7 +202,19 @@ with
         union
         select *
         from resultado_4
-    )
+    ),
 
-select *
-from resultado_final
+    contratos as (select * from {{ ref("contratos") }})
+
+select
+    rf.*,
+    c.numero,
+    c.fornecedor_cnpj_cpf_idgener,
+    c.fornecedor_nome,
+    c.unidades_requisitantes,
+    c.objeto,
+    c.vigencia_inicio,
+    c.vigencia_fim
+from resultado_final as rf
+full join contratos as c on rf.contrato_id = c.id
+where c.situacao = 'Ativo'
