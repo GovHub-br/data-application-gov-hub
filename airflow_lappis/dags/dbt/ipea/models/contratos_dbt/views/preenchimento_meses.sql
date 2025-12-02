@@ -13,5 +13,5 @@ with
 
 --
 select c.contrato_id, m.mes_ref
-from contractos_lista c
-left join meses_lista m on (c.min_mes <= m.mes_ref) and (c.max_mes >= m.mes_ref)
+from contractos_lista as c
+left join meses_lista as m on (c.min_mes <= m.mes_ref) and (c.max_mes >= m.mes_ref)

@@ -11,9 +11,16 @@ with
     ),
 
     ids_table as (
-        select *
-        from ids_from_empenhos e
-        full join ids_from_faturas f using (contrato_id, ne)
+        select
+            coalesce(
+                ids_from_empenhos.contrato_id, ids_from_faturas.contrato_id
+            ) as contrato_id,
+            coalesce(ids_from_empenhos.ne, ids_from_faturas.ne) as ne
+        from ids_from_empenhos
+        full join
+            ids_from_faturas
+            on ids_from_empenhos.contrato_id = ids_from_faturas.contrato_id
+            and ids_from_empenhos.ne = ids_from_faturas.ne
     ),
 
     contratos as (
