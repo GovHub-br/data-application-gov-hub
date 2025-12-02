@@ -32,7 +32,7 @@ def padronizar_colunas_json(lista_de_dicts: list[dict]) -> list[dict]:
 
 @dag(
     schedule_interval="@daily",
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime(2025, 12, 5),
     catchup=False,
     default_args={
         "owner": "Mateus",
