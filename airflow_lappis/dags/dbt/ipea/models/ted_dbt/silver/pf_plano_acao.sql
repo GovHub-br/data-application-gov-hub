@@ -10,8 +10,8 @@ with
             ug_favorecido,
             pf_evento,
             pf_evento_descricao,
-            substring(pf_acao_descricao, '(\w+) ') as pf_acao,
-            pf_valor_linha
+            pf_valor_linha,
+            substring(pf_acao_descricao, '(\w+) ') as pf_acao
         from {{ ref("pf_tesouro") }}
     ),
 
@@ -25,14 +25,16 @@ with
 
     joined_by_transfere_gov as (
         select pf.*, t.plano_acao
-        from programacoes_financeira pf
-        inner join pf_transfere_gov t using (pf, ug_emitente)
+        from programacoes_financeira as pf
+        inner join
+            pf_transfere_gov as t on pf.pf = t.pf and pf.ug_emitente = t.ug_emitente
     ),
 
     joined_by_num_transf as (
         select pf.*, v.plano_acao
-        from programacoes_financeira pf
-        inner join {{ ref("num_transf_n_plano_acao") }} v using (num_transf)
+        from programacoes_financeira as pf
+        inner join
+            {{ ref("num_transf_n_plano_acao") }} as v on pf.num_transf = v.num_transf
     )
 
 select *
