@@ -29,7 +29,7 @@ def chunk_list(lst: list, size: int) -> Iterator[list]:
     },
     tags=["transfere_gov_api", "planos_acao_especiais"],
 )
-def api_executor_especial_dag():
+def api_executor_especial_dag() -> None:
 
     @task
     def fetch_planos_acao() -> list:
