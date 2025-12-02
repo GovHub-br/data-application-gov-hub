@@ -21,7 +21,7 @@ with
             f.ordem_grandeza,
             cargo_elem
         from
-            fonte f,
+            fonte as f,
             lateral jsonb_array_elements(
                 replace(replace(f.cargos, '''', '"'), 'None', 'null')::jsonb
             ) as cargo_elem
@@ -41,7 +41,7 @@ with
             instancia_elem ->> 'nomeTitular' as nome_titular,
             instancia_elem ->> 'cpfTitular' as cpf_titular
         from
-            cargos_expandidos ce,
+            cargos_expandidos as ce,
             lateral jsonb_array_elements(cargo_elem -> 'instancias') as instancia_elem
     ),
 
@@ -55,7 +55,7 @@ with
                         partition by codigo_instancia order by ordem_grandeza desc
                     ) as rn
                 from instancias_expandidas
-            ) t
+            ) as t
         where rn = 1
     )
 

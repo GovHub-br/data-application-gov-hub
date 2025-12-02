@@ -41,6 +41,7 @@ with
             df.cpf_chefia_imediata,
             df.cod_situacao_funcional,
             df.nome_situacao_funcional,
+            df.modalidade_pgd,
             dp.nome_pessoa,
             dp.dt_nascimento,
             dp.nome_sexo,
@@ -105,20 +106,21 @@ with
             pr.funcao_sigla as codigo_siorg,
             pr.codigo_combinacao_siape,
             pr.codigo_combinacao_siorg,
-            pr.matricula_siape as matricula_siape,
-            pr.cpf as cpf,
-            pr.cpf_chefia_imediata as cpf_chefia_imediata,
-            pr.cod_situacao_funcional as cod_situacao_funcional,
-            pr.nome_situacao_funcional as nome_situacao_funcional,
-            pr.hierarquia_cargo as hierarquia_cargo,
+            pr.matricula_siape,
+            pr.cpf,
+            pr.cpf_chefia_imediata,
+            pr.cod_situacao_funcional,
+            pr.nome_situacao_funcional,
+            pr.hierarquia_cargo,
             pr.nome_pessoa as servidor,
-            pr.dt_nascimento as dt_nascimento,
-            pr.nome_sexo as nome_sexo,
-            pr.nome_estado_civil as nome_estado_civil,
-            pr.nome_nacionalidade as nome_nacionalidade,
-            pr.nome_cor as nome_cor,
-            pr.uf_nascimento as uf_nascimento,
-            pr.nome_municipio_nascimento as nome_municipio_nascimento,
+            pr.dt_nascimento,
+            pr.nome_sexo,
+            pr.nome_estado_civil,
+            pr.nome_nacionalidade,
+            pr.nome_cor,
+            pr.uf_nascimento,
+            pr.nome_municipio_nascimento,
+            pr.modalidade_pgd,
             dp.nome_pessoa as nome_chefia,
             coalesce(
                 cast(pr.codigounidade as text), cast(pr.codigounidade_alternativa as text)
@@ -144,8 +146,43 @@ with
         from primeira_correlacao as pr
         left join {{ ref("dados_pessoais") }} as dp on pr.cpf_chefia_imediata = dp.cpf
         order by caminho_unidade, hierarquia_cargo
+    ),
+
+    hierarquia_enriquecida as (
+        select
+            ph.*,
+            case
+                when ph.modalidade_pgd is null
+                then 'Não participa'
+                when ph.modalidade_pgd = 'parcial'
+                then 'Parcial'
+                when ph.modalidade_pgd = 'integral'
+                then 'Integral'
+                when ph.modalidade_pgd = 'presencial'
+                then 'Presencial'
+                when ph.modalidade_pgd = 'no exterior'
+                then 'No exterior'
+            end as pdg,
+            case
+                when ph.nome_situacao_funcional = 'ATIVO EM OUTRO ORGAO'
+                then 'Ativo em outro órgão'
+                else ph.siglaunidade
+            end as unidade_exercicio
+        from tabela_correlacao_cargos as ph
+    ),
+
+    servidores_enriquecidos as (
+        select distinct ph.*, du.nome_municipio_uorg
+        from hierarquia_enriquecida as ph
+        left join {{ ref("dados_uorg") }} as du on ph.siglaunidade = du.sigla_uorg
+        order by caminho_unidade, hierarquia_cargo
     )
 
-select *
-from tabela_correlacao_cargos
-where nome_situacao_funcional != 'ATIVO EM OUTRO ORGAO'
+select distinct
+    se.*,
+    cod_escolaridade_principal,
+    nome_escolaridade_principal,
+    nome_deficiencia_fisica,
+    sd.nome_cargo as nome_cargo_emprego
+from servidores_enriquecidos as se
+left join {{ ref("servidores_detalhados") }} as sd on se.cpf = sd.cpf

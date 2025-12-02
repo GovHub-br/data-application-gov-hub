@@ -1,5 +1,6 @@
 with
     siape_sem_duplicatas as (select distinct * from {{ ref("dados_funcionais") }}),
+
     siorg_sem_duplicatas as (
         select distinct * from {{ ref("estrutura_organizacional_cargos") }}
     ),
@@ -24,16 +25,16 @@ with
 
     codigo_siorg_combinado as (
         select
-            replace(funcao, ' ', '') as funcao,
             nomeunidade,
+            denominacao,
+            qtd_vagas_cargo,
+            replace(funcao, ' ', '') as funcao,
             case
                 when siglaunidade = 'GABIN-IPEA' then 'GABIN' else siglaunidade
             end as siglaunidade,
-            denominacao,
             substring(replace(funcao, ' ', ''), 1, 1) || substring(
                 replace(funcao, ' ', ''), length(replace(funcao, ' ', '')) - 2, 3
-            ) as codigo_combinacao_siorg,
-            qtd_vagas_cargo
+            ) as codigo_combinacao_siorg
         from codigos_siorg
     ),
 
@@ -43,10 +44,9 @@ with
             nome_uorg_exercicio,
             sigla_uorg_exercicio,
             nome_cargo,
-            substring(cod_funcao, 1, 1) || substring(
-                cod_funcao, length(cod_funcao) - 2, 3
-            ) as codigo_combinacao_siape,
-            qtd_vagas_ocupadas
+            qtd_vagas_ocupadas,
+            substring(cod_funcao, 1, 1)
+            || substring(cod_funcao, length(cod_funcao) - 2, 3) as codigo_combinacao_siape
         from codigos_siape
     ),
 
@@ -77,10 +77,10 @@ with
 select
     cod_funcao as codigo_siape,
     funcao as codigo_siorg,
+    qtd_vagas_cargo,
     coalesce(nomeunidade, nome_uorg_exercicio) as nomeunidade,
     coalesce(siglaunidade, sigla_uorg_exercicio) as siglaunidade,
     coalesce(denominacao, nome_cargo) as nome_cargo,
-    qtd_vagas_cargo,
     coalesce(qtd_vagas_ocupadas, 0) as qtd_vagas_ocupadas,
     case
         when qtd_vagas_cargo is null

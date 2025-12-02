@@ -111,7 +111,32 @@ with
         where prioridade = 1
     )
 
-select *
+select
+    resultado.adiantamento_salario_ferias,
+    resultado.ano_exercicio,
+    resultado.dt_fim,
+    resultado.dt_fim_aquisicao,
+    resultado.dt_ini,
+    resultado.dt_inicio_aquisicao,
+    resultado.dt_inicio_ferias_interrompidas,
+    resultado.dias_restantes,
+    resultado.gratificacao_natalina,
+    resultado.numero_parcela,
+    resultado.parcela_continuacao_interrupcao,
+    resultado.parcela_interrompida,
+    resultado.qtde_dias,
+    resultado.cpf,
+    resultado.cod_diploma_afastamento,
+    resultado.cod_ocorrencia,
+    resultado.dt_publicacao_afastamento,
+    resultado.desc_diploma_afastamento,
+    resultado.desc_ocorrencia,
+    resultado.numero_diploma_afastamento,
+    resultado.gr_matricula,
+    resultado.origem_dados,
+    nomes_dt.nome_pessoa,
+    funcoes_chefia.cod_funcao,
+    funcoes_chefia.sigla_uorg_exercicio
 from resultado
-left join nomes_dt using (cpf)
-left join funcoes_chefia using (cpf)
+left join nomes_dt on resultado.cpf = nomes_dt.cpf
+left join funcoes_chefia on resultado.cpf = funcoes_chefia.cpf

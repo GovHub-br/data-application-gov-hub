@@ -28,7 +28,7 @@ with
             denominacao_elem ->> 'codigo' as denominacao_codigo,
             denominacao_elem ->> 'descricao' as denominacao_descricao
         from
-            fonte f,
+            fonte as f,
             lateral jsonb_array_elements(
                 replace(
                     replace(f.denominacoes__denominacao, '''', '"'), 'None', 'null'

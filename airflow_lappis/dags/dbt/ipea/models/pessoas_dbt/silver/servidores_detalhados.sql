@@ -3,6 +3,7 @@ with
         select cpf, cod_escolaridade, nome_escolaridade, cod_titulacao, nome_titulacao
         from {{ ref("dados_escolares") }}
     ),
+
     uorg_completo as (
         select
             du.bairro_uorg,
@@ -26,9 +27,10 @@ with
         -- lu.dt_ultima_transacao AS dt_ultima_transacao_uorg, os codigos não batem e a
         -- informação aparentemente ja existe...
         -- lu.nome AS nome_uorg_lista
-        from {{ ref("dados_uorg") }} du
+        from {{ ref("dados_uorg") }} as du
     -- LEFT JOIN {{ ref('lista_uorgs') }} lu
     )
+
 select
     dp.cpf,
     dp.nome_pessoa,
@@ -144,8 +146,8 @@ select
     uorg_c.complemento_endereco_uorg,
     uorg_c.fax_uorg
 
-from {{ ref("dados_pessoais") }} dp
-left join {{ ref("dados_funcionais") }} df on dp.cpf = df.cpf
-left join educacao_principal ep on dp.cpf = ep.cpf
-left join {{ ref("lista_servidores") }} ls on dp.cpf = ls.cpf
-left join uorg_completo uorg_c on dp.cpf = uorg_c.cpf
+from {{ ref("dados_pessoais") }} as dp
+left join {{ ref("dados_funcionais") }} as df on dp.cpf = df.cpf
+left join educacao_principal as ep on dp.cpf = ep.cpf
+left join {{ ref("lista_servidores") }} as ls on dp.cpf = ls.cpf
+left join uorg_completo as uorg_c on dp.cpf = uorg_c.cpf

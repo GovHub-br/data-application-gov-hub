@@ -5,4 +5,4 @@ select
     coalesce(uf_uorg, 'N/A') as localidade_uf,
     count(distinct cpf) as quantidade_servidores
 from {{ ref("servidores_detalhados") }}
-group by 1, 2, 3, 4
+group by cargo_efetivo, genero, situacao_funcional, localidade_uf

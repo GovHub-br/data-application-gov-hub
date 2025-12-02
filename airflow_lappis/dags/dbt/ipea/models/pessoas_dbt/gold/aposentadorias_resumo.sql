@@ -8,13 +8,13 @@ with
             nome_pessoa,
             dt_ocorr_ingresso_serv_publico,
             dt_ocorr_aposentadoria,
-            date_trunc('month', dt_ocorr_aposentadoria) as mes_aposentadoria,
             nome_situacao_funcional,
             nome_ocorr_aposentadoria,
             nome_cargo,
             sigla_nivel_cargo,
+            date_trunc('month', dt_ocorr_aposentadoria) as mes_aposentadoria,
             cod_classe || '-' || cod_padrao as classe_padrao
-        from {{ ref("servidores_detalhados") }} sd
+        from {{ ref("servidores_detalhados") }}
         where dt_ocorr_aposentadoria is not null
     )
 

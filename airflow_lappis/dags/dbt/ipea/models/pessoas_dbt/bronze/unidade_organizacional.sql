@@ -24,8 +24,8 @@ with recursive
 
     hierarquia as (
         select f.*, 1 as ordem_grandeza, sigla as caminho_unidade
-        from fonte f
-        join unidades_raiz r on f.codigounidade = r.codigounidade_raiz
+        from fonte as f
+        inner join unidades_raiz as r on f.codigounidade = r.codigounidade_raiz
 
         union all
 
@@ -33,8 +33,8 @@ with recursive
             f.*,
             h.ordem_grandeza + 1 as ordem_grandeza,
             h.caminho_unidade || '-' || lpad(f.sigla::text, 5, '0') as caminho_unidade
-        from fonte f
-        join hierarquia h on f.codigounidadepai = h.codigounidade
+        from fonte as f
+        inner join hierarquia as h on f.codigounidadepai = h.codigounidade
     )
 
 select *

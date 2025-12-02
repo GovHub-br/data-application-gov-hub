@@ -24,6 +24,6 @@ select
     siape.uf_uorg as siape_uf_uorg,
     siape.nome_situacao_funcional as siape_situacao_funcional
 
-from {{ ref("servidores_detalhados") }} siape
+from {{ ref("servidores_detalhados") }} as siape
 left join
-    {{ ref("estrutura_organizacional_cargos") }} siorg on siape.cpf = siorg.cpf_titular  -- tabela siorg   
+    {{ ref("estrutura_organizacional_cargos") }} as siorg on siape.cpf = siorg.cpf_titular  -- tabela siorg   

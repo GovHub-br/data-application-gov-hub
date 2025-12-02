@@ -64,43 +64,39 @@ select
     anoexercicio_clean as ano_exercicio,
     -- adicionei esses checks pois tinham algumas strings de datas retornando "0" e
     -- quebrando o to_date ...
-    case
-        when length(datafim_clean) = 8 then to_date(datafim_clean, 'DDMMYYYY') else null
-    end as dt_fim,
-    case
-        when length(datafimaquisicao_clean) = 8
-        then to_date(datafimaquisicao_clean, 'DDMMYYYY')
-        else null
-    end as dt_fim_aquisicao,
-    case
-        when length(dataini_clean) = 8 then to_date(dataini_clean, 'DDMMYYYY') else null
-    end as dt_ini,
-    case
-        when length(datainicioaquisicao_clean) = 8
-        then to_date(datainicioaquisicao_clean, 'DDMMYYYY')
-        else null
-    end as dt_inicio_aquisicao,
     gratificacaonatalina_clean as gratificacao_natalina,
     cast(numerodaparcela_clean as int) as numero_parcela,
     parcelacontinuacaointerrupcao_clean as parcela_continuacao_interrupcao,
     parcelainterrompida_clean as parcela_interrompida,
     cast(qtdedias_clean as int) as qtde_dias,
     grmatricula_clean as gr_matricula,
-    regexp_replace(cpf_clean, '[^0-9]', '', 'g') as cpf,
     coddiplomaafastamento_clean as cod_diploma_afastamento,
     codocorrencia_clean as cod_ocorrencia,
-    case
-        when length(datapublicacaoafastamento_clean) = 8
-        then to_date(datapublicacaoafastamento_clean, 'YYYYMMDD')  -- Essa veio diferente, n sei o pq
-        else null
-    end as dt_publicacao_afastamento,
     descdiplomaafastamento_clean as desc_diploma_afastamento,
     descocorrencia_clean as desc_ocorrencia,
     cast(numerodiplomaafastamento_clean as int) as numero_diploma_afastamento,
+    cast(diasrestantes_clean as int) as dias_restantes,
+    case
+        when length(datafim_clean) = 8 then to_date(datafim_clean, 'DDMMYYYY')
+    end as dt_fim,
+    case
+        when length(datafimaquisicao_clean) = 8
+        then to_date(datafimaquisicao_clean, 'DDMMYYYY')
+    end as dt_fim_aquisicao,
+    case
+        when length(dataini_clean) = 8 then to_date(dataini_clean, 'DDMMYYYY')
+    end as dt_ini,
+    case
+        when length(datainicioaquisicao_clean) = 8
+        then to_date(datainicioaquisicao_clean, 'DDMMYYYY')
+    end as dt_inicio_aquisicao,
+    regexp_replace(cpf_clean, '[^0-9]', '', 'g') as cpf,
+    case
+        when length(datapublicacaoafastamento_clean) = 8
+        then to_date(datapublicacaoafastamento_clean, 'YYYYMMDD')  -- Essa veio diferente, n sei o pq
+    end as dt_publicacao_afastamento,
     case
         when length(datainicioferiasinterrompidas_clean) = 8
         then to_date(datainicioferiasinterrompidas_clean, 'DDMMYYYY')
-        else null
-    end as dt_inicio_ferias_interrompidas,
-    cast(diasrestantes_clean as int) as dias_restantes
+    end as dt_inicio_ferias_interrompidas
 from dados_afastamento_cleaned

@@ -60,7 +60,6 @@ with
                 then '11'
                 when 'DEZ'
                 then '12'
-                else null
             end as mes_num_rubrica,
             substring(data_anomes_rubrica_str, 4, 4) as ano_rubrica,
             case
@@ -89,7 +88,6 @@ with
                 then '11'
                 when 'DEZ'
                 then '12'
-                else null
             end as mes_num_pagamento,
             substring(mes_ano_pagamento_str, 4, 4) as ano_pagamento
         from dados_financeiros_cleaned
@@ -109,15 +107,15 @@ select
         ) as numeric
     ) as valor_rubrica,
     -- Converte MONYYYY para DATE (primeiro dia do mês)
+    prazo_rubrica,
+    indicador_mov_supl,
+    -- Converte MONYYYY para DATE (primeiro dia do mês)
+    periodo_rubrica,
     to_date(
         ano_rubrica || '-' || mes_num_rubrica || '-01', 'YYYY-MM-DD'
     ) as data_anomes_rubrica,
-    prazo_rubrica,
-    -- Converte MONYYYY para DATE (primeiro dia do mês)
     to_date(
         ano_pagamento || '-' || mes_num_pagamento || '-01', 'YYYY-MM-DD'
     ) as mes_ano_pagamento,
-    regexp_replace(cpf_str, '[^0-9]', '', 'g') as cpf,
-    indicador_mov_supl,
-    periodo_rubrica
+    regexp_replace(cpf_str, '[^0-9]', '', 'g') as cpf
 from conversao_mes
