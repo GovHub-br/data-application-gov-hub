@@ -33,7 +33,7 @@ def api_planos_acao_especiais_dag() -> None:
         db = ClientPostgresDB(postgres_conn_str)
 
         # Buscar IDs dos programas especiais
-        query = "SELECT DISTINCT id_programa FROM transfere_gov.programas_especiais"
+        query = "SELECT DISTINCT id_programa FROM transferegov_emendas.programas_especiais"
         programas_ids = db.execute_query(query)
 
         if not programas_ids:
