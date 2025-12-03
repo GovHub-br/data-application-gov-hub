@@ -95,14 +95,6 @@ class ClientPostgresDB:
                         f"[cliente_postgres.py] Table {schema}.{table_name} created "
                         f"or already exists"
                     )
-                except psycopg2.errors.UniqueViolation as err:
-                    # Race condition: outra task já criou a tabela
-                    # Isso é esperado em execução paralela - apenas log e continue
-                    logging.warning(
-                        f"[cliente_postgres.py] Table {schema}.{table_name} "
-                        f"already being created by another process. Continuing..."
-                    )
-                    conn.rollback()
                 except psycopg2.Error as err:
                     logging.error(
                         f"[cliente_postgres.py] Failed to create table {schema}."
