@@ -96,7 +96,6 @@ class ClienteTransfereGov(ClienteBase):
                 f"Total so far: {len(all_data)}"
             )
 
-            # Se recebemos menos registros que o limite, é a última página
             if len(data) < page_size:
                 logging.info("[cliente_transfere_gov.py] Last page reached.")
                 break
@@ -154,13 +153,6 @@ class ClienteTransfereGov(ClienteBase):
     ) -> list:
         """
         Obter todos os planos de ação especiais de um programa com paginação automática.
-
-        Args:
-            id_programa (int): ID do programa
-            page_size (int): Quantidade de registros por requisição (padrão: 1000)
-
-        Returns:
-            list: lista completa de planos de ação especiais
         """
         all_data = []
         offset = 0
@@ -265,6 +257,139 @@ class ClienteTransfereGov(ClienteBase):
 
         logging.info(
             f"[cliente_transfere_gov.py] Total planos de trabalho especiais for plano_acao "
+            f"{id_plano_acao}: {len(all_data)}"
+        )
+        return all_data
+
+    def get_executores_especiais_by_plano_acao(
+        self, id_plano_acao: int, limit: int = 1000, offset: int = 0
+    ) -> Optional[list]:
+        """
+        Obter executores especiais por ID do plano de ação com paginação.
+        """
+        endpoint = f"executor_especial?id_plano_acao=eq.{id_plano_acao}"
+        params = {"select": "*", "limit": limit, "offset": offset}
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Fetching executores especiais "
+            f"for id_plano_acao={id_plano_acao}, limit={limit}, offset={offset}"
+        )
+
+        status, data = self.request(
+            http.HTTPMethod.GET,
+            endpoint,
+            headers=self.BASE_HEADER,
+            params=params,
+        )
+
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            return data
+        else:
+            logging.warning(
+                f"[cliente_transfere_gov.py] Failed to fetch executores especiais "
+                f"for plano_acao {id_plano_acao} with status {status}"
+            )
+            return None
+
+    def get_all_executores_especiais_by_plano_acao(
+        self, id_plano_acao: int, page_size: int = 1000
+    ) -> list:
+        """
+        Obter todos os executores especiais de um plano de ação com paginação automática.
+        """
+        all_data = []
+        offset = 0
+        page = 1
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Starting extraction of executores especiais "
+            f"for plano_acao={id_plano_acao}"
+        )
+
+        while True:
+            logging.info(
+                f"[cliente_transfere_gov.py] Fetching page {page} (offset: {offset}) "
+                f"for plano_acao={id_plano_acao}"
+            )
+
+            data = self.get_executores_especiais_by_plano_acao(
+                id_plano_acao, limit=page_size, offset=offset
+            )
+
+            if not data or len(data) == 0:
+                break
+
+            all_data.extend(data)
+
+            if len(data) < page_size:
+                break
+
+            offset += page_size
+            page += 1
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Finished extraction. "
+            f"Total executores especiais for plano_acao {id_plano_acao}: {len(all_data)}"
+        )
+        return all_data
+
+    def get_empenhos_especiais_by_plano_acao(
+        self, id_plano_acao: int, limit: int = 1000, offset: int = 0
+    ) -> Optional[list]:
+        """
+        Obter empenhos especiais por ID do plano de ação com paginação.
+        """
+        endpoint = f"empenho_especial?id_plano_acao=eq.{id_plano_acao}"
+        params = {"select": "*", "limit": limit, "offset": offset}
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Fetching empenhos especiais for "
+            f"id_plano_acao={id_plano_acao}, limit={limit}, offset={offset}"
+        )
+
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER, params=params
+        )
+
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            logging.info(
+                f"[cliente_transfere_gov.py] Successfully fetched {len(data)} "
+                f"empenhos especiais for plano de ação {id_plano_acao}"
+            )
+            return data
+        else:
+            logging.warning(
+                f"[cliente_transfere_gov.py] Failed to fetch empenhos especiais for "
+                f"plano de ação {id_plano_acao} with status: {status}"
+            )
+            return None
+
+    def get_all_empenhos_especiais_by_plano_acao(
+        self, id_plano_acao: int, page_size: int = 1000
+    ) -> list:
+        """
+        Obter todos os empenhos especiais de um plano de ação com paginação automática.
+        """
+        all_data = []
+        offset = 0
+
+        while True:
+            data = self.get_empenhos_especiais_by_plano_acao(
+                id_plano_acao, limit=page_size, offset=offset
+            )
+
+            if not data or len(data) == 0:
+                break
+
+            all_data.extend(data)
+
+            if len(data) < page_size:
+                break
+
+            offset += page_size
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Total empenhos especiais for plano de ação "
             f"{id_plano_acao}: {len(all_data)}"
         )
         return all_data
