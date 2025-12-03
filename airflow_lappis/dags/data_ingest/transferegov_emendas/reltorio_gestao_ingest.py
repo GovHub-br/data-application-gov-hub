@@ -41,9 +41,18 @@ def api_relatorio_gestao_especial_dag() -> None:
         
         db = ClientPostgresDB(get_postgres_conn())
         
-        # Cria tabela com estrutura mínima
+        # Remove a tabela antiga se existir (para garantir estrutura correta)
+        db.drop_table_if_exists(
+            table_name="relatorio_gestao_especial",
+            schema="transferegov_emendas"
+        )
+        
+        # Cria tabela com TODOS os campos que virão da API
+        # Baseado na estrutura real retornada pela API TransfereGov
         sample_data = {
             "id_relatorio_gestao": "0",
+            "situacao_relatorio_gestao": "",
+            "parecer_relatorio_gestao": "",
             "id_plano_acao": "0",
             "dt_ingest": datetime.now().isoformat(),
         }
