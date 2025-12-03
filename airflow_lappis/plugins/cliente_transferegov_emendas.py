@@ -185,3 +185,86 @@ class ClienteTransfereGov(ClienteBase):
             f"{id_programa}: {len(all_data)}"
         )
         return all_data
+
+    def get_planos_trabalho_especial_by_plano_acao(
+        self, id_plano_acao: int, limit: int = 1000, offset: int = 0
+    ) -> Optional[list]:
+        """
+        Obter planos de trabalho especiais por ID do plano de ação com paginação.
+
+        Args:
+            id_plano_acao (int): ID do plano de ação
+            limit (int): Quantidade de registros por página (padrão: 1000)
+            offset (int): Deslocamento inicial (padrão: 0)
+
+        Returns:
+            list: lista de planos de trabalho especiais ou None se falhar
+        """
+
+        endpoint = f"plano_trabalho_especial?id_plano_acao=eq.{id_plano_acao}"
+        
+        params = {
+            "select": "*",
+            "order": "id_plano_trabalho.asc",
+            "limit": limit,
+            "offset": offset,
+        }
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Fetching planos de trabalho especiais for "
+            f"id_plano_acao={id_plano_acao}, limit={limit}, offset={offset}"
+        )
+
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER, params=params
+        )
+
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            logging.info(
+                f"[cliente_transfere_gov.py] Successfully fetched {len(data)} "
+                f"planos de trabalho especiais for plano_acao {id_plano_acao}"
+            )
+            return data
+        else:
+            logging.warning(
+                f"[cliente_transfere_gov.py] Failed to fetch planos de trabalho especiais for "
+                f"plano_acao {id_plano_acao} with status: {status}"
+            )
+            return None
+
+    def get_all_planos_trabalho_especial_by_plano_acao(
+        self, id_plano_acao: int, page_size: int = 1000
+    ) -> list:
+        """
+        Obter todos os planos de trabalho especiais de um plano de ação com paginação automática.
+
+        Args:
+            id_plano_acao (int): ID do plano de ação
+            page_size (int): Quantidade de registros por requisição (padrão: 1000)
+
+        Returns:
+            list: lista completa de planos de trabalho especiais
+        """
+        all_data = []
+        offset = 0
+
+        while True:
+            data = self.get_planos_trabalho_especial_by_plano_acao(
+                id_plano_acao, limit=page_size, offset=offset
+            )
+
+            if not data or len(data) == 0:
+                break
+
+            all_data.extend(data)
+
+            if len(data) < page_size:
+                break
+
+            offset += page_size
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Total planos de trabalho especiais for plano_acao "
+            f"{id_plano_acao}: {len(all_data)}"
+        )
+        return all_data
