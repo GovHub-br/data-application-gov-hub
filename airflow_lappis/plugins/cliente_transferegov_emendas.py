@@ -330,3 +330,79 @@ class ClienteTransfereGov(ClienteBase):
             f"{id_plano_acao}: {len(all_data)}"
         )
         return all_data
+
+
+    def get_relatorio_gestao_especial_by_plano_acao(
+        self, id_plano_acao: int, limit: int = 1000, offset: int = 0
+    ) -> Optional[list]:
+        """
+        Obter relatórios de gestão especial por ID do plano de ação com paginação.
+        Endpoint: /relatorio_gestao_especial
+        """
+        endpoint = f"relatorio_gestao_especial?id_plano_acao=eq.{id_plano_acao}"
+        params = {"select": "*", "limit": limit, "offset": offset}
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Fetching relatorio_gestao_especial for "
+            f"id_plano_acao={id_plano_acao}, limit={limit}, offset={offset}"
+        )
+
+        status, data = self.request(
+            http.HTTPMethod.GET,
+            endpoint,
+            headers=self.BASE_HEADER,
+            params=params,
+        )
+
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            return data
+        else:
+            logging.warning(
+                f"[cliente_transfere_gov.py] Failed to fetch relatorio_gestao_especial "
+                f"for plano_acao {id_plano_acao} with status {status}"
+            )
+            return None
+
+    def get_all_relatorio_gestao_especial_by_plano_acao(
+        self, id_plano_acao: int, page_size: int = 1000
+    ) -> list:
+        """
+        Obter TODOS os relatórios de gestão especial de um plano de ação
+        com paginação automática (While True).
+        """
+        all_data = []
+        offset = 0
+        page = 1
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Starting extraction of relatorio_gestao_especial "
+            f"for plano_acao={id_plano_acao}"
+        )
+
+        while True:
+            logging.info(
+                f"[cliente_transfere_gov.py] Fetching page {page} (offset: {offset}) "
+                f"for plano_acao={id_plano_acao}"
+            )
+
+            data = self.get_relatorio_gestao_especial_by_plano_acao(
+                id_plano_acao, limit=page_size, offset=offset
+            )
+
+            if not data or len(data) == 0:
+                break
+
+            all_data.extend(data)
+
+            # Se vier menos registros que o page_size, chegamos ao fim
+            if len(data) < page_size:
+                break
+
+            offset += page_size
+            page += 1
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Finished extraction. "
+            f"Total relatorios gestao for plano_acao {id_plano_acao}: {len(all_data)}"
+        )
+        return all_data
