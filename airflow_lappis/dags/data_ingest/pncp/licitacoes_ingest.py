@@ -12,7 +12,7 @@ from cliente_pncp import ClientePNCP
 
 @dag(
     schedule_interval="@daily",
-    start_date=datetime(2025, 12, 4),
+    start_date=datetime(2024, 12, 4),
     catchup=False,
     default_args={
         "owner": "Mateus",
