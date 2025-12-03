@@ -234,6 +234,27 @@ class ClienteTransfereGov(ClienteBase):
             )
 
             data = self.get_executores_especiais_by_plano_acao(
+                id_plano_acao, limit=page_size, offset=offset
+            )
+
+            if not data or len(data) == 0:
+                break
+
+            all_data.extend(data)
+
+            if len(data) < page_size:
+                break
+
+            offset += page_size
+            page += 1
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Finished extraction. "
+            f"Total executores especiais for plano_acao {id_plano_acao}: {len(all_data)}"
+        )
+
+        return all_data
+
     def get_empenhos_especiais_by_plano_acao(
         self, id_plano_acao: int, limit: int = 1000, offset: int = 0
     ) -> Optional[list]:
@@ -303,13 +324,6 @@ class ClienteTransfereGov(ClienteBase):
                 break
 
             offset += page_size
-            page += 1
-
-        logging.info(
-            f"[cliente_transfere_gov.py] Finished extraction. "
-            f"Total executores especiais for plano_acao {id_plano_acao}: {len(all_data)}"
-        )
-
 
         logging.info(
             f"[cliente_transfere_gov.py] Total empenhos especiais for plano de ação "
