@@ -106,12 +106,13 @@ def ingest_transferegov_plano_trabalho_dag() -> DAG:
             db = ClientPostgresDB(postgres_conn_str)
             
             db.insert_data(
-                TARGET_TABLE_PLANO_TRABALHO,
-                todos_planos,
+                data=todos_planos,
+                table_name=TARGET_TABLE_PLANO_TRABALHO,
                 schema=TARGET_SCHEMA,
                 conflict_fields=["id_plano_trabalho"],
                 primary_key=["id_plano_trabalho"]
             )
+
             logging.info("Inserção concluída com sucesso.")
             
         except Exception as e:
