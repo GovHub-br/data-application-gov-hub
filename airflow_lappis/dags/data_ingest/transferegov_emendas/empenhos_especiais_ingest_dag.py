@@ -1,7 +1,9 @@
 import logging
-from airflow.decorators import dag, task
 from datetime import datetime, timedelta
+
+from airflow.decorators import dag, task
 from schedule_loader import get_dynamic_schedule
+
 from postgres_helpers import get_postgres_conn
 from cliente_transferegov_emendas import ClienteTransfereGov
 from cliente_postgres import ClientPostgresDB

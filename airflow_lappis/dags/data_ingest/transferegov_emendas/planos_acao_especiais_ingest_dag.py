@@ -1,18 +1,24 @@
 import logging
-from airflow.decorators import dag, task
 from datetime import datetime, timedelta
+
+from airflow.decorators import dag, task
 from schedule_loader import get_dynamic_schedule
+
 from postgres_helpers import get_postgres_conn
 from cliente_transferegov_emendas import ClienteTransfereGov
 from cliente_postgres import ClientPostgresDB
 
+TARGET_SCHEMA = "transferegov_emendas"
+TABLE_PROGRAMAS = "programa_especial" 
+TABLE_PLANOS = "plano_acao"
 
 @dag(
-    schedule_interval=get_dynamic_schedule("planos_acao_especiais_ingest_dag"),
+    dag_id="transferegov_emendas_planos_acao_especiais_ingest_dag",
+    schedule=get_dynamic_schedule("planos_acao_especiais_ingest_dag"),
     start_date=datetime(2023, 1, 1),
     catchup=False,
     default_args={
-        "owner": "Davi e Mateus",
+        "owner": "Davi, Mateus, Marcus",
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
@@ -23,32 +29,29 @@ def api_planos_acao_especiais_dag() -> None:
 
     @task
     def fetch_and_store_planos_acao_especiais() -> None:
-        logging.info(
-            "[planos_acao_especiais_ingest_dag.py] Iniciando extração de "
-            "planos de ação especiais"
-        )
+        logging.info("Iniciando extração de planos de ação especiais")
 
         api = ClienteTransfereGov()
         postgres_conn_str = get_postgres_conn()
         db = ClientPostgresDB(postgres_conn_str)
 
-        # Buscar IDs dos programas especiais
-        query = "SELECT DISTINCT id_programa FROM transfere_gov.programas_especiais"
-        programas_ids = db.execute_query(query)
+        try:
+            query = f"SELECT DISTINCT id_programa FROM {TARGET_SCHEMA}.{TABLE_PROGRAMAS}"
+            logging.info(f"Buscando IDs de programas em: {query}")
+            programas_ids = db.execute_query(query)
+        except Exception as e:
+            logging.warning(f"Erro ao buscar programas: {e}")
+            return
 
         if not programas_ids:
-            logging.warning(
-                "[planos_acao_especiais_ingest_dag.py] Nenhum programa encontrado"
-            )
+            logging.warning("Nenhum programa encontrado na tabela base. Execute a ingestão de Programas primeiro.")
             return
 
         total_planos = 0
-        for (id_programa,) in programas_ids:
-            logging.info(
-                f"[planos_acao_especiais_ingest_dag.py] Buscando planos de ação "
-                f"para programa {id_programa}"
-            )
-
+        
+        for row in programas_ids:
+            id_programa = row[0]
+            
             planos_data = api.get_all_planos_acao_especiais_by_programa(id_programa)
 
             if planos_data:
@@ -57,17 +60,14 @@ def api_planos_acao_especiais_dag() -> None:
 
                 db.insert_data(
                     planos_data,
-                    "planos_acao_especiais",
+                    TABLE_PLANOS,
                     conflict_fields=["id_plano_acao"],
                     primary_key=["id_plano_acao"],
-                    schema="transferegov_emendas",
+                    schema=TARGET_SCHEMA,
                 )
                 total_planos += len(planos_data)
 
-        logging.info(
-            f"[planos_acao_especiais_ingest_dag.py] Concluído. "
-            f"Total: {total_planos} planos de ação inseridos/atualizados"
-        )
+        logging.info(f"Concluído. Total: {total_planos} planos de ação inseridos/atualizados")
 
     fetch_and_store_planos_acao_especiais()
 

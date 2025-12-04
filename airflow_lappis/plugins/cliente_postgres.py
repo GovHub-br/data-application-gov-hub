@@ -180,6 +180,26 @@ class ClientPostgresDB:
                 )
                 return results
 
+    def get_all_ids(self, table_name: str, id_column: str, schema: str) -> List[int]:
+        """
+        Método genérico para recuperar todos os IDs de uma tabela e schema específicos.
+        """
+        full_table = f"{schema}.{table_name}"
+        query = f"SELECT {id_column} FROM {full_table}"
+
+        logging.info(f"[cliente_postgres.py] Buscando IDs em {full_table}")
+        
+        with psycopg2.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                try:
+                    cursor.execute(query)
+                    ids = [row[0] for row in cursor.fetchall()]
+                    return ids
+                
+                except psycopg2.errors.UndefinedTable:
+                    logging.warning(f"A tabela {full_table} não existe. Retornando lista vazia.")
+                    return []
+
     def get_contratos_ids(self, schema: str = "compras_gov") -> List[int]:
         """Extrai todos os IDs de contratos da tabela contratos."""
         query = f"SELECT id FROM {schema}.contratos"

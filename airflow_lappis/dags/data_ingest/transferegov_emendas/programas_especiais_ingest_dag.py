@@ -1,18 +1,23 @@
 import logging
-from airflow.decorators import dag, task
 from datetime import datetime, timedelta
+
+from airflow.decorators import dag, task
 from schedule_loader import get_dynamic_schedule
+
 from postgres_helpers import get_postgres_conn
 from cliente_transferegov_emendas import ClienteTransfereGov
 from cliente_postgres import ClientPostgresDB
 
+TARGET_SCHEMA = "transferegov_emendas"
+TARGET_TABLE = "programa_especial" 
 
 @dag(
-    schedule_interval=get_dynamic_schedule("programas_especiais_ingest_dag"),
+    dag_id="transferegov_emendas_programas_especiais_ingest_dag",
+    schedule=get_dynamic_schedule("programas_especiais_ingest_dag"),
     start_date=datetime(2023, 1, 1),
     catchup=False,
     default_args={
-        "owner": "Davi e Mateus",
+        "owner": "Davi, Mateus, Marcus",
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
@@ -42,14 +47,15 @@ def api_programas_especiais_dag() -> None:
             # Inserir/atualizar dados no banco
             logging.info(
                 f"[programas_especiais_ingest_dag.py] Inserindo {len(programas_data)} "
-                "programas especiais no schema transfere_gov"
+                f"programas em {TARGET_SCHEMA}.{TARGET_TABLE}"
             )
+            
             db.insert_data(
                 programas_data,
-                "programas_especiais",
+                TARGET_TABLE,
                 conflict_fields=["id_programa"],
                 primary_key=["id_programa"],
-                schema="transferegov_emendas",
+                schema=TARGET_SCHEMA,
             )
 
             logging.info(
