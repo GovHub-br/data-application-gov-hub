@@ -48,7 +48,8 @@ with
             ne_ccor_ano_emissao,
             despesas_empenhadas,
             despesas_liquidadas,
-            despesas_pagas
+            despesas_pagas,
+            dt_ingest
         from full_join
         where origem = 'both' or origem = 'left only'
     -- contrato_id nulo significa lacuna no lado esquerdo do RIGHT JOIN, 
@@ -98,7 +99,8 @@ with
             ne_ccor_ano_emissao,
             despesas_empenhadas,
             despesas_liquidadas,
-            despesas_pagas
+            despesas_pagas,
+            dt_ingest
         from juncao_processo
         -- WHERE origem = 'both'
         where contrato_id is not null
@@ -142,7 +144,8 @@ with
             ne_ccor_ano_emissao,
             despesas_empenhadas,
             despesas_liquidadas,
-            despesas_pagas
+            despesas_pagas,
+            dt_ingest
         from juncao_cnpjs
         where contrato_id is not null
     ),
@@ -184,7 +187,8 @@ with
             ne_ccor_ano_emissao,
             despesas_empenhadas,
             despesas_liquidadas,
-            despesas_pagas
+            despesas_pagas,
+            dt_ingest
         from juncao_info_complementar
         where contrato_id is not null
     ),
@@ -204,5 +208,7 @@ with
         from resultado_4
     )
 
-select *
+select
+    resultado_final.*,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from resultado_final

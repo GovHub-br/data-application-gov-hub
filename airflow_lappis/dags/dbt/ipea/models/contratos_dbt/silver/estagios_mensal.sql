@@ -17,7 +17,8 @@ with
             despesas_liquidadas as valor_liquidado,
             despesas_pagas as valor_pago,
             restos_a_pagar_inscritos as restos_a_pagar,
-            restos_a_pagar_pagos as restos_a_pagar_pago
+            restos_a_pagar_pagos as restos_a_pagar_pago,
+            dt_ingest
         from {{ ref("empenhos_tesouro") }}
         where true and ne_ccor != 'Total'
     ),
@@ -35,7 +36,8 @@ with
             sum(valor_liquidado) as valor_liquidado,
             sum(valor_pago) as valor_pago,
             sum(restos_a_pagar) as restos_a_pagar,
-            sum(restos_a_pagar_pago) as restos_a_pagar_pago
+            sum(restos_a_pagar_pago) as restos_a_pagar_pago,
+            min(dt_ingest) as dt_ingest
         from parsed_estagios
         group by 1, 2, 3, 4, 5
         order by 1, 2
@@ -59,7 +61,8 @@ with
             valor_liquidado,
             valor_pago,
             restos_a_pagar,
-            restos_a_pagar_pago
+            restos_a_pagar_pago,
+            dt_ingest
         from grouped_estagios
     ),
 
@@ -77,7 +80,8 @@ with
             valor_liquidado,
             valor_pago,
             restos_a_pagar,
-            restos_a_pagar_pago
+            restos_a_pagar_pago,
+            dt_ingest
         from processo_fixed
     ),
 
@@ -101,7 +105,8 @@ with
                 then restos_a_pagar
                 else - restos_a_pagar
             end as restos_a_pagar,
-            restos_a_pagar_pago
+            restos_a_pagar_pago,
+            dt_ingest
         from unnest_rap
     ),
 
@@ -118,11 +123,14 @@ with
             valor_liquidado,
             valor_pago,
             restos_a_pagar,
-            restos_a_pagar_pago
+            restos_a_pagar_pago,
+            dt_ingest
         from fix_data
     )
 
 --
-select *
+select
+    *,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from results
 order by ne, cnpj_cpf, mes_lancamento

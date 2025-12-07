@@ -1,7 +1,27 @@
 with
     empenhos_ids as (
         select
-            *,
+            emissao_mes,
+            emissao_dia,
+            ne_ccor,
+            ne_num_processo,
+            ne_info_complementar,
+            ne_ccor_descricao,
+            doc_observacao,
+            natureza_despesa,
+            natureza_despesa_descricao,
+            ne_ccor_favorecido,
+            ne_ccor_favorecido_descricao,
+            ne_ccor_ano_emissao,
+            ptres,
+            fonte_recursos_detalhada,
+            fonte_recursos_detalhada_descricao,
+            despesas_empenhadas,
+            despesas_liquidadas,
+            despesas_pagas,
+            restos_a_pagar_inscritos,
+            restos_a_pagar_pagos,
+            dt_ingest,
             -- Uma série de extrações que servirão de identificadores 
             right(ne_ccor, 12) as ne,
             replace(
@@ -31,5 +51,7 @@ with
         left join planos_de_acao using (num_transf)
     )  --
 
-select *
+select 
+    *,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from result_table

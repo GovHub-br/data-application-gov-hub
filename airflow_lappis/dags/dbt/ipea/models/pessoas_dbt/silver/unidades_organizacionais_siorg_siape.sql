@@ -4,7 +4,8 @@ with
             du.codigo_orgao::integer as codigo_orgao,
             du.codigo_orgao_uorg as combinacao_codigo_lista,
             (right(du.codigo_orgao_uorg, 7))::integer as codigo_lista_uorg,
-            du.sigla_uorg as sigla_uorg
+            du.sigla_uorg as sigla_uorg,
+            du.dt_ingest as dt_ingest_du
         from {{ ref("dados_uorg") }} du
     ),
 
@@ -14,8 +15,10 @@ with
             p.combinacao_codigo_lista,
             p.codigo_lista_uorg,
             p.sigla_uorg,
+            p.dt_ingest_du,
             lu.dt_ultima_transacao,
-            lu.nome as nome_unidade
+            lu.nome as nome_unidade,
+            lu.dt_ingest as dt_ingest_lu
         from preparacao p
         join {{ ref("lista_uorgs") }} lu on p.codigo_lista_uorg = lu.codigo
     ),
@@ -32,6 +35,7 @@ with
             coalesce(a.sigla_uorg, sigla_unidade) as sigla_uorg,
             a.codigo_lista_uorg as codigo_unidade_siape,
             uo.codigounidade as codigo_unidade_siorg,
+            LEAST(a.dt_ingest_du, a.dt_ingest_lu) as dt_ingest,
             case
                 when a.nome_unidade is null and uo.nome is not null
                 then 'apenas_siorg'
@@ -44,5 +48,7 @@ with
         full join unidade_organizacional uo on a.sigla_uorg = uo.sigla_unidade
     )
 
-select *
+select
+    *,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from tabela_corralacao_uorgs
