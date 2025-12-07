@@ -1,7 +1,10 @@
 with
 
     valores_pagos_contratos as (
-        select contrato_id as id, sum(despesas_pagas) as despesas_pagas
+        select 
+            contrato_id as id, 
+            sum(despesas_pagas) as despesas_pagas,
+            min(dt_ingest) as dt_ingest_vpc
         from {{ ref("contratos_empenhos") }}
         where contrato_id is not null
         group by contrato_id
@@ -48,5 +51,7 @@ select
         when vigencia_fim - vigencia_inicio >= 730 and num_parcelas > 1
         then 'Sim'
         else 'Não'
-    end as continuado
+    end as continuado,
+    LEAST(dt_ingest, dt_ingest_vpc) as dt_ingest,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from contratos_gold

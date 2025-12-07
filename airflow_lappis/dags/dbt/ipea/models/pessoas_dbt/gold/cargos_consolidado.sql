@@ -22,7 +22,9 @@ select
     siape.nome_uorg_exercicio as siape_nome_uorg,
     siape.sigla_uorg_exercicio as siape_sigla_uorg,
     siape.uf_uorg as siape_uf_uorg,
-    siape.nome_situacao_funcional as siape_situacao_funcional
+    siape.nome_situacao_funcional as siape_situacao_funcional,
+    LEAST(siape.dt_ingest, siorg.dt_ingest) as dt_ingest,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 
 from {{ ref("servidores_detalhados") }} siape
 left join

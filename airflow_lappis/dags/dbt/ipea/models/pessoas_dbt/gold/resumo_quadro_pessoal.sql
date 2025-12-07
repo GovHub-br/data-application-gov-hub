@@ -3,6 +3,8 @@ select
     coalesce(nome_sexo, 'N/A') as genero,
     coalesce(nome_situacao_funcional, 'N/A') as situacao_funcional,
     coalesce(uf_uorg, 'N/A') as localidade_uf,
-    count(distinct cpf) as quantidade_servidores
+    count(distinct cpf) as quantidade_servidores,
+    min(dt_ingest) as dt_ingest,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from {{ ref("servidores_detalhados") }}
 group by 1, 2, 3, 4

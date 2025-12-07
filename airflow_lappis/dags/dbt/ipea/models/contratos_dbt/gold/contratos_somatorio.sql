@@ -11,7 +11,9 @@ select
 
     sum(siafi_valor_empenhado) as total_empenhado,
     sum(siafi_valor_liquidado) as total_liquidado,
-    sum(siafi_valor_pago) as total_pago
+    sum(siafi_valor_pago) as total_pago,
+    min(dt_ingest) as dt_ingest,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 
 from {{ ref("contratos_comparativo_mensal") }}
 group by contrato_id

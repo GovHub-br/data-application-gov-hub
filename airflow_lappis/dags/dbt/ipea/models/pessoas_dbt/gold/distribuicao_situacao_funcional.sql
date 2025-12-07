@@ -19,14 +19,17 @@ with
                 then 'Ativo em outro órgão'
                 else df.sigla_uorg_exercicio
             end as unidade_exercicio,
-            du.nome_municipio_uorg
+            du.nome_municipio_uorg,
+            LEAST(df.dt_ingest, du.dt_ingest) as dt_ingest_min
         from {{ ref("dados_funcionais") }} df
         inner join {{ ref("dados_uorg") }} du on df.sigla_uorg_exercicio = du.sigla_uorg
     )
 
 select
     nome_situacao_funcional as situacao_funcional_original,
-    count(nome_situacao_funcional) as quantidade_servidores
+    count(nome_situacao_funcional) as quantidade_servidores,
+    min(dt_ingest_min) as dt_ingest,
+    {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from dados_funcionais_enriquecidos
 group by nome_situacao_funcional
 order by quantidade_servidores desc
