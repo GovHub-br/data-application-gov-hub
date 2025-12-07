@@ -58,4 +58,10 @@ models:
     - name: financeiro_cancelado
       description: >
         Valor total de cancelamentos financeiros identificados na programação, com ação 'CANCELAMENTO'.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) mais antiga de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+    - name: dt_transform
+      description: >
+        Data e hora (UTC-3 Brasília) em que a transformação dbt foi executada para gerar este registro (Gold).
 

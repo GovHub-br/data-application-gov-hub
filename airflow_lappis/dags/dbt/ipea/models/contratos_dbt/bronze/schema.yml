@@ -82,6 +82,12 @@ models:
       - name: vigencia_fim
         description: >
           Data de término da vigência do contrato, validada e convertida para formato de data padrão.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+      - name: dt_transform
+        description: >
+          Data e hora (UTC-3 Brasília) em que a transformação dbt foi executada para gerar este registro (Bronze).
     data_tests: 
       - row_count_match:
           source_table: compras_gov.contratos
@@ -126,6 +132,14 @@ models:
           nome_tabela: 'contratos.contratos'
           nome_coluna: 'vigencia_fim'
           tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'dt_ingest'
+          tipo_esperado: 'timestamp with time zone'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.contratos'
+          nome_coluna: 'dt_transform'
+          tipo_esperado: 'timestamp with time zone'
 
   - name: cronogramas
     description: >
@@ -157,6 +171,12 @@ models:
       - name: vencimento
         description: >
           Data de vencimento da parcela do cronograma.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+      - name: dt_transform
+        description: >
+          Data e hora (UTC-3 Brasília) em que a transformação dbt foi executada para gerar este registro (Bronze).
     data_tests: 
       - verificacao_tipagem:
           nome_tabela: 'contratos.cronogramas'
@@ -182,6 +202,14 @@ models:
           nome_tabela: 'contratos.cronogramas'
           nome_coluna: 'vencimento'
           tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'dt_ingest'
+          tipo_esperado: 'timestamp with time zone'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.cronogramas'
+          nome_coluna: 'dt_transform'
+          tipo_esperado: 'timestamp with time zone'
 
   - name: faturas
     description: >
@@ -243,6 +271,12 @@ models:
       - name: valor_empenho
         description: >
           Valor do empenho extraído do campo JSON dados_empenho.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+      - name: dt_transform
+        description: >
+          Data e hora (UTC-3 Brasília) em que a transformação dbt foi executada para gerar este registro (Bronze).
     data_tests:
       - verificacao_tipagem:
           nome_tabela: 'contratos.faturas'
@@ -300,6 +334,14 @@ models:
           nome_tabela: 'contratos.faturas'
           nome_coluna: 'anoref'
           tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'dt_ingest'
+          tipo_esperado: 'timestamp with time zone'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.faturas'
+          nome_coluna: 'dt_transform'
+          tipo_esperado: 'timestamp with time zone'
 
   - name: empenhos
     description: >
@@ -352,6 +394,12 @@ models:
       - name: data_emissao
         description: >
           Data de emissão do empenho, validada e convertida para formato de data padrão.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+      - name: dt_transform
+        description: >
+          Data e hora (UTC-3 Brasília) em que a transformação dbt foi executada para gerar este registro (Bronze).
     data_tests: 
       - row_count_match:
           source_table: compras_gov.empenhos
@@ -392,6 +440,14 @@ models:
           nome_tabela: 'contratos.empenhos'
           nome_coluna: 'data_emissao'
           tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'dt_ingest'
+          tipo_esperado: 'timestamp with time zone'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos'
+          nome_coluna: 'dt_transform'
+          tipo_esperado: 'timestamp with time zone'
 
   - name: empenhos_tesouro
     description: >
@@ -438,6 +494,12 @@ models:
       - name: restos_a_pagar_pagos
         description: >
           Valor dos restos a pagar pagos, formatado como numérico.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+      - name: dt_transform
+        description: >
+          Data e hora (UTC-3 Brasília) em que a transformação dbt foi executada para gerar este registro (Bronze).
     data_tests:
       - verificacao_tipagem:
           nome_tabela: 'contratos.empenhos_tesouro'
@@ -463,3 +525,11 @@ models:
           nome_tabela: 'contratos.empenhos_tesouro'
           nome_coluna: 'restos_a_pagar_pagos'
           tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'dt_ingest'
+          tipo_esperado: 'timestamp with time zone'
+      - verificacao_tipagem:
+          nome_tabela: 'contratos.empenhos_tesouro'
+          nome_coluna: 'dt_transform'
+          tipo_esperado: 'timestamp with time zone'
