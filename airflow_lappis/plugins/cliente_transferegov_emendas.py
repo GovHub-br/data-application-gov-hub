@@ -406,3 +406,174 @@ class ClienteTransfereGov(ClienteBase):
             f"Total relatorios gestao for plano_acao {id_plano_acao}: {len(all_data)}"
         )
         return all_data
+
+    def get_documentos_habeis_especiais(
+        self, limit: int = 1000, offset: int = 0
+    ) -> Optional[list]:
+        """
+        Obter documentos hábeis especiais com paginação.
+
+        Args:
+            limit (int): Quantidade de registros por página (padrão: 1000)
+            offset (int): Deslocamento inicial (padrão: 0)
+
+        Returns:
+            list: lista de documentos hábeis especiais ou None se falhar
+        """
+        endpoint = "documento_habil_especial"
+        params = {
+            "select": "*",
+            "order": "id_dh.asc",
+            "limit": limit,
+            "offset": offset,
+        }
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Fetching documentos hábeis especiais with "
+            f"limit={limit}, offset={offset}"
+        )
+
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER, params=params
+        )
+
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            logging.info(
+                f"[cliente_transfere_gov.py] Successfully fetched {len(data)} "
+                "documentos hábeis especiais"
+            )
+            return data
+        else:
+            logging.warning(
+                f"[cliente_transfere_gov.py] Failed to fetch documentos hábeis especiais "
+                f"with status: {status}"
+            )
+            return None
+
+    def get_all_documentos_habeis_especiais(self, page_size: int = 1000) -> list:
+        """
+        Obter todos os documentos hábeis especiais com paginação automática.
+
+        Args:
+            page_size (int): Quantidade de registros por requisição (padrão: 1000)
+
+        Returns:
+            list: lista completa de documentos hábeis especiais
+        """
+        all_data = []
+        offset = 0
+        page = 1
+
+        logging.info(
+            "[cliente_transfere_gov.py] Starting full extraction of documentos hábeis especiais"
+        )
+
+        while True:
+            logging.info(
+                f"[cliente_transfere_gov.py] Fetching page {page} " f"(offset: {offset})"
+            )
+
+            data = self.get_documentos_habeis_especiais(limit=page_size, offset=offset)
+
+            if not data or len(data) == 0:
+                logging.info(
+                    "[cliente_transfere_gov.py] No more data received. "
+                    "Extraction complete."
+                )
+                break
+
+            all_data.extend(data)
+            logging.info(
+                f"[cliente_transfere_gov.py] Page {page} fetched: {len(data)} records. "
+                f"Total so far: {len(all_data)}"
+            )
+
+            # Se recebemos menos registros que o limite, é a última página
+            if len(data) < page_size:
+                logging.info("[cliente_transfere_gov.py] Last page reached.")
+                break
+
+            offset += page_size
+            page += 1
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Extraction completed. "
+            f"Total records: {len(all_data)}"
+        )
+        return all_data
+
+    def get_documentos_habeis_especiais_by_empenho(
+        self, id_empenho: int, limit: int = 1000, offset: int = 0
+    ) -> Optional[list]:
+        """
+        Obter documentos hábeis especiais por ID do empenho com paginação.
+
+        Args:
+            id_empenho (int): ID do empenho
+            limit (int): Quantidade de registros por página (padrão: 1000)
+            offset (int): Deslocamento inicial (padrão: 0)
+
+        Returns:
+            list: lista de documentos hábeis especiais ou None se falhar
+        """
+        endpoint = f"documento_habil_especial?id_empenho=eq.{id_empenho}"
+        params = {"select": "*", "limit": limit, "offset": offset}
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Fetching documentos hábeis especiais for "
+            f"id_empenho={id_empenho}, limit={limit}, offset={offset}"
+        )
+
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER, params=params
+        )
+
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            logging.info(
+                f"[cliente_transfere_gov.py] Successfully fetched {len(data)} "
+                f"documentos hábeis especiais for empenho {id_empenho}"
+            )
+            return data
+        else:
+            logging.warning(
+                f"[cliente_transfere_gov.py] Failed to fetch documentos hábeis especiais for "
+                f"empenho {id_empenho} with status: {status}"
+            )
+            return None
+
+    def get_all_documentos_habeis_especiais_by_empenho(
+        self, id_empenho: int, page_size: int = 1000
+    ) -> list:
+        """
+        Obter todos os documentos hábeis especiais de um empenho com paginação automática.
+
+        Args:
+            id_empenho (int): ID do empenho
+            page_size (int): Quantidade de registros por requisição (padrão: 1000)
+
+        Returns:
+            list: lista completa de documentos hábeis especiais
+        """
+        all_data = []
+        offset = 0
+
+        while True:
+            data = self.get_documentos_habeis_especiais_by_empenho(
+                id_empenho, limit=page_size, offset=offset
+            )
+
+            if not data or len(data) == 0:
+                break
+
+            all_data.extend(data)
+
+            if len(data) < page_size:
+                break
+
+            offset += page_size
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Total documentos hábeis especiais for empenho "
+            f"{id_empenho}: {len(all_data)}"
+        )
+        return all_data
