@@ -2,10 +2,11 @@ from airflow.models import Variable
 from datetime import timedelta
 
 
-def get_dynamic_schedule(dag_id: str) -> str | timedelta:
+def get_dynamic_schedule(dag_id: str, default: str = "@daily") -> str | timedelta:
     """
     Retorna o schedule da Variable 'dynamic_schedules' para a DAG.
     Suporta: 'preset'/'cron' (retorna str) e 'timedelta' (retorna timedelta).
+    Se não houver schedule configurado, retorna o valor default (@daily).
     """
 
     schedules = Variable.get("dynamic_schedules", default_var={}, deserialize_json=True)
@@ -13,7 +14,7 @@ def get_dynamic_schedule(dag_id: str) -> str | timedelta:
     dag_schedule = schedules.get(dag_id)
 
     if not dag_schedule:
-        raise ValueError(f"Nenhum schedule configurado para a DAG {dag_id}")
+        return default
 
     dag_type = dag_schedule.get("type")
     dag_value = dag_schedule.get("value")
