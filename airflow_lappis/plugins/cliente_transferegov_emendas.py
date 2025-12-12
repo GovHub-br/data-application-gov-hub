@@ -294,6 +294,98 @@ class ClienteTransfereGov(ClienteBase):
             )
             return None
 
+    def get_empenhos_especiais(
+        self, limit: int = 1000, offset: int = 0
+    ) -> Optional[list]:
+        """
+        Obter empenhos especiais com paginação.
+        Args:
+            limit (int): Quantidade de registros por página (padrão: 1000)
+            offset (int): Deslocamento inicial (padrão: 0)
+        Returns:
+            list: lista de empenhos especiais ou None se falhar
+        """
+        endpoint = "empenho_especial"
+        params = {
+            "select": "*",
+            "order": "id_empenho.asc",
+            "limit": limit,
+            "offset": offset,
+        }
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Fetching empenhos especiais with "
+            f"limit={limit}, offset={offset}"
+        )
+
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER, params=params
+        )
+
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            logging.info(
+                f"[cliente_transfere_gov.py] Successfully fetched {len(data)} "
+                "empenhos especiais"
+            )
+            return data
+        else:
+            logging.warning(
+                f"[cliente_transfere_gov.py] Failed to fetch empenhos especiais "
+                f"with status: {status}"
+            )
+            return None
+
+
+    def get_all_empenhos_especiais(self, page_size: int = 1000) -> list:
+        """
+        Obter todos os empenhos especiais com paginação automática.
+        Args:
+            page_size (int): Quantidade de registros por requisição (padrão: 1000)
+        Returns:
+            list: lista completa de empenhos especiais
+        """
+        all_data = []
+        offset = 0
+        page = 1
+
+        logging.info(
+            "[cliente_transfere_gov.py] Starting full extraction of empenhos especiais"
+        )
+
+        while True:
+            logging.info(
+                f"[cliente_transfere_gov.py] Fetching page {page} " f"(offset: {offset})"
+                        )
+
+            data = self.get_empenhos_especiais(limit=page_size, offset=offset)
+
+            if not data or len(data) == 0:
+                logging.info(
+                    "[cliente_transfere_gov.py] No more data received. "
+                    "Extraction complete."
+                )
+                break
+
+            all_data.extend(data)
+            logging.info(
+                f"[cliente_transfere_gov.py] Page {page} fetched: {len(data)} records. "
+                f"Total so far: {len(all_data)}"
+            )
+
+            # Se recebemos menos registros que o limite, é a última página
+            if len(data) < page_size:
+                logging.info("[cliente_transfere_gov.py] Last page reached.")
+                break
+
+            offset += page_size
+            page += 1
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Extraction completed. "
+            f"Total records: {len(all_data)}"
+        )
+        return all_data
+
     def get_all_empenhos_especiais_by_plano_acao(
         self, id_plano_acao: int, page_size: int = 1000
     ) -> list:
