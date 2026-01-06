@@ -1,12 +1,13 @@
 with
     preparacao as (
-        select distinct
+        select
             du.codigo_orgao::integer as codigo_orgao,
             du.codigo_orgao_uorg as combinacao_codigo_lista,
             (right(du.codigo_orgao_uorg, 7))::integer as codigo_lista_uorg,
             du.sigla_uorg as sigla_uorg,
-            du.dt_ingest as dt_ingest_du
+            min(du.dt_ingest) as dt_ingest_du
         from {{ ref("dados_uorg") }} du
+        group by 1, 2, 3, 4
     ),
 
     join_lista_uorgo_dados_uorg as (
@@ -18,9 +19,10 @@ with
             p.dt_ingest_du,
             lu.dt_ultima_transacao,
             lu.nome as nome_unidade,
-            lu.dt_ingest as dt_ingest_lu
+            min(lu.dt_ingest) as dt_ingest_lu
         from preparacao p
         join {{ ref("lista_uorgs") }} lu on p.codigo_lista_uorg = lu.codigo
+        group by 1, 2, 3, 4, 5, 6, 7
     ),
 
     unidade_organizacional as (

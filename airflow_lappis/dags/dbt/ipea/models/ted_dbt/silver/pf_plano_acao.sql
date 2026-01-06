@@ -41,13 +41,19 @@ with
             pf.dt_ingest_pf as dt_ingest
         from programacoes_financeira pf
         inner join {{ ref("num_transf_n_plano_acao") }} v using (num_transf)
+        -- Exclui registros que já existem em joined_by_transfere_gov
+        where not exists (
+            select 1 
+            from pf_transfere_gov t 
+            where t.pf = pf.pf and t.ug_emitente = pf.ug_emitente
+        )
     )
 
 select 
     *,
     {{ brasilia_now_iso() }}::timestamptz as dt_transform
 from joined_by_transfere_gov
-union
+union all
 select 
     *,
     {{ brasilia_now_iso() }}::timestamptz as dt_transform

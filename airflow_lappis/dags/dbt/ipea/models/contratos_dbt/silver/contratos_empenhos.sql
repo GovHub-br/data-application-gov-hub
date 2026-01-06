@@ -7,11 +7,36 @@ with
 
     empenhos_tesouro_transformed as (
         select
-            *,
+            ne_ccor,
+            ne_info_complementar,
+            ne_num_processo,
+            ne_ccor_descricao,
+            doc_observacao,
+            natureza_despesa,
+            natureza_despesa_descricao,
+            ne_ccor_favorecido,
+            ne_ccor_ano_emissao,
+            despesas_empenhadas,
+            despesas_liquidadas,
+            despesas_pagas,
+            max(dt_ingest) as dt_ingest,
             case
                 when ne_ccor is not null then upper(right(ne_ccor, 12))
             end as ne_transformed
         from {{ ref("empenhos_tesouro") }}
+        group by 
+            ne_ccor,
+            ne_info_complementar,
+            ne_num_processo,
+            ne_ccor_descricao,
+            doc_observacao,
+            natureza_despesa,
+            natureza_despesa_descricao,
+            ne_ccor_favorecido,
+            ne_ccor_ano_emissao,
+            despesas_empenhadas,
+            despesas_liquidadas,
+            despesas_pagas
     ),
 
     -- Primeiro merge: apenas os contratos que tem ne e cnpj_cpf
