@@ -331,7 +331,6 @@ class ClienteTransfereGov(ClienteBase):
         )
         return all_data
 
-
     def get_relatorio_gestao_especial_by_plano_acao(
         self, id_plano_acao: int, limit: int = 1000, offset: int = 0
     ) -> Optional[list]:
@@ -575,5 +574,99 @@ class ClienteTransfereGov(ClienteBase):
         logging.info(
             f"[cliente_transfere_gov.py] Total documentos hábeis especiais for empenho "
             f"{id_empenho}: {len(all_data)}"
+        )
+        return all_data
+
+    def get_metas_especiais(
+        self, limit: int = 1000, offset: int = 0
+    ) -> Optional[list]:
+        """
+        Obter metas especiais com paginação.
+
+        Args:
+            limit (int): Quantidade de registros por página (padrão: 1000)
+            offset (int): Deslocamento inicial (padrão: 0)
+
+        Returns:
+            list: lista de metas especiais ou None se falhar
+        """
+        endpoint = "meta_especial"
+        params = {
+            "select": "*",
+            "order": "id_meta.asc",
+            "limit": limit,
+            "offset": offset,
+        }
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Fetching metas especiais with "
+            f"limit={limit}, offset={offset}"
+        )
+
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER, params=params
+        )
+
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            logging.info(
+                f"[cliente_transfere_gov.py] Successfully fetched {len(data)} "
+                "metas especiais"
+            )
+            return data
+        else:
+            logging.warning(
+                f"[cliente_transfere_gov.py] Failed to fetch metas especiais "
+                f"with status: {status}"
+            )
+            return None
+
+    def get_all_metas_especiais(self, page_size: int = 1000) -> list:
+        """
+        Obter todas as metas especiais com paginação automática.
+
+        Args:
+            page_size (int): Quantidade de registros por requisição (padrão: 1000)
+
+        Returns:
+            list: lista completa de metas especiais
+        """
+        all_data = []
+        offset = 0
+        page = 1
+
+        logging.info(
+            "[cliente_transfere_gov.py] Starting full extraction of metas especiais"
+        )
+
+        while True:
+            logging.info(
+                f"[cliente_transfere_gov.py] Fetching page {page} (offset: {offset})"
+            )
+
+            data = self.get_metas_especiais(limit=page_size, offset=offset)
+
+            if not data or len(data) == 0:
+                logging.info(
+                    "[cliente_transfere_gov.py] No more data received. "
+                    "Extraction complete."
+                )
+                break
+
+            all_data.extend(data)
+            logging.info(
+                f"[cliente_transfere_gov.py] Page {page} fetched: {len(data)} records. "
+                f"Total so far: {len(all_data)}"
+            )
+
+            if len(data) < page_size:
+                logging.info("[cliente_transfere_gov.py] Last page reached.")
+                break
+
+            offset += page_size
+            page += 1
+
+        logging.info(
+            f"[cliente_transfere_gov.py] Extraction completed. "
+            f"Total metas especiais: {len(all_data)}"
         )
         return all_data
