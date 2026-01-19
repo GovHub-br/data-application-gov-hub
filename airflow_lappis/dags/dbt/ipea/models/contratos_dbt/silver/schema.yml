@@ -55,6 +55,9 @@ models:
       - name: despesas_pagas
         description: >
           Valor total das despesas pagas para o contrato.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
   - name: contratos_estagios
     description: >
@@ -81,6 +84,9 @@ models:
       - name: valor_pago
         description: >
           Valor pago no mês de referência para o contrato.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
   - name: estagios_mensal
     description: >
@@ -115,6 +121,9 @@ models:
       - name: valor_pago
         description: >
           Valor total pago no mês e para o empenho específico.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
   - name: contratos_faturas
     description: >
@@ -227,6 +236,9 @@ models:
       - name: subelemento
         description: >
           Código do subelemento de despesa relacionado à fatura.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
   - name: cronogramas_faturas_mensal
     description: >
@@ -255,3 +267,6 @@ models:
       - name: saldo_contratual_disponivel
         description: >
           Diferença entre o valor programado no cronograma e a soma dos valores faturados (pagos e pendentes).
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.

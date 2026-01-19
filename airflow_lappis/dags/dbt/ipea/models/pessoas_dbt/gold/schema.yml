@@ -42,6 +42,9 @@ models:
         description: Quantidade de meses entre o ingresso e a aposentadoria (ignora anos completos).
       - name: diff_dias
         description: Quantidade de dias entre o ingresso e a aposentadoria (ignora anos e meses completos).
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
 
@@ -97,6 +100,9 @@ models:
         description: Unidade federativa (UF) da unidade de exercício no SIAPE.
       - name: siape_situacao_funcional
         description: Situação funcional atual do servidor segundo o SIAPE.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
 
@@ -166,6 +172,9 @@ models:
         description: Nome ou denominação do cargo ocupado.
       - name: servidores_carreira
         description: Indica se o servidor está em cargo de carreira ou em nomeação livre.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
   - name: resumo_quadro_pessoal
@@ -196,6 +205,9 @@ models:
       - name: quantidade_servidores
         description: >
           Quantidade total de servidores distintos (com base no CPF) que se enquadram na combinação dos atributos anteriores.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
   - name: distribuicao_genero
@@ -217,6 +229,9 @@ models:
         description: >
           Percentual de servidores deste gênero em relação ao total de servidores,
           calculado como COUNT(*) * 1.0 / SUM(COUNT(*)) OVER ().
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
   - name: distribuicao_raca_cor
@@ -236,6 +251,9 @@ models:
           conforme autodeclaração registrada nos dados pessoais do SIAPE.
       - name: quantidade_servidores
         description: Quantidade total de servidores que se autodeclararam desta cor/raça.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
   - name: distribuicao_situacao_funcional
@@ -261,6 +279,9 @@ models:
           (ATIVO PERMANENTE, ATIVO EM OUTRO ORGAO, APOSENTADO, etc.).
       - name: quantidade_servidores
         description: Quantidade total de servidores que se enquadram nesta combinação de situação funcional.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
   - name: kpis_servidores
@@ -283,6 +304,9 @@ models:
       - name: valor
         description: >
           Valor numérico do KPI, representando a contagem de CPFs ou IDs únicos conforme a métrica.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
   - name: distribuicao_mapa_uf
@@ -305,6 +329,9 @@ models:
         description: Quantidade total de servidores com unidade de exercício neste estado.
       - name: percentual
         description: Percentual de servidores deste estado em relação ao total, formatado como string com símbolo '%'.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
   - name: tabela_servidores_agregada
@@ -331,4 +358,7 @@ models:
         description: Sigla da UF da unidade de exercício em maiúsculas.
       - name: total
         description: Quantidade total de servidores únicos (CPF) nesta combinação de atributos.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 

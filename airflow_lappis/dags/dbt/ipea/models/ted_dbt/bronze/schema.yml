@@ -74,6 +74,9 @@ models:
     - name: pf_valor_linha
       description: >
         Valor monetário individual da linha da Programação Financeira.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
     data_tests:
         - verificacao_tipagem:
             nome_tabela: 'ted.pf_tesouro'
@@ -152,6 +155,9 @@ models:
     - name: movimento_liquido
       description: >
         Valor líquido do movimento financeiro associado à Nota de Crédito, após deduções ou acréscimos aplicáveis.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
 
   - name: planos_acao
     description: >
@@ -223,3 +229,6 @@ models:
     - name: aa_instrumento
       description: >
         Ano de referência do instrumento associado ao Plano de Ação.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.

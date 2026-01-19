@@ -58,4 +58,7 @@ models:
     - name: financeiro_cancelado
       description: >
         Valor total de cancelamentos financeiros identificados na programação, com ação 'CANCELAMENTO'.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 

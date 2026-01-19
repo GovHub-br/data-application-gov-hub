@@ -54,6 +54,8 @@ models:
         description: "Descrição da ocorrência do afastamento."
       - name: numero_diploma_afastamento
         description: "Número do diploma legal do afastamento."
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
 
   - name: cargos_funcoes
@@ -121,6 +123,9 @@ models:
       - name: denominacao_descricao
         description: "Descrição da denominação expandida para o cargo/função."
 
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
+
 
   - name: dados_afastamento
     description: >
@@ -167,6 +172,9 @@ models:
         description: "CPF do servidor."
       - name: dt_fim_aquisicao
         description: "Data final do período aquisitivo de férias."
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
+
 
 
   - name: dados_curriculo
@@ -228,6 +236,9 @@ models:
       - name: tipo_descricao
         description: "Tipo da descrição curricular. Pode indicar se o registro refere-se a curso, experiência, projeto etc."
 
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
+
 
   - name: dados_dependentes
     description: >
@@ -283,6 +294,9 @@ models:
         description: >
           Nome do benefício associado ao dependente ( auxílio-saúde, plano de assistência etc.).
 
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
+
 
   - name: dados_escolares
     description: >
@@ -319,6 +333,9 @@ models:
 
       - name: cpf
         description: "CPF do servidor, contendo apenas números, utilizado para identificação única."
+
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
 
 
@@ -372,6 +389,9 @@ models:
       - name: periodo_rubrica
         description: >
           Período a que se refere a rubrica, podendo representar um agrupamento ou classificação contábil adicional."
+
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
 
   - name: dados_funcionais
@@ -587,6 +607,9 @@ models:
           Pontuação atribuída ao servidor conforme avaliação de desempenho. 
           Pode conter letras (A, B, C) ou valores numéricos, depende da origem. Mantido como string.
 
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
+
 
   - name: dados_pa
     description: >
@@ -619,6 +642,8 @@ models:
         description: "Nome do alimentado."
       - name: nome_vinculo_servidor
         description: "Nome do vínculo com o servidor."
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
   - name: dados_pessoais
     description: >
@@ -669,6 +694,8 @@ models:
         description: "Data de chegada ao Brasil."
       - name: nome_pais_origem
         description: "Nome do país de origem."
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
   - name: dados_uorg
     description: >
@@ -713,6 +740,8 @@ models:
         description: "Complemento do endereço da UORG."
       - name: fax_uorg
         description: "Fax da UORG."
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
 
   - name: estrutura_organizacional_cargos
@@ -746,6 +775,8 @@ models:
         description: CPF do servidor titular do cargo (com apenas dígitos numéricos).
       - name: ordem_grandeza
         description: Nível hierárquico da unidade na estrutura, utilizado para escolher a instância mais relevante.
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
 
   - name: lista_servidores
@@ -761,6 +792,8 @@ models:
         description: "Data da última transação."
       - name: cpf
         description: "CPF do servidor."
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
   - name: lista_uorgs
     description: >
@@ -775,6 +808,8 @@ models:
         description: "Data da última transação."
       - name: nome
         description: "Nome da UORG."
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
   - name: terceirizados
     description: >
@@ -816,6 +851,8 @@ models:
         description: Valor mensal do auxílio transporte recebido pelo trabalhador (convertido para numérico).
       - name: vale_alimentacao
         description: Valor mensal do vale alimentação recebido pelo trabalhador (convertido para numérico).
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
 
   - name: unidade_organizacional
@@ -863,5 +900,7 @@ models:
         description: Nível hierárquico da unidade dentro da estrutura organizacional (quanto maior, mais profunda).
       - name: caminho_unidade
         description: Caminho hierárquico concatenado das siglas das unidades até o nível atual.
+      - name: dt_ingest
+        description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
 

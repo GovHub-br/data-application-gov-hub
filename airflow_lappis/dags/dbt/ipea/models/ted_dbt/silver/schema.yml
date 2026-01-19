@@ -31,6 +31,9 @@ models:
     - name: demais_colunas
       description: >
         Outras colunas provenientes da tabela `empenhos_tesouro`, contendo informações adicionais sobre os empenhos, como data de emissão, valor, unidade gestora, entre outras.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
   - name: nc_plano_acao
     description: >
@@ -73,6 +76,9 @@ models:
     - name: nc_valor
       description: >
         Valor monetário da Nota de Crédito, ajustado conforme o tipo de evento contábil.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
   - name: pf_plano_acao
     description: >
@@ -114,3 +120,6 @@ models:
     - name: plano_acao
       description: >
         Identificador do Plano de Ação associado à Programação Financeira, determinado por correspondência direta com o sistema TransfereGov ou via número de transferência.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.

@@ -25,7 +25,7 @@ with
             sum(
                 case when nc_evento in ('300301', '300307') then nc_valor else 0 end
             ) as orcamento_devolvido,
-            min(dt_ingest) as dt_ingest_vo
+            max(dt_ingest) as dt_ingest_vo
         from {{ ref("nc_plano_acao") }}
         where ptres not in ('-9')
         group by plano_acao, num_transf
@@ -49,7 +49,7 @@ with
             sum(restos_a_pagar_pagos) as despesas_pagas_rap,
             sum(restos_a_pagar_inscritos) as restos_a_pagar,
             sum(despesas_liquidadas) as despesas_liquidada,
-            min(dt_ingest) as dt_ingest_ve
+            max(dt_ingest) as dt_ingest_ve
         from {{ ref("empenhos_plano_acao") }}
         group by plano_acao, num_transf
     ),
@@ -71,7 +71,7 @@ with
             sum(
                 case when pf_acao = 'CANCELAMENTO' then pf_valor_linha else 0 end
             ) as financeiro_cancelado,
-            min(dt_ingest) as dt_ingest_vfin
+            max(dt_ingest) as dt_ingest_vfin
         from {{ ref("pf_plano_acao") }}
         group by plano_acao, num_transf
     ),
@@ -80,7 +80,7 @@ with
     join_parcial as (
         select 
             *,
-            LEAST(vo.dt_ingest_vo, ve.dt_ingest_ve, vfin.dt_ingest_vfin) as dt_ingest_jp
+            greatest(vo.dt_ingest_vo, ve.dt_ingest_ve, vfin.dt_ingest_vfin) as dt_ingest_jp
         from valores_orcamentos_tb vo
         full join valores_empenhados_tb ve using (plano_acao, num_transf)
         full join valores_financeiro_tb vfin using (plano_acao, num_transf)
@@ -110,7 +110,7 @@ select
     financeiro_recebido,
     financeiro_devolvido,
     financeiro_cancelado,
-    LEAST(vf.dt_ingest_vf, jp.dt_ingest_jp) as dt_ingest
+    greatest(vf.dt_ingest_vf, jp.dt_ingest_jp) as dt_ingest
 from valor_firmado_tb vf
 full join join_parcial jp using (plano_acao)
 where (plano_acao is not null) or (num_transf is not null)

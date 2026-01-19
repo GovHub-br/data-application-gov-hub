@@ -67,6 +67,9 @@ models:
       - name: continuado
         description: >
           Indica se o contrato é de prestação continuada ('Sim' quando a vigência for maior que 730 dias e tiver mais de uma parcela).
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
   - name: contratos_comparativo_mensal
     description: >
@@ -103,6 +106,9 @@ models:
       - name: siafi_valor_pago
         description: >
           Valor pago no mês de referência conforme registros do SIAFI.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
   - name: contratos_somatorio
     description: >
@@ -137,3 +143,6 @@ models:
       - name: total_pago
         description: >
           Soma de todos os valores pagos para o contrato segundo o SIAFI.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.

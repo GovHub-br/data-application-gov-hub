@@ -82,6 +82,9 @@ models:
       - name: vigencia_fim
         description: >
           Data de término da vigência do contrato, validada e convertida para formato de data padrão.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
     data_tests: 
       - row_count_match:
           source_table: compras_gov.contratos
@@ -157,6 +160,9 @@ models:
       - name: vencimento
         description: >
           Data de vencimento da parcela do cronograma.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
     data_tests: 
       - verificacao_tipagem:
           nome_tabela: 'contratos.cronogramas'
@@ -243,6 +249,9 @@ models:
       - name: valor_empenho
         description: >
           Valor do empenho extraído do campo JSON dados_empenho.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
     data_tests:
       - verificacao_tipagem:
           nome_tabela: 'contratos.faturas'
@@ -352,6 +361,9 @@ models:
       - name: data_emissao
         description: >
           Data de emissão do empenho, validada e convertida para formato de data padrão.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
     data_tests: 
       - row_count_match:
           source_table: compras_gov.empenhos
@@ -438,6 +450,9 @@ models:
       - name: restos_a_pagar_pagos
         description: >
           Valor dos restos a pagar pagos, formatado como numérico.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
     data_tests:
       - verificacao_tipagem:
           nome_tabela: 'contratos.empenhos_tesouro'

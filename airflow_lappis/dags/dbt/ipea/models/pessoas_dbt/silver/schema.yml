@@ -65,6 +65,9 @@ models:
         description: Código da função de chefia ou cargo de confiança ocupado pelo servidor no momento do afastamento.
       - name: sigla_uorg_exercicio
         description: Sigla da unidade organizacional onde o servidor exercia suas funções.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
 
@@ -97,6 +100,9 @@ models:
         description: >
           Diferença entre o número de vagas previstas (`qtd_vagas_cargo`) e as ocupadas (`qtd_vagas_ocupadas`).
           Indica o total de cargos vagos. Retorna `null` se a quantidade de vagas previstas não estiver disponível.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
   - name: servidores_detalhados
@@ -219,6 +225,9 @@ models:
         description: Valor mensal do vale transporte recebido.
       - name: pontuacao_desempenho
         description: Pontuação de desempenho do servidor, se aplicável.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
 
@@ -290,6 +299,9 @@ models:
         description: Denominação do cargo ocupado, conforme SIAPE ou SIORG.
       - name: servidores_carreira
         description: Classificação se o cargo é de carreira ou nomeação livre.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
   - name: unidades_organizacionais_siorg_siape
@@ -317,4 +329,7 @@ models:
           - "ambos": unidade presente no SIAPE e SIORG.
           - "apenas_siorg": presente apenas no SIORG.
           - "apenas_siape": presente apenas no SIAPE.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
