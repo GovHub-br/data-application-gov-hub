@@ -20,6 +20,9 @@ clean-targets:
 models:
   ipea: 
     +database: analytics
+    metadata:
+      +materialized: incremental
+      +schema: metadata
     contratos_dbt:
       +materialized: table
       +schema: contratos

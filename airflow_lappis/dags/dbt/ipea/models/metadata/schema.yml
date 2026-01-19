@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/dbt-labs/dbt-jsonschema/main/schemas/latest/dbt_yml_files-latest.json
+
+version: 2
+
+models:
+  - name: models_metadata
+    description: >
+      Tabela central de metadados que armazena informações sobre todos os modelos dbt executados.
+      Cada linha representa um modelo único, identificado pela combinação de schema e table_name.
+      A tabela é atualizada de forma incremental, mantendo histórico das execuções.
+    meta:
+      tags:
+        - metadata
+        - governance
+    columns:
+      - name: schema_name
+        description: Nome do schema onde o modelo está localizado.
+        tests:
+          - not_null
+
+      - name: table_name
+        description: Nome da tabela/modelo.
+        tests:
+          - not_null
+
+      - name: database_name
+        description: Nome do banco de dados onde o modelo está materializado.
+
+      - name: materialization
+        description: Tipo de materialização do modelo (table, view, incremental, etc).
+
+      - name: description
+        description: Descrição do modelo extraída do schema.yml.
+
+      - name: dt_transform
+        description: >
+          Data e hora em que o modelo foi transformado/executado pela última vez.
+          Corresponde ao momento em que a execução do dbt foi iniciada (run_started_at).
+          Timezone: America/Sao_Paulo (UTC-3).
+        tests:
+          - not_null
+
+      - name: run_id
+        description: >
+          Identificador único da execução do dbt (invocation_id).
+          Permite rastrear qual execução gerou a transformação.
