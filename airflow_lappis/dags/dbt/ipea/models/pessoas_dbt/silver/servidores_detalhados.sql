@@ -1,6 +1,6 @@
 with
     educacao_principal as (
-        select cpf, cod_escolaridade, nome_escolaridade, cod_titulacao, nome_titulacao
+        select cpf, cod_escolaridade, nome_escolaridade, cod_titulacao, nome_titulacao, dt_ingest as dt_ingest_ep
         from {{ ref("dados_escolares") }}
     ),
     uorg_completo as (
@@ -22,7 +22,8 @@ with
             du.uf_uorg,
             du.cpf,
             du.complemento_endereco_uorg,
-            du.fax_uorg
+            du.fax_uorg,
+            du.dt_ingest as dt_ingest_du
         -- lu.dt_ultima_transacao AS dt_ultima_transacao_uorg, os codigos não batem e a
         -- informação aparentemente ja existe...
         -- lu.nome AS nome_uorg_lista
@@ -142,7 +143,14 @@ select
     uorg_c.sigla_uorg,
     uorg_c.uf_uorg,
     uorg_c.complemento_endereco_uorg,
-    uorg_c.fax_uorg
+    uorg_c.fax_uorg,
+
+    greatest(
+        dp.dt_ingest,
+        df.dt_ingest,
+        ep.dt_ingest_ep,
+        uorg_c.dt_ingest_du
+    ) as dt_ingest
 
 from {{ ref("dados_pessoais") }} dp
 left join {{ ref("dados_funcionais") }} df on dp.cpf = df.cpf

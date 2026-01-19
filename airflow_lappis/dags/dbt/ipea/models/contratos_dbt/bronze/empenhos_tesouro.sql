@@ -39,7 +39,8 @@ with
             {{ parse_financial_value("despesas_pagas") }} as despesas_pagas,
             {{ parse_financial_value("restos_a_pagar_inscritos") }}
             as restos_a_pagar_inscritos,
-            {{ parse_financial_value("restos_a_pagar_pagos") }} as restos_a_pagar_pagos
+            {{ parse_financial_value("restos_a_pagar_pagos") }} as restos_a_pagar_pagos,
+            (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("siafi", "empenhos_tesouro") }}
         where ne_ccor_ano_emissao like '20%'
     )

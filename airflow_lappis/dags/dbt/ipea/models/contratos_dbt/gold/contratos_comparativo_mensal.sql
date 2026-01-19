@@ -19,7 +19,8 @@ with
             s.valor_liquidado as siafi_valor_liquidado,
             s.valor_pago as siafi_valor_pago,
             s.restos_a_pagar as siafi_restos_a_pagar,
-            s.restos_a_pagar_pago as siafi_restos_a_pagar_pago
+            s.restos_a_pagar_pago as siafi_restos_a_pagar_pago,
+            c.dt_ingest as dt_ingest
         from compras_gov_data as c
         full join siafi_data as s using (contrato_id, mes_ref)
 
@@ -38,6 +39,7 @@ select
     siafi_valor_liquidado,
     siafi_valor_pago,
     siafi_restos_a_pagar,
-    siafi_restos_a_pagar_pago
+    siafi_restos_a_pagar_pago,
+    dt_ingest
 from partial_result
 full join preenchimento using (contrato_id, mes_ref)

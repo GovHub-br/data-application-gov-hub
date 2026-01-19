@@ -13,7 +13,8 @@ with
             nome_ocorr_aposentadoria,
             nome_cargo,
             sigla_nivel_cargo,
-            cod_classe || '-' || cod_padrao as classe_padrao
+            cod_classe || '-' || cod_padrao as classe_padrao,
+            dt_ingest
         from {{ ref("servidores_detalhados") }} sd
         where dt_ocorr_aposentadoria is not null
     )

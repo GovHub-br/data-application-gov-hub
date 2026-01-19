@@ -18,7 +18,8 @@ with
             atonormativo__url,
             atonormativo__codigotipo,
             atonormativo__siglatipo,
-            denominacoes__denominacao
+            denominacoes__denominacao,
+            dt_ingest
         from {{ source("siorg", "cargos_funcao") }}
     ),
 
@@ -55,5 +56,6 @@ select
     atonormativo__codigotipo,
     atonormativo__siglatipo,
     denominacao_codigo,
-    denominacao_descricao
+    denominacao_descricao,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest
 from denominacoes_expandidas

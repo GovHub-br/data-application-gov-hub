@@ -17,7 +17,8 @@ with
             replace(replace(valorliquido::text, '.', ''), ',', '.')::numeric(
                 15, 2
             ) as valorliquido,
-            situacao::text as situacao
+            situacao::text as situacao,
+            dt_ingest
         from {{ source("compras_gov", "faturas") }}
     ),
 
@@ -30,7 +31,8 @@ with
                 || split_part(emissao::text, '-', 2),
                 'YYYY-MM'
             ) as mes_ref,
-            sum(juros + multa + glosa + valorliquido) as valor_faturas_pagas
+            sum(juros + multa + glosa + valorliquido) as valor_faturas_pagas,
+            max(dt_ingest) as dt_ingest_pago
         from faturas_parsed
         where situacao = 'Pago'
         group by 1, 2
@@ -45,7 +47,8 @@ with
                 || split_part(emissao::text, '-', 2),
                 'YYYY-MM'
             ) as mes_ref,
-            sum(juros + multa + glosa + valorliquido) as valor_faturas_pendentes
+            sum(juros + multa + glosa + valorliquido) as valor_faturas_pendentes,
+            max(dt_ingest) as dt_ingest_pendente
         from faturas_parsed
         where situacao = 'Pendente'
         group by 1, 2
@@ -67,7 +70,8 @@ with
             coalesce(valor_faturas_pendentes, 0) as valor_faturas_pendentes,
             coalesce(valor_cronograma, 0)
             - coalesce(valor_faturas_pagas, 0)
-            - coalesce(valor_faturas_pendentes, 0) as saldo_contratual_disponivel
+            - coalesce(valor_faturas_pendentes, 0) as saldo_contratual_disponivel,
+            greatest(dt_ingest_pago, dt_ingest_pendente) AS dt_ingest
         from joined_table
         order by contrato_id, mes_ref
     )

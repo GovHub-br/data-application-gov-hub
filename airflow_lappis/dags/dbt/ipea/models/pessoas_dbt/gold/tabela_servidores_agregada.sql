@@ -9,7 +9,8 @@ with
             dp.nome_sexo as genero,
             df.nome_situacao_funcional as situacao,
             du.nome_municipio_uorg as cidade,
-            du.uf_uorg as estado
+            du.uf_uorg as estado,
+            greatest(df.dt_ingest, dp.dt_ingest, du.dt_ingest) as dt_ingest
         from {{ ref("dados_funcionais") }} df
         inner join {{ ref("dados_pessoais") }} dp on df.cpf = dp.cpf
         inner join {{ ref("dados_uorg") }} du on df.sigla_uorg_exercicio = du.sigla_uorg
@@ -48,12 +49,13 @@ with
             end as situacao,
             initcap(cidade) as cidade,
             upper(estado) as estado,
-            count(distinct cpf) as total
+            count(distinct cpf) as total,
+            max(dt_ingest) as dt_ingest
         from servidores_completos
         group by nome_cargo, genero, situacao, cidade, estado
     )
 
-select cargo, genero, situacao, cidade, estado, total
+select cargo, genero, situacao, cidade, estado, total, dt_ingest
 from servidores_agregados
 where total > 0
 order by total desc, cargo, genero

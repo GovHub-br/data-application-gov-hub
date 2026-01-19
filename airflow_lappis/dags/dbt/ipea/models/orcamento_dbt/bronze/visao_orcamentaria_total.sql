@@ -38,7 +38,7 @@ with
             as restos_a_pagar_inscritos,
             {{ parse_financial_value("restos_a_pagar_pagos") }} as restos_a_pagar_pagos,
 
-            dt_ingest::timestamp as dt_ingest
+            (dt_ingest || '-03:00')::timestamptz as dt_ingest
 
         from source_data
     )

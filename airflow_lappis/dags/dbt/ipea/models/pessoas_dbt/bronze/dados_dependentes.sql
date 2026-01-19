@@ -12,7 +12,8 @@ with
             codbeneficio,
             datafim,
             datainicio,
-            nomebeneficio
+            nomebeneficio,
+            dt_ingest
         from {{ source("siape", "dados_dependentes") }}
     ),
 
@@ -29,7 +30,8 @@ with
             nullif(trim(codbeneficio), 'NaN') as codbeneficio,
             nullif(trim(datafim), 'NaN') as datafim,
             nullif(trim(datainicio), 'NaN') as datainicio,
-            nullif(trim(nomebeneficio), 'NaN') as nomebeneficio
+            nullif(trim(nomebeneficio), 'NaN') as nomebeneficio,
+            dt_ingest
         from dados_dependentes_raw
     )
 
@@ -46,5 +48,6 @@ select
     -- Converte para DATE, tratando '', 'NaN' e '00000000' como NULL
     to_date(nullif(nullif(datafim, ''), '00000000'), 'DDMMYYYY') as dt_fim,
     to_date(nullif(nullif(datainicio, ''), '00000000'), 'DDMMYYYY') as dt_inicio,
-    nullif(nomebeneficio, '') as nome_beneficio
+    nullif(nomebeneficio, '') as nome_beneficio,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest
 from dados_dependentes_cleaned

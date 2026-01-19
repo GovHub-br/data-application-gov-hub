@@ -20,7 +20,8 @@ with
             datapublicacaoafastamento,
             descdiplomaafastamento,
             descocorrencia,
-            numerodiplomaafastamento
+            numerodiplomaafastamento,
+            dt_ingest
         -- grmatricula não está presente 
         from {{ source("siape", "afastamento_historico") }}
     ),
@@ -80,7 +81,8 @@ with
             ) as descocorrencia_clean,
             nullif(
                 nullif(nullif(trim(numerodiplomaafastamento), ''), 'NaN'), '[null]'
-            ) as numerodiplomaafastamento_clean
+            ) as numerodiplomaafastamento_clean,
+            dt_ingest
         from afastamento_historico_raw
     )
 
@@ -126,5 +128,6 @@ select
     end as dt_publicacao_afastamento,
     descdiplomaafastamento_clean as desc_diploma_afastamento,
     descocorrencia_clean as desc_ocorrencia,
-    cast(numerodiplomaafastamento_clean as int) as numero_diploma_afastamento
+    cast(numerodiplomaafastamento_clean as int) as numero_diploma_afastamento,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest
 from afastamento_historico_cleaned

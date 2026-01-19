@@ -7,7 +7,8 @@ with
             municipio,
             uf,
             cargos,
-            ordem_grandeza
+            ordem_grandeza,
+            dt_ingest
         from {{ source("siorg", "estrutura_organizacional_cargos") }}
     ),
 
@@ -19,6 +20,7 @@ with
             f.municipio,
             f.uf,
             f.ordem_grandeza,
+            f.dt_ingest,
             cargo_elem
         from
             fonte f,
@@ -35,6 +37,7 @@ with
             ce.municipio,
             ce.uf,
             ce.ordem_grandeza,
+            ce.dt_ingest,
             cargo_elem ->> 'denominacao' as denominacao,
             cargo_elem ->> 'funcao' as funcao,
             instancia_elem ->> 'codigoInstancia' as codigo_instancia,
@@ -70,5 +73,6 @@ select
     codigo_instancia,
     nome_titular,
     cpf_titular,
-    ordem_grandeza
+    ordem_grandeza,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest
 from instancias_filtradas

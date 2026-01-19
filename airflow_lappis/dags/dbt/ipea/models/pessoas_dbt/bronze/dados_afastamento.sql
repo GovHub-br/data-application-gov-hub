@@ -21,7 +21,8 @@ with
             descocorrencia,
             numerodiplomaafastamento,
             datainicioferiasinterrompidas,
-            diasrestantes
+            diasrestantes,
+            dt_ingest
         from {{ source("siape", "dados_afastamento") }}
     ),
 
@@ -55,7 +56,8 @@ with
             nullif(
                 trim(datainicioferiasinterrompidas), ''
             ) as datainicioferiasinterrompidas_clean,
-            nullif(trim(diasrestantes), '') as diasrestantes_clean
+            nullif(trim(diasrestantes), '') as diasrestantes_clean,
+            dt_ingest
         from dados_afastamento_raw
     )
 
@@ -102,5 +104,6 @@ select
         then to_date(datainicioferiasinterrompidas_clean, 'DDMMYYYY')
         else null
     end as dt_inicio_ferias_interrompidas,
-    cast(diasrestantes_clean as int) as dias_restantes
+    cast(diasrestantes_clean as int) as dias_restantes,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest
 from dados_afastamento_cleaned

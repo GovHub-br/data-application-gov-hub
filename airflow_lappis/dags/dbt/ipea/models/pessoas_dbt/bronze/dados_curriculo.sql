@@ -16,7 +16,8 @@ with
             datafim,
             projeto,
             infoadicionais,
-            tipodesc
+            tipodesc,
+            dt_ingest
         from {{ source("siape", "dados_curriculo") }}
     )
 
@@ -39,5 +40,6 @@ select
     to_date(nullif(trim(datafim), '') || '01', 'YYYYMMDD') as dt_mes_fim,
     nullif(trim(projeto), '') as descricao_projeto,
     nullif(trim(infoadicionais), '') as informacoes_adicionais,
-    nullif(trim(tipodesc), '') as tipo_descricao
+    nullif(trim(tipodesc), '') as tipo_descricao,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest
 from dados_curriculo_raw

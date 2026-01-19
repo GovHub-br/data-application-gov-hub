@@ -23,7 +23,8 @@ with
             -- quanto menor a hierarquia, maior o cargo
             right(funcao_sigla, 2) as nivel_cargo,
             cast(substring(funcao_sigla, length(funcao_sigla) - 2, 1) as int) * 1000
-            - cast(right(funcao, 2) as int) as hierarquia_cargo
+            - cast(right(funcao, 2) as int) as hierarquia_cargo,
+            greatest(eorg.dt_ingest, uo.dt_ingest) as dt_ingest_siorg
         from correcao_funcao as eorg
         inner join
             {{ ref("unidade_organizacional") }} as uo
@@ -55,7 +56,8 @@ with
             uo.ordem_grandeza as ordem_grandeza_alternativa,
             substring(df.cod_funcao, 1, 1) || substring(
                 df.cod_funcao, length(df.cod_funcao) - 2, 3
-            ) as codigo_combinacao_siape
+            ) as codigo_combinacao_siape,
+            greatest(df.dt_ingest, uo.dt_ingest, uo.dt_ingest) as dt_ingest_siape
         from {{ ref("dados_funcionais") }} as df
         left join {{ ref("dados_pessoais") }} as dp on df.cpf = dp.cpf
         left join
@@ -140,7 +142,8 @@ with
             coalesce(denominacao, nome_cargo) as nome_cargo,
             case
                 when cod_situacao_funcional = '04' then 'Nomeação livre' else 'Carreira'
-            end as servidores_carreira
+            end as servidores_carreira,
+            greatest(pr.dt_ingest_siorg, pr.dt_ingest_siape, dp.dt_ingest) as dt_ingest
         from primeira_correlacao as pr
         left join {{ ref("dados_pessoais") }} as dp on pr.cpf_chefia_imediata = dp.cpf
         order by caminho_unidade, hierarquia_cargo

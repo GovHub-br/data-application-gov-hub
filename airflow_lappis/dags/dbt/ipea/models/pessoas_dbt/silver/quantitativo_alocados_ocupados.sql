@@ -5,7 +5,7 @@ with
     ),
 
     codigos_siorg as (
-        select funcao, nomeunidade, siglaunidade, denominacao, count(*) as qtd_vagas_cargo
+        select funcao, nomeunidade, siglaunidade, denominacao, count(*) as qtd_vagas_cargo, max(dt_ingest) as dt_ingest
         from siorg_sem_duplicatas
         group by funcao, nomeunidade, siglaunidade, denominacao
     ),
@@ -16,7 +16,8 @@ with
             nome_uorg_exercicio,
             sigla_uorg_exercicio,
             nome_cargo,
-            count(*) as qtd_vagas_ocupadas
+            count(*) as qtd_vagas_ocupadas,
+            max(dt_ingest) as dt_ingest
         from siape_sem_duplicatas
         where cod_funcao is not null and dt_ocorr_aposentadoria is null
         group by cod_funcao, nome_uorg_exercicio, sigla_uorg_exercicio, nome_cargo
@@ -33,7 +34,8 @@ with
             substring(replace(funcao, ' ', ''), 1, 1) || substring(
                 replace(funcao, ' ', ''), length(replace(funcao, ' ', '')) - 2, 3
             ) as codigo_combinacao_siorg,
-            qtd_vagas_cargo
+            qtd_vagas_cargo,
+            dt_ingest
         from codigos_siorg
     ),
 
@@ -46,13 +48,26 @@ with
             substring(cod_funcao, 1, 1) || substring(
                 cod_funcao, length(cod_funcao) - 2, 3
             ) as codigo_combinacao_siape,
-            qtd_vagas_ocupadas
+            qtd_vagas_ocupadas,
+            dt_ingest
         from codigos_siape
     ),
 
     primeira_correlacao as (
         select
-            *,
+            siorg.funcao,
+            siorg.nomeunidade,
+            siorg.siglaunidade,
+            siorg.denominacao,
+            siorg.codigo_combinacao_siorg,
+            siorg.qtd_vagas_cargo,
+            siape.cod_funcao,
+            siape.nome_uorg_exercicio,
+            siape.sigla_uorg_exercicio,
+            siape.nome_cargo,
+            siape.codigo_combinacao_siape,
+            siape.qtd_vagas_ocupadas,
+            greatest(siorg.dt_ingest, siape.dt_ingest) as dt_ingest,
             case
                 when
                     siorg.codigo_combinacao_siorg is not null
@@ -88,5 +103,6 @@ select
         when qtd_vagas_ocupadas is null
         then qtd_vagas_cargo
         else (qtd_vagas_cargo - qtd_vagas_ocupadas)
-    end as qtd_cargos_vagos
+    end as qtd_cargos_vagos,
+    dt_ingest
 from primeira_correlacao

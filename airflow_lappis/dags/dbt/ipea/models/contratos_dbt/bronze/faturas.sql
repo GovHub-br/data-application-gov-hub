@@ -33,7 +33,8 @@ with
             dados_item_faturado::text as dados_item_faturado,
             jsonb_array_elements(
                 replace(dados_empenho, '''', '"')::jsonb
-            ) as dados_empenho
+            ) as dados_empenho,
+            (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("compras_gov", "faturas") }}
     ),
     -- Extrai os campos do JSON e transforma em colunas individuais

@@ -11,7 +11,8 @@ with
             mesanopagamento,
             cpf,
             indicadormovsupl,
-            perubrica
+            perubrica,
+            dt_ingest
         from {{ source("siape", "dados_financeiros") }}
     ),
 
@@ -27,7 +28,8 @@ with
             nullif(trim(mesanopagamento), '') as mes_ano_pagamento_str,
             nullif(trim(cpf), '') as cpf_str,
             nullif(trim(indicadormovsupl), '') as indicador_mov_supl,
-            nullif(trim(perubrica), '') as periodo_rubrica
+            nullif(trim(perubrica), '') as periodo_rubrica,
+            dt_ingest
         from dados_financeiros_raw
     ),
 
@@ -91,7 +93,8 @@ with
                 then '12'
                 else null
             end as mes_num_pagamento,
-            substring(mes_ano_pagamento_str, 4, 4) as ano_pagamento
+            substring(mes_ano_pagamento_str, 4, 4) as ano_pagamento,
+            max(dt_ingest) over () dt_ingest_max
         from dados_financeiros_cleaned
     )
 
@@ -119,5 +122,6 @@ select
     ) as mes_ano_pagamento,
     regexp_replace(cpf_str, '[^0-9]', '', 'g') as cpf,
     indicador_mov_supl,
-    periodo_rubrica
+    periodo_rubrica,
+    (dt_ingest_max || '-03:00')::timestamptz as dt_ingest
 from conversao_mes

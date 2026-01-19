@@ -12,7 +12,8 @@ with
             cpf_servidor,
             codvinculoservidor,
             nomealimentado,
-            nomevinculoservidor
+            nomevinculoservidor,
+            dt_ingest
         from {{ source("siape", "dados_pa") }}
     )
 
@@ -34,5 +35,6 @@ select
     regexp_replace(nullif(trim(cpf_servidor), ''), '[^0-9]', '', 'g') as cpf_servidor,
     nullif(trim(codvinculoservidor), '') as cod_vinculo_servidor,
     nullif(trim(nomealimentado), '') as nome_alimentado,
-    nullif(trim(nomevinculoservidor), '') as nome_vinculo_servidor
+    nullif(trim(nomevinculoservidor), '') as nome_vinculo_servidor,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest
 from dados_pa

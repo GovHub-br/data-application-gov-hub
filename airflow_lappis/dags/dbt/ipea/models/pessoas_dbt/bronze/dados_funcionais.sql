@@ -82,5 +82,6 @@ select
         replace(nullif(trim(valorvaletransporte), ''), ',', '.') as numeric
     ) as valor_vale_transporte,
     to_date(nullif(trim(datauorgexercicio), ''), 'DDMMYYYY') as dt_uorg_exercicio,
-    nullif(trim(pontuacaodesempenho), '') as pontuacao_desempenho  -- Mantido como varchar (Não da pra saber se é "A","B" ou é um número > tudo null)
+    nullif(trim(pontuacaodesempenho), '') as pontuacao_desempenho,  -- Mantido como varchar (Não da pra saber se é "A","B" ou é um número > tudo null)
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest
 from dados_funcionais_raw

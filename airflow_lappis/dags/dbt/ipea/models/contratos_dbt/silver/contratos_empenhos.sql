@@ -48,7 +48,8 @@ with
             ne_ccor_ano_emissao,
             despesas_empenhadas,
             despesas_liquidadas,
-            despesas_pagas
+            despesas_pagas,
+            dt_ingest
         from full_join
         where origem = 'both' or origem = 'left only'
     -- contrato_id nulo significa lacuna no lado esquerdo do RIGHT JOIN, 
@@ -98,12 +99,12 @@ with
             ne_ccor_ano_emissao,
             despesas_empenhadas,
             despesas_liquidadas,
-            despesas_pagas
+            despesas_pagas,
+            dt_ingest
         from juncao_processo
         -- WHERE origem = 'both'
         where contrato_id is not null
     ),
-
     -- ---------------------------------------------------------------------------------------------------
     empenhos_restantes_2 as (
         select *
@@ -142,11 +143,11 @@ with
             ne_ccor_ano_emissao,
             despesas_empenhadas,
             despesas_liquidadas,
-            despesas_pagas
+            despesas_pagas,
+            dt_ingest
         from juncao_cnpjs
         where contrato_id is not null
     ),
-
     -- ---------------------------------------------------------------------------------------------------
     empenhos_restantes_3 as (
         select
@@ -184,7 +185,8 @@ with
             ne_ccor_ano_emissao,
             despesas_empenhadas,
             despesas_liquidadas,
-            despesas_pagas
+            despesas_pagas,
+            dt_ingest
         from juncao_info_complementar
         where contrato_id is not null
     ),

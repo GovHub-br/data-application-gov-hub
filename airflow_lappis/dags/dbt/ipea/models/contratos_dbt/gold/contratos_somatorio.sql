@@ -11,7 +11,8 @@ select
 
     sum(siafi_valor_empenhado) as total_empenhado,
     sum(siafi_valor_liquidado) as total_liquidado,
-    sum(siafi_valor_pago) as total_pago
+    sum(siafi_valor_pago) as total_pago,
+    max(dt_ingest) as dt_ingest
 
 from {{ ref("contratos_comparativo_mensal") }}
 group by contrato_id

@@ -18,7 +18,8 @@ with
             ufuorg,
             cpf,
             complementouorg,
-            numfaxuorg
+            numfaxuorg,
+            dt_ingest
         from {{ source("siape", "dados_uorg") }}
     )
 
@@ -40,5 +41,6 @@ select
     upper(nullif(trim(ufuorg), '')) as uf_uorg,
     regexp_replace(nullif(trim(cpf), ''), '[^0-9]', '', 'g') as cpf,
     nullif(nullif(trim(complementouorg), ''), '---') as complemento_endereco_uorg,
-    regexp_replace(nullif(trim(numfaxuorg), ''), '[^0-9]', '', 'g') as fax_uorg
+    regexp_replace(nullif(trim(numfaxuorg), ''), '[^0-9]', '', 'g') as fax_uorg,
+    (dt_ingest || '-03:00')::timestamptz as dt_ingest
 from dados_uorg

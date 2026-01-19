@@ -21,7 +21,8 @@ with
             favorecido_doc,
             favorecido_doc_descricao,
             replace(nc_valor_linha, ',', '.')::numeric(15, 2) as nc_valor_linha,
-            {{ parse_financial_value("movimento_liquido") }} as movimento_liquido
+            {{ parse_financial_value("movimento_liquido") }} as movimento_liquido,
+            (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("siafi", "nc_tesouro") }}
     )
 

@@ -25,7 +25,8 @@ with
                 when nc_evento in ('300302', '300308', '300311', '300083')
                 then (-1) * nc_valor_linha
                 else nc_valor_linha
-            end as nc_valor
+            end as nc_valor,
+            rd.dt_ingest
         from raw_data rd
         left join planos_de_acao pda on rd.nc_transferencia = pda.num_transf
     )

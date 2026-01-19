@@ -23,7 +23,8 @@ with
             desc_ocorrencia,
             numero_diploma_afastamento,
             gr_matricula,
-            'dados_afastamento' as origem_dados  -- identificar a fonte
+            'dados_afastamento' as origem_dados,  -- identificar a fonte,
+            dt_ingest
         from {{ ref("dados_afastamento") }}
 
         union all
@@ -50,7 +51,8 @@ with
             desc_ocorrencia,
             numero_diploma_afastamento,
             null as gr_matricula,  -- não tem na afastamneto historico ...
-            'afastamento_historico' as origem_dados  -- identificar a fonte
+            'afastamento_historico' as origem_dados,  -- identificar a fonte,
+            dt_ingest
         from {{ ref("afastamento_historico") }}
     ),
 
@@ -106,7 +108,8 @@ with
             desc_ocorrencia,
             numero_diploma_afastamento,
             gr_matricula,
-            origem_dados
+            origem_dados,
+            dt_ingest
         from prioridades
         where prioridade = 1
     )

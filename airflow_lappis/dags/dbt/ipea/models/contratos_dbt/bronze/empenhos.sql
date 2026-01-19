@@ -49,8 +49,8 @@ with
                     and data_emissao::text ~ '^\d{4}-\d{2}-\d{2}$'
                 -- Retorna NULL se não for uma data válida
                 then to_date(data_emissao::text, 'YYYY-MM-DD')
-            end as data_emissao
-
+            end as data_emissao,
+            (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("compras_gov", "empenhos") }}
     )
 
