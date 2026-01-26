@@ -24,8 +24,7 @@ def api_metas_especiais_dag() -> None:
     @task
     def fetch_and_store_metas_especiais() -> None:
         logging.info(
-            "[metas_especiais_ingest_dag.py] Iniciando extração de "
-            "metas especiais"
+            "[metas_especiais_ingest_dag.py] Iniciando extração de metas especiais"
         )
 
         api = ClienteTransfereGov()

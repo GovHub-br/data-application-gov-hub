@@ -374,8 +374,8 @@ class ClienteTransfereGov(ClienteBase):
         page = 1
 
         logging.info(
-            f"[cliente_transfere_gov.py] Starting extraction of relatorio_gestao_especial "
-            f"for plano_acao={id_plano_acao}"
+            f"[cliente_transfere_gov.py] Starting extraction of "
+            f"relatorio_gestao_especial for plano_acao={id_plano_acao}"
         )
 
         while True:
@@ -464,7 +464,8 @@ class ClienteTransfereGov(ClienteBase):
         page = 1
 
         logging.info(
-            "[cliente_transfere_gov.py] Starting full extraction of documentos hábeis especiais"
+            "[cliente_transfere_gov.py] Starting full extraction of "
+            "documentos hábeis especiais"
         )
 
         while True:
@@ -535,8 +536,9 @@ class ClienteTransfereGov(ClienteBase):
             return data
         else:
             logging.warning(
-                f"[cliente_transfere_gov.py] Failed to fetch documentos hábeis especiais for "
-                f"empenho {id_empenho} with status: {status}"
+                f"[cliente_transfere_gov.py] Failed to fetch documentos "
+                f"hábeis especiais for empenho {id_empenho} with status: "
+                f"{status}"
             )
             return None
 
@@ -577,9 +579,7 @@ class ClienteTransfereGov(ClienteBase):
         )
         return all_data
 
-    def get_metas_especiais(
-        self, limit: int = 1000, offset: int = 0
-    ) -> Optional[list]:
+    def get_metas_especiais(self, limit: int = 1000, offset: int = 0) -> Optional[list]:
         """
         Obter metas especiais com paginação.
 

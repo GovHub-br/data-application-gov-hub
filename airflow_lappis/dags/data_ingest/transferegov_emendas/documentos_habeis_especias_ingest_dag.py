@@ -24,7 +24,7 @@ def api_documentos_habeis_especiais_dag() -> None:
     @task
     def fetch_and_store_documentos_habeis_especiais() -> None:
         logging.info(
-            "[documentos_habeis_especiais_ingest_dag.py] Iniciando extração documentos " \
+            "[documentos_habeis_especiais_ingest_dag.py] Iniciando extração documentos "
             "hábeis especiais"
         )
 
@@ -42,8 +42,9 @@ def api_documentos_habeis_especiais_dag() -> None:
 
             # Inserir/atualizar dados no banco
             logging.info(
-                f"[documentos_habeis_especiais_ingest_dag.py] Inserindo {len(documentos_data)} "
-                "documentos hábeis especiais no schema transfere_gov"
+                f"[documentos_habeis_especiais_ingest_dag.py] Inserindo "
+                f"{len(documentos_data)} documentos hábeis especiais no "
+                f"schema transfere_gov"
             )
             db.insert_data(
                 documentos_data,
@@ -54,15 +55,17 @@ def api_documentos_habeis_especiais_dag() -> None:
             )
 
             logging.info(
-                f"[documentos_habeis_especiais_ingest_dag.py] Concluído. Total de "
-                f"{len(documentos_data)} documentos hábeis especiais inseridos/atualizados"
+                f"[documentos_habeis_especiais_ingest_dag.py] Concluído. "
+                f"Total de {len(documentos_data)} documentos hábeis especiais "
+                f"inseridos/atualizados"
             )
         else:
             logging.warning(
-                "[documentos_habeis_especiais_ingest_dag.py] Nenhum documento hábil " \
+                "[documentos_habeis_especiais_ingest_dag.py] Nenhum documento hábil "
                 "especial encontrado"
             )
 
     fetch_and_store_documentos_habeis_especiais()
+
 
 dag_instance = api_documentos_habeis_especiais_dag()
