@@ -333,3 +333,26 @@ models:
         description: >
           Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
+
+
+  - name: resumo_atividade_
+    description: >
+      Tabela que consolida o quantitativo de servidores ativos por nível de cargo, classe/padrão, situação funcional e nome do cargo.
+      Exclui os servidores com situação funcional 'APOSENTADO'. Derivada do modelo `dados_funcionais`.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: nivel
+        description: Sigla do nível do cargo (ex: DAS, FG, etc.).
+      - name: classe_padrao
+        description: Combinação de código de classe e padrão no formato 'COD_CLASSE-COD_PADRAO'.
+      - name: nome_situacao_funcional
+        description: Situação funcional do servidor (excluindo APOSENTADO).
+      - name: nome_cargo
+        description: Nome do cargo efetivo do servidor.
+      - name: qtd
+        description: Quantidade de servidores nessa combinação de atributos.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.

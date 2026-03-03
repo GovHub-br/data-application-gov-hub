@@ -84,6 +84,28 @@ models:
       - name: dt_ingest
         description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
+  - name: categorias_resumo_orcamentario_ted_emitente
+    description: >
+      Tabela que transforma o resumo orçamentário em categorias (Valor firmado, Destaque orçamentário e Repasse financeiro)
+      sob a perspectiva do emitente, para utilização em gráficos de barras empilhadas.
+      Os dados são derivados do modelo `ted_resumo_orcamentario`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: plano_acao
+        description: Identificador do Plano de Ação.
+      - name: num_transf
+        description: Número da transferência.
+      - name: tipo
+        description: Subcategoria detalhada do valor (ex: '1.1 Valor firmado', '2.1 Destaque total enviado').
+      - name: valor
+        description: Valor numérico associado ao tipo.
+      - name: categoria
+        description: Categoria principal para agrupamento no gráfico (ex: '1. Valor firmado', '2. Destaque orçamentário', '3. Repasse financeiro').
+      - name: dt_ingest
+        description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
   - name: categorias_execucao_financeira_ted
     description: >
       Tabela que transforma o resumo orçamentário em categorias de execução financeira para utilização em gráficos de barras empilhadas.

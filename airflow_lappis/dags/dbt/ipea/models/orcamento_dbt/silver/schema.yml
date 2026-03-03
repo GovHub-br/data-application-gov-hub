@@ -1,0 +1,50 @@
+version: 2
+
+models:
+
+  - name: categoria_gasto_orcamento_total
+    description: >
+      Tabela que transforma a visão orçamentária em categorias de gastos para utilização em gráficos de barras empilhadas.
+      As categorias são: Dotação, Orçamento alocado (empenhado), Despesas programadas e Despesas pagas.
+      Os dados são derivados do modelo `visao_orcamentaria_total`.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: ano_exercicio
+        description: Ano do exercício orçamentário.
+      - name: acao_governo
+        description: Código da ação de governo.
+      - name: acao_governo_desc
+        description: Descrição da ação de governo.
+      - name: elemento_despesa
+        description: Código do elemento de despesa.
+      - name: elemento_despesa_desc
+        description: Descrição do elemento de despesa.
+      - name: valor
+        description: Valor numérico associado à categoria (com COALESCE 0 para nulos).
+      - name: categoria
+        description: >
+          Categoria do gasto para agrupamento no gráfico.
+          Valores possíveis: 'Dotação', 'Orçamento alocado (empenhado)', 'Despesas programadas', 'Despesas pagas'.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: orcamento_total
+    description: >
+      Tabela que consolida o orçamento total por ano de exercício, combinando duas visões:
+      (1) orçamento das TEDs, calculado como crédito disponível + despesas empenhadas excluindo unidades específicas (25300, 47204);
+      (2) orçamento geral, baseado na dotação atualizada de todas as unidades.
+      O resultado final agrega os valores de ambas as visões por ano.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: ano_exercicio
+        description: Ano do exercício orçamentário.
+      - name: orcamento
+        description: Soma do orçamento total (TEDs + geral) para o ano de exercício.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
