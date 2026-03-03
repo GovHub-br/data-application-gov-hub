@@ -362,3 +362,24 @@ models:
         description: >
           Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
+  - name: distribuicao_raca_cor_sexo
+    description: >
+      Tabela agregada que apresenta a distribuição de servidores por raça/cor e sexo.
+      A análise utiliza dados da tabela de hierarquia para calcular a quantidade de servidores
+      por gênero em cada categoria de raça/cor e situação funcional.
+      O campo 'feminino' é multiplicado por -1 para facilitar visualizações em pirâmide.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: nome_cor
+        description: Cor ou raça do servidor conforme autodeclaração.
+      - name: feminino
+        description: Quantidade de servidores do sexo feminino (valor negativo).
+      - name: masculino
+        description: Quantidade de servidores do sexo masculino.
+      - name: nome_situacao_funcional
+        description: Descrição da situação funcional do servidor.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
