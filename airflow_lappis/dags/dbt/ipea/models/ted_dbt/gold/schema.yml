@@ -62,3 +62,148 @@ models:
       description: >
         Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
+
+  - name: categorias_resumo_orcamentario_ted
+    description: >
+      Tabela que transforma o resumo orçamentário em categorias (Valor firmado, Destaque orçamentário, Execução orçamentária e Repasse financeiro) para utilização em gráficos de barras empilhadas.
+      Os dados são derivados do modelo `ted_resumo_orcamentario`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: plano_acao
+        description: Identificador do Plano de Ação.
+      - name: num_transf
+        description: Número da transferência.
+      - name: tipo
+        description: Subcategoria detalhada do valor (ex: '1.1 Valor firmado', '2.1 Destaque total recebido').
+      - name: valor
+        description: Valor numérico associado ao tipo.
+      - name: categoria
+        description: Categoria principal para agrupamento no gráfico (ex: '1. Valor firmado', '2. Destaque orçamentário').
+      - name: dt_ingest
+        description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: categorias_execucao_financeira_ted
+    description: >
+      Tabela que transforma o resumo orçamentário em categorias de execução financeira para utilização em gráficos de barras empilhadas.
+      Os dados são derivados do modelo `ted_resumo_orcamentario`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: plano_acao
+        description: Identificador do Plano de Ação.
+      - name: num_transf
+        description: Número da transferência.
+      - name: tipo
+        description: Subcategoria detalhada do valor (ex: '2.1 Financeiro recebido', '3.3 Saldo financeiro').
+      - name: valor
+        description: Valor numérico associado ao tipo.
+      - name: categoria
+        description: Categoria principal para agrupamento no gráfico (ex: '2. Visão geral repasses financeiros', '3. Detalhe da execução financeira').
+      - name: dt_ingest
+        description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: categorias_execucao_orcamentaria_ted
+    description: >
+      Tabela que transforma o resumo orçamentário em categorias de execução orçamentária para utilização em gráficos de barras empilhadas.
+      Os dados são derivados do modelo `ted_resumo_orcamentario`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: plano_acao
+        description: Identificador do Plano de Ação.
+      - name: num_transf
+        description: Número da transferência.
+      - name: tipo
+        description: Subcategoria detalhada do valor (ex: '2.1 Empenhado (total-anulado)', '3.3 Saldo empenho').
+      - name: valor
+        description: Valor numérico associado ao tipo.
+      - name: categoria
+        description: Categoria principal para agrupamento no gráfico (ex: '2. Visão geral da exec. orçamentária', '3. Detalhe da exec. orçamentária').
+      - name: dt_ingest
+        description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: categorias_execucao_rap_ted
+    description: >
+      Tabela que transforma o resumo orçamentário em categorias de execução de Restos a Pagar (RAP) para utilização em gráficos de barras empilhadas.
+      Os dados são derivados do modelo `ted_resumo_orcamentario`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: plano_acao
+        description: Identificador do Plano de Ação.
+      - name: num_transf
+        description: Número da transferência.
+      - name: tipo
+        description: Subcategoria detalhada do valor (ex: '1.1 Restos a pagar inscritos', '2.2 Saldo RAP').
+      - name: valor
+        description: Valor numérico associado ao tipo.
+      - name: categoria
+        description: Categoria principal para agrupamento no gráfico (ex: '1. Restos a pagar inscritos', '2. Detalhe da exec. orçamentária - Restos a Pagar').
+      - name: dt_ingest
+        description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: resumo_do_programa_plano_acao
+    description: >
+      Tabela consolidada que une o resumo orçamentário (TED) com informações de vigência e programas (Transfere.Gov).
+      Calcula percentuais de conclusão baseados em datas (vigência) e em valores financeiros/orçamentários.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: plano_acao
+        description: Identificador do Plano de Ação.
+      - name: num_transf
+        description: Número da transferência.
+      - name: sigla_unidade_descentralizada
+        description: Sigla da unidade descentralizada.
+      - name: ted_beneficiario_emitente
+        description: Identifica se a unidade é beneficiária ou emitente.
+      - name: valor_firmado
+        description: Valor total pactuado no Plano de Ação.
+      - name: orcamento_recebido
+        description: Valor total do orçamento recebido.
+      - name: orcamento_devolvido
+        description: Valor total do orçamento devolvido.
+      - name: empenhado
+        description: Valor total empenhado.
+      - name: empenho_anulado
+        description: Valor total de empenhos anulados.
+      - name: despesas_pagas_exercicio
+        description: Valor das despesas pagas no exercício.
+      - name: despesas_pagas_rap
+        description: Valor das despesas pagas em Restos a Pagar.
+      - name: restos_a_pagar
+        description: Valor inscrito em Restos a Pagar.
+      - name: despesas_liquidada
+        description: Valor das despesas liquidadas.
+      - name: financeiro_recebido
+        description: Valor financeiro recebido.
+      - name: financeiro_devolvido
+        description: Valor financeiro devolvido.
+      - name: financeiro_cancelado
+        description: Valor financeiro cancelado.
+      - name: dt_ingest
+        description: Data de ingestão dos dados.
+      - name: objeto_plano_acao
+        description: Descrição do objeto do Plano de Ação.
+      - name: dt_inicio_vigencia
+        description: Data de início da vigência.
+      - name: dt_fim_vigencia
+        description: Data de fim da vigência.
+      - name: percentual_conclusao
+        description: Percentual de conclusão baseado na duração da vigência (data atual vs início/fim).
+      - name: programa
+        description: Identificador do programa.
+      - name: sigla_unidade_descentralizada_programa
+        description: Sigla da unidade descentralizada do programa.
+      - name: sigla_unidade_responsavel_acompanhamento
+        description: Sigla da unidade responsável pelo acompanhamento.
+      - name: nome_institucional_programa
+        description: Nome institucional do programa.
+      - name: percentual_conclusao_orcamentaria
+        description: Percentual de execução financeira ou orçamentária em relação ao valor firmado.
