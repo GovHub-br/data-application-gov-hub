@@ -76,7 +76,7 @@ models:
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
-    data_tests:
+    tests:
       - row_count_match:
           source_table: transferegov_emendas.programas_especiais
           target_table: emendas.programas
@@ -135,4 +135,635 @@ models:
       - verificacao_tipagem:
           nome_tabela: 'emendas.programas'
           nome_coluna: 'valor_disponibilidade_atual_programa'
+          tipo_esperado: 'numeric'
+
+  - name: planos_acoes
+    description: >
+      Tabela com informações sobre os planos de ação especiais relacionados a emendas parlamentares do TransfereGov.
+      Contém dados sobre beneficiários, dados bancários, emendas parlamentares, classificação orçamentária,
+      impedimentos e valores de custeio e investimento.
+      Os dados são extraídos da tabela planos_acao_especiais do TransfereGov Emendas, com formatação adequada
+      de valores numéricos.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_plano_acao
+        description: >
+          Identificador único do Plano de Ação (PA).
+      - name: codigo_plano_acao
+        description: >
+          Código do Programa concatenado com o ID do Plano de Ação.
+      - name: ano_plano_acao
+        description: >
+          Ano de criação do Plano de Ação.
+      - name: modalidade_plano_acao
+        description: >
+          Modalidade de Transferência do Plano de Ação.
+      - name: situacao_plano_acao
+        description: >
+          Situação do Plano de Ação.
+      - name: cnpj_beneficiario_plano_acao
+        description: >
+          CNPJ – Cadastro Nacional de Pessoa Jurídica do Beneficiário do Plano de Ação.
+      - name: nome_beneficiario_plano_acao
+        description: >
+          Nome do Beneficiário do Plano de Ação.
+      - name: uf_beneficiario_plano_acao
+        description: >
+          Sigla da Unidade de Federação do beneficiário.
+      - name: codigo_banco_plano_acao
+        description: >
+          Código do Banco do PA.
+      - name: codigo_situacao_dado_bancario_plano_acao
+        description: >
+          Código da Situação da Conta Corrente do PA.
+      - name: nome_banco_plano_acao
+        description: >
+          Nome do Banco do PA.
+      - name: numero_agencia_plano_acao
+        description: >
+          Número da Agência Bancária da Conta Corrente do PA.
+      - name: dv_agencia_plano_acao
+        description: >
+          Dígito Verificador da Agência Bancária da Conta Corrente do PA.
+      - name: numero_conta_plano_acao
+        description: >
+          Número da Conta Corrente do PA.
+      - name: dv_conta_plano_acao
+        description: >
+          Dígito Verificador da Conta Corrente do PA.
+      - name: nome_parlamentar_emenda_plano_acao
+        description: >
+          Nome do Parlamentar Autor da Emenda.
+      - name: ano_emenda_parlamentar_plano_acao
+        description: >
+          Ano da Emenda Parlamentar.
+      - name: codigo_parlamentar_emenda_plano_acao
+        description: >
+          Código do Parlamentar Autor da Emenda.
+      - name: sequencial_emenda_parlamentar_plano_acao
+        description: >
+          Sequencial da Emenda por Parlamentar no Ano.
+      - name: numero_emenda_parlamentar_plano_acao
+        description: >
+          Concatenação do Ano, Código e Sequencial do Parlamentar.
+      - name: codigo_emenda_parlamentar_formatado_plano_acao
+        description: >
+          Código Formatado da Emenda Parlamentar.
+      - name: codigo_descricao_areas_politicas_publicas_plano_acao
+        description: >
+          Concatenação dos Códigos e Descrições dos Tipos da Áreas das Políticas Públicas
+          com os Códigos e Descrições das Áreas das Políticas Públicas.
+      - name: descricao_programacao_orcamentaria_plano_acao
+        description: >
+          Concatenação das Programações Orçamentárias constantes da Lei Orçamentária do ente
+          beneficiado na qual o recurso será apropriado.
+      - name: motivo_impedimento_plano_acao
+        description: >
+          Motivo do Impedimento do Plano de Ação.
+      - name: valor_custeio_plano_acao
+        description: >
+          Valor Consolidado de Custeio das Emendas Parlamentares do Plano de Ação.
+      - name: valor_investimento_plano_acao
+        description: >
+          Valor Consolidado de Investimento das Emendas Parlamentares do Plano de Ação.
+      - name: id_programa
+        description: >
+          Identificador único do Programa associado ao Plano de Ação.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+      - row_count_match:
+          source_table: transferegov_emendas.planos_acao_especiais
+          target_table: emendas.planos_acoes
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_acoes'
+          nome_coluna: 'id_plano_acao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_acoes'
+          nome_coluna: 'ano_plano_acao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_acoes'
+          nome_coluna: 'codigo_situacao_dado_bancario_plano_acao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_acoes'
+          nome_coluna: 'numero_agencia_plano_acao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_acoes'
+          nome_coluna: 'numero_conta_plano_acao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_acoes'
+          nome_coluna: 'sequencial_emenda_parlamentar_plano_acao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_acoes'
+          nome_coluna: 'valor_custeio_plano_acao'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_acoes'
+          nome_coluna: 'valor_investimento_plano_acao'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_acoes'
+          nome_coluna: 'id_programa'
+          tipo_esperado: 'integer'
+
+  - name: empenhos_emendas
+    description: >
+      Tabela com informações sobre empenhos (Notas de Empenho) relacionados a emendas parlamentares do TransfereGov.
+      Contém dados sobre a execução orçamentária dos empenhos, incluindo valores, beneficiários,
+      classificação orçamentária e situação.
+      Os dados são extraídos da tabela empenhos_especiais do TransfereGov Emendas, com formatação adequada
+      de valores numéricos e datas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_empenho
+        description: >
+          Identificador único da Nota de Empenho (NE).
+      - name: id_minuta_empenho
+        description: >
+          Número da Minuta gerado para Nota de Empenho, utiliza o Número Interno e Ano de Emissão.
+      - name: numero_empenho
+        description: >
+          Número da Nota de Empenho gerada e enviada pelo SIAFI (Sistema Integrado de Administração Financeira).
+      - name: situacao_empenho
+        description: >
+          Código da situação da Nota de Empenho.
+      - name: descricao_situacao_empenho
+        description: >
+          Descrição da situação da Nota de Empenho.
+      - name: tipo_documento_empenho
+        description: >
+          Código do tipo da Nota de Empenho.
+      - name: descricao_tipo_documento_empenho
+        description: >
+          Descrição do tipo da Nota de Empenho.
+      - name: status_processamento_empenho
+        description: >
+          Indica o status do processamento em lote da Nota de Empenho.
+      - name: ug_responsavel_empenho
+        description: >
+          Código da Unidade Gestora Responsável da Nota de Empenho.
+      - name: ug_emitente_empenho
+        description: >
+          Código da Unidade Gestora Emitente da Nota de Empenho.
+      - name: descricao_ug_emitente_empenho
+        description: >
+          Nome da Unidade Gestora Emitente da Nota de Empenho.
+      - name: fonte_recurso_empenho
+        description: >
+          Fonte de Recurso da Nota de Empenho no SIAFI (Sistema Integrado de Administração Financeira).
+      - name: plano_interno_empenho
+        description: >
+          Instrumento de planejamento e de acompanhamento da ação planejada, usado como forma de detalhamento desta,
+          de uso exclusivo de cada Ministério/órgão. Código com até 11 posições alfa-numéricas.
+      - name: ptres_empenho
+        description: >
+          Número do Programa de Trabalho Resumido.
+      - name: grupo_natureza_despesa_empenho
+        description: >
+          Primeiro dígito do Código da Natureza de Despesa no SIAFI.
+      - name: natureza_despesa_empenho
+        description: >
+          Código da Natureza de Despesa no SIAFI (Sistema Integrado de Administração Financeira).
+      - name: subitem_empenho
+        description: >
+          Valor do Sub-item da Natureza de Despesa no SIAFI (Sistema Integrado de Administração Financeira).
+      - name: categoria_despesa_empenho
+        description: >
+          Código da Categoria de Despesa associada à Nota de Empenho.
+      - name: modalidade_despesa_empenho
+        description: >
+          Código da Modalidade de Despesa.
+      - name: cnpj_beneficiario_empenho
+        description: >
+          CNPJ do beneficiário da Nota de Empenho.
+      - name: nome_beneficiario_empenho
+        description: >
+          Nome do beneficiário da Nota de Empenho.
+      - name: uf_beneficiario_empenho
+        description: >
+          Sigla da Unidade da Federação do beneficiário.
+      - name: numero_ro_empenho
+        description: >
+          Número da lista gerado e enviado pelo SIAFI (Sistema Integrado de Administração Financeira).
+      - name: data_emissao_empenho
+        description: >
+          Data de envio ao SIAFI (Sistema Integrado de Administração Financeira), convertida para formato de data padrão.
+      - name: prioridade_desbloqueio_empenho
+        description: >
+          Indicador de prioridade no desbloqueio de recursos.
+      - name: valor_empenho
+        description: >
+          Valor total da Nota de Empenho, formatado como numérico.
+      - name: id_plano_acao
+        description: >
+          Identificador único do Plano de Ação (PA) relacionado ao empenho.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+      - row_count_match:
+          source_table: transferegov_emendas.empenhos_especiais
+          target_table: emendas.empenhos_emendas
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'id_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'situacao_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'tipo_documento_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'ug_responsavel_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'ug_emitente_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'ptres_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'modalidade_despesa_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'data_emissao_empenho'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'prioridade_desbloqueio_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'valor_empenho'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.empenhos_emendas'
+          nome_coluna: 'id_plano_acao'
+          tipo_esperado: 'integer'
+
+  - name: ordens_bancarias
+    description: >
+      Tabela com informações sobre ordens de pagamento e ordens bancárias relacionadas a emendas parlamentares
+      do TransfereGov. Contém dados sobre a emissão, situação e assinaturas das ordens de pagamento e bancárias,
+      incluindo vinculação ao SIAFI e referência ao documento hábil de origem.
+      Os dados são extraídos da tabela ordem_pagamento_ordem_bancaria_especial do TransfereGov Emendas,
+      com formatação adequada de datas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_op_ob
+        description: >
+          Identificador único da Operação de Ordem Bancária.
+      - name: data_emissao_op
+        description: >
+          Data da emissão da Ordem de Pagamento.
+      - name: numero_ordem_pagamento
+        description: >
+          Número da Ordem de Pagamento, no formato AAAAOPNNNNNN (ex: "2020OP146800").
+      - name: vinculacao_op
+        description: >
+          Código da vinculação da Ordem de Pagamento no SIAFI (Padrão: 405).
+      - name: situacao_op
+        description: >
+          Código da situação da Ordem de Pagamento/Bancária.
+      - name: descricao_situacao_op
+        description: >
+          Descrição da situação da Ordem de Pagamento/Bancária.
+      - name: data_situacao_op
+        description: >
+          Data da situação da Ordem de Pagamento/Bancária.
+      - name: data_emissao_ob
+        description: >
+          Data da emissão da Ordem Bancária no SIAFI.
+      - name: numero_ordem_bancaria
+        description: >
+          Número da Ordem Bancária, no formato AAAAOBNNNNNN (ex: "2020OB146800").
+      - name: numero_ordem_lancamento
+        description: >
+          Número da Nota de Lançamento no sistema, no formato AAAANSNNNNNN (ex: "2020NS146800").
+      - name: data_assinatura_ordenador_despesa_ob
+        description: >
+          Data de assinatura do Ordenador de Despesa.
+      - name: data_assinatura_gestor_financeiro_ob
+        description: >
+          Data de assinatura do Gestor Financeiro.
+      - name: id_dh
+        description: >
+          Identificador único do Documento Hábil (DH) vinculado à ordem bancária.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+      - row_count_match:
+          source_table: transferegov_emendas.ordens_bancarias_especiais
+          target_table: emendas.ordens_bancarias
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.ordens_bancarias'
+          nome_coluna: 'id_op_ob'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.ordens_bancarias'
+          nome_coluna: 'data_emissao_op'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.ordens_bancarias'
+          nome_coluna: 'vinculacao_op'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.ordens_bancarias'
+          nome_coluna: 'situacao_op'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.ordens_bancarias'
+          nome_coluna: 'data_situacao_op'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.ordens_bancarias'
+          nome_coluna: 'data_emissao_ob'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.ordens_bancarias'
+          nome_coluna: 'data_assinatura_ordenador_despesa_ob'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.ordens_bancarias'
+          nome_coluna: 'data_assinatura_gestor_financeiro_ob'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.ordens_bancarias'
+          nome_coluna: 'id_dh'
+          tipo_esperado: 'integer'
+
+  - name: historico_pagamentos
+    description: >
+      Tabela com informações sobre o histórico de eventos das ordens de pagamento relacionadas a emendas
+      parlamentares do TransfereGov. Contém dados sobre os eventos (situações) ocorridos ao longo do ciclo
+      de vida de cada ordem de pagamento, incluindo data/hora da ocorrência e descrição do evento.
+      Os dados são extraídos da tabela historico_pagamento_especial do TransfereGov Emendas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_historico_op_ob
+        description: >
+          Identificador único do registro de histórico da ordem de pagamento/bancária.
+      - name: data_hora_historico_op
+        description: >
+          Data e hora da inserção ou atualização do registro, conforme hora do sistema.
+      - name: historico_situacao_op
+        description: >
+          Código do evento da Ordem de Pagamento.
+      - name: descricao_historico_situacao_op
+        description: >
+          Descrição do evento da Ordem de Pagamento.
+      - name: id_op_ob
+        description: >
+          Identificador único da Operação de Ordem Bancária associada ao histórico.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+      - row_count_match:
+          source_table: transferegov_emendas.historico_pagamentos_especiais
+          target_table: emendas.historico_pagamentos
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.historico_pagamentos'
+          nome_coluna: 'id_historico_op_ob'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.historico_pagamentos'
+          nome_coluna: 'data_hora_historico_op'
+          tipo_esperado: 'timestamp without time zone'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.historico_pagamentos'
+          nome_coluna: 'historico_situacao_op'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.historico_pagamentos'
+          nome_coluna: 'id_op_ob'
+          tipo_esperado: 'integer'
+
+  - name: planos_trabalho_especial
+    description: >
+      Tabela com informações sobre os planos de trabalho especiais relacionados a emendas parlamentares
+      do TransfereGov. Contém dados sobre o planejamento de execução, incluindo situação, prazos,
+      indicadores de orçamento próprio, classificação orçamentária e justificativas de prorrogação.
+      Os dados são extraídos da tabela plano_trabalho_especial do TransfereGov Emendas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_plano_trabalho
+        description: >
+          Identificador único do Planejamento.
+      - name: situacao_plano_trabalho
+        description: >
+          Identificador da situação do Planejamento.
+      - name: ind_orcamento_proprio_plano_trabalho
+        description: >
+          Indicador de que os recursos do Plano de Ação foram indicados no orçamento próprio do Beneficiário.
+      - name: data_inicio_execucao_plano_trabalho
+        description: >
+          Data de início da execução do Plano de Trabalho Especial.
+      - name: data_fim_execucao_plano_trabalho
+        description: >
+          Data prevista para o fim da execução do Plano de Trabalho Especial com base no prazo de execução.
+      - name: prazo_execucao_meses_plano_trabalho
+        description: >
+          Prazo de execução em meses.
+      - name: id_plano_acao
+        description: >
+          Identificador do Plano de Ação da Proposta.
+      - name: classificacao_orcamentaria_pt
+        description: >
+          Texto com classificação orçamentária da despesa informado quando indicado no orçamento próprio.
+      - name: ind_justificativa_prorrogacao_atraso_pt
+        description: >
+          Indica atraso na liberação dos recursos.
+      - name: ind_justificativa_prorrogacao_paralizacao_pt
+        description: >
+          Indica paralização da execução do objeto.
+      - name: justificativa_prorrogacao_pt
+        description: >
+          Detalhamento da justificativa da prorrogação de prazo.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+      - row_count_match:
+          source_table: transferegov_emendas.plano_trabalho_especial
+          target_table: emendas.planos_trabalho_especial
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_trabalho_especial'
+          nome_coluna: 'id_plano_trabalho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_trabalho_especial'
+          nome_coluna: 'data_inicio_execucao_plano_trabalho'
+          tipo_esperado: 'timestamp without time zone'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_trabalho_especial'
+          nome_coluna: 'data_fim_execucao_plano_trabalho'
+          tipo_esperado: 'timestamp without time zone'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_trabalho_especial'
+          nome_coluna: 'prazo_execucao_meses_plano_trabalho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.planos_trabalho_especial'
+          nome_coluna: 'id_plano_acao'
+          tipo_esperado: 'integer'
+
+  - name: documentos_habeis
+    description: >
+      Tabela com informações sobre documentos hábeis relacionados a emendas parlamentares do TransfereGov.
+      Contém dados sobre a emissão, situação, unidades gestoras envolvidas, valores e referências
+      orçamentárias dos documentos hábeis vinculados aos empenhos.
+      Os dados são extraídos da tabela documentos_habeis_especiais do TransfereGov Emendas,
+      com formatação adequada de valores numéricos e datas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_dh
+        description: >
+          Identificador único do Documento Hábil (DH).
+      - name: id_empenho
+        description: >
+          Identificador único da Nota de Empenho (NE) vinculada ao documento hábil.
+      - name: numero_documento_habil
+        description: >
+          Número do DH no formato YYYYTTNNNNNN (ex: "2020TF000001").
+      - name: situacao_dh
+        description: >
+          Código da situação do Documento Hábil.
+      - name: descricao_situacao_dh
+        description: >
+          Descrição da situação do Documento Hábil.
+      - name: tipo_documento_dh
+        description: >
+          Código do tipo do Documento Hábil.
+      - name: ug_emitente_dh
+        description: >
+          Código da Unidade Gestora Emitente do Documento Hábil.
+      - name: descricao_ug_emitente_dh
+        description: >
+          Nome da Unidade Gestora Emitente do Documento Hábil.
+      - name: data_vencimento_dh
+        description: >
+          Data de vencimento do Documento Hábil.
+      - name: data_emissao_dh
+        description: >
+          Data de emissão do Documento Hábil.
+      - name: ug_pagadora_dh
+        description: >
+          Código da Unidade de Gestão Pagadora do Documento Hábil.
+      - name: descricao_ug_pagadora_dh
+        description: >
+          Nome da Unidade de Gestão Pagadora do Documento Hábil.
+      - name: variacao_patrimonial_diminuta_dh
+        description: >
+          Variação Patrimonial Diminutiva.
+      - name: passivo_transferencia_constitucional_legal_dh
+        description: >
+          Passivo de Transferência Legal ou Constitucional.
+      - name: centro_custo_empenho
+        description: >
+          Código do Centro de Custo.
+      - name: codigo_siorg_empenho
+        description: >
+          Código SIORG do Centro de Custo.
+      - name: mes_referencia_empenho
+        description: >
+          Mês de referência do Centro de Custo.
+      - name: ano_referencia_empenho
+        description: >
+          Ano de referência do Centro de Custo.
+      - name: ug_beneficiada_dh
+        description: >
+          Código da Unidade Gestora Beneficiada do Documento Hábil.
+      - name: descricao_ug_beneficiada_dh
+        description: >
+          Nome da Unidade Gestora Beneficiada do Documento Hábil.
+      - name: valor_dh
+        description: >
+          Valor do Documento Hábil. Se a Disponibilidade Financeira for menor que o valor do Empenho,
+          mais de um Documento Hábil pode ser criado.
+      - name: valor_rateio_dh
+        description: >
+          Valor do Rateio.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+      - row_count_match:
+          source_table: transferegov_emendas.documentos_habeis_especiais
+          target_table: emendas.documentos_habeis
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'id_dh'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'id_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'situacao_dh'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'ug_emitente_dh'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'data_vencimento_dh'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'data_emissao_dh'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'ug_pagadora_dh'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'codigo_siorg_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'ano_referencia_empenho'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'ug_beneficiada_dh'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'valor_dh'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.documentos_habeis'
+          nome_coluna: 'valor_rateio_dh'
           tipo_esperado: 'numeric'
