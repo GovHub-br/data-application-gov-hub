@@ -59,6 +59,11 @@ sources:
       - name: historico_pagamentos_especiais
       - name: plano_trabalho_especial
       - name: documentos_habeis_especiais
+      - name: relatorio_gestao_especial
+      - name: relatorios_gestao_novo_especial
+      - name: executor_especial
+      - name: metas_especiais
+      - name: finalidades_especiais
 
   - name: dados_abertos
     schema: camara_deputados

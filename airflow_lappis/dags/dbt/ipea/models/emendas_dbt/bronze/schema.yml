@@ -767,3 +767,279 @@ models:
           nome_tabela: 'emendas.documentos_habeis'
           nome_coluna: 'valor_rateio_dh'
           tipo_esperado: 'numeric'
+
+  - name: relatorio_gestao
+    description: >
+      Tabela que armazena a situação e o parecer final do Relatório de Gestão 
+      vinculado ao Plano de Ação das emendas especiais.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_relatorio_gestao
+        description: "Identificador Único do Relatorio de Gestão."
+      - name: situacao_relatorio_gestao
+        description: "Situação do Relatório de Gestão"
+      - name: parecer_relatorio_gestao
+        description: "Parecer do Relatório de Gestão"
+      - name: id_plano_acao
+        description: "Identificador Único do Plano de Ação (PA)."
+    data_tests:
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.relatorio_gestao'
+          nome_coluna: 'id_relatorio_gestao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.relatorio_gestao'
+          nome_coluna: 'id_plano_acao'
+          tipo_esperado: 'integer'
+
+  - name: relatorio_gestao_novo
+    description: >
+      Tabela que armazena os registros do Novo Relatório de Gestão das Emendas Especiais. 
+      Contém o detalhamento da execução financeira por Plano de Ação, incluindo valores 
+      executados, pendentes e o status de tramitação do relatório.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_relatorio_gestao_novo
+        description: "Identificador único do registro do novo relatório de gestão."
+      - name: data_e_hora_relatorio_gestao_novo
+        description: "Timestamp do momento do registro ou última atualização do relatório."
+      - name: tipo_relatorio_gestao_novo
+        description: "Classificação do tipo de relatório enviado pelo executor."
+      - name: valor_executado_relatorio_gestao_novo
+        description: "Montante financeiro total que já foi executado e declarado."
+      - name: valor_pendente_relatorio_gestao_novo
+        description: "Montante financeiro que ainda aguarda execução ou comprovação."
+      - name: situacao_relatorio_gestao_novo
+        description: "Status atual do relatório (ex: Em preenchimento, Enviado, Homologado)."
+      - name: id_plano_acao
+        description: "Chave estrangeira que vincula o relatório ao Plano de Ação correspondente."
+      - name: dt_ingest
+        description: "Data e hora da ingestão dos dados na camada bronze (UTC-3)."
+    data_tests:
+      - row_count_match:
+          source_table: transferegov_emendas.relatorio_gestao_novo_especial
+          target_table: emendas.relatorio_gestao_novo
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.relatorio_gestao_novo'
+          nome_coluna: 'id_relatorio_gestao_novo'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.relatorio_gestao_novo'
+          nome_coluna: 'data_e_hora_relatorio_gestao_novo'
+          tipo_esperado: 'timestamp without time zone'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.relatorio_gestao_novo'
+          nome_coluna: 'valor_executado_relatorio_gestao_novo'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.relatorio_gestao_novo'
+          nome_coluna: 'valor_pendente_relatorio_gestao_novo'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.relatorio_gestao_novo'
+          nome_coluna: 'id_plano_acao'
+          tipo_esperado: 'integer'
+
+  - name: executor_especial
+    description: >
+      Tabela com informações detalhadas sobre os executores dos planos de ação das emendas.
+      Contém dados cadastrais do executor, detalhes do objeto da execução, valores financeiros de custeio 
+      e investimento, além de informações bancárias para a gestão dos recursos.
+      Os dados são oriundos da API 'executor_especial' do Transferegov.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_plano_acao
+        description: "Identificador único do Plano de Ação da Proposta."
+      - name: id_executor
+        description: "Identificador Único do Executor do Planejamento."
+      - name: cnpj_executor
+        description: "CNPJ do ente ou entidade executora."
+      - name: nome_executor
+        description: "Nome do Executor."
+      - name: objeto_executor
+        description: "Texto detalhado informando o Objeto da Execução."
+      - name: valor_custeio_executor
+        description: "Valor de Custeio do objeto a ser atendido pelo executor."
+      - name: valor_investimento_executor
+        description: "Valor de Investimento do objeto a ser atendido pelo executor."
+      - name: ind_recursos_gerenciados_conta_especifica_executor
+        description: "Indica se os recursos serão gerenciados por conta específica do executor."
+      - name: codigo_banco_executor
+        description: "Código da instituição bancária do Executor."
+      - name: nome_banco_executor
+        description: "Nome do Banco do Executor."
+      - name: numero_agencia_executor
+        description: "Número da Agência Bancária do Executor."
+      - name: dv_agencia_executor
+        description: "Dígito Verificador da Agência Bancária."
+      - name: nome_agencia_executor
+        description: "Nome da Agência Bancária do Executor."
+      - name: numero_conta_executor
+        description: "Número da Conta Bancária do Executor."
+      - name: dv_conta_executor
+        description: "Dígito Verificador da Conta Bancária."
+      - name: codigo_situacao_dado_bancario_executor
+        description: "Código da Situação da Conta Bancária"
+      - name: descricao_situacao_dado_bancario_executor
+        description: "Descrição textual da situação da conta bancária."
+      - name: dt_ingest
+        description: "Data e hora (UTC-3 Brasília) da ingestão dos dados para a camada bronze."
+
+    data_tests:
+      - row_count_match:
+          source_table: transferegov_emendas.executor_especial
+          target_table: emendas.executor
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.executor_especial'
+          nome_coluna: 'id_plano_acao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.executor_especial'
+          nome_coluna: 'id_executor'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.executor_especial'
+          nome_coluna: 'valor_custeio_executor'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.executor_especial'
+          nome_coluna: 'valor_investimento_executor'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.executor_especial'
+          nome_coluna: 'numero_agencia_executor'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.executor_especial'
+          nome_coluna: 'numero_conta_executor'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.executor_especial'
+          nome_coluna: 'codigo_situacao_dado_bancario_executor'
+          tipo_esperado: 'integer'
+          
+  - name: meta_especial
+    description: >
+      Tabela que detalha as metas físicas e financeiras estabelecidas por cada executor. 
+      Contém o planejamento de execução, discriminando valores de emendas, recursos próprios, 
+      rendimentos e doações, além da quantidade física e o tempo estimado (meses) para a meta.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_executor
+        description: "Identificador Único do Executor do Planejamento."
+      - name: id_meta
+        description: "Identificação Única da Meta do Executor."
+      - name: sequencial_meta
+        description: "Sequencial numérico usado para ordenação das metas."
+      - name: nome_meta
+        description: "Nome ou título resumido da meta."
+      - name: desc_meta
+        description: "Descrição detalhada do que será realizado na meta."
+      - name: un_medida_meta
+        description: "Unidade de medida da meta."
+      - name: qt_uniade_meta
+        description: "Valor de custeio de Emenda Especial."
+      - name: valor_custeio_emenda_especial_meta
+        description: "Valor de Investimento de Emenda Especial."
+      - name: valor_investimento_emenda_especial_meta
+        description: "Valor de Custeio de Recursos Proprios."
+      - name: valor_custeio_recursos_proprios_meta
+        description: "Valor de Investimento de Recursos Proprios."
+      - name: valor_investimento_recursos_proprios_meta
+        description: "Valor de investimento aportado como recursos próprios."
+      - name: valor_custeio_rendimento_meta
+        description: "Valor de Custeio de Rendimentos."
+      - name: valor_investimento_rendimento_meta
+        description: "Valor de investimento originado de rendimentos."
+      - name: valor_custeio_doacao_meta
+        description: "Valor de custeio proveniente de doações."
+      - name: valor_investimento_doacao_meta
+        description: "Valor de investimento proveniente de doações."
+      - name: qt_meses_meta
+        description: "Quantidade de meses prevista para a execução da meta."
+      - name: dt_ingest
+        description: "Data e hora (UTC-3 Brasília) da ingestão dos dados para a camada bronze."
+
+    data_tests:
+      - row_count_match:
+          source_table: transferegov_emendas.meta_especial
+          target_table: emendas.metas
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.meta_especial'
+          nome_coluna: 'id_executor'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.meta_especial'
+          nome_coluna: 'id_meta'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.meta_especial'
+          nome_coluna: 'qt_uniade_meta'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.meta_especial'
+          nome_coluna: 'valor_custeio_emenda_especial_meta'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.meta_especial'
+          nome_coluna: 'valor_investimento_emenda_especial_meta'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.meta_especial'
+          nome_coluna: 'valor_custeio_recursos_proprios_meta'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.meta_especial'
+          nome_coluna: 'valor_investimento_recursos_proprios_meta'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.meta_especial'
+          nome_coluna: 'qt_meses_meta'
+          tipo_esperado: 'integer'
+
+  - name: finalidade_especial
+    description: >
+      Tabela que detalha as finalidades das emendas especiais, vinculando cada executor às áreas 
+      de políticas públicas beneficiadas. Permite identificar em quais setores (Saúde, Educação, etc.) 
+      o recurso está sendo aplicado conforme a classificação do Transferegov.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_executor
+        description: "Identificador Único do Executor do Planejamento (Chave de ligação com a tabela de executores)."
+      - name: cd_area_politica_publica_tipo_pt
+        description: "Código numérico que identifica o tipo da área de política pública."
+      - name: area_politica_publica_tipo_pt
+        description: "Nome descritivo do tipo da área de política pública."
+      - name: cd_area_politica_publica_pt
+        description: "Código da área específica de política pública (subdivisão do tipo)."
+      - name: area_politica_publica_pt
+        description: "Nome descritivo da área específica de política pública."
+      - name: dt_ingest
+        description: "Data e hora (UTC-3 Brasília) da ingestão dos dados para a camada bronze."
+
+    data_tests:
+      - row_count_match:
+          source_table: transferegov_emendas.finalidade_especial
+          target_table: emendas.finalidades
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.finalidade_especial'
+          nome_coluna: 'id_executor'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.finalidade_especial'
+          nome_coluna: 'cd_area_politica_publica_tipo_pt'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.finalidade_especial'
+          nome_coluna: 'cd_area_politica_publica_pt'
+          tipo_esperado: 'integer'
