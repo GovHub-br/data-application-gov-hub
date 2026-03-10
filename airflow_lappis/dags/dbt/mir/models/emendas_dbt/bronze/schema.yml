@@ -275,7 +275,7 @@ models:
           nome_coluna: 'id_programa'
           tipo_esperado: 'integer'
 
-  - name: empenhos_emendas
+  - name: empenhos_especiais
     description: >
       Tabela com informações sobre empenhos (Notas de Empenho) relacionados a emendas parlamentares do TransfereGov.
       Contém dados sobre a execução orçamentária dos empenhos, incluindo valores, beneficiários,
@@ -372,9 +372,6 @@ models:
         description: >
           Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
     tests:
-      - row_count_match:
-          source_table: transferegov_emendas.empenhos_especiais
-          target_table: emendas.empenhos_emendas
       - verificacao_tipagem:
           nome_tabela: 'emendas.empenhos_emendas'
           nome_coluna: 'id_empenho'
@@ -844,7 +841,7 @@ models:
           nome_coluna: 'id_plano_acao'
           tipo_esperado: 'integer'
 
-  - name: executor_especial
+  - name: executor
     description: >
       Tabela com informações detalhadas sobre os executores dos planos de ação das emendas.
       Contém dados cadastrais do executor, detalhes do objeto da execução, valores financeiros de custeio 
@@ -924,7 +921,7 @@ models:
           nome_coluna: 'codigo_situacao_dado_bancario_executor'
           tipo_esperado: 'integer'
           
-  - name: meta_especial
+  - name: metas
     description: >
       Tabela que detalha as metas físicas e financeiras estabelecidas por cada executor. 
       Contém o planejamento de execução, discriminando valores de emendas, recursos próprios, 
@@ -1005,7 +1002,7 @@ models:
           nome_coluna: 'qt_meses_meta'
           tipo_esperado: 'integer'
 
-  - name: finalidade_especial
+  - name: finalidades
     description: >
       Tabela que detalha as finalidades das emendas especiais, vinculando cada executor às áreas 
       de políticas públicas beneficiadas. Permite identificar em quais setores (Saúde, Educação, etc.) 

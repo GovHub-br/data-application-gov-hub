@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  - name: transferegov_emendas
+    schema: transferegov_emendas
+    tables:
+      - name: programas_especiais
+      - name: planos_acao_especiais
+      - name: empenhos_especiais
+      - name: ordens_bancarias_especiais
+      - name: historico_pagamentos_especiais
+      - name: plano_trabalho_especial
+      - name: documentos_habeis_especiais
+      - name: relatorio_gestao_especial
+      - name: relatorios_gestao_novo_especial
+      - name: executor_especial
+      - name: metas_especiais
+      - name: finalidades_especiais
+
+  - name: dados_abertos
+    schema: camara_deputados
+    tables: 
+      - name: deputados
+
+  - name: senado_federal
+    schema: senado_federal
+    tables:
+      - name: senadores

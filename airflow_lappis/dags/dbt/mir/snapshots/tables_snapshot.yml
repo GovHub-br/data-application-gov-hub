@@ -1,0 +1,36 @@
+snapshots:
+  - name: contratos_snapshot
+    relation: ref('contratos')
+    config:
+      schema: snapshots
+      database: analytics
+      unique_key: id
+      strategy: check
+      check_cols: [situacao, num_parcelas, valor_parcela, valor_global, valor_acumulado]
+      
+  - name: faturas_snapshot
+    relation: ref('faturas')
+    config:
+      schema: snapshots
+      database: analytics
+      unique_key: [id, id_empenho]
+      strategy: check
+      check_cols: [situacao, valor, juros, multa, glosa]
+
+  - name: empenhos_snapshot
+    relation: ref('empenhos')
+    config:
+      schema: snapshots
+      database: analytics
+      unique_key: [id, contrato_id]
+      strategy: check
+      check_cols: [empenhado, aliquidar, liquidado, pago, rpinscrito, rpaliquidar, rpliquidado, rppago]
+
+  - name: cronogramas_snapshot
+    relation: ref('cronogramas')
+    config:
+      schema: snapshots
+      database: analytics
+      unique_key: id
+      strategy: check
+      check_cols: [valor, retroativo, observacao]

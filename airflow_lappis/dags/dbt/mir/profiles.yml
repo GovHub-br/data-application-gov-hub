@@ -1,0 +1,11 @@
+mir:
+  target: prod
+  outputs:
+    prod:
+      type: postgres
+      host: "{{ env_var('DB_DW_HOST_MIR', 'postgres') }}"
+      user: "{{ env_var('DB_DW_USER_MIR', 'postgres_dw') }}"
+      password: "{{ env_var('DB_DW_PASSWORD_MIR', 'postgres_dw') }}"
+      port: "{{ env_var('DB_DW_PORT_MIR', '5432') | int }}"
+      dbname: "{{ env_var('DB_DW_DBNAME_MIR', 'data_warehouse') }}"
+      schema: "{{ env_var('DB_DW_SCHEMA_MIR', 'mir') }}"

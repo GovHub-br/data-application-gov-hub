@@ -1,0 +1,38 @@
+name: 'mir'
+
+version: 1.0.0
+config-version: 2
+
+profile: mir
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+  - "logs"
+
+models:
+  mir: 
+    +database: analytics
+    metadata:
+      +materialized: incremental
+      +schema: metadata
+    emendas_dbt:
+      +materialized: table
+      +schema: emendas
+    deputados_dbt:
+     +materialized: table
+     +schema: deputados
+    senadores_dbt:
+     +materialized: table
+     +schema: senadores
+
+
+on-run-start:
+  - '{{create_udfs()}}'
