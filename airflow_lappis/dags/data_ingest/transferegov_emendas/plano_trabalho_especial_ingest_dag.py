@@ -16,7 +16,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["transfere_gov_api", "plano_trabalho"],
+    tags=["transfere_gov_api", "plano_trabalho", "MIR"],
 )
 def api_plano_trabalho_especial_dag() -> None:
     """DAG para buscar e armazenar planos de trabalho especiais do Transfere Gov."""
@@ -29,7 +29,7 @@ def api_plano_trabalho_especial_dag() -> None:
         )
 
         api = ClienteTransfereGov()
-        postgres_conn_str = get_postgres_conn()
+        postgres_conn_str = get_postgres_conn("postgres_mir")
         db = ClientPostgresDB(postgres_conn_str)
 
         plano_data = api.get_all_plano_trabalho_especial(page_size=1000)

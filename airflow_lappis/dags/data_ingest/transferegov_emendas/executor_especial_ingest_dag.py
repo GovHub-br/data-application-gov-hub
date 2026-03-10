@@ -27,7 +27,7 @@ def chunk_list(lst: list, size: int) -> Iterator[list]:
         "retries": 0,
         # "retry_delay": timedelta(minutes=5),
     },
-    tags=["transfere_gov_api", "planos_acao_especiais"],
+    tags=["transfere_gov_api", "planos_acao_especiais", "MIR"],
 )
 def api_executor_especial_dag() -> None:
 
@@ -39,7 +39,7 @@ def api_executor_especial_dag() -> None:
         """
         logging.info("[executor_especial] Buscando planos de ação...")
 
-        db = ClientPostgresDB(get_postgres_conn())
+        db = ClientPostgresDB(get_postgres_conn("postgres_mir"))
 
         query = """
             SELECT DISTINCT id_plano_acao
@@ -69,7 +69,7 @@ def api_executor_especial_dag() -> None:
         - Insere no Postgres com UPSERT
         """
         api = ClienteTransfereGov()
-        db = ClientPostgresDB(get_postgres_conn())
+        db = ClientPostgresDB(get_postgres_conn("postgres_mir"))
 
         timestamp = datetime.now().isoformat()
         all_executores = []

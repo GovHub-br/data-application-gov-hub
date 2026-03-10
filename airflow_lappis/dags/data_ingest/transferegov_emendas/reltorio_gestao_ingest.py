@@ -65,7 +65,7 @@ def _remove_duplicates(all_relatorios: list) -> list:
         "retries": 0,
         # "retry_delay": timedelta(minutes=5),
     },
-    tags=["transfere_gov_api", "relatorio_gestao_especial"],
+    tags=["transfere_gov_api", "relatorio_gestao_especial", "MIR"],
 )
 def api_relatorio_gestao_especial_dag() -> None:
 
@@ -77,7 +77,7 @@ def api_relatorio_gestao_especial_dag() -> None:
         """
         logging.info("[relatorio_gestao] Configurando tabela...")
 
-        db = ClientPostgresDB(get_postgres_conn())
+        db = ClientPostgresDB(get_postgres_conn("postgres_mir"))
 
         # Remove a tabela antiga se existir (para garantir estrutura correta)
         db.drop_table_if_exists(
@@ -111,7 +111,7 @@ def api_relatorio_gestao_especial_dag() -> None:
         """
         logging.info("[relatorio_gestao] Buscando planos de ação...")
 
-        db = ClientPostgresDB(get_postgres_conn())
+        db = ClientPostgresDB(get_postgres_conn("postgres_mir"))
 
         # Mantive a mesma query da DAG anterior, pois o filtro é por plano de ação
         query = """
@@ -141,7 +141,7 @@ def api_relatorio_gestao_especial_dag() -> None:
         - Insere no Postgres com UPSERT
         """
         api = ClienteTransfereGov()
-        db = ClientPostgresDB(get_postgres_conn())
+        db = ClientPostgresDB(get_postgres_conn("postgres_mir"))
 
         timestamp = datetime.now().isoformat()
         all_relatorios = []

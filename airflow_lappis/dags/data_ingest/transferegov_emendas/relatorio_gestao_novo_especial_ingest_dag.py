@@ -16,7 +16,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["transfere_gov_api", "relatorio_gestao_novo_especial"],
+    tags=["transfere_gov_api", "relatorio_gestao_novo_especial", "MIR"],
 )
 def api_relatorio_gestao_novo_especial_dag() -> None:
     """DAG para buscar e armazenar relatórios de gestão novo especial do Transfere Gov"""
@@ -29,7 +29,7 @@ def api_relatorio_gestao_novo_especial_dag() -> None:
         )
 
         api = ClienteTransfereGov()
-        postgres_conn_str = get_postgres_conn()
+        postgres_conn_str = get_postgres_conn("postgres_mir")
         db = ClientPostgresDB(postgres_conn_str)
 
         # Busca todos os relatórios de gestão novo especial com paginação automática

@@ -16,7 +16,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["transfere_gov_api", "finalidade_especial"],
+    tags=["transfere_gov_api", "finalidade_especial", "MIR"],
 )
 def api_finalidade_especial_dag() -> None:
     """DAG para buscar e armazenar finalidades especiais do Transfere Gov."""
@@ -28,7 +28,7 @@ def api_finalidade_especial_dag() -> None:
         )
 
         api = ClienteTransfereGov()
-        postgres_conn_str = get_postgres_conn()
+        postgres_conn_str = get_postgres_conn('postgres_mir')
         db = ClientPostgresDB(postgres_conn_str)
 
         # Busca todas as finalidades especiais com paginação automática

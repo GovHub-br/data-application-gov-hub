@@ -16,7 +16,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["transfere_gov_api", "programas_especiais"],
+    tags=["transfere_gov_api", "programas_especiais", "MIR"],
 )
 def api_programas_especiais_dag() -> None:
     """DAG para buscar e armazenar programas especiais do Transfere Gov."""
@@ -28,7 +28,7 @@ def api_programas_especiais_dag() -> None:
         )
 
         api = ClienteTransfereGov()
-        postgres_conn_str = get_postgres_conn()
+        postgres_conn_str = get_postgres_conn("postgres_mir")
         db = ClientPostgresDB(postgres_conn_str)
 
         # Busca todos os programas especiais com paginação automática

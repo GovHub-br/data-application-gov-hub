@@ -16,7 +16,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["transfere_gov_api", "empenhos_especiais"],
+    tags=["transfere_gov_api", "empenhos_especiais", "MIR"],
 )
 def api_empenhos_especiais_dag() -> None:
     """DAG para buscar e armazenar empenhos especiais do Transfere Gov."""
@@ -24,12 +24,11 @@ def api_empenhos_especiais_dag() -> None:
     @task
     def fetch_and_store_empenhos_especiais() -> None:
         logging.info(
-            "[empenhos_especiais_ingest_dag.py] Iniciando extração de "
-            "empenhos especiais"
+            "[empenhos_especiais_ingest_dag.py] Iniciando extração de empenhos especiais"
         )
 
         api = ClienteTransfereGov()
-        postgres_conn_str = get_postgres_conn()
+        postgres_conn_str = get_postgres_conn('postgres_mir')
         db = ClientPostgresDB(postgres_conn_str)
 
         # Busca todos os documentos hábeis especiais com paginação automática
@@ -59,7 +58,7 @@ def api_empenhos_especiais_dag() -> None:
             )
         else:
             logging.warning(
-                "[empenhos_especiais_ingest_dag.py] Nenhum empenho " "especial encontrado"
+                "[empenhos_especiais_ingest_dag.py] Nenhum empenho especial encontrado"
             )
 
     fetch_and_store_empenhos_especiais()

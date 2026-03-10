@@ -16,7 +16,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["senado_federal", "senadores", "dados_abertos"],
+    tags=["senado_federal", "senadores", "dados_abertos", "MIR"],
 )
 def senadores_ingest_dag() -> None:
     """DAG para buscar e armazenar dados de senadores do Senado Federal."""
@@ -26,7 +26,7 @@ def senadores_ingest_dag() -> None:
         logging.info("[senadores_ingest_dag.py] Iniciando extração de senadores")
 
         api = ClienteSenadores()
-        postgres_conn_str = get_postgres_conn()
+        postgres_conn_str = get_postgres_conn("postgres_mir")
         db = ClientPostgresDB(postgres_conn_str)
 
         senadores_data = api.get_senadores_atuais()
