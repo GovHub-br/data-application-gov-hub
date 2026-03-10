@@ -2,9 +2,9 @@ import logging
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 
 
-def get_postgres_conn() -> str:
+def get_postgres_conn(data_base_name: str = "postgres_default") -> str:
     try:
-        hook = PostgresHook(postgres_conn_id="postgres_default")
+        hook = PostgresHook(postgres_conn_id=data_base_name)
         conn = hook.get_conn()
         schema = conn.info.dbname
         logging.info(
