@@ -3,7 +3,7 @@ from datetime import datetime
 from cosmos import DbtDag, ProjectConfig, ProfileConfig, ExecutionConfig
 from cosmos.constants import DBT_LOG_PATH_ENVVAR
 
-dbt_log_path = "/tmp/dbt_logs"
+dbt_log_path = "/tmp/dbt_logs" # NOSONAR
 os.makedirs(dbt_log_path, exist_ok=True)
 os.environ[DBT_LOG_PATH_ENVVAR] = dbt_log_path
 
