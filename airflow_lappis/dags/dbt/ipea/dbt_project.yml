@@ -45,20 +45,11 @@ models:
       +schema: orcamento
       views:
         +materialized: view
-    emendas_dbt:
-      +materialized: table
-      +schema: emendas
     # siape_dbt: 
     #   +materialized: table 
     #   +schema: siape 
     #   views:
     #     +materialized: view
-    deputados_dbt:
-     +materialized: table
-     +schema: deputados
-    senadores_dbt:
-     +materialized: table
-     +schema: senadores
 
 
 on-run-start:
