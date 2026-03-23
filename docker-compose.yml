@@ -93,6 +93,9 @@ services:
       SUPERSET_SECRET_KEY: 'supersetadmin'
       SUPERSET_ENV: development
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/superset
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:-admin}
+      SUPERSET_ADMIN_EMAIL: ${SUPERSET_ADMIN_EMAIL:-admin@superset.com}
     ports:
       - "8088:8088"
     depends_on:
@@ -103,13 +106,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    command: >
-      /bin/sh -c "
-      superset fab create-admin --username admin --firstname Admin --lastname User --email admin@superset.com --password admin &&
-      superset db upgrade &&
-      superset init &&
-      superset run -p 8088 -h 0.0.0.0 --with-threads --reload --debugger
-      "
+    volumes:
+      # Dashboard exports are version-controlled here so they survive docker-compose down.
+      # Run `make superset-export` before stopping the stack to save your work.
+      - ./superset/exports:/app/superset_home/exports
+      - ./superset/docker-bootstrap.sh:/app/docker-bootstrap.sh
+    command: /bin/bash /app/docker-bootstrap.sh
 
   jupyter:
     image: jupyter/base-notebook:latest

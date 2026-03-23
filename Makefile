@@ -28,3 +28,19 @@ lint-ci:
 
 test:
 	poetry run pytest tests
+
+superset-export:
+	@echo "Exporting all Superset dashboards to superset/exports/dashboards.json ..."
+	@mkdir -p superset/exports
+	docker compose exec superset superset export-dashboards -f /app/superset_home/exports/dashboards.json
+	@echo "Done. Commit superset/exports/dashboards.json to preserve your dashboards."
+
+superset-import:
+	@echo "Importing Superset dashboards from superset/exports/ ..."
+	docker compose exec superset bash -c "\
+		for f in /app/superset_home/exports/*.json /app/superset_home/exports/*.zip; do \
+			[ -f \"\$$f\" ] || continue; \
+			echo \"Importing \$$f ...\"; \
+			superset import-dashboards -p \"\$$f\" || echo \"Warning: could not import \$$f\"; \
+		done"
+	@echo "Import complete."
