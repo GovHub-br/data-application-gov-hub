@@ -208,7 +208,7 @@ with DAG(
             logging.info("Iniciando o processamento dos emails...")
 
             # Busca o email com attachments ZIP
-            zip_payload = fetch_email_with_zip(
+            zip_payloads = fetch_email_with_zip(
                 creds["imap_server"],
                 creds["email"],
                 creds["password"],
@@ -216,26 +216,29 @@ with DAG(
                 EMAIL_SUBJECT,
             )
 
-            if not zip_payload:
+            if not zip_payloads:
                 logging.warning("Nenhum e-mail encontrado com o assunto esperado.")
                 return None
 
+            csv_content = None
+
             # Extrai o CSV do ZIP (UTF-16)
-            with zipfile.ZipFile(io.BytesIO(zip_payload)) as zip_file:
-                for file_name in zip_file.namelist():
-                    if file_name.endswith(".csv"):
-                        raw_data = zip_file.read(file_name)
-                        csv_content = raw_data.decode("utf-16")
-                        break
-                else:
-                    logging.warning("Nenhum arquivo CSV encontrado no ZIP.")
-                    return None
+            for payload in zip_payloads:
+                with zipfile.ZipFile(io.BytesIO(payload)) as zip_file:
+                    for file_name in zip_file.namelist():
+                        if file_name.endswith(".csv"):
+                            raw_data = zip_file.read(file_name)
+                            csv_content = raw_data.decode("utf-16")
+                            break
+                    else:
+                        logging.warning("Nenhum arquivo CSV encontrado no ZIP.")
+                        return None
 
             # Processa o CSV com a lógica de blocos por ano
             processed_data = _parse_csv_by_year_blocks(csv_content)
 
-            if not processed_data:
-                logging.warning("Nenhum dado foi processado do CSV.")
+            if not csv_content:
+                logging.warning("Nenhum arquivo CSV encontrado nos ZIPs.")
                 return None
 
             df = pd.DataFrame(processed_data)
