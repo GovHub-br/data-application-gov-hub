@@ -190,8 +190,7 @@ with DAG(
             data_lines = lines[data_start_index:]
             year_data = _process_data_block(data_lines, current_year)
             logging.info(
-                f"Processados {len(year_data)} registros para o último ano "
-                f"{current_year}"
+                f"Processados {len(year_data)} registros para o último ano {current_year}"
             )
             processed_data.extend(year_data)
 
@@ -201,7 +200,7 @@ with DAG(
         return processed_data
 
     def process_email_data(**context: Dict[str, Any]) -> Optional[str]:
-        """Processa o email e retorna os dados formatados."""
+        """Processa o email e retorna o caminho do CSV formatado."""
         creds = json.loads(Variable.get("email_credentials"))
 
         try:
@@ -250,13 +249,15 @@ with DAG(
             for col in df.columns:
                 df[col] = df[col].astype(str)
 
-            csv_string = df.to_csv(index=False)
+            # Salva o CSV em disco (padrão /tmp) e retorna o caminho
+            output_path = f"/tmp/{context['dag'].dag_id}_{context['ts_nodash']}.csv"
+            df.to_csv(output_path, index=False)
 
             logging.info(
                 f"CSV processado com sucesso. Dados encontrados: "
-                f"{len(processed_data)} registros"
+                f"{len(processed_data)} registros. Arquivo gravado em: {output_path}"
             )
-            return csv_string
+            return output_path
 
         except Exception as e:
             logging.error(f"Erro no processamento dos emails: {str(e)}")
@@ -266,13 +267,13 @@ with DAG(
         """Insere os dados no banco e limpa duplicados."""
         try:
             task_instance: Any = context["ti"]
-            csv_data: Any = task_instance.xcom_pull(task_ids="process_emails")
+            csv_path: Any = task_instance.xcom_pull(task_ids="process_emails")
 
-            if not csv_data:
+            if not csv_path:
                 logging.warning("Nenhum dado para inserir no banco.")
                 return
 
-            df = pd.read_csv(io.StringIO(csv_data))
+            df = pd.read_csv(csv_path)
 
             # Garantir que todos os valores sejam strings para evitar problemas de tipo
             for col in df.columns:

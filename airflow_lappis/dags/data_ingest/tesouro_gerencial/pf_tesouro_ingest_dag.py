@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 import logging
 import json
 import pandas as pd
-import io
 from schedule_loader import get_dynamic_schedule
 from cliente_email import fetch_and_process_email
 from cliente_postgres import ClientPostgresDB
@@ -76,7 +75,7 @@ with DAG(
             logging.info(
                 "Iniciando o processamento dos emails de programações enviadas/devolvidas"
             )
-            csv_data = fetch_and_process_email(
+            csv_path = fetch_and_process_email(
                 IMAP_SERVER,
                 EMAIL,
                 PASSWORD,
@@ -84,15 +83,19 @@ with DAG(
                 EMAIL_SUBJECT_ENVIADAS,
                 COLUMN_MAPPING,
                 skiprows=SKIPROWS,
+                output_path=f"/tmp/{context['dag'].dag_id}_{context['ts_nodash']}.csv",
             )
-            if not csv_data:
+            if not csv_path:
                 logging.warning(
                     "Nenhum e-mail encontrado com o assunto de programações enviadas"
                 )
                 return ""
 
-            logging.info("CSV de PFs enviadas processado com sucesso.")
-            return csv_data
+            logging.info(
+                "CSV de PFs enviadas processado com sucesso e gravado em: %s",
+                csv_path,
+            )
+            return csv_path
         except Exception as e:
             logging.error(
                 "Erro no processamento dos emails de programações enviadas: %s",
@@ -115,23 +118,27 @@ with DAG(
             logging.info(
                 "Iniciando o processamento dos emails de programações recebidas..."
             )
-            csv_data = fetch_and_process_email(
+            csv_path = fetch_and_process_email(
                 IMAP_SERVER,
                 EMAIL,
                 PASSWORD,
                 SENDER_EMAIL,
                 EMAIL_SUBJECT_RECEBIDAS,
-                column_mapping=None,
+                column_mapping=COLUMN_MAPPING,
                 skiprows=SKIPROWS,
+                output_path=f"/tmp/{context['dag'].dag_id}_{context['ts_nodash']}.csv",
             )
-            if not csv_data:
+            if not csv_path:
                 logging.warning(
                     "Nenhum e-mail encontrado com o assunto de programações recebidas."
                 )
                 return ""
 
-            logging.info("CSV de PFs recebidas processado com sucesso.")
-            return csv_data
+            logging.info(
+                "CSV de PFs recebidas processado com sucesso e gravado em: %s",
+                csv_path,
+            )
+            return csv_path
         except Exception as e:
             logging.error(
                 "Erro no processamento dos emails de programações recebidas: %s", str(e)
@@ -144,21 +151,31 @@ with DAG(
         """
         try:
             task_instance: Any = context["ti"]
-            enviadas_data = (
+            enviadas_path = (
                 task_instance.xcom_pull(task_ids="process_emails_enviadas") or ""
             )
-            recebidas_data = (
+            recebidas_path = (
                 task_instance.xcom_pull(task_ids="process_emails_recebidas") or ""
             )
 
-            combined_data = enviadas_data + recebidas_data
+            dfs = []
+            if enviadas_path:
+                dfs.append(pd.read_csv(enviadas_path))
+            if recebidas_path:
+                dfs.append(pd.read_csv(recebidas_path))
 
-            if combined_data:
-                logging.info("Dados combinados com sucesso.")
-            else:
+            if not dfs:
                 logging.warning("Nenhum dado encontrado em ambos os emails.")
+                return ""
 
-            return combined_data
+            combined_df = pd.concat(dfs, ignore_index=True)
+            output_path = (
+                f"/tmp/{context['dag'].dag_id}_pf_combinadas_{context['ts_nodash']}.csv"
+            )
+            combined_df.to_csv(output_path, index=False)
+
+            logging.info("Dados combinados com sucesso e gravados em: %s", output_path)
+            return output_path
         except Exception as e:
             logging.error(f"Erro ao combinar os dados: {str(e)}")
             raise
@@ -170,13 +187,13 @@ with DAG(
         """
         try:
             task_instance: Any = context["ti"]
-            combined_data = task_instance.xcom_pull(task_ids="combine_data")
+            combined_path = task_instance.xcom_pull(task_ids="combine_data")
 
-            if not combined_data:
+            if not combined_path:
                 logging.warning("Nenhum dado para inserir no banco.")
                 return
 
-            df = pd.read_csv(io.StringIO(combined_data))
+            df = pd.read_csv(combined_path)
             data = df.to_dict(orient="records")
 
             # Adicionar dt_ingest a cada registro
