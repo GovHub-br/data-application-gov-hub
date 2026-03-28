@@ -12,7 +12,7 @@ with
             urlfoto::text as urlfoto,
             email::text as email,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("dados_abertos", "deputados") }}
+        from {{ source("camara_deputados", "deputados") }}
     )
 
 select *

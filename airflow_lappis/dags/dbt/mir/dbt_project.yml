@@ -7,6 +7,7 @@ profile: mir
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
+seed-paths: ["seeds"]
 test-paths: ["tests"]
 macro-paths: ["macros"]
 

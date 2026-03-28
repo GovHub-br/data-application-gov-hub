@@ -17,7 +17,7 @@ sources:
       - name: metas_especiais
       - name: finalidades_especiais
 
-  - name: dados_abertos
+  - name: camara_deputados
     schema: camara_deputados
     tables: 
       - name: deputados
