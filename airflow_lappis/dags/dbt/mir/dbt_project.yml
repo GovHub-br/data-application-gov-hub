@@ -24,12 +24,9 @@ models:
     emendas_dbt:
       +materialized: table
       +schema: emendas
-    deputados_dbt:
+    dados_abertos_dbt:
      +materialized: table
-     +schema: deputados
-    senadores_dbt:
-     +materialized: table
-     +schema: senadores
+     +schema: dados_abertos
     empenhos_ted_dbt:
      +materialized: table
      +schema: siafi_dbt

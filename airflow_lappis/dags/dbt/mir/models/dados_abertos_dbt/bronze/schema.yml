@@ -1,10 +1,95 @@
 version: 2
 
 models:
-
-  # Senadores DBT
+  # Dados Abertos DBT
 
   ## Bronze
+  - name: deputados
+    description: >
+      Tabela com informações básicas sobre deputados federais obtidas por meio da API de Dados Abertos da Câmara dos Deputados.
+      Contém dados cadastrais e institucionais como identificador, nome parlamentar, partido, unidade federativa,
+      legislatura e e-mail institucional.
+      Esta tabela representa a camada bronze do pipeline, aplicando padronização de tipos,
+      pequenas transformações e ajuste de fuso horário na data de ingestão.
+      Os dados são provenientes da fonte dados_abertos.deputados (camada raw) e
+      passam por conversão explícita de tipos para garantir consistência e rastreabilidade.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id
+        description: >
+          Identificador único do deputado na API da Câmara.
+          Utilizado como chave primária e referência para relacionamentos com outras tabelas.
+
+      - name: nome
+        description: >
+          Nome parlamentar do deputado conforme registrado na Câmara dos Deputados.
+
+      - name: siglapartido
+        description: >
+          Sigla do partido ao qual o deputado está filiado na legislatura informada.
+
+      - name: siglauf
+        description: >
+          Sigla da Unidade Federativa (UF) que o deputado representa.
+
+      - name: idlegislatura
+        description: >
+          Identificador numérico da legislatura à qual o deputado está vinculado.
+
+      - name: urlfoto
+        description: >
+          URL da foto oficial do deputado disponibilizada pela Câmara dos Deputados.
+
+      - name: email
+        description: >
+          Endereço de e-mail institucional do deputado na Câmara dos Deputados.
+
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests: 
+    - verificacao_tipagem:
+        nome_tabela: 'deputados.deputados'
+        nome_coluna: 'id'
+        tipo_esperado: 'integer'
+
+    - verificacao_tipagem:
+        nome_tabela: 'deputados.deputados'
+        nome_coluna: 'nome'
+        tipo_esperado: 'text'
+
+    - verificacao_tipagem:
+        nome_tabela: 'deputados.deputados'
+        nome_coluna: 'siglapartido'
+        tipo_esperado: 'text'
+
+    - verificacao_tipagem:
+        nome_tabela: 'deputados.deputados'
+        nome_coluna: 'siglauf'
+        tipo_esperado: 'text'
+
+    - verificacao_tipagem:
+        nome_tabela: 'deputados.deputados'
+        nome_coluna: 'idlegislatura'
+        tipo_esperado: 'integer'
+
+    - verificacao_tipagem:
+        nome_tabela: 'deputados'
+        nome_coluna: 'urlfoto'
+        tipo_esperado: 'text'
+        
+    - verificacao_tipagem:
+        nome_tabela: 'deputados.deputados'
+        nome_coluna: 'email'
+        tipo_esperado: 'text'
+
+    - verificacao_tipagem:
+        nome_tabela: 'deputados.deputados'
+        nome_coluna: 'dt_ingest'
+        tipo_esperado: 'timestamp with time zone'
+
   - name: senadores
     description: >
       Tabela com informações básicas sobre senadores federais obtidas por meio da API de Dados Abertos do Senado Federal.
