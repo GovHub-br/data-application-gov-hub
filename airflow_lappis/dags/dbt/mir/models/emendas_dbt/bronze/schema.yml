@@ -1010,3 +1010,123 @@ models:
           nome_tabela: 'emendas.finalidade_especial'
           nome_coluna: 'cd_area_politica_publica_pt'
           tipo_esperado: 'integer'
+
+  - name: tg_emendas
+    description: >
+      Tabela com informações de execução orçamentária do SIAFI para empenhos do Tesouro
+      vinculados a emendas parlamentares. Reúne classificações orçamentárias, autor da emenda,
+      localização (UF e município) e valores agregados de despesas empenhadas, liquidadas e pagas.
+      Os dados são extraídos da tabela empenhos_tesouro_emendas_parlamentares do SIAFI, com
+      padronização de datas e valores monetários.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: emissao_mes
+        description: "Mês/ano de emissão da nota de empenho (primeiro dia do mês)."
+      - name: emissao_dia
+        description: "Data de emissão da nota de empenho."
+      - name: programa_governo
+        description: "Código do programa de governo no orçamento."
+      - name: programa_governo_descricao
+        description: "Descrição do programa de governo."
+      - name: acao_governo
+        description: "Código da ação de governo associada à emenda."
+      - name: acao_governo_descricao
+        description: "Descrição da ação de governo associada à emenda."
+      - name: autor_emendas_orcamento
+        description: "Identificador do autor da emenda no orçamento."
+      - name: autor_emendas_orcamento_descricao
+        description: "Descrição completa do autor da emenda no orçamento, incluindo indicação da emenda."
+      - name: autor_emendas_orcamento_nome
+        description: "Nome do autor da emenda em formato Title Case, extraído do texto completo antes da barra."
+      - name: uf_pt
+        description: "UF de aplicação da programação orçamentária (PT)."
+      - name: uf_pt_descricao
+        description: "Descrição da UF da programação orçamentária."
+      - name: municipio_pt
+        description: "Município de aplicação da programação orçamentária."
+      - name: ne_ccor
+        description: "Código da NE/CCOR no SIAFI."
+      - name: ne_num_processo
+        description: "Número do processo administrativo associado à NE."
+      - name: ne_info_complementar
+        description: "Informações complementares cadastradas na NE."
+      - name: ne_ccor_descricao
+        description: "Descrição textual da NE/CCOR."
+      - name: doc_observacao
+        description: "Observações adicionais registradas no documento SIAFI."
+      - name: grupo_despesa
+        description: "Código do grupo de despesa orçamentária."
+      - name: grupo_despesa_descricao
+        description: "Descrição do grupo de despesa orçamentária."
+      - name: natureza_despesa
+        description: "Código da natureza de despesa."
+      - name: natureza_despesa_descricao
+        description: "Descrição da natureza de despesa."
+      - name: modalidade_aplicacao
+        description: "Código da modalidade de aplicação."
+      - name: modalidade_aplicacao_descricao
+        description: "Descrição da modalidade de aplicação."
+      - name: ne_ccor_favorecido
+        description: "Identificador do favorecido na NE/CCOR."
+      - name: ne_ccor_favorecido_descricao
+        description: "Nome/descrição do favorecido na NE/CCOR."
+      - name: ne_ccor_ano_emissao
+        description: "Ano de emissão da NE/CCOR."
+      - name: ptres
+        description: "PTRES associado à despesa da emenda."
+      - name: item_informacao
+        description: "Código do item de informação orçamentária."
+      - name: item_informacao_descricao
+        description: "Descrição do item de informação orçamentária."
+      - name: despesas_empenhadas
+        description: "Valor total das despesas empenhadas para a combinação de classificações."
+      - name: despesas_liquidadas
+        description: "Valor total das despesas liquidadas para a combinação de classificações."
+      - name: despesas_pagas
+        description: "Valor total das despesas pagas para a combinação de classificações."
+      - name: dt_ingest
+        description: "Data e hora (UTC-3 Brasília) da ingestão dos dados para a camada bronze."
+
+    tests:
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'emissao_mes'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'emissao_dia'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'programa_governo'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'grupo_despesa'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'modalidade_aplicacao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'ne_ccor_ano_emissao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'ptres'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'despesas_empenhadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'despesas_liquidadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'despesas_pagas'
+          tipo_esperado: 'numeric'
