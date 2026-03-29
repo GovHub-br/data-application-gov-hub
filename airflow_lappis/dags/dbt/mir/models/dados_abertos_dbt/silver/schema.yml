@@ -1,0 +1,80 @@
+version: 2
+
+models:
+  - name: parlamentares
+    description: >
+      Tabela silver que unifica informações de deputados e senadores
+      em uma visão única de parlamentares, incluindo partido, UF,
+      foto e logo do partido.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: id_parlamentar
+        description: >
+          Identificador único do parlamentar na base unificada
+          de deputados e senadores.
+      - name: chave_join_nome
+        description: >
+          Chave de junção padronizada (nome em caixa alta e trimado),
+          utilizada para relacionar parlamentares com outros modelos.
+      - name: nome_parlamentar
+        description: >
+          Nome do parlamentar conforme registrado na base de origem.
+      - name: cargo_parlamentar
+        description: >
+          Cargo do parlamentar (por exemplo, Deputado ou Senador).
+      - name: sigla_partido
+        description: >
+          Sigla do partido ao qual o parlamentar está filiado.
+      - name: uf_parlamentar
+        description: >
+          Sigla da Unidade Federativa (UF) que o parlamentar representa.
+      - name: url_foto
+        description: >
+          URL da foto oficial do parlamentar na base de origem.
+      - name: email
+        description: >
+          Endereço de e-mail institucional do parlamentar.
+      - name: url_logo_partido
+        description: >
+          URL da imagem (logo) do partido do parlamentar,
+          proveniente do seed partidos_logo.
+    tests:
+      - verificacao_tipagem:
+          nome_tabela: 'dados_abertos.parlamentares'
+          nome_coluna: 'id_parlamentar'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'dados_abertos.parlamentares'
+          nome_coluna: 'chave_join_nome'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'dados_abertos.parlamentares'
+          nome_coluna: 'nome_parlamentar'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'dados_abertos.parlamentares'
+          nome_coluna: 'cargo_parlamentar'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'dados_abertos.parlamentares'
+          nome_coluna: 'sigla_partido'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'dados_abertos.parlamentares'
+          nome_coluna: 'uf_parlamentar'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'dados_abertos.parlamentares'
+          nome_coluna: 'url_foto'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'dados_abertos.parlamentares'
+          nome_coluna: 'email'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'dados_abertos.parlamentares'
+          nome_coluna: 'url_logo_partido'
+          tipo_esperado: 'text'
+

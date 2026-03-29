@@ -1,0 +1,14 @@
+version: 2
+
+seeds:
+  - name: partidos_logo
+    config:
+      column_types:
+        sigla: text
+        nome: text
+        logo_url: text
+  - name: partidos_map
+    config:
+      column_types:
+        sigla_origem: text
+        sigla_canonica: text
