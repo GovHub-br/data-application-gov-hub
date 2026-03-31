@@ -157,20 +157,10 @@ with DAG(
             postgres_conn_str = get_postgres_conn()
             db = ClientPostgresDB(postgres_conn_str)
 
-            unique_key = [
-                "unidade_orcamentaria_codigo",
-                "acao_governo_codigo",
-                "plano_orcamentario_codigo",
-                "plano_orcamentario_descricao",
-                "elemento_despesa_codigo",
-                "ug_executora_codigo",
-            ]
 
             db.insert_data(
                 data,
                 "dotacao_execucao_outras_fontes_mcid",
-                # conflict_fields=unique_key,
-                # primary_key=unique_key,
                 schema="siafi",
             )
             logging.info("Dados inseridos com sucesso no banco de dados.")

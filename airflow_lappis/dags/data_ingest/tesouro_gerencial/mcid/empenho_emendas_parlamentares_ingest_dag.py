@@ -108,7 +108,6 @@ with DAG(
                 raise AirflowSkipException(
                     "Nenhum dado foi encontrado para inserção no BD"
                 )
-                return
 
             df = pd.read_csv(io.StringIO(csv_data), skiprows=[1, 2, 3])
             df = df[df["ne_ccor_ano_emissao"].astype(str).str.startswith("20")]
