@@ -166,3 +166,147 @@ models:
           nome_tabela: 'emendas.planos_partidos'
           nome_coluna: 'dt_ingest'
           tipo_esperado: 'timestamp with time zone'
+
+  - name: emendas_partidos
+    description: >
+      Tabela silver que integra as informações de execução orçamentária do SIAFI (Tesouro Gerencial)
+      para emendas parlamentares (tabela bronze tg_emendas) com metadados de parlamentares (dimensão
+      silver parlamentares). Enriquece cada registro de execução com identificação do parlamentar,
+      partido, UF, foto, e-mail e logo do partido, quando houver correspondência pelo nome.
+    meta:
+      tags:
+        - silver
+    columns:
+      # Colunas da tabela fato tg_emendas
+      - name: emissao_mes
+        description: "Mês/ano de emissão da nota de empenho (primeiro dia do mês)."
+      - name: emissao_dia
+        description: "Data de emissão da nota de empenho."
+      - name: programa_governo
+        description: "Código do programa de governo no orçamento."
+      - name: programa_governo_descricao
+        description: "Descrição do programa de governo."
+      - name: acao_governo
+        description: "Código da ação de governo associada à emenda."
+      - name: acao_governo_descricao
+        description: "Descrição da ação de governo associada à emenda."
+      - name: autor_emendas_orcamento
+        description: "Identificador do autor da emenda no orçamento."
+      - name: autor_emendas_orcamento_descricao
+        description: "Descrição completa do autor da emenda no orçamento."
+      - name: autor_emendas_orcamento_nome
+        description: "Nome do autor da emenda (extraído e padronizado para uso em join)."
+      - name: uf_pt
+        description: "UF de aplicação da programação orçamentária (PT)."
+      - name: uf_pt_descricao
+        description: "Descrição da UF da programação orçamentária."
+      - name: municipio_pt
+        description: "Município de aplicação da programação orçamentária."
+      - name: ne_ccor
+        description: "Código da NE/CCOR no SIAFI."
+      - name: ne_num_processo
+        description: "Número do processo administrativo associado à NE."
+      - name: ne_info_complementar
+        description: "Informações complementares cadastradas na NE."
+      - name: ne_ccor_descricao
+        description: "Descrição textual da NE/CCOR."
+      - name: doc_observacao
+        description: "Observações adicionais registradas no documento SIAFI."
+      - name: grupo_despesa
+        description: "Código do grupo de despesa orçamentária."
+      - name: grupo_despesa_descricao
+        description: "Descrição do grupo de despesa orçamentária."
+      - name: natureza_despesa
+        description: "Código da natureza de despesa."
+      - name: natureza_despesa_descricao
+        description: "Descrição da natureza de despesa."
+      - name: modalidade_aplicacao
+        description: "Código da modalidade de aplicação."
+      - name: modalidade_aplicacao_descricao
+        description: "Descrição da modalidade de aplicação."
+      - name: ne_ccor_favorecido
+        description: "Identificador do favorecido na NE/CCOR."
+      - name: ne_ccor_favorecido_descricao
+        description: "Nome/descrição do favorecido na NE/CCOR."
+      - name: ne_ccor_ano_emissao
+        description: "Ano de emissão da NE/CCOR."
+      - name: ptres
+        description: "PTRES associado à despesa da emenda."
+      - name: item_informacao
+        description: "Código do item de informação orçamentária."
+      - name: item_informacao_descricao
+        description: "Descrição do item de informação orçamentária."
+      - name: despesas_empenhadas
+        description: "Valor total das despesas empenhadas."
+      - name: despesas_liquidadas
+        description: "Valor total das despesas liquidadas."
+      - name: despesas_pagas
+        description: "Valor total das despesas pagas."
+      # Colunas de metadados dos parlamentares
+      - name: id_parlamentar
+        description: "Identificador único do parlamentar na base unificada."
+      - name: cargo_parlamentar
+        description: "Cargo do parlamentar (Deputado ou Senador)."
+      - name: nome_parlamentar
+        description: "Nome do parlamentar conforme registrado na base unificada."
+      - name: sigla_partido
+        description: "Sigla do partido (padronizada quando aplicável)."
+      - name: uf_parlamentar
+        description: "UF representada pelo parlamentar."
+      - name: url_foto
+        description: "URL da foto oficial do parlamentar."
+      - name: email
+        description: "E-mail institucional do parlamentar."
+      - name: url_logo_partido
+        description: "URL do logo do partido."
+      - name: dt_ingest
+        description: "Data e hora (UTC-3 Brasília) mais recente de ingestão da tabela fato."
+    tests:
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'emissao_mes'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'emissao_dia'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'programa_governo'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'grupo_despesa'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'modalidade_aplicacao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'ne_ccor_ano_emissao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'ptres'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'despesas_empenhadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'despesas_liquidadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'despesas_pagas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'id_parlamentar'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.emendas_partidos'
+          nome_coluna: 'dt_ingest'
+          tipo_esperado: 'timestamp with time zone'
