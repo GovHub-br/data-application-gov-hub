@@ -1,13 +1,15 @@
 import logging
 import io
+import os
 import zipfile
 from typing import Optional, cast, List, Dict
+
+import chardet
 import pandas as pd
+import pytz
+from datetime import datetime
 from pandas.errors import EmptyDataError
 from imap_tools import MailBox, AND
-import chardet
-from datetime import datetime
-import pytz
 
 # Configuração do log
 logging.basicConfig(
@@ -82,6 +84,7 @@ def fetch_and_process_email(
     subject: str,
     column_mapping: dict,
     skiprows: int = 0,
+    output_path: Optional[str] = None,
 ) -> Optional[str]:
     """Busca e processa e-mails do dia, extraindo CSVs de todos os ZIPs anexados."""
     try:
@@ -92,24 +95,52 @@ def fetch_and_process_email(
             logging.warning("Nenhum anexo ZIP encontrado.")
             return None
 
-        logging.info("Total de anexos ZIP encontrados: %s", len(zip_payloads))
+        if not output_path:
+            raise ValueError(
+                "output_path é obrigatório em fetch_and_process_email; "
+            )
 
-        dataframes: List[pd.DataFrame] = []
+        logging.info("Total de anexos ZIP encontrados: %s", len(zip_payloads))
+        output_dir = os.path.dirname(output_path)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+
+        first_chunk = True
+        total_rows = 0
+
         for idx, zip_payload in enumerate(zip_payloads, start=1):
-            csv_data = extract_csv_from_zip(zip_payload, column_mapping, skiprows)
-            if csv_data is not None:
-                dataframes.append(csv_data)
+            csv_df = extract_csv_from_zip(zip_payload, column_mapping, skiprows)
+            if csv_df is not None and not csv_df.empty:
+                rows = len(csv_df)
+                total_rows += rows
+                csv_df.to_csv(
+                    output_path,
+                    mode="w" if first_chunk else "a",
+                    header=first_chunk,
+                    index=False,
+                )
+                first_chunk = False
+                logging.info(
+                    "CSV do ZIP %s processado e gravado em disco (%s linhas).",
+                    idx,
+                    rows,
+                )
             else:
                 logging.warning(
                     "ZIP %s ignorado por nao conter CSV valido.",
                     idx,
                 )
 
-        if dataframes:
-            combined_df = pd.concat(dataframes, ignore_index=True)
-            return combined_df.to_csv(index=False)
+        if total_rows == 0:
+            logging.warning("Nenhum CSV processado.")
+            return None
 
-        logging.warning("Nenhum CSV processado.")
+        logging.info(
+            "Processamento concluido. Total de linhas gravadas em %s: %s",
+            output_path,
+            total_rows,
+        )
+        return output_path
     except Exception as e:
         logging.error(f"Erro ao processar e-mails: {e}")
         raise

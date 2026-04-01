@@ -190,8 +190,7 @@ with DAG(
             data_lines = lines[data_start_index:]
             year_data = _process_data_block(data_lines, current_year)
             logging.info(
-                f"Processados {len(year_data)} registros para o último ano "
-                f"{current_year}"
+                f"Processados {len(year_data)} registros para o último ano {current_year}"
             )
             processed_data.extend(year_data)
 
@@ -201,14 +200,14 @@ with DAG(
         return processed_data
 
     def process_email_data(**context: Dict[str, Any]) -> Optional[str]:
-        """Processa o email e retorna os dados formatados."""
+        """Processa o email e retorna o caminho do CSV formatado."""
         creds = json.loads(Variable.get("email_credentials"))
 
         try:
             logging.info("Iniciando o processamento dos emails...")
 
             # Busca o email com attachments ZIP
-            zip_payload = fetch_email_with_zip(
+            zip_payloads = fetch_email_with_zip(
                 creds["imap_server"],
                 creds["email"],
                 creds["password"],
@@ -216,26 +215,29 @@ with DAG(
                 EMAIL_SUBJECT,
             )
 
-            if not zip_payload:
+            if not zip_payloads:
                 logging.warning("Nenhum e-mail encontrado com o assunto esperado.")
                 return None
 
+            csv_content = None
+
             # Extrai o CSV do ZIP (UTF-16)
-            with zipfile.ZipFile(io.BytesIO(zip_payload)) as zip_file:
-                for file_name in zip_file.namelist():
-                    if file_name.endswith(".csv"):
-                        raw_data = zip_file.read(file_name)
-                        csv_content = raw_data.decode("utf-16")
-                        break
-                else:
-                    logging.warning("Nenhum arquivo CSV encontrado no ZIP.")
-                    return None
+            for payload in zip_payloads:
+                with zipfile.ZipFile(io.BytesIO(payload)) as zip_file:
+                    for file_name in zip_file.namelist():
+                        if file_name.endswith(".csv"):
+                            raw_data = zip_file.read(file_name)
+                            csv_content = raw_data.decode("utf-16")
+                            break
+                    else:
+                        logging.warning("Nenhum arquivo CSV encontrado no ZIP.")
+                        return None
 
             # Processa o CSV com a lógica de blocos por ano
             processed_data = _parse_csv_by_year_blocks(csv_content)
 
-            if not processed_data:
-                logging.warning("Nenhum dado foi processado do CSV.")
+            if not csv_content:
+                logging.warning("Nenhum arquivo CSV encontrado nos ZIPs.")
                 return None
 
             df = pd.DataFrame(processed_data)
@@ -247,13 +249,15 @@ with DAG(
             for col in df.columns:
                 df[col] = df[col].astype(str)
 
-            csv_string = df.to_csv(index=False)
+            # Salva o CSV em disco (padrão /tmp) e retorna o caminho
+            output_path = f"/tmp/{context['dag'].dag_id}_{context['ts_nodash']}.csv"
+            df.to_csv(output_path, index=False)
 
             logging.info(
                 f"CSV processado com sucesso. Dados encontrados: "
-                f"{len(processed_data)} registros"
+                f"{len(processed_data)} registros. Arquivo gravado em: {output_path}"
             )
-            return csv_string
+            return output_path
 
         except Exception as e:
             logging.error(f"Erro no processamento dos emails: {str(e)}")
@@ -263,13 +267,13 @@ with DAG(
         """Insere os dados no banco e limpa duplicados."""
         try:
             task_instance: Any = context["ti"]
-            csv_data: Any = task_instance.xcom_pull(task_ids="process_emails")
+            csv_path: Any = task_instance.xcom_pull(task_ids="process_emails")
 
-            if not csv_data:
+            if not csv_path:
                 logging.warning("Nenhum dado para inserir no banco.")
                 return
 
-            df = pd.read_csv(io.StringIO(csv_data))
+            df = pd.read_csv(csv_path)
 
             # Garantir que todos os valores sejam strings para evitar problemas de tipo
             for col in df.columns:

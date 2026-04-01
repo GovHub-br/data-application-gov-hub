@@ -71,7 +71,7 @@ with DAG(
 
         try:
             logging.info("Iniciando o processamento dos emails...")
-            csv_data = fetch_and_process_email(
+            csv_path = fetch_and_process_email(
                 IMAP_SERVER,
                 EMAIL,
                 PASSWORD,
@@ -79,8 +79,9 @@ with DAG(
                 EMAIL_SUBJECT,
                 COLUMN_MAPPING,
                 skiprows=SKIPROWS,
+                output_path=f"/tmp/{context['dag'].dag_id}_{context['ts_nodash']}.csv",
             )
-            if not csv_data:
+            if not csv_path:
                 logging.warning(
                     "Nenhum CSV valido foi extraido dos e-mails encontrados "
                     "para o assunto esperado."
@@ -88,9 +89,10 @@ with DAG(
                 return None
 
             logging.info(
-                "CSV processado com sucesso. Dados encontrados: %s", len(csv_data)
+                "CSV processado com sucesso e gravado em: %s",
+                csv_path,
             )
-            return csv_data
+            return csv_path
         except Exception as e:
             logging.error("Erro no processamento dos emails: %s", str(e))
             raise
@@ -101,14 +103,15 @@ with DAG(
         Os dados do CSV são recuperados do XCom.
         """
         try:
-            task_instance: Any = context["ti"]
-            csv_data: Any = task_instance.xcom_pull(task_ids="process_emails")
+            ti = context["ti"]
+            csv_path = ti.xcom_pull(task_ids="process_emails")
 
-            if not csv_data:
-                logging.warning("Nenhum dado para inserir no banco.")
+            if not csv_path:
+                logging.warning("Caminho do CSV não encontrado no XCom")
                 return
 
-            df = pd.read_csv(io.StringIO(csv_data))
+            df = pd.read_csv(csv_path)
+
             df = df[df["ne_ccor_ano_emissao"].astype(str).str.startswith("20")]
             data = df.to_dict(orient="records")
 

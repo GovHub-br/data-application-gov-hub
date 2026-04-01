@@ -1,8 +1,7 @@
-import io
 import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from airflow import DAG
@@ -55,7 +54,7 @@ COLUMN_MAPPING = {
 }
 
 EMAIL_SUBJECT = "notas_empenho_emendas_parlamentares_mcid"
-SKIPROWS = 9
+SKIPROWS = 12
 
 with DAG(
     dag_id="empenho_emendas_parlamentares_ingest_dag",
@@ -64,7 +63,7 @@ with DAG(
     schedule_interval=get_dynamic_schedule("empenho_emendas_parlamentares_ingest_dag"),
     start_date=datetime(2026, 3, 25),
     catchup=False,
-    tags=["email", "empenhos", "tesouro", "emendas"],
+    tags=["email", "mcid", "empenhos", "tesouro", "emendas"],
 ) as dag:
 
     def process_email_data(**context: Dict[str, Any]) -> Optional[Any]:
@@ -77,7 +76,8 @@ with DAG(
 
         try:
             logging.info("Iniciando o processamento dos emails")
-            csv_data = fetch_and_process_email(
+            output_path = f"/tmp/{context['dag'].dag_id}_{context['ts_nodash']}.csv"
+            csv_path = fetch_and_process_email(
                 IMAP_SERVER,
                 EMAIL,
                 PASSWORD,
@@ -85,15 +85,14 @@ with DAG(
                 EMAIL_SUBJECT,
                 COLUMN_MAPPING,
                 skiprows=SKIPROWS,
+                output_path=output_path,
             )
-            if not csv_data:
+            if not csv_path:
                 logging.warning("Nenhum e-mail encontrado com o assunto esperado.")
                 raise AirflowSkipException("Nenhum e-mail encontrado. Task ignorada.")
 
-            logging.info(
-                "CSV processado com sucesso. Dados encontrados: %s", len(csv_data)
-            )
-            return csv_data
+            logging.info("CSV processado com sucesso. Arquivo gerado em: %s", csv_path)
+            return csv_path
         except Exception as e:
             logging.error("Erro no processamento dos emails: %s", str(e))
             raise
@@ -101,15 +100,15 @@ with DAG(
     def insert_data_to_db(**context: Dict[str, Any]) -> None:
         try:
             task_instance: Any = context["ti"]
-            csv_data: Any = task_instance.xcom_pull(task_ids="process_emails")
+            csv_path: Any = task_instance.xcom_pull(task_ids="process_emails")
 
-            if not csv_data:
+            if not csv_path:
                 logging.warning("Nenhum dado para inserir no banco.")
                 raise AirflowSkipException(
                     "Nenhum dado foi encontrado para inserção no BD"
                 )
 
-            df = pd.read_csv(io.StringIO(csv_data), skiprows=[1, 2, 3])
+            df = pd.read_csv(csv_path)
             df = df[df["ne_ccor_ano_emissao"].astype(str).str.startswith("20")]
             data = df.to_dict(orient="records")
 

@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 import logging
 import json
 import pandas as pd
-import io
 from schedule_loader import get_dynamic_schedule
 from cliente_email import fetch_and_process_email
 from cliente_postgres import ClientPostgresDB
@@ -69,9 +68,10 @@ with DAG(
     tags=["email", "ncs", "tesouro"],
 ) as dag:
 
-    def process_email_data(email_type: str, **context: Dict[str, Any]) -> pd.DataFrame:
+    def process_email_data(email_type: str, **context: Dict[str, Any]) -> str:
         """
         Função genérica para processar emails de notas de crédito.
+        Retorna sempre o caminho do arquivo CSV processado.
         """
         config = EMAIL_CONFIGS[email_type]
         creds_data = json.loads(Variable.get("email_credentials"))
@@ -80,7 +80,7 @@ with DAG(
 
         try:
             logging.info(f"Iniciando o processamento das NCs {email_type}")
-            csv_data = fetch_and_process_email(
+            csv_path = fetch_and_process_email(
                 creds["imap_server"],
                 creds["email"],
                 creds["password"],
@@ -88,13 +88,14 @@ with DAG(
                 config["subject"],
                 config["column_mapping"],
                 skiprows=config["skiprows"],
+                output_path=f"/tmp/{context['dag'].dag_id}_{context['ts_nodash']}.csv",
             )
 
-            if not csv_data:
+            if not csv_path:
                 logging.warning(f"Nenhum e-mail encontrado para NCs {email_type}")
-                return pd.DataFrame()
+                return ""
 
-            df = pd.read_csv(io.StringIO(csv_data))
+            df = pd.read_csv(csv_path)
 
             # Se não tem mapeamento de colunas (recebidas), aplicar o mapeamento padrão
             if config["column_mapping"] is None and not df.empty:
@@ -109,7 +110,9 @@ with DAG(
             logging.info(
                 f"CSV de NCs {email_type} processado com sucesso: {len(df)} registros"
             )
-            return df
+            # sobrescrever o arquivo com o schema final
+            df.to_csv(csv_path, index=False)
+            return csv_path
 
         except Exception as e:
             logging.error(
@@ -117,44 +120,49 @@ with DAG(
             )
             raise
 
-    def process_email_data_enviadas(**context: Dict[str, Any]) -> pd.DataFrame:
-        """Wrapper para processar emails enviadas."""
+    def process_email_data_enviadas(**context: Dict[str, Any]) -> str:
+        """Wrapper para processar emails enviadas, retornando caminho do CSV."""
         return process_email_data("enviadas", **context)
 
-    def process_email_data_recebidas(**context: Dict[str, Any]) -> pd.DataFrame:
-        """Wrapper para processar emails recebidas."""
+    def process_email_data_recebidas(**context: Dict[str, Any]) -> str:
+        """Wrapper para processar emails recebidas, retornando caminho do CSV."""
         return process_email_data("recebidas", **context)
 
-    def combine_data(**context: Dict[str, Any]) -> pd.DataFrame:
-        """
-        Função para combinar os dados dos dois emails.
-        """
+    def combine_data(**context: Dict[str, Any]) -> str:
+        """Combina os dados dos dois emails e retorna caminho do CSV."""
         try:
             task_instance: Any = context["ti"]
-            df_enviadas = cast(
-                pd.DataFrame, task_instance.xcom_pull(task_ids="process_emails_enviadas")
+            path_enviadas = cast(
+                str, task_instance.xcom_pull(task_ids="process_emails_enviadas") or ""
             )
-            df_recebidas = cast(
-                pd.DataFrame, task_instance.xcom_pull(task_ids="process_emails_recebidas")
+            path_recebidas = cast(
+                str, task_instance.xcom_pull(task_ids="process_emails_recebidas") or ""
             )
 
-            # Combinar DataFrames válidos
-            dfs = [
-                df
-                for df in [df_enviadas, df_recebidas]
-                if df is not None and not df.empty
-            ]
+            dfs = []
+            if path_enviadas:
+                dfs.append(pd.read_csv(path_enviadas))
+            if path_recebidas:
+                dfs.append(pd.read_csv(path_recebidas))
 
             if not dfs:
                 logging.warning("Nenhum dado foi encontrado para combinar.")
-                return pd.DataFrame()
+                return ""
 
-            # Combinar os DataFrames e adicionar dt_ingest
             combined_df = pd.concat(dfs, ignore_index=True)
             combined_df["dt_ingest"] = datetime.now().isoformat()
 
-            logging.info(f"Dados combinados: {len(combined_df)} registros no total.")
-            return combined_df
+            output_path = (
+                f"/tmp/{context['dag'].dag_id}_nc_combinadas_{context['ts_nodash']}.csv"
+            )
+            combined_df.to_csv(output_path, index=False)
+
+            logging.info(
+                "Dados combinados: %s registros no total. Arquivo: %s",
+                len(combined_df),
+                output_path,
+            )
+            return output_path
 
         except Exception as e:
             logging.error(f"Erro ao combinar os dados: {str(e)}")
@@ -166,12 +174,13 @@ with DAG(
         """
         try:
             task_instance: Any = context["ti"]
-            combined_df = task_instance.xcom_pull(task_ids="combine_data")
+            combined_path = task_instance.xcom_pull(task_ids="combine_data")
 
-            if combined_df is None or combined_df.empty:
+            if not combined_path:
                 logging.warning("Nenhum dado para inserir no banco.")
                 return
 
+            combined_df = pd.read_csv(combined_path)
             data = combined_df.to_dict(orient="records")
 
             postgres_conn_str = get_postgres_conn()
