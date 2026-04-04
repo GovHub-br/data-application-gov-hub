@@ -6,7 +6,7 @@ import pandas as pd
 from pandas.errors import EmptyDataError
 from imap_tools import MailBox, AND
 import chardet
-from datetime import datetime
+from datetime import datetime, date
 import pytz
 
 # Configuração do log
@@ -61,14 +61,22 @@ def extract_csv_from_zip(
 
 
 def fetch_email_with_zip(
-    imap_server: str, email: str, password: str, sender_email: str, subject: str
+    imap_server: str,
+    email: str,
+    password: str,
+    sender_email: str,
+    subject: str,
+    target_date: Optional[date] = None,
 ) -> List[bytes]:
-    """Busca todos os e-mails do dia atual e retorna todos os anexos ZIP."""
-    today = datetime.now(pytz.timezone("America/Sao_Paulo")).date()
+    """Busca e-mails da data alvo (ou dia atual) e retorna os anexos ZIP."""
+    query_date = target_date or datetime.now(pytz.timezone("America/Sao_Paulo")).date()
     zip_payloads: List[bytes] = []
     with MailBox(imap_server).login(email, password) as mailbox:
         # bulk=True: single IMAP FETCH command for all messages (avoids overquota)
-        for msg in mailbox.fetch(AND(date=today, from_=sender_email, subject=subject), bulk=True):
+        for msg in mailbox.fetch(
+            AND(date=query_date, from_=sender_email, subject=subject),
+            bulk=True,
+        ):
             for attachment in msg.attachments:
                 if attachment.filename.lower().endswith(".zip"):
                     zip_payloads.append(cast(bytes, attachment.payload))
@@ -83,11 +91,17 @@ def fetch_and_process_email(
     subject: str,
     column_mapping: dict,
     skiprows: int = 0,
+    target_date: Optional[date] = None,
 ) -> Optional[str]:
-    """Busca e processa e-mails do dia, extraindo CSVs de todos os ZIPs anexados."""
+    """Busca e processa e-mails da data alvo (ou dia atual), extraindo CSVs."""
     try:
         zip_payloads = fetch_email_with_zip(
-            imap_server, email, password, sender_email, subject
+            imap_server,
+            email,
+            password,
+            sender_email,
+            subject,
+            target_date=target_date,
         )
         if not zip_payloads:
             logging.warning("Nenhum anexo ZIP encontrado.")

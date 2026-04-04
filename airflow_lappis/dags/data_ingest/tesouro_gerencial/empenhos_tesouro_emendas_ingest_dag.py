@@ -2,6 +2,7 @@ from typing import Dict, Any, Optional
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models import Variable
+from airflow.models.param import Param
 from datetime import datetime, timedelta
 import logging
 import json
@@ -53,7 +54,7 @@ COLUMN_MAPPING = {
     29: "despesas_liquidadas",
     30: "despesas_pagas",
     31: "restos_a_pagar_inscritos",
-    32: "restos_a_pagar_pagos"
+    32: "restos_a_pagar_pagos",
 }
 
 EMAIL_SUBJECT = "notas_de_empenhos_emendas_parlamentares"
@@ -67,6 +68,17 @@ with DAG(
     schedule_interval=get_dynamic_schedule("empenhos_tesouro_emendas_ingest_dag"),
     start_date=datetime(2023, 12, 1),
     catchup=False,
+    params={
+        "data_referencia": Param(
+            default=None,
+            type=["string", "null"],
+            title="Data de Referencia",
+            description=(
+                "Data para filtrar os e-mails recebidos (formato YYYY-MM-DD). "
+                "Se nao informado, usa o dia atual."
+            ),
+        )
+    },
     tags=["MIR", "email", "empenhos", "tesouro", "emendas"],
 ) as dag:
 
@@ -75,12 +87,25 @@ with DAG(
 
         EMAIL = creds["email"]
         PASSWORD = creds["password"]
-        IMAP_SERVER = creds["imap_ser" \
-        "ver"]
+        IMAP_SERVER = creds["imap_server"]
         SENDER_EMAIL = creds["sender_email"]
+        params = context.get("params", {})
+        data_referencia = params.get("data_referencia")
+
+        target_date = None
+        if data_referencia:
+            try:
+                target_date = datetime.strptime(data_referencia, "%Y-%m-%d").date()
+            except ValueError as exc:
+                raise ValueError(
+                    "Parametro 'data_referencia' invalido. Use o formato YYYY-MM-DD."
+                ) from exc
 
         try:
-            logging.info("Iniciando o processamento dos emails...")
+            logging.info(
+                "Iniciando o processamento dos emails para a data: %s",
+                target_date.isoformat() if target_date else "dia atual",
+            )
             csv_data = fetch_and_process_email(
                 IMAP_SERVER,
                 EMAIL,
@@ -89,6 +114,7 @@ with DAG(
                 EMAIL_SUBJECT,
                 COLUMN_MAPPING,
                 skiprows=SKIPROWS,
+                target_date=target_date,
             )
             if not csv_data:
                 logging.warning(

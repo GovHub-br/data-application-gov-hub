@@ -2,6 +2,7 @@ from typing import Dict, Any, List
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models import Variable
+from airflow.models.param import Param
 from datetime import datetime, timedelta
 import logging
 import json
@@ -68,6 +69,17 @@ with DAG(
     schedule_interval=get_dynamic_schedule("empenhos_tesouro_parlamentares_ingest_dag"),
     start_date=datetime(2023, 12, 1),
     catchup=False,
+    params={
+        "data_referencia": Param(
+            default=None,
+            type=["string", "null"],
+            title="Data de Referencia",
+            description=(
+                "Data para filtrar os e-mails recebidos (formato YYYY-MM-DD). "
+                "Se nao informado, usa o dia atual."
+            ),
+        )
+    },
     tags=["MIR", "email", "empenhos", "tesouro", "parlamentares"],
 ) as dag:
 
@@ -92,6 +104,22 @@ with DAG(
     def fetch_and_ingest(**context: Dict[str, Any]) -> Dict[str, int]:
         """Processa cada anexo e ingere imediatamente, evitando acúmulo em memória."""
         creds = json.loads(Variable.get("email_credentials"))
+        params = context.get("params", {})
+        data_referencia = params.get("data_referencia")
+
+        target_date = None
+        if data_referencia:
+            try:
+                target_date = datetime.strptime(data_referencia, "%Y-%m-%d").date()
+            except ValueError as exc:
+                raise ValueError(
+                    "Parametro 'data_referencia' invalido. Use o formato YYYY-MM-DD."
+                ) from exc
+
+        logging.info(
+            "Buscando e-mails para a data: %s",
+            target_date.isoformat() if target_date else "dia atual",
+        )
 
         zip_payloads: List[bytes] = fetch_email_with_zip(
             creds["imap_server"],
@@ -99,6 +127,7 @@ with DAG(
             creds["password"],
             creds["sender_email"],
             EMAIL_SUBJECT,
+            target_date=target_date,
         )
 
         if not zip_payloads:
