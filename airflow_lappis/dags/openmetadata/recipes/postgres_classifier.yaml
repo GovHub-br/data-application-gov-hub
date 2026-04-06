@@ -1,0 +1,43 @@
+source:
+  type: postgres
+  serviceName: IPEA
+  serviceConnection:
+    config:
+      type: Postgres
+      hostPort: ${DB_DW_HOST}:${DB_DW_PORT}
+      username: ${DB_DW_USER}
+      authType:
+        password: ${DB_DW_PASSWORD}
+      database: ${DB_DW_DBNAME}
+      sslMode: disable
+
+  sourceConfig:
+    config:
+      type: AutoClassification
+      enableAutoClassification: true
+      storeSampleData: true
+      sampleDataCount: 50
+      # columnFilterPattern:
+      #   excludes:
+      #     - "^cpf$"
+      #     - "^cnpj$"
+
+processor:
+  type: orm-profiler
+  config: {}
+    # tableConfig:
+    #   - fullyQualifiedName: "IPEA.${DB_DW_DBNAME}.contratos.contratos_faturas"
+    #     columnConfig:
+    #       excludeColumns: ["emissao"]
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: ${OM_HOST}
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${CLASSIFICATION_TOKEN}

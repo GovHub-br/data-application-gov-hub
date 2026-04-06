@@ -1,0 +1,40 @@
+source:
+  type: postgres
+  serviceName: IPEA
+  serviceConnection:
+    config:
+      type: Postgres
+      hostPort: ${DB_DW_HOST}:${DB_DW_PORT}
+      username: ${DB_DW_USER}
+      authType:
+        password: ${DB_DW_PASSWORD}
+      database: ${DB_DW_DBNAME}
+      sslMode: disable
+
+  sourceConfig:
+    config:
+      type: DatabaseMetadata
+      includeTables: true
+      includeViews: true
+      schemaFilterPattern:
+        includes:
+          - contratos
+          - pessoas
+          - ted
+          - compras_gov
+          - siafi
+          - siape
+          - siorg
+          - transfere_gov
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: ${OM_HOST}
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${INGESTION_TOKEN}

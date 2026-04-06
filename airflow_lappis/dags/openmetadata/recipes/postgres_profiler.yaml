@@ -1,0 +1,50 @@
+source:
+  type: postgres
+  serviceName: IPEA
+  serviceConnection:
+    config:
+      type: Postgres
+      hostPort: ${DB_DW_HOST}:${DB_DW_PORT}
+      username: ${DB_DW_USER}
+      authType:
+        password: ${DB_DW_PASSWORD}
+      database: ${DB_DW_DBNAME}
+      sslMode: disable
+  sourceConfig:
+    config:
+      type: Profiler
+      computeMetrics: true
+      profileSample: 25
+      schemaFilterPattern:
+        includes:
+          - contratos
+          - compras_gov
+          - pessoas
+          - siafi
+          - siape
+          - siorg
+          - ted
+          - transfere_gov
+      # tableFilterPattern:
+      #   includes: ["^contratos_faturas$"]  # só essa tabela
+
+processor:
+  type: orm-profiler
+  config:
+    tableConfig:
+      - fullyQualifiedName: "IPEA.${DB_DW_DBNAME}.contratos.contratos_faturas"
+        # profileSample: 25            # (opcional) override por tabela
+        columnConfig:                  # (opcional) incluir/excluir colunas ou métricas
+          excludeColumns: ["emissao"]
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: ${OM_HOST}
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${PROFILER_TOKEN}

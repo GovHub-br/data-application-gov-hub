@@ -1,0 +1,43 @@
+source:
+  type: superset
+  serviceName: IPEA - Superset
+  serviceConnection:
+    config:
+      type: Superset
+      hostPort: ${SUPERSET_HOST_PORT}
+      connection:
+        username: ${SUPERSET_USERNAME}
+        password: ${SUPERSET_PASSWORD}
+        provider: db
+      # Se seu Superset usa SSL/TLS com verificação custom:
+      # verifySSL: ${SUPERSET_VERIFY_SSL}   # validate | ignore
+
+  sourceConfig:
+    config:
+      type: DashboardMetadata
+      # Se quiser restringir:
+      # dashboardFilterPattern:
+      #   includes: ["^.*$"]
+      # chartFilterPattern:
+      #   includes: ["^.*$"]
+      # projectFilterPattern:
+      #   includes: ["^.*$"]
+      # dataModelFilterPattern:
+      #   includes: ["^.*$"]
+
+processor:
+  type: orm-profiler
+  config: {}
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: ${OM_HOST}
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${INGESTION_TOKEN}
+    storeServiceConnection: true

@@ -1,0 +1,25 @@
+source:
+  type: dbt
+  serviceName: IPEA
+  # serviceName: ${DBT_SERVICE_NAME_OM}
+  sourceConfig:
+    config:
+      type: DBT
+      dbtConfigSource:
+        dbtConfigType: local
+        dbtManifestFilePath: ${DBT_TARGET_DIR}/manifest.json
+        dbtCatalogFilePath: ${DBT_TARGET_DIR}/catalog.json
+        dbtRunResultsFilePath: ${DBT_TARGET_DIR}/run_results.json
+      includeTags: true
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: ${OM_HOST}
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${INGESTION_TOKEN}
