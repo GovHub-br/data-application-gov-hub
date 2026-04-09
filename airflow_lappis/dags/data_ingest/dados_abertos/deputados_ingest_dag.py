@@ -60,7 +60,7 @@ def deputados_ingest_dag() -> None:
                 deputados_data,
                 "deputados",
                 conflict_fields=["id", "siglapartido", "idlegislatura"],
-                primary_key=["id", "siglapartido", "idlegislaturax  "],
+                primary_key=["id", "siglapartido", "idlegislatura"],
                 schema="camara_deputados",
             )
 
