@@ -53,4 +53,5 @@ def api_planos_acao_mir_dag() -> None:
 
     fetch_and_store_planos_acao()
 
+
 api_planos_acao_mir_dag()

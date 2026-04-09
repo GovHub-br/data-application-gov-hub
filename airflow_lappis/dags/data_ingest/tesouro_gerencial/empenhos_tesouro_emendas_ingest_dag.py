@@ -53,7 +53,7 @@ COLUMN_MAPPING = {
     29: "despesas_liquidadas",
     30: "despesas_pagas",
     31: "restos_a_pagar_inscritos",
-    32: "restos_a_pagar_pagos"
+    32: "restos_a_pagar_pagos",
 }
 
 EMAIL_SUBJECT = "notas_de_empenhos_emendas_parlamentares"
@@ -75,8 +75,7 @@ with DAG(
 
         EMAIL = creds["email"]
         PASSWORD = creds["password"]
-        IMAP_SERVER = creds["imap_ser" \
-        "ver"]
+        IMAP_SERVER = creds["imap_ser" "ver"]
         SENDER_EMAIL = creds["sender_email"]
 
         try:

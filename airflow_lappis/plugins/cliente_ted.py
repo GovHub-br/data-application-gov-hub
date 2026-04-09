@@ -136,20 +136,22 @@ class ClienteTed(ClienteBase):
         Função ATÔMICA: Busca uma única 'fatia' (página) de programas.
         """
         headers = {
-            **self.BASE_HEADER, 
-            "Range-Unit": "items", 
-            "Range": f"{offset}-{offset + limit - 1}"
+            **self.BASE_HEADER,
+            "Range-Unit": "items",
+            "Range": f"{offset}-{offset + limit - 1}",
         }
-        
+
         endpoint = "programa"
-        logging.info(f"[cliente_ted.py] Fetching programas (offset: {offset}, limit: {limit})")
-        
-        status, data = self.request(
-            http.HTTPMethod.GET, endpoint, headers=headers
+        logging.info(
+            f"[cliente_ted.py] Fetching programas (offset: {offset}, limit: {limit})"
         )
-        
+
+        status, data = self.request(http.HTTPMethod.GET, endpoint, headers=headers)
+
         if status in http.HTTPStatus.OK and isinstance(data, list):
-            logging.info(f"[cliente_ted.py] Sucesso ao buscar {len(data)} programas no offset {offset}.")
+            logging.info(
+                f"[cliente_ted.py] Sucesso ao buscar {len(data)} programas no offset {offset}."
+            )
             return data
         else:
             logging.error(f"[cliente_ted.py] Erro ao buscar programas. Status: {status}")
@@ -177,5 +179,7 @@ class ClienteTed(ClienteBase):
 
             current_offset += limit
 
-        logging.info(f"[cliente_ted.py] Carga completa finalizada. Total: {len(all_programas)} programas.")
+        logging.info(
+            f"[cliente_ted.py] Carga completa finalizada. Total: {len(all_programas)} programas."
+        )
         return all_programas
