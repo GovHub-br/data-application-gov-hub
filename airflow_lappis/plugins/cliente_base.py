@@ -7,14 +7,15 @@ from http import HTTPStatus
 
 class ClienteBase:
     DEFAULT_TIMEOUT = 10
-    DEFAULT_MAX_RETRIES = 3
-    DEFAULT_SLEEP_SECONDS = 2
+    DEFAULT_MAX_RETRIES = 5
+    DEFAULT_SLEEP_SECONDS = 5
 
     def __init__(self, base_url: str, headers: Optional[dict] = None) -> None:
+        self.timeout = self.DEFAULT_TIMEOUT
         self.base_url = base_url
-        self.client = httpx.Client(base_url=base_url, headers=headers)
+        self.client = httpx.Client(base_url=base_url, headers=headers, timeout=self.timeout)
         logging.info(
-            f"[cliente_base.py] Initialized ClienteBase with base_url: {base_url}"
+            f"[cliente_base.py] Initialized ClienteBase with base_url: {base_url} (Timeout: {self.timeout}s)"
         )
 
     def request(
