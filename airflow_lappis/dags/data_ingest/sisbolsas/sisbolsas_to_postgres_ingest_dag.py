@@ -87,4 +87,4 @@ def sql_server_to_postgres_ingest_dag() -> None:
     replicate_table.expand(table_cfg=tables_to_sync)
 
 
-dag_instance = sql_server_to_postgres_ingest_dag()
+sql_server_to_postgres_ingest_dag()
