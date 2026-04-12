@@ -1,6 +1,6 @@
 import logging
-from typing import Any, List, Tuple
-
+import re
+from typing import Any, Dict, List, Tuple
 from airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook
 
 
@@ -15,18 +15,42 @@ class ClientSQLServerDB:
             f"mssql_conn_id={mssql_conn_id}"
         )
 
-    def execute_query(self, query: str) -> List[Tuple[Any, ...]]:
-        """Execute a SELECT query and return rows."""
-        logging.info(f"[cliente_sqlserver.py] Executing query: {query}")
-        rows = self.hook.get_records(sql=query)
-        logging.info(
-            "[cliente_sqlserver.py] Query executed successfully, fetched "
-            f"{len(rows)} rows"
-        )
-        return rows
+    def fetch_table_all(
+        self,
+        schema: str,
+        table_name: str,
+    ) -> List[Dict[str, Any]]:
+        """Fetch all rows from a SQL Server table using SELECT *."""
 
-    def execute_non_query(self, query: str) -> None:
-        """Execute a SQL command that does not return rows."""
-        logging.info(f"[cliente_sqlserver.py] Executing non-query: {query}")
-        self.hook.run(sql=query)
-        logging.info("[cliente_sqlserver.py] Non-query executed successfully")
+        full_table_name = f"[{schema}].[{table_name}]"
+
+        query = f"SELECT * FROM {full_table_name}"
+        logging.info(f"[cliente_sqlserver.py] Executing query: {query}")
+
+        conn = self.hook.get_conn()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(query)
+            rows = cursor.fetchall()
+
+            if not rows:
+                logging.info(
+                    "[cliente_sqlserver.py] No rows found in %s",
+                    full_table_name,
+                )
+                return []
+
+            columns = [description[0] for description in cursor.description]
+            records = [dict(zip(columns, row)) for row in rows]
+
+            logging.info(
+                "[cliente_sqlserver.py] Query executed successfully, fetched %s rows "
+                "from %s",
+                len(records),
+                full_table_name,
+            )
+            return records
+        finally:
+            cursor.close()
+            conn.close()
