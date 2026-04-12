@@ -22,7 +22,7 @@ class ClientSQLServerDB:
     ) -> List[Dict[str, Any]]:
         """Fetch all rows from a SQL Server table using SELECT *."""
 
-        full_table_name = f"[{schema}].[{table_name}]"
+        full_table_name = f"{schema}.{table_name}"
 
         query = f"SELECT * FROM {full_table_name}"
         logging.info(f"[cliente_sqlserver.py] Executing query: {query}")
