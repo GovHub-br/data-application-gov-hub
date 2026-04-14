@@ -15,6 +15,17 @@ class ClientSQLServerDB:
             f"mssql_conn_id={mssql_conn_id}"
         )
 
+    @staticmethod
+    def _sanitize_value(value: Any) -> Any:
+        """Normaliza valores vindos do SQL Server para tipos seguros."""
+        if value is None:
+            return None
+
+        if str(value) == "NaT":
+            return None
+
+        return value
+
     def fetch_table_all(
         self,
         schema: str,
@@ -42,7 +53,13 @@ class ClientSQLServerDB:
                 return []
 
             columns = [description[0] for description in cursor.description]
-            records = [dict(zip(columns, row)) for row in rows]
+            records = [
+                {
+                    column: self._sanitize_value(value)
+                    for column, value in zip(columns, row)
+                }
+                for row in rows
+            ]
 
             logging.info(
                 "[cliente_sqlserver.py] Query executed successfully, fetched %s rows "
