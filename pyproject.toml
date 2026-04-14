@@ -21,6 +21,7 @@ sqlalchemy = "*"
 zeep = "*"
 imap-tools = "*"
 astronomer-cosmos = "*"
+openpyxl = "*"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"

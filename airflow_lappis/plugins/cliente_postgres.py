@@ -103,7 +103,7 @@ class ClientPostgresDB:
                     raise RuntimeError(
                         f"Failed to create table {schema}.{table_name}"
                     ) from err
-
+    # Aqui da update ate na coluna de conflito , atenção
     def insert_data(
         self,
         data: List[Dict[str, Any]],
