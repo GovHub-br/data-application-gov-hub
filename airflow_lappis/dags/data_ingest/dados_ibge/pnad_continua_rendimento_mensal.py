@@ -16,7 +16,7 @@ from cliente_postgres import ClientPostgresDB
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
-    tags=["ibge", "pnad_continua", "rendimento", "cidades"],
+    tags=["cidades", "pnad_continua", "rendimento", "cidades"],
 )
 def pnad_continua_rendimento_mensal() -> None:
     """DAG para buscar e armazenar o rendimento médio mensal real (PNAD Contínua - IBGE)."""

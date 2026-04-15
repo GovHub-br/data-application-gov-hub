@@ -4,7 +4,7 @@ import pandas as pd
 from typing import List, Dict, Any, Optional
 from cliente_base import ClienteBase
 
-class ClienteSiac(ClienteBase):
+class ClienteDadosGovCidades(ClienteBase):
     """
     Cliente para extração de dados do PBQP-H (SiAC e SiMaC) 
     diretamente do portal de dados abertos.
@@ -46,6 +46,7 @@ class ClienteSiac(ClienteBase):
         Faz o download do arquivo Excel e converte para dicionário Python.
         """
         link = self._get_download_link(termo_busca=tipo)
+        arquivo = link.split('/')[-1]
         
         logging.info(f"[ClienteSiac] Baixando planilha de {tipo}...")
         # Acessa o link direto do arquivo
@@ -56,6 +57,8 @@ class ClienteSiac(ClienteBase):
         df = pd.read_excel(io.BytesIO(response.content), engine='openpyxl')
         
        
+        df['arquivo_origem'] = arquivo
+        logging.info("{df.columns}")
         df = df.where(pd.notna(df), None)
         
         return df.to_dict(orient="records")

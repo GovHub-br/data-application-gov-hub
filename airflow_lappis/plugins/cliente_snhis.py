@@ -3,6 +3,7 @@ import logging
 import os
 import subprocess
 import pandas as pd
+from datetime import datetime, timedelta
 import re
 from typing import List, Dict, Any, Optional
 from cliente_base import ClienteBase
@@ -34,13 +35,16 @@ class ClienteSnhis(ClienteBase):
         response.raise_for_status()
 
         try:
-            # Tenta ler com xlrd (comum para .xls antigos)
+
             df = pd.read_excel(io.BytesIO(response.content), engine='xlrd')
         except Exception as e:
             logging.warning(f"[ClienteSnhis] Falha com xlrd: {e}. Tentando engine padrão.")
             df = pd.read_excel(io.BytesIO(response.content))
 
-        # Converte NaNs para None para compatibilidade JSON/Dicionário
+        # Deixar dinamico e pegar o ultimo
+        df = df["arquivo_origem"] = "arquivos-fnhis-sub-50/dados_abertos_SNHIS_REGULARIDADE_ENTES_09022026.xls"
+        df = df["dt_ingest"] = datetime.now().isoformat()
+    
         df = df.where(pd.notna(df), None)
         return df.to_dict(orient="records")
 
