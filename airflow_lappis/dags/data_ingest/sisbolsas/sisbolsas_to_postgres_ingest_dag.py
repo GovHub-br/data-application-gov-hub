@@ -40,7 +40,7 @@ def _load_tables_from_variable() -> List[SQLServerTableConfig]:
     },
     tags=["sql_server", "postgres", "sisbolsas"],
 )
-def sql_server_to_postgres_ingest_dag() -> None:
+def sql_server_to_postgres_ingest_dag_sisbolsas() -> None:
     """Replica tabelas do SisBolsas para o Postgres Analytics."""
 
     @task

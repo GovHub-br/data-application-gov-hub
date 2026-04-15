@@ -35,13 +35,13 @@ def _load_tables_from_variable() -> List[SQLServerTableConfig]:
     catchup=False,
     max_active_runs=1,
     default_args={
-        "owner": "Davi",
+        "owner": "Mateus",
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
     },
     tags=["sql_server", "postgres", "ipea_pro"],
 )
-def sql_server_to_postgres_ingest_dag() -> None:
+def sql_server_to_postgres_ingest_dag_ipea_pro() -> None:
     """Replica tabelas do Ipea Pro para o Postgres Analytics."""
 
     @task
