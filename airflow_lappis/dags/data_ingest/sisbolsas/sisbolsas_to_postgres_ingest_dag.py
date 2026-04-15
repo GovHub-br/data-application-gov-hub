@@ -87,4 +87,4 @@ def sql_server_to_postgres_ingest_dag_sisbolsas() -> None:
     replicate_table.expand(table_cfg=tables_to_sync)
 
 
-sql_server_to_postgres_ingest_dag()
+sql_server_to_postgres_ingest_dag_sisbolsas()
