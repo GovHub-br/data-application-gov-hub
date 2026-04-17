@@ -2,9 +2,12 @@ export PYTHONPATH := $(CURDIR)/airflow_lappis
 export MYPYPATH := $(CURDIR):$(CURDIR)/airflow_lappis/dags:$(CURDIR)/airflow_lappis/helpers:$(CURDIR)/airflow_lappis/plugins
 
 setup:
-	pip install poetry==1.8.5
+	@if ! command -v poetry >/dev/null 2>&1; then \
+		echo "Poetry não encontrado. Instale antes com pipx install poetry==1.8.5"; \
+		exit 1; \
+	fi
+	poetry self add poetry-plugin-export || true
 	poetry config virtualenvs.in-project false
-	poetry config warnings.export false
 	poetry lock
 	poetry install --no-root --with dev
 	poetry export --without-hashes --format=requirements.txt > requirements.generated.txt
