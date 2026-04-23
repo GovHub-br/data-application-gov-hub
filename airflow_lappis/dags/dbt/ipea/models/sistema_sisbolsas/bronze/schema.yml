@@ -1,0 +1,1172 @@
+version: 2
+
+models:
+  - name: ipea_pro_bolsistas
+    description: >
+      Tabela bronze com o cadastro de bolsistas do sistema Sisbolsas.
+      Reúne dados de identificação pessoal, vínculos administrativos, contatos,
+      endereço residencial, referências ao projeto e metadados de autenticação
+      existentes na base operacional do `ipea_pro`.
+      Nesta camada, as colunas foram tipadas e padronizadas para apoiar análises
+      e integrações posteriores.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: bolsistaid
+        description: Identificador único do bolsista no Sisbolsas.
+      - name: categoriaadicionalbolsistaid
+        description: Identificador da categoria adicional associada ao bolsista.
+      - name: nomebolsista
+        description: Nome completo do bolsista.
+      - name: datanascimento
+        description: Data de nascimento do bolsista.
+      - name: numerocpf
+        description: CPF do bolsista, padronizado apenas com dígitos.
+      - name: numerorg
+        description: Número do documento de RG do bolsista.
+      - name: expedidorrg
+        description: Órgão expedidor do RG do bolsista.
+      - name: coordenadorid
+        description: Identificador do coordenador associado ao bolsista.
+      - name: diretoriaid
+        description: Identificador da diretoria vinculada ao bolsista.
+      - name: coordenacaoid
+        description: Identificador da coordenação vinculada ao bolsista.
+      - name: unidadeipeaid
+        description: Identificador da unidade do IPEA associada ao bolsista.
+      - name: email1
+        description: Endereço de e-mail principal do bolsista.
+      - name: email2
+        description: Endereço de e-mail secundário do bolsista.
+      - name: email3
+        description: Endereço de e-mail adicional do bolsista.
+      - name: telefone1
+        description: Telefone principal de contato do bolsista.
+      - name: telefone2
+        description: Telefone secundário de contato do bolsista.
+      - name: telefone3
+        description: Telefone adicional de contato do bolsista.
+      - name: residenciacep
+        description: CEP do endereço residencial do bolsista, padronizado apenas com dígitos.
+      - name: residenciarua
+        description: Nome da rua ou logradouro residencial do bolsista.
+      - name: residencianumero
+        description: Número do endereço residencial do bolsista.
+      - name: residenciacomplemento
+        description: Complemento do endereço residencial do bolsista.
+      - name: residenciabairro
+        description: Bairro do endereço residencial do bolsista.
+      - name: bolsistaminicv
+        description: Minicurrículo ou resumo curricular do bolsista.
+      - name: linktolattes
+        description: Link para o currículo Lattes do bolsista.
+      - name: ufid
+        description: Identificador da unidade federativa associada ao bolsista.
+      - name: municipioid
+        description: Identificador do município associado ao bolsista.
+      - name: bolsadatainicio
+        description: Data de início da bolsa do bolsista.
+      - name: bolsadatafinalizacao
+        description: Data de finalização da bolsa do bolsista.
+      - name: categoriabolsistaid
+        description: Identificador da categoria principal da bolsa.
+      - name: projetoid
+        description: Identificador do projeto ao qual o bolsista está vinculado.
+      - name: sexoid
+        description: Identificador do sexo cadastrado para o bolsista.
+      - name: situacaopessoaid
+        description: Identificador da situação pessoal do bolsista.
+      - name: statuscadastroid
+        description: Identificador do status cadastral do bolsista.
+      - name: custoemprojetoid
+        description: Identificador do custo do bolsista dentro do projeto.
+      - name: login
+        description: Login de acesso do bolsista no sistema.
+      - name: senha
+        description: Valor armazenado no campo de senha do cadastro do bolsista.
+      - name: usuarioid
+        description: Identificador do usuário relacionado ao cadastro do bolsista.
+      - name: idnosistemalegado
+        description: Identificador do bolsista no sistema legado.
+      - name: matriculaipea
+        description: Matrícula interna do bolsista no IPEA, quando existente.
+      - name: observacoes
+        description: Campo livre com observações complementares sobre o bolsista.
+
+  - name: ipea_pro_coordenacoes
+    description: >
+      Tabela bronze com o cadastro de coordenações do sistema Sisbolsas.
+      Contém identificação, nome, sigla, descrição, responsável, vínculo com
+      diretoria e indicador de atividade da coordenação.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: coordenacaoid
+        description: Identificador único da coordenação.
+      - name: coordenacaonome
+        description: Nome da coordenação.
+      - name: coordenacaosigla
+        description: Sigla da coordenação.
+      - name: coordenacaodescricao
+        description: Descrição textual da coordenação.
+      - name: coordenadorid
+        description: Identificador do coordenador responsável pela coordenação.
+      - name: diretoriaid
+        description: Identificador da diretoria à qual a coordenação está vinculada.
+      - name: ativa
+        description: Indica se a coordenação está ativa no sistema.
+      - name: codigosiape
+        description: Código SIAPE associado à coordenação, quando informado.
+
+  - name: ipea_pro_custosemprojetos
+    description: >
+      Tabela bronze com os custos planejados ou registrados em projetos do
+      Sisbolsas. Armazena a relação entre projeto, item de custo, quantidade,
+      período de vigência e valor específico do custo.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: custoemprojetoid
+        description: Identificador único do registro de custo em projeto.
+      - name: itemcustoid
+        description: Identificador do item de custo associado ao registro.
+      - name: quantidadeitemcusto
+        description: Quantidade prevista ou registrada do item de custo.
+      - name: projetoid
+        description: Identificador do projeto ao qual o custo está vinculado.
+      - name: descricaoitemcusto
+        description: Descrição complementar do item de custo no contexto do projeto.
+      - name: datainicial
+        description: Data inicial de vigência ou referência do custo no projeto.
+      - name: datafinal
+        description: Data final de vigência ou referência do custo no projeto.
+      - name: custoespecifico
+        description: Valor específico do custo registrado para o projeto.
+
+  - name: ipea_pro_diretorias
+    description: >
+      Tabela bronze com o cadastro de diretorias do sistema Sisbolsas.
+      Reúne identificação, nome, sigla, descrição, dirigentes vinculados e
+      código SIAPE associado à estrutura administrativa.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: diretoriaid
+        description: Identificador único da diretoria.
+      - name: diretorianome
+        description: Nome da diretoria.
+      - name: diretoriasigla
+        description: Sigla da diretoria.
+      - name: diretoriadescricao
+        description: Descrição textual da diretoria.
+      - name: diretorid
+        description: Identificador do diretor responsável pela diretoria.
+      - name: diretoradjuntoid
+        description: Identificador do diretor adjunto da diretoria.
+      - name: codigosiape
+        description: Código SIAPE associado à diretoria, quando disponível.
+
+  - name: ipea_pro_fontesreceitas
+    description: >
+      Tabela bronze com o cadastro de fontes de receita vinculadas aos projetos
+      do Sisbolsas. Contém a referência do projeto, tipo de fonte, descrição,
+      valores e intervalo temporal da receita.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: fontereceitaid
+        description: Identificador único da fonte de receita.
+      - name: projetoid
+        description: Identificador do projeto ao qual a fonte de receita está vinculada.
+      - name: itemfontereceitaid
+        description: Identificador do item de classificação da fonte de receita.
+      - name: descricaofonte
+        description: Descrição textual da fonte de receita.
+      - name: valortotalfonte
+        description: Valor total previsto ou registrado para a fonte de receita.
+      - name: datainiciofonte
+        description: Data de início da vigência da fonte de receita.
+      - name: datafinalfonte
+        description: Data de término da vigência da fonte de receita.
+      - name: valortotalfonte_bkp
+        description: Valor total da fonte registrado no campo de backup da base original.
+
+  - name: ipea_pro_grupoentidade
+    description: >
+      Tabela bronze com o cadastro de grupos de entidade utilizados pelo
+      Sisbolsas para classificar registros financeiros ou institucionais.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: grupoentidadeid
+        description: Identificador único do grupo de entidade.
+      - name: nome
+        description: Nome do grupo de entidade.
+
+  - name: ipea_pro_insumofinanceiro
+    description: >
+      Tabela bronze com o cadastro de insumos financeiros do Sisbolsas.
+      Define itens financeiros, unidade de medida, descrição e indicadores sobre
+      a existência de valor unitário e quantidade.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: insumofinanceiroid
+        description: Identificador único do insumo financeiro.
+      - name: item
+        description: Nome ou título do item de insumo financeiro.
+      - name: unidade
+        description: Unidade de medida associada ao insumo financeiro.
+      - name: descricao
+        description: Descrição detalhada do insumo financeiro.
+      - name: possuivalorunitario
+        description: Indica se o insumo financeiro possui valor unitário informado.
+      - name: possuiquantidade
+        description: Indica se o insumo financeiro possui quantidade informada.
+
+  - name: ipea_pro_itemfontereceitas
+    description: >
+      Tabela bronze com os itens de classificação das fontes de receita do
+      Sisbolsas. Serve de apoio para categorizar e descrever os tipos de
+      receita utilizados nos projetos.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: itemfontereceitaid
+        description: Identificador único do item de fonte de receita.
+      - name: nomeitemfontereceita
+        description: Nome do item de fonte de receita.
+      - name: descricaoitemfontereceita
+        description: Descrição detalhada do item de fonte de receita.
+      - name: observacao
+        description: Observações complementares sobre o item de fonte de receita.
+
+  - name: ipea_pro_itenscustos
+    description: >
+      Tabela bronze com o cadastro de itens de custo utilizados no Sisbolsas.
+      Contém nome, descrição, unidade, valor unitário de referência,
+      classificação cadastral, ordenação e indicadores de atividade e padrão.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: itemcustoid
+        description: Identificador único do item de custo.
+      - name: nomeitem
+        description: Nome do item de custo.
+      - name: descricaoitem
+        description: Descrição detalhada do item de custo.
+      - name: unidadeitem
+        description: Unidade de medida do item de custo.
+      - name: valorunitarioitem
+        description: Valor unitário de referência do item de custo.
+      - name: statusitemcadastradoid
+        description: Identificador do status cadastral do item de custo.
+      - name: categoriasitenscustoid
+        description: Identificador da categoria do item de custo.
+      - name: ordem
+        description: Ordem de exibição ou prioridade do item de custo.
+      - name: ativo
+        description: Indica se o item de custo está ativo no sistema.
+      - name: padrao
+        description: Indica se o item de custo é considerado padrão.
+
+  - name: ipea_pro_projetos
+    description: >
+      Tabela bronze com o cadastro de projetos do sistema Sisbolsas.
+      Consolida informações de identificação, escopo, justificativa, metodologia,
+      datas, responsáveis, situação do projeto, versionamento e indicadores
+      gerenciais utilizados na operação do sistema.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: projetoid
+        description: Identificador único do projeto.
+      - name: categoriaadicionalprojetoid
+        description: Identificador da categoria adicional associada ao projeto.
+      - name: tituloprojeto
+        description: Título do projeto.
+      - name: objetivofinalprojeto
+        description: Objetivo final declarado para o projeto.
+      - name: justificativaprojeto
+        description: Justificativa cadastrada para o projeto.
+      - name: metodologiaprojeto
+        description: Metodologia descrita para execução do projeto.
+      - name: cooperacao
+        description: Informação textual sobre cooperação relacionada ao projeto.
+      - name: datainicio
+        description: Data de início do projeto.
+      - name: datafim
+        description: Data prevista de término do projeto.
+      - name: coordenadorid
+        description: Identificador do coordenador responsável pelo projeto.
+      - name: diretoriaid
+        description: Identificador da diretoria vinculada ao projeto.
+      - name: coordenacaoid
+        description: Identificador da coordenação vinculada ao projeto.
+      - name: statusetapaid
+        description: Identificador do status da etapa do projeto.
+      - name: statusprojetoid
+        description: Identificador do status do projeto.
+      - name: modalidadeprojetoid
+        description: Identificador da modalidade do projeto.
+      - name: numeroprojeto
+        description: Número formal do projeto.
+      - name: numeroprojetonoano
+        description: Numeração sequencial do projeto dentro do ano.
+      - name: anoprojeto
+        description: Ano de referência do projeto.
+      - name: usuariocadastranteid
+        description: Identificador do usuário que cadastrou o projeto.
+      - name: usuarioversaoid
+        description: Identificador do usuário responsável pela versão do projeto.
+      - name: numeroversao
+        description: Número da versão do registro do projeto.
+      - name: horaversao
+        description: Data e hora de versionamento do registro do projeto.
+      - name: projetoexcluido
+        description: Indica se o projeto foi marcado como excluído.
+      - name: usuarioexcluinteid
+        description: Identificador do usuário que realizou a exclusão lógica do projeto.
+      - name: rowversion
+        description: Controle numérico de versão da linha na base de origem.
+      - name: projetoassessoria
+        description: Indica se o projeto é classificado como projeto de assessoria.
+      - name: projetoestrategico
+        description: Indica se o projeto é classificado como estratégico.
+      - name: datafimreal
+        description: Data real de encerramento do projeto, quando houver.
+      - name: statusprojetohistoricoid
+        description: Identificador do histórico de status do projeto.
+      - name: palavras_chave
+        description: Palavras-chave associadas ao projeto.
+      - name: planocomunicacao
+        description: Plano de comunicação vinculado ao projeto.
+      - name: justificativaprojetoestrategico
+        description: Justificativa para o enquadramento do projeto como estratégico.
+      - name: planejamentofinanceiroativo
+        description: Indica se o planejamento financeiro do projeto está ativo.
+      - name: projetoprioritario
+        description: Indica se o projeto foi marcado como prioritário.
+
+  - name: ipea_pro_registrofinanceiroemprojetos
+    description: >
+      Tabela bronze com os registros financeiros vinculados aos projetos do
+      Sisbolsas. Relaciona projeto, insumo financeiro, grupo de entidade,
+      quantidade, valor unitário e descrição da fonte associada.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: registrofinanceiroid
+        description: Identificador único do registro financeiro em projeto.
+      - name: descricaoinsumo
+        description: Descrição do insumo financeiro associado ao registro.
+      - name: valorunitarioinsumo
+        description: Valor unitário do insumo financeiro no registro.
+      - name: grupoentidadeid
+        description: Identificador do grupo de entidade associado ao registro.
+      - name: insumofinanceiroid
+        description: Identificador do insumo financeiro vinculado ao registro.
+      - name: projetoid
+        description: Identificador do projeto ao qual o registro financeiro pertence.
+      - name: quantidadeinsumo
+        description: Quantidade do insumo financeiro registrada no projeto.
+      - name: descricaofonte
+        description: Descrição da fonte de recursos associada ao registro financeiro.
+
+  - name: ipea_pro_servidorespublicos
+    description: >
+      Tabela bronze com o cadastro de servidores públicos do sistema Sisbolsas.
+      Contém identificação pessoal, vínculos organizacionais, informações de
+      contato, endereço residencial e de trabalho, custo do servidor e dados de
+      autenticação presentes na base operacional.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: servidorpublicoid
+        description: Identificador único do servidor público no Sisbolsas.
+      - name: categoriaadicionalservidorid
+        description: Identificador da categoria adicional associada ao servidor.
+      - name: nomeservidor
+        description: Nome completo do servidor público.
+      - name: datanascimento
+        description: Data de nascimento do servidor público.
+      - name: numerocpf
+        description: CPF do servidor público, padronizado apenas com dígitos.
+      - name: numerorg
+        description: Número do RG do servidor público.
+      - name: expedidorrg
+        description: Órgão expedidor do RG do servidor público.
+      - name: diretoriaid
+        description: Identificador da diretoria vinculada ao servidor.
+      - name: coordenacaoid
+        description: Identificador da coordenação vinculada ao servidor.
+      - name: salarioatual
+        description: Valor do salário atual do servidor.
+      - name: custodoservidor
+        description: Valor do custo total associado ao servidor.
+      - name: email1
+        description: Endereço de e-mail principal do servidor.
+      - name: email2
+        description: Endereço de e-mail secundário do servidor.
+      - name: email3
+        description: Endereço de e-mail adicional do servidor.
+      - name: telefone1
+        description: Telefone principal de contato do servidor.
+      - name: telefone2
+        description: Telefone secundário de contato do servidor.
+      - name: telefone3
+        description: Telefone adicional de contato do servidor.
+      - name: unidadeipeaid
+        description: Identificador da unidade do IPEA associada ao servidor.
+      - name: residenciacep
+        description: CEP do endereço residencial do servidor, padronizado apenas com dígitos.
+      - name: residenciarua
+        description: Rua ou logradouro do endereço residencial do servidor.
+      - name: residencianumero
+        description: Número do endereço residencial do servidor.
+      - name: residenciacomplemento
+        description: Complemento do endereço residencial do servidor.
+      - name: residenciabairro
+        description: Bairro do endereço residencial do servidor.
+      - name: servidorminicv
+        description: Minicurrículo ou resumo curricular do servidor.
+      - name: linktolattes
+        description: Link para o currículo Lattes do servidor.
+      - name: ufid
+        description: Identificador da unidade federativa associada ao servidor.
+      - name: municipioid
+        description: Identificador do município associado ao servidor.
+      - name: dasid
+        description: Identificador do DAS ou função comissionada associada ao servidor.
+      - name: categoriaid
+        description: Identificador da categoria principal do servidor.
+      - name: matriculasiape
+        description: Matrícula SIAPE do servidor.
+      - name: sexoid
+        description: Identificador do sexo cadastrado para o servidor.
+      - name: statuscadastroid
+        description: Identificador do status cadastral do servidor.
+      - name: situacaoservidorid
+        description: Identificador da situação do servidor no sistema.
+      - name: login
+        description: Login de acesso do servidor no sistema.
+      - name: senha
+        description: Valor armazenado no campo de senha do cadastro do servidor.
+      - name: usuarioid
+        description: Identificador do usuário relacionado ao cadastro do servidor.
+      - name: idnosistemalegado
+        description: Identificador do servidor no sistema legado.
+      - name: instituicaoid
+        description: Identificador da instituição vinculada ao servidor.
+      - name: trabalhocep
+        description: CEP do endereço de trabalho do servidor, padronizado apenas com dígitos.
+      - name: trabalhorua
+        description: Rua ou logradouro do endereço de trabalho do servidor.
+      - name: trabalhonumero
+        description: Número do endereço de trabalho do servidor.
+      - name: trabalhocomplemento
+        description: Complemento do endereço de trabalho do servidor.
+      - name: trabalhobairro
+        description: Bairro do endereço de trabalho do servidor.
+      - name: trabalhoufid
+        description: Identificador da unidade federativa do endereço de trabalho.
+      - name: trabalhomunicipioid
+        description: Identificador do município do endereço de trabalho.
+      - name: cargocomissaoid
+        description: Identificador do cargo em comissão associado ao servidor.
+      - name: ramal
+        description: Ramal telefônico do servidor.
+
+  - name: ipea_pro_statusprojetos
+    description: >
+      Tabela bronze com o cadastro de status de projetos do Sisbolsas.
+      Funciona como dimensão de apoio para qualificar a situação dos projetos
+      registrados no sistema.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: statusprojetoid
+        description: Identificador único do status de projeto.
+      - name: nomestatus
+        description: Nome do status do projeto.
+      - name: descricaostatus
+        description: Descrição detalhada do status do projeto.
+      - name: ativo
+        description: Indica se o status de projeto está ativo no sistema.
+
+  - name: sisbolsas_tb_area_formacao
+    description: >
+      Tabela bronze com o cadastro de áreas de formação utilizadas pelo
+      Sisbolsas para classificar formações acadêmicas e perfis de seleção.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_area_formacao
+        description: Código identificador registrado no campo de origem referente a `co area formacao`.
+      - name: ds_area_formacao
+        description: Descrição textual registrada no campo de origem referente a `ds area formacao`.
+
+  - name: sisbolsas_tb_bolsa
+    description: >
+      Tabela bronze com o cadastro de bolsas vinculadas às seleções do
+      Sisbolsas, incluindo situação, período de vigência e duração prevista.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_selecao
+        description: Código identificador registrado no campo de origem referente a `co selecao`.
+      - name: nu_bolsa
+        description: Número registrado no campo de origem referente a `nu bolsa`.
+      - name: co_situacao_bolsa
+        description: Código identificador registrado no campo de origem referente a `co situacao bolsa`.
+      - name: dt_inicio_bolsa
+        description: Data registrada no campo de origem referente a `dt inicio bolsa`.
+      - name: dt_fim_bolsa
+        description: Data registrada no campo de origem referente a `dt fim bolsa`.
+      - name: qt_duracao
+        description: Quantidade registrada no campo de origem referente a `qt duracao`.
+
+  - name: sisbolsas_tb_bolsa_coordenador
+    description: >
+      Tabela bronze com a vinculação entre bolsas e coordenadores no
+      Sisbolsas, incluindo CPF, vigência e situação do vínculo.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_bolsa_coordenador
+        description: Código identificador registrado no campo de origem referente a `co bolsa coordenador`.
+      - name: co_selecao
+        description: Código identificador registrado no campo de origem referente a `co selecao`.
+      - name: nu_bolsa
+        description: Número registrado no campo de origem referente a `nu bolsa`.
+      - name: ds_cpf
+        description: CPF associado ao registro, padronizado apenas com dígitos.
+      - name: dt_inicio_vigencia
+        description: Data registrada no campo de origem referente a `dt inicio vigencia`.
+      - name: dt_fim_vigencia
+        description: Data registrada no campo de origem referente a `dt fim vigencia`.
+      - name: st_situacao
+        description: Status registrado no campo de origem referente a `st situacao`.
+
+  - name: sisbolsas_tb_bolsa_fonterecurso
+    description: >
+      Tabela bronze com a associação entre bolsas e fontes financeiras no
+      Sisbolsas, registrando vigência e situação da fonte de recurso.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_bolsa_fonterecurso
+        description: Código identificador registrado no campo de origem referente a `co bolsa fonterecurso`.
+      - name: co_selecao
+        description: Código identificador registrado no campo de origem referente a `co selecao`.
+      - name: nu_bolsa
+        description: Número registrado no campo de origem referente a `nu bolsa`.
+      - name: co_fonte_financeira
+        description: Código identificador registrado no campo de origem referente a `co fonte financeira`.
+      - name: dt_fim_vigencia
+        description: Data registrada no campo de origem referente a `dt fim vigencia`.
+      - name: dt_inicio_vigencia
+        description: Data registrada no campo de origem referente a `dt inicio vigencia`.
+      - name: st_situacao
+        description: Status registrado no campo de origem referente a `st situacao`.
+
+  - name: sisbolsas_tb_bolsista
+    description: >
+      Tabela bronze com os vínculos de bolsistas às seleções e bolsas do
+      Sisbolsas, incluindo situação, número SEI e período de vigência.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: co_selecao
+        description: Código identificador registrado no campo de origem referente a `co selecao`.
+      - name: nu_bolsa
+        description: Número registrado no campo de origem referente a `nu bolsa`.
+      - name: co_situacao_bolsista
+        description: Código identificador registrado no campo de origem referente a `co situacao bolsista`.
+      - name: ds_numero_sei
+        description: Descrição textual registrada no campo de origem referente a `ds numero sei`.
+      - name: dt_inicio
+        description: Data registrada no campo de origem referente a `dt inicio`.
+      - name: dt_fim
+        description: Data registrada no campo de origem referente a `dt fim`.
+
+  - name: sisbolsas_tb_chamada_publica
+    description: >
+      Tabela bronze com o cadastro de chamadas públicas do Sisbolsas, reunindo
+      programa, situação, cronograma, valores estimados e metadados da
+      chamada.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_chamada_publica
+        description: Código identificador registrado no campo de origem referente a `co chamada publica`.
+      - name: co_projeto
+        description: Código identificador registrado no campo de origem referente a `co projeto`.
+      - name: co_situacao_chamada
+        description: Código identificador registrado no campo de origem referente a `co situacao chamada`.
+      - name: co_usuario_criacao
+        description: Código identificador registrado no campo de origem referente a `co usuario criacao`.
+      - name: co_programa
+        description: Código identificador registrado no campo de origem referente a `co programa`.
+      - name: nu_chamada_publica
+        description: Número registrado no campo de origem referente a `nu chamada publica`.
+      - name: nu_ano
+        description: Número registrado no campo de origem referente a `nu ano`.
+      - name: ds_chamada_publica
+        description: Descrição textual registrada no campo de origem referente a `ds chamada publica`.
+      - name: ds_numero_sei
+        description: Descrição textual registrada no campo de origem referente a `ds numero sei`.
+      - name: vl_global_estimado
+        description: Valor monetário registrado no campo de origem referente a `vl global estimado`.
+      - name: dt_ini_pesquisa
+        description: Data registrada no campo de origem referente a `dt ini pesquisa`.
+      - name: dt_fim_pesquisa
+        description: Data registrada no campo de origem referente a `dt fim pesquisa`.
+      - name: dt_publicacao_dou
+        description: Data registrada no campo de origem referente a `dt publicacao dou`.
+      - name: dt_previsao_resultado
+        description: Data registrada no campo de origem referente a `dt previsao resultado`.
+      - name: dt_ini_bolsa
+        description: Data registrada no campo de origem referente a `dt ini bolsa`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+      - name: dt_inicio_inscricao
+        description: Data registrada no campo de origem referente a `dt inicio inscricao`.
+      - name: dt_fim_inscricao
+        description: Data registrada no campo de origem referente a `dt fim inscricao`.
+      - name: dt_inicio_julgamento
+        description: Data registrada no campo de origem referente a `dt inicio julgamento`.
+      - name: dt_fim_julgamento
+        description: Data registrada no campo de origem referente a `dt fim julgamento`.
+      - name: dt_publicacao_resultado
+        description: Data registrada no campo de origem referente a `dt publicacao resultado`.
+      - name: tp_moeda
+        description: Tipo registrado no campo de origem referente a `tp moeda`.
+      - name: dt_fim_recurso
+        description: Data registrada no campo de origem referente a `dt fim recurso`.
+      - name: dt_inicio_recurso
+        description: Data registrada no campo de origem referente a `dt inicio recurso`.
+      - name: dt_inicio_previsao_bolsa
+        description: Data registrada no campo de origem referente a `dt inicio previsao bolsa`.
+
+  - name: sisbolsas_tb_chapubli_fontfina
+    description: >
+      Tabela bronze com a associação entre chamadas públicas e fontes
+      financeiras no Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_chamada_publica
+        description: Código identificador registrado no campo de origem referente a `co chamada publica`.
+      - name: co_fonte_financeira
+        description: Código identificador registrado no campo de origem referente a `co fonte financeira`.
+
+  - name: sisbolsas_tb_chapubli_unidade
+    description: >
+      Tabela bronze com a associação entre chamadas públicas e unidades
+      organizacionais no Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_chamada_publica
+        description: Código identificador registrado no campo de origem referente a `co chamada publica`.
+      - name: co_unidade
+        description: Código identificador registrado no campo de origem referente a `co unidade`.
+
+  - name: sisbolsas_tb_coordenador
+    description: >
+      Tabela bronze com a relação de coordenadores vinculados às chamadas
+      públicas do Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_chamada_publica
+        description: Código identificador registrado no campo de origem referente a `co chamada publica`.
+      - name: ds_cpf
+        description: CPF associado ao registro, padronizado apenas com dígitos.
+
+  - name: sisbolsas_tb_dado_formacao
+    description: >
+      Tabela bronze com os dados de formação acadêmica cadastrados para
+      usuários do Sisbolsas, incluindo curso, instituição, área e validação do
+      diploma.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_dado_formacao
+        description: Código identificador registrado no campo de origem referente a `co dado formacao`.
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: co_nivel_escolaridade
+        description: Código identificador registrado no campo de origem referente a `co nivel escolaridade`.
+      - name: co_tipo_escolar
+        description: Código identificador registrado no campo de origem referente a `co tipo escolar`.
+      - name: st_nivel_escolaridade
+        description: Status registrado no campo de origem referente a `st nivel escolaridade`.
+      - name: tp_nacionalidade_diploma
+        description: Tipo registrado no campo de origem referente a `tp nacionalidade diploma`.
+      - name: in_diploma_valido
+        description: Indicador lógico registrado no campo de origem referente a `in diploma valido`.
+      - name: co_area_formacao
+        description: Código identificador registrado no campo de origem referente a `co area formacao`.
+      - name: ds_outra_formacao
+        description: Descrição textual registrada no campo de origem referente a `ds outra formacao`.
+      - name: ds_curso
+        description: Descrição textual registrada no campo de origem referente a `ds curso`.
+      - name: ds_instituicao
+        description: Descrição textual registrada no campo de origem referente a `ds instituicao`.
+      - name: co_estado
+        description: Código identificador registrado no campo de origem referente a `co estado`.
+      - name: ds_url_curriculo
+        description: Descrição textual registrada no campo de origem referente a `ds url curriculo`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+      - name: co_pais
+        description: Código identificador registrado no campo de origem referente a `co pais`.
+
+  - name: sisbolsas_tb_dado_pessoal
+    description: >
+      Tabela bronze com os dados pessoais dos usuários do Sisbolsas, incluindo
+      identificação civil, contatos, nacionalidade e informações
+      complementares.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_dado_pessoal
+        description: Código identificador registrado no campo de origem referente a `co dado pessoal`.
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: ds_cpf
+        description: CPF associado ao registro, padronizado apenas com dígitos.
+      - name: dt_nascimento
+        description: Data registrada no campo de origem referente a `dt nascimento`.
+      - name: co_estado_civil
+        description: Código identificador registrado no campo de origem referente a `co estado civil`.
+      - name: tp_sexo
+        description: Tipo registrado no campo de origem referente a `tp sexo`.
+      - name: tp_nacionalidade
+        description: Tipo registrado no campo de origem referente a `tp nacionalidade`.
+      - name: ds_naturalidade
+        description: Descrição textual registrada no campo de origem referente a `ds naturalidade`.
+      - name: ds_rg
+        description: Descrição textual registrada no campo de origem referente a `ds rg`.
+      - name: dt_emissao_rg
+        description: Data registrada no campo de origem referente a `dt emissao rg`.
+      - name: ds_orgao_emissor
+        description: Descrição textual registrada no campo de origem referente a `ds orgao emissor`.
+      - name: co_estado_orgao
+        description: Código identificador registrado no campo de origem referente a `co estado orgao`.
+      - name: ds_passaporte
+        description: Descrição textual registrada no campo de origem referente a `ds passaporte`.
+      - name: tp_visto
+        description: Tipo registrado no campo de origem referente a `tp visto`.
+      - name: dt_validade_visto
+        description: Data registrada no campo de origem referente a `dt validade visto`.
+      - name: nu_telefone_principal
+        description: Número registrado no campo de origem referente a `nu telefone principal`.
+      - name: nu_telefone_alternativo
+        description: Número registrado no campo de origem referente a `nu telefone alternativo`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+      - name: co_pais_passaporte
+        description: Código identificador registrado no campo de origem referente a `co pais passaporte`.
+      - name: ds_ddd_principal
+        description: Descrição textual registrada no campo de origem referente a `ds ddd principal`.
+      - name: ds_ddd_alternativo
+        description: Descrição textual registrada no campo de origem referente a `ds ddd alternativo`.
+      - name: co_etnia
+        description: Código identificador registrado no campo de origem referente a `co etnia`.
+      - name: ds_email_alternativo
+        description: Descrição textual registrada no campo de origem referente a `ds email alternativo`.
+      - name: tp_fator
+        description: Tipo registrado no campo de origem referente a `tp fator`.
+      - name: tp_sanguineo
+        description: Tipo registrado no campo de origem referente a `tp sanguineo`.
+
+  - name: sisbolsas_tb_dado_profissional
+    description: >
+      Tabela bronze com os dados profissionais dos usuários do Sisbolsas,
+      incluindo situação funcional, vínculo, instituição e cargo.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_dado_profissional
+        description: Código identificador registrado no campo de origem referente a `co dado profissional`.
+      - name: tp_situacao_funcional
+        description: Tipo registrado no campo de origem referente a `tp situacao funcional`.
+      - name: in_vinculo
+        description: Indicador lógico registrado no campo de origem referente a `in vinculo`.
+      - name: tp_setor
+        description: Tipo registrado no campo de origem referente a `tp setor`.
+      - name: in_funcao_gratificada
+        description: Indicador lógico registrado no campo de origem referente a `in funcao gratificada`.
+      - name: ds_instituicao
+        description: Descrição textual registrada no campo de origem referente a `ds instituicao`.
+      - name: ds_empregador
+        description: Descrição textual registrada no campo de origem referente a `ds empregador`.
+      - name: tp_cargo
+        description: Tipo registrado no campo de origem referente a `tp cargo`.
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+
+  - name: sisbolsas_tb_estado
+    description: >
+      Tabela bronze com o cadastro de estados utilizado pelo Sisbolsas para
+      referência territorial.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_estado
+        description: Código identificador registrado no campo de origem referente a `co estado`.
+      - name: ds_uf
+        description: Descrição textual registrada no campo de origem referente a `ds uf`.
+      - name: ds_nome
+        description: Descrição textual registrada no campo de origem referente a `ds nome`.
+
+  - name: sisbolsas_tb_folha_bolsista
+    description: >
+      Tabela bronze com os registros de pagamento de bolsistas em folhas do
+      Sisbolsas, incluindo valores pagos, quantidade de dias e conferência.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_folha_pagamento
+        description: Código identificador registrado no campo de origem referente a `co folha pagamento`.
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: co_selecao
+        description: Código identificador registrado no campo de origem referente a `co selecao`.
+      - name: nu_bolsa
+        description: Número registrado no campo de origem referente a `nu bolsa`.
+      - name: co_dado_bancario
+        description: Código identificador registrado no campo de origem referente a `co dado bancario`.
+      - name: co_diretoria
+        description: Código identificador registrado no campo de origem referente a `co diretoria`.
+      - name: co_unidade
+        description: Código identificador registrado no campo de origem referente a `co unidade`.
+      - name: co_fonte_financeira
+        description: Código identificador registrado no campo de origem referente a `co fonte financeira`.
+      - name: nu_dias_pago
+        description: Número registrado no campo de origem referente a `nu dias pago`.
+      - name: vl_dia_pago
+        description: Valor monetário registrado no campo de origem referente a `vl dia pago`.
+      - name: vl_total_pago
+        description: Valor monetário registrado no campo de origem referente a `vl total pago`.
+      - name: in_conferencia
+        description: Indicador lógico registrado no campo de origem referente a `in conferencia`.
+
+  - name: sisbolsas_tb_folha_pagamento
+    description: >
+      Tabela bronze com o cadastro das folhas de pagamento do Sisbolsas,
+      contendo solicitação, lote, situação, totais e dados de homologação.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_folha_pagamento
+        description: Código identificador registrado no campo de origem referente a `co folha pagamento`.
+      - name: nu_solicitacao
+        description: Número registrado no campo de origem referente a `nu solicitacao`.
+      - name: nu_mes
+        description: Número registrado no campo de origem referente a `nu mes`.
+      - name: nu_ano
+        description: Número registrado no campo de origem referente a `nu ano`.
+      - name: nu_lote
+        description: Número registrado no campo de origem referente a `nu lote`.
+      - name: co_situacao_folha
+        description: Código identificador registrado no campo de origem referente a `co situacao folha`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+      - name: nu_total_integral
+        description: Número registrado no campo de origem referente a `nu total integral`.
+      - name: nu_total_parcial
+        description: Número registrado no campo de origem referente a `nu total parcial`.
+      - name: co_usuario_criacao
+        description: Código identificador registrado no campo de origem referente a `co usuario criacao`.
+      - name: co_usuario_homologacao
+        description: Código identificador registrado no campo de origem referente a `co usuario homologacao`.
+      - name: dt_homologacao
+        description: Data registrada no campo de origem referente a `dt homologacao`.
+
+  - name: sisbolsas_tb_fonte_financeira
+    description: >
+      Tabela bronze com o cadastro de fontes financeiras utilizadas pelo
+      Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_fonte_financeira
+        description: Código identificador registrado no campo de origem referente a `co fonte financeira`.
+      - name: ds_fonte_financeira
+        description: Descrição textual registrada no campo de origem referente a `ds fonte financeira`.
+
+  - name: sisbolsas_tb_modalidade
+    description: >
+      Tabela bronze com o cadastro de modalidades de bolsa do Sisbolsas,
+      incluindo nível de escolaridade e período de vigência.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_modalidade
+        description: Código identificador registrado no campo de origem referente a `co modalidade`.
+      - name: ds_modalidade
+        description: Descrição textual registrada no campo de origem referente a `ds modalidade`.
+      - name: co_nivel_escolaridade
+        description: Código identificador registrado no campo de origem referente a `co nivel escolaridade`.
+      - name: st_nivel_escolaridade
+        description: Status registrado no campo de origem referente a `st nivel escolaridade`.
+      - name: dt_inicio
+        description: Data registrada no campo de origem referente a `dt inicio`.
+      - name: dt_fim
+        description: Data registrada no campo de origem referente a `dt fim`.
+
+  - name: sisbolsas_tb_nivel_escolaridade
+    description: >
+      Tabela bronze com o cadastro de níveis de escolaridade utilizados pelo
+      Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_nivel_escolaridade
+        description: Código identificador registrado no campo de origem referente a `co nivel escolaridade`.
+      - name: ds_nivel_escolaridade
+        description: Descrição textual registrada no campo de origem referente a `ds nivel escolaridade`.
+
+  - name: sisbolsas_tb_processo_seletivo
+    description: >
+      Tabela bronze com os processos seletivos do Sisbolsas, relacionando
+      candidato, avaliação, classificação, situação de concessão e pontuações.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_processo_seletivo
+        description: Código identificador registrado no campo de origem referente a `co processo seletivo`.
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: co_dado_formacao
+        description: Código identificador registrado no campo de origem referente a `co dado formacao`.
+      - name: co_selecao
+        description: Código identificador registrado no campo de origem referente a `co selecao`.
+      - name: co_dado_profissional
+        description: Código identificador registrado no campo de origem referente a `co dado profissional`.
+      - name: co_situacao_concessao
+        description: Código identificador registrado no campo de origem referente a `co situacao concessao`.
+      - name: st_processo_seletivo
+        description: Status registrado no campo de origem referente a `st processo seletivo`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+      - name: in_nao_apto
+        description: Indicador lógico registrado no campo de origem referente a `in nao apto`.
+      - name: in_classificacao
+        description: Indicador lógico registrado no campo de origem referente a `in classificacao`.
+      - name: tx_observacao_avaliacao
+        description: Texto livre registrado no campo de origem referente a `tx observacao avaliacao`.
+      - name: tx_observacao_classificacao
+        description: Texto livre registrado no campo de origem referente a `tx observacao classificacao`.
+      - name: vl_total_criterio
+        description: Valor monetário registrado no campo de origem referente a `vl total criterio`.
+      - name: vl_total_geral
+        description: Valor monetário registrado no campo de origem referente a `vl total geral`.
+      - name: tx_observacao_entrevista
+        description: Texto livre registrado no campo de origem referente a `tx observacao entrevista`.
+      - name: ds_instituicao_bolsa
+        description: Descrição textual registrada no campo de origem referente a `ds instituicao bolsa`.
+      - name: nu_posicao
+        description: Número registrado no campo de origem referente a `nu posicao`.
+      - name: ds_token_aceite
+        description: Descrição textual registrada no campo de origem referente a `ds token aceite`.
+      - name: in_bolsa_ativa
+        description: Indicador lógico registrado no campo de origem referente a `in bolsa ativa`.
+      - name: ds_institu_bolsa_ativa
+        description: Descrição textual registrada no campo de origem referente a `ds institu bolsa ativa`.
+      - name: in_declaracao_veracidade
+        description: Indicador lógico registrado no campo de origem referente a `in declaracao veracidade`.
+
+  - name: sisbolsas_tb_programa
+    description: >
+      Tabela bronze com o cadastro de programas do Sisbolsas, incluindo
+      hierarquia entre programas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_programa
+        description: Código identificador registrado no campo de origem referente a `co programa`.
+      - name: ds_programa
+        description: Descrição textual registrada no campo de origem referente a `ds programa`.
+      - name: co_programa_pai
+        description: Código identificador registrado no campo de origem referente a `co programa pai`.
+
+  - name: sisbolsas_tb_selecao
+    description: >
+      Tabela bronze com o cadastro de seleções do Sisbolsas, contendo
+      modalidade, requisitos, valores, quantidade de bolsas e parâmetros de
+      avaliação.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_selecao
+        description: Código identificador registrado no campo de origem referente a `co selecao`.
+      - name: co_chamada_publica
+        description: Código identificador registrado no campo de origem referente a `co chamada publica`.
+      - name: co_modalidade
+        description: Código identificador registrado no campo de origem referente a `co modalidade`.
+      - name: co_estado
+        description: Código identificador registrado no campo de origem referente a `co estado`.
+      - name: co_area_formacao
+        description: Código identificador registrado no campo de origem referente a `co area formacao`.
+      - name: co_nivel_escolaridade
+        description: Código identificador registrado no campo de origem referente a `co nivel escolaridade`.
+      - name: tp_atuacao
+        description: Tipo registrado no campo de origem referente a `tp atuacao`.
+      - name: st_nivel_escolaridade
+        description: Status registrado no campo de origem referente a `st nivel escolaridade`.
+      - name: qt_duracao
+        description: Quantidade registrada no campo de origem referente a `qt duracao`.
+      - name: vl_total
+        description: Valor monetário registrado no campo de origem referente a `vl total`.
+      - name: qt_bolsa
+        description: Quantidade registrada no campo de origem referente a `qt bolsa`.
+      - name: ds_area_especializacao
+        description: Descrição textual registrada no campo de origem referente a `ds area especializacao`.
+      - name: ds_outra_formacao
+        description: Descrição textual registrada no campo de origem referente a `ds outra formacao`.
+      - name: in_anexo_projeto
+        description: Indicador lógico registrado no campo de origem referente a `in anexo projeto`.
+      - name: in_anexo_idioma
+        description: Indicador lógico registrado no campo de origem referente a `in anexo idioma`.
+      - name: in_anexo_historico_escolar
+        description: Indicador lógico registrado no campo de origem referente a `in anexo historico escolar`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: co_cidade
+        description: Código identificador registrado no campo de origem referente a `co cidade`.
+      - name: nu_passo_avaliacao
+        description: Número registrado no campo de origem referente a `nu passo avaliacao`.
+      - name: st_avaliacao
+        description: Status registrado no campo de origem referente a `st avaliacao`.
+      - name: in_entrevista
+        description: Indicador lógico registrado no campo de origem referente a `in entrevista`.
+      - name: nu_selecao
+        description: Número registrado no campo de origem referente a `nu selecao`.
+      - name: in_anexo_outro
+        description: Indicador lógico registrado no campo de origem referente a `in anexo outro`.
+      - name: ds_anexo_outro
+        description: Descrição textual registrada no campo de origem referente a `ds anexo outro`.
+
+  - name: sisbolsas_tb_situacao_chamada
+    description: >
+      Tabela bronze com o catálogo de situações possíveis para chamadas
+      públicas no Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_situacao_chamada
+        description: Código identificador registrado no campo de origem referente a `co situacao chamada`.
+      - name: ds_situacao_chamada
+        description: Descrição textual registrada no campo de origem referente a `ds situacao chamada`.
+
+  - name: sisbolsas_tb_situacao_concessao
+    description: >
+      Tabela bronze com o catálogo de situações de concessão utilizadas nos
+      processos seletivos do Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_situacao_concessao
+        description: Código identificador registrado no campo de origem referente a `co situacao concessao`.
+      - name: ds_situacao_concessao
+        description: Descrição textual registrada no campo de origem referente a `ds situacao concessao`.
+
+  - name: sisbolsas_tb_unidade
+    description: >
+      Tabela bronze com o cadastro de unidades organizacionais do Sisbolsas,
+      incluindo estado, sigla e diretoria associada.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_unidade
+        description: Código identificador registrado no campo de origem referente a `co unidade`.
+      - name: ds_unidade
+        description: Descrição textual registrada no campo de origem referente a `ds unidade`.
+      - name: co_estado
+        description: Código identificador registrado no campo de origem referente a `co estado`.
+      - name: ds_sigla
+        description: Descrição textual registrada no campo de origem referente a `ds sigla`.
+      - name: co_diretoria
+        description: Código identificador registrado no campo de origem referente a `co diretoria`.
+
+  - name: sisbolsas_tb_usuario
+    description: >
+      Tabela bronze com o cadastro de usuários do Sisbolsas, incluindo
+      identificação, login, e-mail, perfil, senha e dados de redefinição de
+      acesso.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: ds_nome
+        description: Descrição textual registrada no campo de origem referente a `ds nome`.
+      - name: ds_login
+        description: Descrição textual registrada no campo de origem referente a `ds login`.
+      - name: co_perfil
+        description: Código identificador registrado no campo de origem referente a `co perfil`.
+      - name: ds_email
+        description: Descrição textual registrada no campo de origem referente a `ds email`.
+      - name: ds_senha
+        description: Descrição textual registrada no campo de origem referente a `ds senha`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+      - name: co_tipo_login
+        description: Código identificador registrado no campo de origem referente a `co tipo login`.
+      - name: st_usuario
+        description: Status registrado no campo de origem referente a `st usuario`.
+      - name: co_anexo
+        description: Código identificador registrado no campo de origem referente a `co anexo`.
+      - name: ds_token_redefinir_senha
+        description: Descrição textual registrada no campo de origem referente a `ds token redefinir senha`.
+      - name: dt_token_senha
+        description: Data registrada no campo de origem referente a `dt token senha`.

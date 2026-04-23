@@ -45,6 +45,11 @@ models:
       +schema: orcamento
       views:
         +materialized: view
+    sistema_sisbolsas:
+      +materialized: table
+      +schema: sistema_sisbolsas
+      bronze:
+        +materialized: table
     # siape_dbt: 
     #   +materialized: table 
     #   +schema: siape 

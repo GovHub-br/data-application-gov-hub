@@ -74,3 +74,49 @@ sources:
     schema: senado_federal
     tables:
       - name: senadores
+
+  - name: ipea_pro
+    schema: ipea_pro
+    tables:
+      - name: bolsistas
+      - name: coordenacoes
+      - name: custosemprojetos
+      - name: diretorias
+      - name: fontesreceitas
+      - name: grupoentidade
+      - name: insumofinanceiro
+      - name: itemfontereceitas
+      - name: itenscustos
+      - name: projetos
+      - name: registrofinanceiroemprojetos
+      - name: servidorespublicos
+      - name: statusprojetos
+
+  - name: sisbolsas
+    schema: sisbolsas
+    tables:
+      - name: tb_area_formacao
+      - name: tb_bolsa
+      - name: tb_bolsa_coordenador
+      - name: tb_bolsa_fonterecurso
+      - name: tb_bolsista
+      - name: tb_chamada_publica
+      - name: tb_chapubli_fontfina
+      - name: tb_chapubli_unidade
+      - name: tb_coordenador
+      - name: tb_dado_formacao
+      - name: tb_dado_pessoal
+      - name: tb_dado_profissional
+      - name: tb_estado
+      - name: tb_folha_bolsista
+      - name: tb_folha_pagamento
+      - name: tb_fonte_financeira
+      - name: tb_modalidade
+      - name: tb_nivel_escolaridade
+      - name: tb_processo_seletivo
+      - name: tb_programa
+      - name: tb_selecao
+      - name: tb_situacao_chamada
+      - name: tb_situacao_concessao
+      - name: tb_unidade
+      - name: tb_usuario
