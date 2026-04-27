@@ -57,12 +57,12 @@ EMAIL_SUBJECT = "notas_credito_enviadas_devolvidas_a_partir_2026"
 SKIPROWS = 3
 
 with DAG(
-    dag_id="email_notas_credito_ingest_mir_pos_2026",
+    dag_id="nc_tesouro_ingest_2026",
     default_args=default_args,
     schedule_interval=get_dynamic_schedule("email_notas_credito_ingest_mir_post_2026"),
     start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=["MIR", "email", "notas_credito"],
+    tags=["MIR", "Siafi", "email", "notas_credito", "tesouro"],
 ) as dag:
 
     def process_email_data(**context: Dict[str, Any]) -> Optional[Any]:
@@ -122,7 +122,7 @@ with DAG(
                 "nc_tesouro_pos__2026",
                 conflict_fields=unique_key,
                 primary_key=unique_key,
-                schema="siafi",
+                schema="tesouro_gerencial",
             )
             logging.info("Carga finalizada com sucesso.")
         except Exception as e:

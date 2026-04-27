@@ -62,7 +62,7 @@ SKIPROWS = 12
 
 # Configurações da DAG
 with DAG(
-    dag_id="email_tesouro_emendas_ingest",
+    dag_id="ne_tesouro_emendas_ingest",
     default_args=default_args,
     description="Processa anexos dos empenhos vindo do email, formata e insere no db",
     schedule_interval=get_dynamic_schedule("empenhos_tesouro_emendas_ingest_dag"),
@@ -172,7 +172,7 @@ with DAG(
                 "ne_tesouro_emendas",
                 conflict_fields=unique_key,
                 primary_key=unique_key,
-                schema="siafi",
+                schema="tesouro_gerencial",
             )
             logging.info("Dados inseridos com sucesso no banco de dados.")
         except Exception as e:

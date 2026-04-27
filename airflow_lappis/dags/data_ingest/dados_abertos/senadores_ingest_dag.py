@@ -56,7 +56,7 @@ def senadores_ingest_dag() -> None:
 
             logging.info(
                 f"[senadores_ingest_dag.py] Inserindo {len(registros_limpos)} "
-                f"senadores simplificados no schema senado_federal"
+                f"senadores simplificados no schema dados_abertos, tabela senadores"
             )
 
             db.insert_data(
@@ -64,7 +64,7 @@ def senadores_ingest_dag() -> None:
                 "senadores",
                 conflict_fields=["id"],
                 primary_key=["id"],
-                schema="senado_federal",
+                schema="dados_abertos",
             )
     @task
     def fetch_and_store_filiacoes() -> None:

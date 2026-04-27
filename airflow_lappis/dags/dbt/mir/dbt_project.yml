@@ -27,10 +27,10 @@ models:
       +schema: emendas
     dados_abertos_dbt:
      +materialized: table
-     +schema: dados_abertos
+     +schema: parlamentares
     empenhos_ted_dbt:
      +materialized: table
-     +schema: siafi_dbt
+     +schema: ted
 
 
 on-run-start:

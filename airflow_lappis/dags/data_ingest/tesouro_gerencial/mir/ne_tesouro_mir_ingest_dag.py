@@ -61,12 +61,12 @@ UNIQUE_KEY = [
 EMAIL_SUBJECT = "notas_de_empenho_ano_atual"
 SKIPROWS = 8
 TABLE_NAME = "ne_tesouro"
-SCHEMA_NAME = "siafi"
+SCHEMA_NAME = "tesouro_gerencial"
 OPTIONAL_COLUMNS = ["restos_a_pagar_inscritos", "restos_a_pagar_pagos"]
 
 # Configurações da DAG
 with DAG(
-    dag_id="email_tesouro_teds_notas_empenhadas_ingest_dag",
+    dag_id="ne_tesouro_teds_ingest_dag",
     default_args=default_args,
     description="Processa anexos dos empenhos vindo do email, formata e insere no db",
     schedule_interval=get_dynamic_schedule("empenhos_tesouro_parlamentares_ingest_dag"),

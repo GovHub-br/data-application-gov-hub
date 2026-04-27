@@ -47,7 +47,7 @@ SKIPROWS = 5
 
 # Configurações da DAG
 with DAG(
-    dag_id="email_programacao_acao_por_PTRES_ingest",
+    dag_id="programacao_acao_ptres_ingest",
     default_args=default_args,
     description="Processa anexo consolidado de programações de ação por PTRES por email e insere no db",
     schedule_interval=get_dynamic_schedule("programacao_acao_ptres_ingest_dag"),
@@ -114,7 +114,7 @@ with DAG(
             postgres_conn_str = get_postgres_conn("postgres_mir")
             db = ClientPostgresDB(postgres_conn_str)
 
-            db.insert_data(data, "programacao_acao_ptres", schema="siafi")
+            db.insert_data(data, "programacao_acao_ptres", schema="tesouro_gerencial")
             logging.info("Dados inseridos com sucesso no banco de dados.")
         except Exception as e:
             logging.error("Erro ao inserir dados no banco: %s", str(e))
@@ -127,7 +127,7 @@ with DAG(
         try:
             postgres_conn_str = get_postgres_conn("postgres_mir")
             db = ClientPostgresDB(postgres_conn_str)
-            db.remove_duplicates("programacao_acao_ptres", COLUMN_MAPPING, schema="siafi")
+            db.remove_duplicates("programacao_acao_ptres", COLUMN_MAPPING, schema="tesouro_gerencial")
 
         except Exception as e:
             logging.error(f"Erro ao executar a limpeza de duplicados: {str(e)}")

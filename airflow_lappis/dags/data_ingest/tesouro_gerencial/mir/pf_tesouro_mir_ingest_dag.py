@@ -46,7 +46,7 @@ SKIPROWS = 7
 
 # Configurações da DAG
 with DAG(
-    dag_id="email_programacoes_financeiras_mir_ingest",
+    dag_id="pf_tesouro_ingest", # pf programações financeiras
     default_args=default_args,
     description="Processa anexo consolidado de PFs por email e insere no db",
     schedule_interval=get_dynamic_schedule("pf_tesouro_mir_ingest_dag"),
@@ -113,7 +113,7 @@ with DAG(
             postgres_conn_str = get_postgres_conn("postgres_mir")
             db = ClientPostgresDB(postgres_conn_str)
 
-            db.insert_data(data, "pf_tesouro", schema="siafi")
+            db.insert_data(data, "pf_tesouro", schema="tesouro_gerencial")
             logging.info("Dados inseridos com sucesso no banco de dados.")
         except Exception as e:
             logging.error("Erro ao inserir dados no banco: %s", str(e))
@@ -126,7 +126,7 @@ with DAG(
         try:
             postgres_conn_str = get_postgres_conn("postgres_mir")
             db = ClientPostgresDB(postgres_conn_str)
-            db.remove_duplicates("pf_tesouro", COLUMN_MAPPING, schema="siafi")
+            db.remove_duplicates("pf_tesouro", COLUMN_MAPPING, schema="tesouro_gerencial")
 
         except Exception as e:
             logging.error(f"Erro ao executar a limpeza de duplicados: {str(e)}")

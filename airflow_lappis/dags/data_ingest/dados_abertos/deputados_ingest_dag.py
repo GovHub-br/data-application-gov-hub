@@ -53,7 +53,7 @@ def deputados_ingest_dag() -> None:
 
             logging.info(
                 f"[deputados_ingest_dag.py] Inserindo "
-                f"{len(deputados_data)} deputados no schema camara_deputados"
+                f"{len(deputados_data)} deputados no schema dados_abertos"
             )
 
             db.insert_data(
@@ -61,7 +61,7 @@ def deputados_ingest_dag() -> None:
                 "deputados",
                 conflict_fields=["id", "siglapartido", "idlegislatura"],
                 primary_key=["id", "siglapartido", "idlegislatura"],
-                schema="camara_deputados",
+                schema="dados_abertos",
             )
 
             logging.info(

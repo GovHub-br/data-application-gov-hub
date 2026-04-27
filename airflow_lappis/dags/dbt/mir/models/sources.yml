@@ -1,8 +1,8 @@
 version: 2
 
 sources:
-  - name: transferegov_emendas
-    schema: transferegov_emendas
+  - name: transfere_gov_emendas
+    schema: transfere_gov_emendas
     tables:
       - name: programas_especiais
       - name: planos_acao_especiais
@@ -17,30 +17,27 @@ sources:
       - name: metas_especiais
       - name: finalidades_especiais
 
-  - name: camara_deputados
-    schema: camara_deputados
+  - name: dados_abertos
+    schema: dados_abertos
     tables: 
       - name: deputados
-
-  - name: senado_federal
-    schema: senado_federal
-    tables:
       - name: senadores
 
-  - name: transfere_gov
-    schema: transfere_gov
+      
+  - name: transfere_gov_ted
+    schema: transfere_gov_ted
     tables:
       - name: programas
       - name: planos_acao
       - name: programacao_financeira
       - name: notas_de_credito
 
-  - name: siafi
-    schema: siafi
+  - name: tesouro_gerencial
+    schema: tesouro_gerencial
     tables:
         - name: ne_tesouro
         - name: ne_tesouro_emendas
-        - name: nc_tesouro_pos__2026
+        - name: nc_tesouro_pos_2026
         - name: nc_tesouro_pre_2026
         - name: pf_tesouro
         - name: programacao_acao_ptres

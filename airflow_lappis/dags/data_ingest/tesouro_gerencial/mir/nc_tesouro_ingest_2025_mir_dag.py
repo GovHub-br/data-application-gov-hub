@@ -61,12 +61,12 @@ EMAIL_CONFIGS = {
 }
 expected_columns = list(COLUMN_MAPPING.values())
 with DAG(
-    dag_id="email_notas_credito_ingest_mir_ate_2025",
+    dag_id="nc_tesouro_ingest_2025",
     default_args=default_args,
-    schedule_interval=get_dynamic_schedule("email_notas_credito_ingest_mir_ate_2025"),
+    schedule_interval=get_dynamic_schedule("email_notas_credito_ingest_mir_ate_2025"), #mudar nas variaveia para mudar aqui
     start_date=datetime(2023, 12, 1),
     catchup=False,
-    tags=["MIR", "SIAFI", "notas_credito"],
+    tags=["MIR", "Siafi", "notas_credito", "email", "tesouro"],
 ) as dag:
 
     def process_email_data(email_type: str, **context: Dict[str, Any]) -> pd.DataFrame:
@@ -175,7 +175,7 @@ with DAG(
             postgres_conn_str = get_postgres_conn('postgres_mir')
             db = ClientPostgresDB(postgres_conn_str)
 
-            db.insert_data(data, "nc_tesouro_pre_2026", schema="siafi")
+            db.insert_data(data, "nc_tesouro_pre_2026", schema="tesouro_gerencial")
             logging.info("Dados inseridos com sucesso no banco de dados.")
         except Exception as e:
             logging.error("Erro ao inserir dados no banco: %s", str(e))
@@ -188,7 +188,7 @@ with DAG(
         try:
             postgres_conn_str = get_postgres_conn('postgres_mir')
             db = ClientPostgresDB(postgres_conn_str)
-            db.remove_duplicates("nc_tesouro_pre_2026", COLUMN_MAPPING, schema="siafi")
+            db.remove_duplicates("nc_tesouro_pre_2026", COLUMN_MAPPING, schema="tesouro_gerencial")
 
         except Exception as e:
             logging.error(f"Erro ao executar a limpeza de duplicados: {str(e)}")
