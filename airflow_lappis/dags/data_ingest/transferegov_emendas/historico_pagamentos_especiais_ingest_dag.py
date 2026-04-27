@@ -51,7 +51,7 @@ def api_historico_pagamentos_especiais_dag() -> None:
                 "historico_pagamentos_especiais",
                 conflict_fields=["id_historico_op_ob"],
                 primary_key=["id_historico_op_ob"],
-                schema="transferegov_emendas",
+                schema="transfere_gov_emendas",
             )
 
             logging.info(

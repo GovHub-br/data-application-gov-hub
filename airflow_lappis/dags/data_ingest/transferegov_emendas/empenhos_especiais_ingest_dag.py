@@ -49,7 +49,7 @@ def api_empenhos_especiais_dag() -> None:
                 "empenhos_especiais",
                 conflict_fields=["id_empenho"],
                 primary_key=["id_empenho"],
-                schema="transferegov_emendas",
+                schema="transfere_gov_emendas",
             )
 
             logging.info(

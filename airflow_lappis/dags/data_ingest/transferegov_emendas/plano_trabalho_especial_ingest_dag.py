@@ -48,7 +48,7 @@ def api_plano_trabalho_especial_dag() -> None:
                 "plano_trabalho_especial",
                 conflict_fields=["id_plano_trabalho"],
                 primary_key=["id_plano_trabalho"],
-                schema="transferegov_emendas",
+                schema="transfere_gov_emendas",
             )
 
             logging.info(

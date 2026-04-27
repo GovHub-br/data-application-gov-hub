@@ -51,7 +51,7 @@ def api_documentos_habeis_especiais_dag() -> None:
                 "documentos_habeis_especiais",
                 conflict_fields=["id_dh"],
                 primary_key=["id_dh"],
-                schema="transferegov_emendas",
+                schema="transfere_gov_emendas",
             )
 
             logging.info(

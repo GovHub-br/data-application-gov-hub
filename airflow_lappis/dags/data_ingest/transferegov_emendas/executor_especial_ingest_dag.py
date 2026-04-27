@@ -56,7 +56,7 @@ def api_executor_especial_dag() -> None:
                 "executor_especial",
                 conflict_fields=["id_plano_acao", "id_executor"],
                 primary_key=["id_plano_acao", "id_executor"],
-                schema="transferegov_emendas",
+                schema="transfere_gov_emendas",
             )
 
             logging.info(

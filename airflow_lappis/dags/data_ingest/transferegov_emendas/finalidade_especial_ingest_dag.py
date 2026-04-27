@@ -58,7 +58,7 @@ def api_finalidade_especial_dag() -> None:
                     "cd_area_politica_publica_tipo_pt",
                     "area_politica_publica_pt",
                 ],
-                schema="transferegov_emendas",
+                schema="transfere_gov_emendas",
             )
 
             logging.info(

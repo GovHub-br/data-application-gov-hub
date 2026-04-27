@@ -51,7 +51,7 @@ def api_relatorio_gestao_novo_especial_dag() -> None:
                 "relatorios_gestao_novo_especial",
                 conflict_fields=["id_relatorio_gestao_novo"],
                 primary_key=["id_relatorio_gestao_novo"],
-                schema="transferegov_emendas",
+                schema="transfere_gov_emendas",
             )
 
             logging.info(

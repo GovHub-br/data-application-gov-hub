@@ -47,7 +47,7 @@ def api_metas_especiais_dag() -> None:
             "metas_especiais",
             conflict_fields=["id_meta"],
             primary_key=["id_meta"],
-            schema="transferegov_emendas",
+            schema="transfere_gov_emendas",
         )
 
         logging.info(

@@ -46,7 +46,7 @@ def api_relatorio_gestao_especial_dag() -> None:
             table_name="relatorio_gestao_especial",
             conflict_fields=["id_relatorio_gestao"],
             primary_key=["id_relatorio_gestao"],
-            schema="transferegov_emendas",
+            schema="transfere_gov_emendas",
         )
 
         logging.info("[relatorio_gestao] Ingestão concluída com sucesso.")

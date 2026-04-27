@@ -50,7 +50,7 @@ def api_ordem_bancaria_especial_dag() -> None:
                 "ordens_bancarias_especiais",
                 conflict_fields=["id_op_ob"],
                 primary_key=["id_op_ob"],
-                schema="transferegov_emendas",
+                schema="transfere_gov_emendas",
             )
 
             logging.info(
