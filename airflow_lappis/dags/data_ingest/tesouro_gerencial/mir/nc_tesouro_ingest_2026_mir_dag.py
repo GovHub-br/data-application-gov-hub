@@ -119,7 +119,7 @@ with DAG(
 
             db.insert_data(
                 data,
-                "nc_tesouro_pos__2026",
+                "nc_tesouro_pos_2026",
                 conflict_fields=unique_key,
                 primary_key=unique_key,
                 schema="tesouro_gerencial",
