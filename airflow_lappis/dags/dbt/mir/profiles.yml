@@ -1,3 +1,6 @@
+mir:
+  target: prod
+  outputs:
 outputs:
     prod:
       type: postgres
