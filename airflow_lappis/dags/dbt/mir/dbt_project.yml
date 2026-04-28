@@ -18,7 +18,7 @@ clean-targets:
 
 models:
   mir: 
-    +database: postgres #sem subir essa linha
+    +database: analysis
     metadata:
       +materialized: incremental
       +schema: metadata
