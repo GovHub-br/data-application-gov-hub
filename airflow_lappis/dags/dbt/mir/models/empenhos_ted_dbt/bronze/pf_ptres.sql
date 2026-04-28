@@ -22,7 +22,7 @@ with
 			{{ parse_financial_value("dotacao_suplementar") }} as dotacao_suplementar,
 			{{ parse_financial_value("dotacao_atualizada") }} as dotacao_atualizada,
 			(dt_ingest || '-03:00')::timestamptz as dt_ingest
-		from {{ source("siafi", "programacao_acao_ptres") }}
+		from {{ source("tesouro_gerencial", "programacao_acao_ptres") }}
 	)
 
 select *

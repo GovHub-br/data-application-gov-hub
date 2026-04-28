@@ -16,7 +16,7 @@ with
 			cd_ug_favorecida_nota::text as cd_ug_favorecida_nota,
 			tx_observacao_nota::text as tx_observacao_nota,
 			(dt_ingest || '-03:00')::timestamptz as dt_ingest
-		from {{ source("transfere_gov", "notas_de_credito") }}
+		from {{ source("transfere_gov_ted", "notas_de_credito") }}
 	)
 
 select *

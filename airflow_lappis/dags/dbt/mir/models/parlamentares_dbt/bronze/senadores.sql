@@ -13,7 +13,7 @@ with
             sigla_partido::text as sigla_partido,
             uf::text as uf,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("senado_federal", "senadores") }}
+        from {{ source("dados_abertos", "senadores") }}
     )
 
 select *

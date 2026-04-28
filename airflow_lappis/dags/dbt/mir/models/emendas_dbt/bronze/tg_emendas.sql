@@ -45,7 +45,7 @@ with
             {{ parse_financial_value("despesas_liquidadas") }} as despesas_liquidadas,
             {{ parse_financial_value("despesas_pagas") }} as despesas_pagas,
 			(dt_ingest || '-03:00')::timestamptz as dt_ingest
-		from {{ source("siafi", "ne_tesouro_emendas") }}
+		from {{ source("tesouro_gerencial", "ne_tesouro_emendas") }}
 	)
 
 select *

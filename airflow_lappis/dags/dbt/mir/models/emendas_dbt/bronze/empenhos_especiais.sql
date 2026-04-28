@@ -31,7 +31,7 @@ with
             valor_empenho::numeric(15, 2) as valor_empenho,
             id_plano_acao::integer as id_plano_acao,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "empenhos_especiais") }}
+        from {{ source("transfere_gov_emendas", "empenhos_especiais") }}
     )  --
 
 select *

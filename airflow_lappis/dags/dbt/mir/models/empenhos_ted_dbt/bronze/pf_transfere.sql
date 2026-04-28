@@ -15,7 +15,7 @@ with
 			ug_favorecida_programacao::text as ug_favorecida_programacao,
 			dh_recebimento_programacao::timestamp as dh_recebimento_programacao,
 			(dt_ingest || '-03:00')::timestamptz as dt_ingest
-		from {{ source("transfere_gov", "programacao_financeira") }}
+		from {{ source("transfere_gov_ted", "programacao_financeira") }}
 	)
 
 select *

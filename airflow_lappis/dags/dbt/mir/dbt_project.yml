@@ -18,14 +18,14 @@ clean-targets:
 
 models:
   mir: 
-    +database: analytics
+    +database: postgres #sem subir essa linha
     metadata:
       +materialized: incremental
       +schema: metadata
     emendas_dbt:
       +materialized: table
       +schema: emendas
-    dados_abertos_dbt:
+    parlamentares_dbt:
      +materialized: table
      +schema: parlamentares
     empenhos_ted_dbt:

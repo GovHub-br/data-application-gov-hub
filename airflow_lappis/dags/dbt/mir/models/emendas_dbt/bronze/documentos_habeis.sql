@@ -26,7 +26,7 @@ with
             valor_dh::numeric(15, 2) as valor_dh,
             valor_rateio_dh::numeric(15, 2) as valor_rateio_dh,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "documentos_habeis_especiais") }}
+        from {{ source("transfere_gov_emendas", "documentos_habeis_especiais") }}
     )  --
 
 select *

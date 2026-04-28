@@ -8,7 +8,7 @@ with
             parecer_relatorio_gestao::text as parecer_relatorio_gestao,
             id_plano_acao::integer as id_plano_acao,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "relatorio_gestao_especial") }}
+        from {{ source("transfere_gov_emendas", "relatorio_gestao_especial") }}
     )
 
 select *

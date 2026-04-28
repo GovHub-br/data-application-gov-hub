@@ -17,7 +17,7 @@ with
             data_assinatura_gestor_financeiro_ob::date as data_assinatura_gestor_financeiro_ob,
             id_dh::integer as id_dh,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "ordens_bancarias_especiais") }}
+        from {{ source("transfere_gov_emendas", "ordens_bancarias_especiais") }}
     )  --
 
 select *

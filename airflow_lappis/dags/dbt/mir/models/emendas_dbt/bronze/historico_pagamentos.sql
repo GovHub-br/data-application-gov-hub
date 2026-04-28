@@ -9,7 +9,7 @@ with
             descricao_historico_situacao_op::text as descricao_historico_situacao_op,
             id_op_ob::integer as id_op_ob,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "historico_pagamentos_especiais") }}
+        from {{ source("transfere_gov_emendas", "historico_pagamentos_especiais") }}
     )  --
 
 select *

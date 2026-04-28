@@ -21,7 +21,7 @@ with
 			doc_observacao::text as doc_observacao,
 			{{ parse_financial_value("pf_valor_linha") }} as pf_valor_linha,
 			(dt_ingest || '-03:00')::timestamptz as dt_ingest
-		from {{ source("siafi", "pf_tesouro") }}
+		from {{ source("tesouro_gerencial", "pf_tesouro") }}
 	)
 
 select *

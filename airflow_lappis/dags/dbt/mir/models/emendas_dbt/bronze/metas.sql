@@ -20,7 +20,7 @@ with
             vl_investimento_doacao_meta::numeric(15, 2) as valor_investimento_doacao_meta,
             qt_meses_meta::integer as qt_meses_meta,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "metas_especiais") }}
+        from {{ source("transfere_gov_emendas", "metas_especiais") }}
     )
 
 select *

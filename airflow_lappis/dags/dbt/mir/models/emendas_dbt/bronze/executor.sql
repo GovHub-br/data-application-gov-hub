@@ -21,7 +21,7 @@ with
             nullif(codigo_situacao_dado_bancario_executor, 'NaN')::numeric::integer as codigo_situacao_dado_bancario_executor,
             descricao_situacao_dado_bancario_executor::text as descricao_situacao_dado_bancario_executor,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "executor_especial") }}
+        from {{ source("transfere_gov_emendas", "executor_especial") }}
     )
 
 select *

@@ -31,7 +31,7 @@ with
             valor_investimento_plano_acao::numeric(15, 2) as valor_investimento_plano_acao,
             id_programa::integer as id_programa,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "planos_acao_especiais") }}
+        from {{ source("transfere_gov_emendas", "planos_acao_especiais") }}
     )  --
 
 select *

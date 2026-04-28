@@ -44,7 +44,7 @@ with
             cast(null as numeric) as total_lista,
             cast(null as varchar) as esfera_orcamentaria_codigo,
             cast(null as varchar) as esfera_orcamentaria_nome
-        from {{ source("siafi", "nc_tesouro_pre_2026") }}
+        from {{ source("tesouro_gerencial", "nc_tesouro_pre_2026") }}
     ),
     notas_credito_pos as (
         select
@@ -88,7 +88,7 @@ with
             {{parse_financial_value("total_lista")}} as total_lista,
             esfera_orcamentaria_codigo,
             esfera_orcamentaria_nome
-        from {{ source("siafi", "nc_tesouro_pos__2026") }}
+        from {{ source("tesouro_gerencial", "nc_tesouro_pos_2026") }}
     )
 
 select * from notas_credito_pre

@@ -15,7 +15,7 @@ with
             ind_justificativa_prorrogacao_paralizacao_pt::boolean as ind_justificativa_prorrogacao_paralizacao_pt,
             justificativa_prorrogacao_pt::text as justificativa_prorrogacao_pt,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "plano_trabalho_especial") }}
+        from {{ source("transfere_gov_emendas", "plano_trabalho_especial") }}
     )  --
 
 select *

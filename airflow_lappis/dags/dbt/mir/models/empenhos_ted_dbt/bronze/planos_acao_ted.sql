@@ -24,7 +24,7 @@ with
 			sq_instrumento::text as sq_instrumento,
 			nullif(aa_instrumento, '')::integer as aa_instrumento,
 			(dt_ingest || '-03:00')::timestamptz as dt_ingest
-		from {{ source("transfere_gov", "planos_acao") }}
+		from {{ source("transfere_gov_ted", "planos_acao") }}
 	)
 
 select *

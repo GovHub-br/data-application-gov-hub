@@ -23,7 +23,7 @@ with
             valor_obs_geradas_programa::numeric(15, 2) as valor_obs_geradas_programa,
             valor_disponibilidade_atual_programa::numeric(15, 2) as valor_disponibilidade_atual_programa,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "programas_especiais") }}
+        from {{ source("transfere_gov_emendas", "programas_especiais") }}
     )  --
 
 select *

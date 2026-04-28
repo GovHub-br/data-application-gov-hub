@@ -32,7 +32,7 @@ with
 			nullif(dt_recebimento_plano_chamamento_fim, '')::timestamp::date
 			as dt_recebimento_plano_chamamento_fim,
 			(dt_ingest || '-03:00')::timestamptz as dt_ingest
-		from {{ source("transfere_gov", "programas") }}
+		from {{ source("transfere_gov_ted", "programas") }}
 	)
 
 select *

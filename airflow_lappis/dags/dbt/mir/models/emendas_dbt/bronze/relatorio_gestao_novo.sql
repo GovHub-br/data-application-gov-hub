@@ -11,7 +11,7 @@ with
             situacao_relatorio_gestao_novo::text as situacao_relatorio_gestao_novo,
             id_plano_acao::integer as id_plano_acao,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "relatorios_gestao_novo_especial") }}
+        from {{ source("transfere_gov_emendas", "relatorios_gestao_novo_especial") }}
     )
 
 select *

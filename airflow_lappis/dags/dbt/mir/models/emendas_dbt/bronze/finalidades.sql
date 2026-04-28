@@ -9,7 +9,7 @@ with
             cd_area_politica_publica_pt::integer as cd_area_politica_publica_pt,
             area_politica_publica_pt::text as area_politica_publica_pt,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("transferegov_emendas", "finalidades_especiais") }}
+        from {{ source("transfere_gov_emendas", "finalidades_especiais") }}
     )
 
 select *
