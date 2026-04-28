@@ -1,6 +1,7 @@
 import logging
 import re
 import math
+from datetime import date, datetime, time
 from typing import Any, Dict, List, Tuple
 from airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook
 
@@ -36,6 +37,9 @@ class ClientSQLServerDB:
 
         if str(value) == "NaT":
             return None
+
+        if isinstance(value, (datetime, date, time)):
+            return value.isoformat()
 
         return value
 
