@@ -147,8 +147,95 @@ with
         from primeira_correlacao as pr
         left join {{ ref("dados_pessoais") }} as dp on pr.cpf_chefia_imediata = dp.cpf
         order by caminho_unidade, hierarquia_cargo
+    ),
+
+    hierarquia_filtrada as (
+        select *
+        from tabela_correlacao_cargos
+        where nome_situacao_funcional != 'ATIVO EM OUTRO ORGAO'
+    ),
+
+    hierarquia_enriquecida as (
+        select
+            ph.*,
+            df.dt_ingest as dt_ingest_dados_funcionais,
+            case
+                when df.modalidade_pgd is null
+                then 'Não participa'
+                when df.modalidade_pgd = 'parcial'
+                then 'Parcial'
+                when df.modalidade_pgd = 'integral'
+                then 'Integral'
+                when df.modalidade_pgd = 'presencial'
+                then 'Presencial'
+                when df.modalidade_pgd = 'no exterior'
+                then 'No exterior'
+            end as pdg,
+            case
+                when ph.nome_situacao_funcional = 'ATIVO EM OUTRO ORGAO'
+                then 'Ativo em outro órgão'
+                else ph.siglaunidade
+            end as unidade_exercicio
+        from hierarquia_filtrada as ph
+        inner join {{ ref("dados_funcionais") }} as df on ph.cpf = df.cpf
+    ),
+
+    servidores_enriquecidos as (
+        select
+            distinct
+            ph.*,
+            du.nome_municipio_uorg,
+            du.dt_ingest as dt_ingest_dados_uorg
+        from hierarquia_enriquecida as ph
+        inner join {{ ref("dados_uorg") }} as du on ph.siglaunidade = du.sigla_uorg
+        order by caminho_unidade, hierarquia_cargo
+    ),
+
+    hierarquia_completa as (
+        select distinct
+            se.codigo_siape,
+            se.codigo_siorg,
+            se.codigo_combinacao_siape,
+            se.codigo_combinacao_siorg,
+            se.matricula_siape,
+            se.cpf,
+            se.cpf_chefia_imediata,
+            se.cod_situacao_funcional,
+            se.nome_situacao_funcional,
+            se.hierarquia_cargo,
+            se.servidor,
+            se.dt_nascimento,
+            se.nome_sexo,
+            se.nome_estado_civil,
+            se.nome_nacionalidade,
+            se.nome_cor,
+            se.uf_nascimento,
+            se.nome_municipio_nascimento,
+            se.nome_chefia,
+            se.codigounidade,
+            se.codigounidadepai,
+            se.caminho_unidade,
+            se.ordem_grandeza,
+            se.nomeunidade,
+            se.siglaunidade,
+            se.nome_cargo,
+            se.servidores_carreira,
+            se.pdg,
+            se.unidade_exercicio,
+            se.nome_municipio_uorg,
+            sd.cod_escolaridade_principal,
+            sd.nome_escolaridade_principal,
+            sd.nome_deficiencia_fisica,
+            sd.nome_cargo as nome_cargo_emprego,
+            greatest(
+                se.dt_ingest,
+                se.dt_ingest_dados_funcionais,
+                se.dt_ingest_dados_uorg,
+                sd.dt_ingest
+            ) as dt_ingest
+        from servidores_enriquecidos as se
+        inner join {{ ref("servidores_detalhados") }} as sd on se.cpf = sd.cpf
     )
 
 select *
-from tabela_correlacao_cargos
-where nome_situacao_funcional != 'ATIVO EM OUTRO ORGAO'
+from hierarquia_completa

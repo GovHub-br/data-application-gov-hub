@@ -4,6 +4,34 @@ models:
 
 
   # Silver
+  - name: dados_funcionais_enriquecidos
+    description: >
+      Tabela silver que enriquece os dados funcionais dos servidores com campos
+      padronizados de participação no PGD e informações da unidade organizacional
+      de exercício.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: cpf
+        description: CPF do servidor, com apenas dígitos.
+      - name: modalidade_pgd
+        description: Modalidade original de participação no Programa de Gestão e Desempenho (PGD).
+      - name: pdg
+        description: Modalidade de participação no PGD, com valores padronizados para análise.
+      - name: nome_situacao_funcional
+        description: Descrição da situação funcional do servidor.
+      - name: sigla_uorg_exercicio
+        description: Sigla da unidade de exercício.
+      - name: unidade_exercicio
+        description: Unidade de exercício tratada para exibição nas análises.
+      - name: nome_municipio_uorg
+        description: Município da unidade organizacional de exercício.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) em que os dados funcionais foram ingeridos.
+
+
   - name: afastamento_consolidado
     description: >
       Tabela gold que consolida os registros de afastamento dos servidores, integrando as fontes 

@@ -7,7 +7,8 @@ with
             fornecedor_cnpj_cpf_idgener,
             processo as processo_contrato,
             numero as numero_contrato,
-            objeto as objeto_contrato
+            objeto as objeto_contrato,
+            unidades_requisitantes
         from {{ ref("contratos") }}
     ),
 
@@ -20,6 +21,7 @@ select
     c.processo_contrato as contrato_processo,
     c.fornecedor_cnpj_cpf_idgener,
     c.objeto_contrato,
+    c.unidades_requisitantes,
     f.tipolistafatura_id,
     f.justificativafatura_id,
     f.sfadrao_id,
@@ -51,3 +53,4 @@ select
     f.dt_ingest
 from faturas_base f
 left join contratos c on f.contrato_id = c.contrato_id
+where f.emissao < '2026-01-01'

@@ -172,6 +172,20 @@ models:
         description: Nome ou denominação do cargo ocupado.
       - name: servidores_carreira
         description: Indica se o servidor está em cargo de carreira ou em nomeação livre.
+      - name: pdg
+        description: Modalidade de participação do servidor no PGD, com valores padronizados para análise.
+      - name: unidade_exercicio
+        description: Unidade de exercício tratada para exibição nas análises de hierarquia.
+      - name: nome_municipio_uorg
+        description: Município da unidade organizacional associado à sigla da unidade.
+      - name: cod_escolaridade_principal
+        description: Código da principal escolaridade cadastrada para o servidor.
+      - name: nome_escolaridade_principal
+        description: Nome da principal escolaridade cadastrada para o servidor.
+      - name: nome_deficiencia_fisica
+        description: Descrição da deficiência física cadastrada para o servidor, quando houver.
+      - name: nome_cargo_emprego
+        description: Nome do cargo ou emprego do servidor conforme dados detalhados.
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.

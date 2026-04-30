@@ -40,9 +40,9 @@ select
         else fornecedor_tipo
     end as fornecedor_tipo,
     concat(
-        contratante__orgao_origem__unidade_gestora_origem__codigo,
+        contratante__orgao__unidade_gestora__codigo,
         ' - ',
-        contratante__orgao_origem__unidade_gestora_origem__nome_resumido
+        contratante__orgao__unidade_gestora__nome_resumido
     ) as "Unidade",
     case
         when vigencia_fim - vigencia_inicio >= 730 and num_parcelas > 1
