@@ -8,7 +8,8 @@ with
             processo as processo_contrato,
             numero as numero_contrato,
             objeto as objeto_contrato,
-            unidades_requisitantes
+            unidades_requisitantes,
+            dt_ingest as dt_ingest_contratos
         from {{ ref("contratos") }}
     ),
 
@@ -50,7 +51,7 @@ select
     f.numero_empenho,
     f.valor_empenho,
     f.subelemento,
-    f.dt_ingest
+    greatest(f.dt_ingest, c.dt_ingest_contratos) as dt_ingest
 from faturas_base f
 left join contratos c on f.contrato_id = c.contrato_id
 where f.emissao < '2026-01-01'

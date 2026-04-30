@@ -20,7 +20,7 @@ with
             s.valor_pago as siafi_valor_pago,
             s.restos_a_pagar as siafi_restos_a_pagar,
             s.restos_a_pagar_pago as siafi_restos_a_pagar_pago,
-            c.dt_ingest as dt_ingest
+            greatest(c.dt_ingest, s.dt_ingest) as dt_ingest
         from compras_gov_data as c
         full join siafi_data as s using (contrato_id, mes_ref)
 
@@ -28,7 +28,10 @@ with
 
     preenchimento as (select contrato_id, mes_ref from {{ ref("preenchimento_meses") }}),
 
-    contratos as (select id, numero from {{ ref("contratos") }}),
+    contratos as (
+        select id, numero, dt_ingest as dt_ingest_contratos
+        from {{ ref("contratos") }}
+    ),
 
     comparativo_mensal as (
         select
@@ -49,7 +52,17 @@ with
 
 --
 select
-    ccm.*,
-    c.numero
+    ccm.contrato_id,
+    ccm.mes_ref,
+    ccm.comprasgov_valor_cronograma,
+    ccm.comprasgov_valor_faturas,
+    ccm.comprasgov_saldo_contratual_disponivel,
+    ccm.siafi_valor_empenhado,
+    ccm.siafi_valor_liquidado,
+    ccm.siafi_valor_pago,
+    ccm.siafi_restos_a_pagar,
+    ccm.siafi_restos_a_pagar_pago,
+    c.numero,
+    greatest(ccm.dt_ingest, c.dt_ingest_contratos) as dt_ingest
 from comparativo_mensal as ccm
 left join contratos as c on ccm.contrato_id = c.id
