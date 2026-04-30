@@ -55,6 +55,21 @@ models:
       - name: despesas_pagas
         description: >
           Valor total das despesas pagas para o contrato.
+      - name: fornecedor_nome
+        description: >
+          Nome do fornecedor associado ao contrato.
+      - name: unidades_requisitantes
+        description: >
+          Unidades requisitantes associadas ao contrato.
+      - name: objeto
+        description: >
+          Descrição do objeto contratado.
+      - name: vigencia_inicio
+        description: >
+          Data de início da vigência do contrato.
+      - name: vigencia_fim
+        description: >
+          Data de término da vigência do contrato.
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
@@ -152,6 +167,9 @@ models:
       - name: objeto_contrato
         description: >
           Descrição do objeto contratado.
+      - name: unidades_requisitantes
+        description: >
+          Unidades requisitantes associadas ao contrato relacionado à fatura.
       - name: tipolistafatura_id
         description: >
           Identificador do tipo de lista de fatura.

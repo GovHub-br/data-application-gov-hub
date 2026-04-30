@@ -26,20 +26,30 @@ with
 
     ),
 
-    preenchimento as (select contrato_id, mes_ref from {{ ref("preenchimento_meses") }})
+    preenchimento as (select contrato_id, mes_ref from {{ ref("preenchimento_meses") }}),
+
+    contratos as (select id, numero from {{ ref("contratos") }}),
+
+    comparativo_mensal as (
+        select
+            contrato_id,
+            mes_ref,
+            comprasgov_valor_cronograma,
+            comprasgov_valor_faturas,
+            comprasgov_saldo_contratual_disponivel,
+            siafi_valor_empenhado,
+            siafi_valor_liquidado,
+            siafi_valor_pago,
+            siafi_restos_a_pagar,
+            siafi_restos_a_pagar_pago,
+            dt_ingest
+        from partial_result
+        full join preenchimento using (contrato_id, mes_ref)
+    )
 
 --
 select
-    contrato_id,
-    mes_ref,
-    comprasgov_valor_cronograma,
-    comprasgov_valor_faturas,
-    comprasgov_saldo_contratual_disponivel,
-    siafi_valor_empenhado,
-    siafi_valor_liquidado,
-    siafi_valor_pago,
-    siafi_restos_a_pagar,
-    siafi_restos_a_pagar_pago,
-    dt_ingest
-from partial_result
-full join preenchimento using (contrato_id, mes_ref)
+    ccm.*,
+    c.numero
+from comparativo_mensal as ccm
+left join contratos as c on ccm.contrato_id = c.id

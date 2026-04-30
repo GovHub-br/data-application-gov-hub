@@ -85,6 +85,9 @@ models:
       - name: contrato_id
         description: >
           Identificador único do contrato.
+      - name: numero
+        description: >
+          Número do contrato no sistema ComprasGov.
       - name: mes_ref
         description: >
           Mês de referência da informação financeira, preenchido para todos os meses entre o início e fim do contrato.
