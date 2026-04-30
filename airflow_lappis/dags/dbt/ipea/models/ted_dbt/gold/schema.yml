@@ -76,11 +76,13 @@ models:
       - name: num_transf
         description: Número da transferência.
       - name: tipo
-        description: Subcategoria detalhada do valor (ex: '1.1 Valor firmado', '2.1 Destaque total recebido').
+        description: >
+          Subcategoria detalhada do valor (ex: '1.1 Valor firmado', '2.1 Destaque total recebido').
       - name: valor
         description: Valor numérico associado ao tipo.
       - name: categoria
-        description: Categoria principal para agrupamento no gráfico (ex: '1. Valor firmado', '2. Destaque orçamentário').
+        description: >
+          Categoria principal para agrupamento no gráfico (ex: '1. Valor firmado', '2. Destaque orçamentário').
       - name: dt_ingest
         description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
@@ -98,11 +100,13 @@ models:
       - name: num_transf
         description: Número da transferência.
       - name: tipo
-        description: Subcategoria detalhada do valor (ex: '1.1 Valor firmado', '2.1 Destaque total enviado').
+        description: >
+          Subcategoria detalhada do valor (ex: '1.1 Valor firmado', '2.1 Destaque total enviado').
       - name: valor
         description: Valor numérico associado ao tipo.
       - name: categoria
-        description: Categoria principal para agrupamento no gráfico (ex: '1. Valor firmado', '2. Destaque orçamentário', '3. Repasse financeiro').
+        description: >
+          Categoria principal para agrupamento no gráfico (ex: '1. Valor firmado', '2. Destaque orçamentário', '3. Repasse financeiro').
       - name: dt_ingest
         description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
@@ -119,11 +123,13 @@ models:
       - name: num_transf
         description: Número da transferência.
       - name: tipo
-        description: Subcategoria detalhada do valor (ex: '2.1 Financeiro recebido', '3.3 Saldo financeiro').
+        description: >
+          Subcategoria detalhada do valor (ex: '2.1 Financeiro recebido', '3.3 Saldo financeiro').
       - name: valor
         description: Valor numérico associado ao tipo.
       - name: categoria
-        description: Categoria principal para agrupamento no gráfico (ex: '2. Visão geral repasses financeiros', '3. Detalhe da execução financeira').
+        description: >
+          Categoria principal para agrupamento no gráfico (ex: '2. Visão geral repasses financeiros', '3. Detalhe da execução financeira').
       - name: dt_ingest
         description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
@@ -140,11 +146,13 @@ models:
       - name: num_transf
         description: Número da transferência.
       - name: tipo
-        description: Subcategoria detalhada do valor (ex: '2.1 Empenhado (total-anulado)', '3.3 Saldo empenho').
+        description: >
+          Subcategoria detalhada do valor (ex: '2.1 Empenhado (total-anulado)', '3.3 Saldo empenho').
       - name: valor
         description: Valor numérico associado ao tipo.
       - name: categoria
-        description: Categoria principal para agrupamento no gráfico (ex: '2. Visão geral da exec. orçamentária', '3. Detalhe da exec. orçamentária').
+        description: >
+          Categoria principal para agrupamento no gráfico (ex: '2. Visão geral da exec. orçamentária', '3. Detalhe da exec. orçamentária').
       - name: dt_ingest
         description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
@@ -161,11 +169,13 @@ models:
       - name: num_transf
         description: Número da transferência.
       - name: tipo
-        description: Subcategoria detalhada do valor (ex: '1.1 Restos a pagar inscritos', '2.2 Saldo RAP').
+        description: >
+          Subcategoria detalhada do valor (ex: '1.1 Restos a pagar inscritos', '2.2 Saldo RAP').
       - name: valor
         description: Valor numérico associado ao tipo.
       - name: categoria
-        description: Categoria principal para agrupamento no gráfico (ex: '1. Restos a pagar inscritos', '2. Detalhe da exec. orçamentária - Restos a Pagar').
+        description: >
+          Categoria principal para agrupamento no gráfico (ex: '1. Restos a pagar inscritos', '2. Detalhe da exec. orçamentária - Restos a Pagar').
       - name: dt_ingest
         description: Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
