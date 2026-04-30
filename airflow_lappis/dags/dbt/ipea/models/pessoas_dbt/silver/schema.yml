@@ -29,7 +29,7 @@ models:
         description: Município da unidade organizacional de exercício.
       - name: dt_ingest
         description: >
-          Data e hora (UTC-3 Brasília) em que os dados funcionais foram ingeridos.
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
 
 
   - name: afastamento_consolidado

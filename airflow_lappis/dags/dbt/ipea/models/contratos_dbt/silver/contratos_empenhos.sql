@@ -214,17 +214,32 @@ with
             objeto,
             vigencia_inicio,
             vigencia_fim,
-            situacao
+            situacao,
+            dt_ingest as dt_ingest_contratos
         from {{ ref("contratos") }}
     )
 
 select
-    ce.*,
+    ce.contrato_id,
+    ce.ne_transformed,
+    ce.ne_ccor,
+    ce.ne_info_complementar,
+    ce.ne_num_processo,
+    ce.ne_ccor_descricao,
+    ce.doc_observacao,
+    ce.natureza_despesa,
+    ce.natureza_despesa_descricao,
+    ce.ne_ccor_favorecido,
+    ce.ne_ccor_ano_emissao,
+    ce.despesas_empenhadas,
+    ce.despesas_liquidadas,
+    ce.despesas_pagas,
     cc.fornecedor_nome,
     cc.unidades_requisitantes,
     cc.objeto,
     cc.vigencia_inicio,
-    cc.vigencia_fim
+    cc.vigencia_fim,
+    greatest(ce.dt_ingest, cc.dt_ingest_contratos) as dt_ingest
 from resultado_final as ce
 full join contratos as cc on ce.contrato_id = cc.id
 where cc.situacao = 'Ativo'
