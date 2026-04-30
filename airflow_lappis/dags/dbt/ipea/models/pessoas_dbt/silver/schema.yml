@@ -372,7 +372,8 @@ models:
         - silver
     columns:
       - name: nivel
-        description: Sigla do nível do cargo (ex: DAS, FG, etc.).
+        description: >
+          Sigla do nível do cargo (ex: DAS, FG, etc.).
       - name: classe_padrao
         description: Combinação de código de classe e padrão no formato 'COD_CLASSE-COD_PADRAO'.
       - name: nome_situacao_funcional

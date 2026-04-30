@@ -20,7 +20,7 @@ with
             s.valor_pago as siafi_valor_pago,
             s.restos_a_pagar as siafi_restos_a_pagar,
             s.restos_a_pagar_pago as siafi_restos_a_pagar_pago,
-            greatest(c.dt_ingest, s.dt_ingest) as dt_ingest
+            greatest(c.dt_ingest::timestamptz, s.dt_ingest::timestamptz) as dt_ingest
         from compras_gov_data as c
         full join siafi_data as s using (contrato_id, mes_ref)
 
@@ -63,6 +63,6 @@ select
     ccm.siafi_restos_a_pagar,
     ccm.siafi_restos_a_pagar_pago,
     c.numero,
-    greatest(ccm.dt_ingest, c.dt_ingest_contratos) as dt_ingest
+    greatest(ccm.dt_ingest::timestamptz, c.dt_ingest_contratos::timestamptz) as dt_ingest
 from comparativo_mensal as ccm
 left join contratos as c on ccm.contrato_id = c.id
