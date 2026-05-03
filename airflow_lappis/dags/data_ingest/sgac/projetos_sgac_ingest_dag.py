@@ -98,8 +98,10 @@ COLUMN_MAPPING = {
     74: "corpo",
     75: "fiscal_e_substituto",
     76: "numero_siafi",
-    77: "atribuido_a",
-    78: "atribuido_a_claims"
+    77: "apostilamentos",
+    78: "prorrogacao_de_oficio",
+    79: "atribuido_a",
+    80: "atribuido_a_claims",
 }
 
 EMAIL_SUBJECT = "SGAC"
