@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: bolsistas_ativos
+    description: >
+      Modelo silver de bolsistas do Sisbolsas. Parte de `sisbolsas_tb_bolsista`
+      e consolida dados de usuário, seleção/chamada, unidade/UF, projeto,
+      programa, modalidade, pagamentos e coordenador.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: unidade
+        description: Sigla da unidade associada à chamada pública.
+      - name: bolsista
+        description: Nome do bolsista.
+      - name: titulo_projeto
+        description: Título do projeto vinculado à chamada pública.
+      - name: programa
+        description: Programa da chamada pública.
+      - name: modalidade
+        description: Modalidade da seleção.
+      - name: inicio
+        description: Data de início da bolsa do bolsista.
+      - name: termino
+        description: Data de término da bolsa do bolsista.
+      - name: atividade
+        description: Tipo de atuação da seleção (Presencial ou Não presencial).
+      - name: uf_unidade
+        description: UF da unidade vinculada à chamada pública.
+      - name: valor
+        description: Valor pago ao bolsista na folha.
+      - name: moeda
+        description: Tipo de moeda da chamada pública.
+      - name: recurso
+        description: Fonte financeira utilizada no pagamento.
+      - name: coordenador
+        description: Coordenador(es) associado(s) à bolsa/chamada.
+      - name: mes_referencia
+        description: Mês de referência do pagamento (primeiro dia do mês).
+      - name: mes_referencia_numero
+        description: Número do mês de referência do pagamento.
+      - name: ano_referencia
+        description: Ano de referência do pagamento.
+      - name: situacao_bolsista
+        description: Situação do bolsista conforme `co_situacao_bolsista`.
+
+  - name: bolsistas_diversidade_unidade
+    description: >
+      Indicadores de diversidade de bolsistas por unidade (sigla), com totais,
+      percentuais e metas mínimas de participação de mulheres (40%) e negros (30%).
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: unidade
+        description: Sigla da unidade (ou `SEM_UNIDADE` quando não há vínculo).
+      - name: total_bolsistas
+        description: Total de bolsistas distintos na unidade.
+      - name: total_mulheres
+        description: Total de bolsistas mulheres na unidade.
+      - name: total_negros
+        description: Total de bolsistas negros na unidade (etnia preta ou parda).
+      - name: percentual_mulheres
+        description: Percentual de mulheres sobre o total de bolsistas da unidade.
+      - name: percentual_negros
+        description: Percentual de negros sobre o total de bolsistas da unidade.
+      - name: meta_minima_mulheres_40
+        description: Quantidade mínima de mulheres para atingir 40% do total da unidade.
+      - name: meta_minima_negros_30
+        description: Quantidade mínima de negros para atingir 30% do total da unidade.
+      - name: mulheres_faltantes_meta
+        description: Quantidade de mulheres faltantes para atingir a meta mínima de 40%.
+      - name: negros_faltantes_meta
+        description: Quantidade de negros faltantes para atingir a meta mínima de 30%.
