@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: bolsistas_ativos
+  - name: bolsistas
     description: >
       Modelo silver de bolsistas do Sisbolsas. Parte de `sisbolsas_tb_bolsista`
       e consolida dados de usuário, seleção/chamada, unidade/UF, projeto,
@@ -45,7 +45,7 @@ models:
       - name: situacao_bolsista
         description: Situação do bolsista conforme `co_situacao_bolsista`.
 
-  - name: bolsistas_diversidade_unidade
+  - name: bolsistas_diversidade
     description: >
       Indicadores de diversidade de bolsistas por unidade (sigla), com totais,
       percentuais e metas mínimas de participação de mulheres (40%) e negros (30%).
