@@ -1,6 +1,190 @@
 version: 2
 
 models:
+  - name: sgac_projetos_sgac
+    description: >
+      Tabela bronze com projetos do SGAC importados do SharePoint. Padroniza
+      valores textuais `NaN` para nulo, converte campos de data, timestamp,
+      booleanos e valores financeiros, extrai rótulos legíveis de objetos e
+      listas JSON do SharePoint, e remove marcações HTML dos campos descritivos.
+    meta:
+      tags:
+        - bronze
+        - sgac
+    columns:
+      - name: odata_etag
+        description: ETag OData do item no SharePoint.
+      - name: id_interno_item
+        description: Identificador interno do item no SharePoint.
+      - name: id
+        description: Identificador do projeto no SharePoint.
+      - name: titulo
+        description: Título do projeto.
+      - name: entidades_externas
+        description: Entidades externas envolvidas no projeto.
+      - name: instrumento
+        description: Tipo de instrumento extraído da referência SharePoint.
+      - name: instrumento_id
+        description: Identificador do instrumento no SharePoint.
+      - name: diretoria_responsavel
+        description: Diretoria responsável extraída da referência SharePoint.
+      - name: diretoria_responsavel_id
+        description: Identificador da diretoria responsável.
+      - name: objeto
+        description: Objeto do projeto com marcações HTML removidas.
+      - name: data_inicio
+        description: Data de início do projeto.
+      - name: data_vencimento
+        description: Data de vencimento do projeto.
+      - name: total_de_recursos
+        description: Valor total de recursos do projeto.
+      - name: numero_do_proc
+        description: Número do processo associado ao projeto.
+      - name: coordenador
+        description: Nome dos coordenadores extraídos da lista SharePoint.
+      - name: coordenador_json
+        description: Estrutura JSON original dos coordenadores.
+      - name: coordenador_tipo_odata
+        description: Tipo OData do campo de coordenadores.
+      - name: coordenador_claims
+        description: Claims dos coordenadores em JSON.
+      - name: coordenador_claims_tipo_odata
+        description: Tipo OData dos claims dos coordenadores.
+      - name: nacionalidade
+        description: Nacionalidade extraída da lista SharePoint.
+      - name: nacionalidade_tipo_odata
+        description: Tipo OData do campo de nacionalidade.
+      - name: nacionalidade_id
+        description: Identificadores de nacionalidade em JSON.
+      - name: nacionalidade_id_tipo_odata
+        description: Tipo OData dos identificadores de nacionalidade.
+      - name: recursos_orcamentarios
+        description: Valor de recursos orçamentários.
+      - name: recursos_nao_orcamentarios
+        description: Valor de recursos não orçamentários.
+      - name: status
+        description: Status do projeto extraído da referência SharePoint.
+      - name: status_id
+        description: Identificador do status.
+      - name: eixo_tematico
+        description: Eixos temáticos extraídos da lista SharePoint.
+      - name: eixo_tematico_tipo_odata
+        description: Tipo OData do campo de eixo temático.
+      - name: eixo_tematico_id
+        description: Identificadores de eixo temático em JSON.
+      - name: eixo_tematico_id_tipo_odata
+        description: Tipo OData dos identificadores de eixo temático.
+      - name: predecessores
+        description: Projetos predecessores extraídos da lista SharePoint.
+      - name: predecessores_tipo_odata
+        description: Tipo OData do campo de predecessores.
+      - name: predecessores_id
+        description: Identificadores de predecessores em JSON.
+      - name: predecessores_id_tipo_odata
+        description: Tipo OData dos identificadores de predecessores.
+      - name: prioridade
+        description: Prioridade extraída da referência SharePoint.
+      - name: prioridade_id
+        description: Identificador da prioridade.
+      - name: justificativa
+        description: Justificativa do projeto com marcações HTML removidas.
+      - name: objetivo_s_ge
+        description: Objetivos do projeto com marcações HTML removidas.
+      - name: equipe_tecnica
+        description: Nomes da equipe técnica extraídos da lista SharePoint.
+      - name: equipe_tecnica_json
+        description: Estrutura JSON original da equipe técnica.
+      - name: equipe_tecnica_tipo_odata
+        description: Tipo OData do campo de equipe técnica.
+      - name: equipe_tecnica_claims
+        description: Claims da equipe técnica em JSON.
+      - name: equipe_tecnica_claims_tipo_odata
+        description: Tipo OData dos claims da equipe técnica.
+      - name: codigo
+        description: Código do projeto, quando informado.
+      - name: unidades_envolvidas
+        description: Unidades envolvidas extraídas da lista SharePoint.
+      - name: unidades_envolvidas_tipo_odata
+        description: Tipo OData do campo de unidades envolvidas.
+      - name: unidades_envolvidas_id
+        description: Identificadores das unidades envolvidas em JSON.
+      - name: unidades_envolvidas_id_tipo_odata
+        description: Tipo OData dos identificadores de unidades envolvidas.
+      - name: historico_observa_x0
+        description: Histórico ou observações com marcações HTML removidas.
+      - name: a_solicitacao
+        description: Solicitações relacionadas extraídas da lista SharePoint.
+      - name: a_solicitacao_tipo_odata
+        description: Tipo OData do campo de solicitação.
+      - name: a_solicitacao_id
+        description: Identificadores de solicitação em JSON.
+      - name: a_solicitacao_id_tipo_odata
+        description: Tipo OData dos identificadores de solicitação.
+      - name: modificado
+        description: Data e hora da última modificação no SharePoint.
+      - name: criado
+        description: Data e hora de criação no SharePoint.
+      - name: autor
+        description: Nome do autor do item no SharePoint.
+      - name: autor_email
+        description: E-mail do autor do item no SharePoint.
+      - name: autor_json
+        description: Estrutura JSON original do autor.
+      - name: autor_claims
+        description: Claims do autor.
+      - name: editor
+        description: Nome do último editor do item no SharePoint.
+      - name: editor_email
+        description: E-mail do último editor do item no SharePoint.
+      - name: editor_json
+        description: Estrutura JSON original do editor.
+      - name: editor_claims
+        description: Claims do editor.
+      - name: identificador
+        description: Identificador textual do item no SharePoint.
+      - name: eh_pasta
+        description: Indica se o item é uma pasta.
+      - name: miniatura
+        description: Metadados de miniatura em JSON.
+      - name: link
+        description: Link do item no SharePoint.
+      - name: nome
+        description: Nome do item no SharePoint.
+      - name: nome_arquivo_com_extensao
+        description: Nome de arquivo com extensão.
+      - name: caminho
+        description: Caminho da lista no SharePoint.
+      - name: caminho_completo
+        description: Caminho completo do item no SharePoint.
+      - name: tipo_conteudo
+        description: Tipo de conteúdo extraído do objeto SharePoint.
+      - name: tipo_conteudo_id
+        description: Identificador do tipo de conteúdo.
+      - name: possui_anexos
+        description: Indica se o item possui anexos.
+      - name: numero_versao
+        description: Número da versão do item.
+      - name: aprovacao
+        description: Código de aprovação do item.
+      - name: termos_aditivos
+        description: Termos aditivos informados para o projeto.
+      - name: equipe
+        description: Campo de equipe com marcações HTML removidas.
+      - name: percentual_concluido
+        description: Percentual concluído do projeto.
+      - name: corpo
+        description: Corpo textual do item com marcações HTML removidas.
+      - name: fiscal_e_substituto
+        description: Fiscal e substituto informados para o projeto.
+      - name: numero_siafi
+        description: Número SIAFI associado ao projeto.
+      - name: atribuido_a
+        description: Pessoa à qual o item foi atribuído.
+      - name: atribuido_a_claims
+        description: Claims da pessoa atribuída.
+      - name: dt_ingest
+        description: Data e hora de ingestão do registro.
+
   - name: ipea_pro_bolsistas
     description: >
       Tabela bronze com o cadastro de bolsistas do sistema Sisbolsas.

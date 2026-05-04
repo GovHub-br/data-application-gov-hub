@@ -120,3 +120,8 @@ sources:
       - name: tb_situacao_concessao
       - name: tb_unidade
       - name: tb_usuario
+
+  - name: sgac
+    schema: sgac
+    tables:
+      - name: projetos_sgac
