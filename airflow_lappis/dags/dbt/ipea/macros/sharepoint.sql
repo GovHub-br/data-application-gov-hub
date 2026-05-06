@@ -1,19 +1,10 @@
-{% macro clean_sharepoint_text(column_name) -%}
-    case
-        when {{ column_name }} is null then null
-        when nullif(trim({{ column_name }}::text), '') is null then null
-        when upper(trim({{ column_name }}::text)) = 'NAN' then null
-        else trim({{ column_name }}::text)
-    end
-{%- endmacro %}
-
 {% macro clean_sharepoint_html(column_name) -%}
     nullif(
         trim(
             regexp_replace(
                 regexp_replace(
                     replace(
-                        replace({{ clean_sharepoint_text(column_name) }}, '&nbsp;', ' '),
+                        replace({{ safe_text(column_name) }}, '&nbsp;', ' '),
                         '&#160;',
                         ' '
                     ),
@@ -30,63 +21,37 @@
     )
 {%- endmacro %}
 
-{% macro sharepoint_reference_value(column_name) -%}
+{% macro extract_jsonb_key_values(
+    column_name, key_name, fallback_to_text=true, separator='; '
+) -%}
     case
-        when {{ clean_sharepoint_text(column_name) }} like ('{' || '%')
-        then ({{ clean_sharepoint_text(column_name) }})::jsonb ->> 'Value'
-        else {{ clean_sharepoint_text(column_name) }}
-    end
-{%- endmacro %}
-
-{% macro sharepoint_reference_values(column_name) -%}
-    case
-        when {{ clean_sharepoint_text(column_name) }} like ('[' || '%')
+        when {{ safe_text(column_name) }} like ('[' || '%')
         then (
-            select string_agg(element ->> 'Value', '; ' order by ordinality)
+            select
+                string_agg(
+                    element ->> '{{ key_name }}',
+                    '{{ separator }}' order by ordinality
+                )
             from
-                jsonb_array_elements(({{ clean_sharepoint_text(column_name) }})::jsonb)
+                jsonb_array_elements(({{ safe_text(column_name) }})::jsonb)
                 with ordinality as elements(element, ordinality)
+            where nullif(element ->> '{{ key_name }}', '') is not null
         )
-        else {{ clean_sharepoint_text(column_name) }}
-    end
-{%- endmacro %}
-
-{% macro sharepoint_user_display_names(column_name) -%}
-    case
-        when {{ clean_sharepoint_text(column_name) }} like ('[' || '%')
-        then (
-            select string_agg(element ->> 'DisplayName', '; ' order by ordinality)
-            from
-                jsonb_array_elements(({{ clean_sharepoint_text(column_name) }})::jsonb)
-                with ordinality as elements(element, ordinality)
-        )
-        when {{ clean_sharepoint_text(column_name) }} like ('{' || '%')
-        then ({{ clean_sharepoint_text(column_name) }})::jsonb ->> 'DisplayName'
-        else {{ clean_sharepoint_text(column_name) }}
-    end
-{%- endmacro %}
-
-{% macro sharepoint_user_emails(column_name) -%}
-    case
-        when {{ clean_sharepoint_text(column_name) }} like ('[' || '%')
-        then (
-            select string_agg(element ->> 'Email', '; ' order by ordinality)
-            from
-                jsonb_array_elements(({{ clean_sharepoint_text(column_name) }})::jsonb)
-                with ordinality as elements(element, ordinality)
-            where nullif(element ->> 'Email', '') is not null
-        )
-        when {{ clean_sharepoint_text(column_name) }} like ('{' || '%')
-        then ({{ clean_sharepoint_text(column_name) }})::jsonb ->> 'Email'
+        when {{ safe_text(column_name) }} like ('{' || '%')
+        then ({{ safe_text(column_name) }})::jsonb ->> '{{ key_name }}'
+        {% if fallback_to_text %}
+        else {{ safe_text(column_name) }}
+        {% else %}
         else null
+        {% endif %}
     end
 {%- endmacro %}
 
 {% macro sharepoint_jsonb(column_name) -%}
     case
-        when {{ clean_sharepoint_text(column_name) }} like ('[' || '%')
-            or {{ clean_sharepoint_text(column_name) }} like ('{' || '%')
-        then ({{ clean_sharepoint_text(column_name) }})::jsonb
+        when {{ safe_text(column_name) }} like ('[' || '%')
+            or {{ safe_text(column_name) }} like ('{' || '%')
+        then ({{ safe_text(column_name) }})::jsonb
         else null
     end
 {%- endmacro %}
