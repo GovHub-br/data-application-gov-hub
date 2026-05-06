@@ -1,3 +1,12 @@
+{% macro safe_text(column_name) -%}
+    case
+        when {{ column_name }} is null then null
+        when nullif(trim({{ column_name }}::text), '') is null then null
+        when upper(trim({{ column_name }}::text)) = 'NAN' then null
+        else trim({{ column_name }}::text)
+    end
+{%- endmacro %}
+
 {% macro safe_bigint(column_name) -%}
     case
         when {{ column_name }} is null then null
