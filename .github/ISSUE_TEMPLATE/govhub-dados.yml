@@ -1,0 +1,262 @@
+name: "GovHub | Dados"
+description: "Issue exclusiva para demandas de dados: DAGs, dbt, extração, ingestão, tratamento, cruzamentos, dashboards, tabelas gold, relatórios e requisitos."
+title: "[Dados] "
+labels:
+  - dados
+  - govhub
+  - triagem
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## GovHub — Template de Issue para Dados
+
+        Use este template exclusivamente para demandas relacionadas a dados, incluindo:
+        DAGs, dbt, extração, ingestão, tratamento, cruzamento, mapeamentos, tabelas gold, dashboards, relatórios, requisitos, elicitação de perguntas e pacotes de entrega.
+
+  - type: dropdown
+    id: tipo_demanda
+    attributes:
+      label: "Tipo principal da demanda"
+      description: "Selecione o tipo que melhor representa esta issue."
+      options:
+        - "Elicitação de requisitos / perguntas de negócio"
+        - "Extração de dados"
+        - "Ingestão de dados"
+        - "Tratamento / limpeza de dados"
+        - "Cruzamento de dados"
+        - "Mapeamento de dados"
+        - "Mapeamento político"
+        - "Construção ou manutenção de DAG"
+        - "Modelagem dbt"
+        - "Construção de tabela gold"
+        - "Construção de dashboard"
+        - "Emissão de relatório"
+        - "Pacote de entrega de dados"
+        - "Documentação técnica de dados"
+        - "Outro"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: prioridade
+    attributes:
+      label: "Prioridade"
+      options:
+        - "Baixa"
+        - "Média"
+        - "Alta"
+        - "Crítica"
+    validations:
+      required: true
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: "Contexto da demanda"
+      description: "Explique o problema, necessidade ou oportunidade relacionada aos dados."
+      placeholder: |
+        Exemplo:
+        Precisamos consolidar dados de diferentes fontes para gerar uma tabela gold que alimente o dashboard de acompanhamento político do GovHub.
+    validations:
+      required: true
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: "Objetivo da entrega"
+      description: "Descreva o que precisa ser entregue ao final da issue."
+      placeholder: |
+        Exemplo:
+        Criar uma tabela gold consolidada com dados tratados, cruzados e validados para consumo em dashboard e relatórios executivos.
+    validations:
+      required: true
+
+  - type: textarea
+    id: perguntas_negocio
+    attributes:
+      label: "Perguntas de negócio / perguntas para elicitação"
+      description: "Liste as perguntas que precisam ser respondidas para definir os requisitos da entrega."
+      placeholder: |
+        - Qual decisão será tomada com esses dados?
+        - Quem será o usuário final da entrega?
+        - Qual granularidade é necessária?
+        - Qual periodicidade de atualização?
+        - Quais filtros precisam existir?
+        - Quais métricas são obrigatórias?
+        - Quais recortes políticos, territoriais ou temporais são necessários?
+        - Existe alguma regra de negócio já definida?
+    validations:
+      required: false
+
+  - type: textarea
+    id: fontes_dados
+    attributes:
+      label: "Fontes de dados"
+      description: "Informe as origens dos dados, sistemas, APIs, bancos, planilhas, arquivos ou bases públicas."
+      placeholder: |
+        Fonte 1:
+        - Nome:
+        - Tipo: API / banco / planilha / CSV / parquet / sistema / scraping / outro
+        - Responsável:
+        - Localização:
+        - Frequência de atualização:
+        - Status do acesso:
+
+        Fonte 2:
+        - Nome:
+        - Tipo:
+        - Responsável:
+        - Localização:
+        - Frequência de atualização:
+        - Status do acesso:
+    validations:
+      required: false
+
+  - type: textarea
+    id: mapeamento_campos
+    attributes:
+      label: "Mapeamento de dados / campos"
+      description: "Descreva os campos esperados, origem, destino e regras de transformação."
+      placeholder: |
+        | Campo origem | Fonte | Campo destino | Tipo | Regra de transformação | Obrigatório |
+        |--------------|-------|---------------|------|--------------------------|-------------|
+        |              |       |               |      |                          |             |
+    validations:
+      required: false
+
+  - type: textarea
+    id: regras_negocio
+    attributes:
+      label: "Regras de negócio"
+      description: "Liste regras, filtros, cálculos, critérios de inclusão/exclusão e validações esperadas."
+      placeholder: |
+        - Considerar apenas registros ativos.
+        - Padronizar nomes de municípios.
+        - Remover duplicidades por chave composta.
+        - Calcular indicador X a partir dos campos Y e Z.
+        - Aplicar recorte por período, território ou ator político.
+    validations:
+      required: false
+
+  - type: textarea
+    id: requisitos_tecnicos
+    attributes:
+      label: "Requisitos técnicos"
+      description: "Informe requisitos de arquitetura, ferramentas, atualização, performance, versionamento ou governança."
+      placeholder: |
+        - Ferramenta: Airflow / dbt / BigQuery / Postgres / Power BI / Metabase / Looker / outro
+        - Periodicidade da DAG:
+        - Ambiente: dev / staging / prod
+        - Schema de destino:
+        - Nome esperado da tabela/modelo:
+        - Volume estimado:
+        - SLA esperado:
+        - Dependências técnicas:
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: tarefas
+    attributes:
+      label: "Tarefas previstas"
+      description: "Marque as tarefas que fazem parte desta demanda."
+      options:
+        - label: "Elicitar perguntas de negócio"
+        - label: "Levantar requisitos funcionais"
+        - label: "Levantar requisitos técnicos"
+        - label: "Identificar fontes de dados"
+        - label: "Solicitar ou validar acessos"
+        - label: "Mapear campos de origem e destino"
+        - label: "Criar dicionário de dados"
+        - label: "Definir granularidade da base"
+        - label: "Definir periodicidade de atualização"
+        - label: "Construir extração de dados"
+        - label: "Construir ingestão de dados"
+        - label: "Realizar tratamento e limpeza"
+        - label: "Realizar cruzamento de dados"
+        - label: "Criar ou alterar DAG"
+        - label: "Criar ou alterar modelos dbt"
+        - label: "Criar tabela silver"
+        - label: "Criar tabela gold"
+        - label: "Criar testes de qualidade dos dados"
+        - label: "Validar consistência dos dados"
+        - label: "Construir dashboard"
+        - label: "Emitir relatório"
+        - label: "Gerar pacote de entrega"
+        - label: "Documentar regras, fontes e limitações"
+        - label: "Validar entrega com solicitante"
+
+  - type: textarea
+    id: qualidade_dados
+    attributes:
+      label: "Critérios de qualidade dos dados"
+      description: "Defina validações mínimas para considerar os dados confiáveis."
+      placeholder: |
+        - Não pode haver IDs nulos.
+        - Datas devem estar em formato padronizado.
+        - Não pode haver duplicidade na chave principal.
+        - Total de registros deve bater com a fonte original.
+        - Campos categóricos devem respeitar valores esperados.
+        - Métricas finais devem ser validadas com área solicitante.
+    validations:
+      required: false
+
+  - type: textarea
+    id: entregaveis
+    attributes:
+      label: "Entregáveis esperados"
+      description: "Liste tudo que deve ser entregue ao final da issue."
+      placeholder: |
+        - DAG criada ou ajustada
+        - Modelos dbt versionados
+        - Tabela gold publicada
+        - Dashboard publicado
+        - Relatório emitido
+        - Dicionário de dados
+        - Documentação das regras de negócio
+        - Pacote de entrega com evidências
+        - Validação com solicitante
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterios_aceite
+    attributes:
+      label: "Critérios de aceite"
+      description: "Defina como saberemos que a issue foi concluída com sucesso."
+      placeholder: |
+        - Dados extraídos da fonte correta.
+        - Pipeline executando sem erro.
+        - Transformações validadas.
+        - Tabela gold disponível no ambiente correto.
+        - Dashboard ou relatório refletindo os dados esperados.
+        - Documentação mínima criada.
+        - Solicitante validou a entrega.
+    validations:
+      required: true
+
+  - type: textarea
+    id: riscos_dependencias
+    attributes:
+      label: "Riscos, bloqueios e dependências"
+      description: "Informe acessos pendentes, dependência de terceiros, indefinições ou riscos técnicos."
+      placeholder: |
+        - Acesso à base ainda não liberado.
+        - Fonte não possui documentação.
+        - API possui limite de requisições.
+        - Regra de negócio depende de validação.
+        - Dados históricos podem estar incompletos.
+    validations:
+      required: false
+
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: "Observações adicionais"
+      description: "Inclua links, prints, exemplos de bases, documentos, dashboards, relatórios ou referências."
+      placeholder: |
+        Links úteis:
+        - 
+    validations:
+      required: false
