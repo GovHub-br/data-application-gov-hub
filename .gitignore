@@ -21,6 +21,7 @@ requirements.generated.txt
 .coverage
 coverage.xml
 htmlcov/
+report.xml
 
 # IDE specific files
 .idea/

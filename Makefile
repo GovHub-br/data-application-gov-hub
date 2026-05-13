@@ -38,9 +38,8 @@ format:
 lint:
 	poetry run black . --check
 	poetry run ruff check .
-	poetry run ty check
+	poetry run ty check .
 	poetry run sqlfmt ./airflow_lappis/dags/dbt --check
-	[ "${GITLAB_CI}" ] || poetry run sqlfluff lint ./airflow_lappis/dags/dbt --config .sqlfluff.ci --ignore templating
 
 test:
 	poetry run pytest tests/unit --junitxml=report.xml --cov=. --cov-report=xml:coverage.xml

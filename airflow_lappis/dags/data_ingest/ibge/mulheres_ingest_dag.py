@@ -366,6 +366,7 @@ def mulheres_censo_demografico_dag() -> None:
         logging.info("Processando a aba: %s", sheet_name)
 
         df_aba = excel_file.parse(sheet_name, header=None)
+        assert isinstance(df_aba, pd.DataFrame)
         chunks = _identificar_chunks_horizontais(df_aba)
 
         return [
