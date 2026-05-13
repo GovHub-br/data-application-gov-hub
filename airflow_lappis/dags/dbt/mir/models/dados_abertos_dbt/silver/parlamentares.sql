@@ -1,70 +1,77 @@
-{{ config(materialized="table") }}
+{{ config(materialized='table') }}
 
-with
-    bronze_deputados as (select * from {{ ref("deputados") }}),
+WITH
+bronze_deputados AS (
+    SELECT * FROM {{ ref('deputados') }}
+),
 
-    bronze_senadores as (select * from {{ ref("senadores") }}),
+bronze_senadores AS (
+    SELECT * FROM {{ ref('senadores') }}
+),
 
-    sigla_map as (
-        select
-            trim(upper(sigla_origem)) as sigla_origem,
-            trim(upper(sigla_canonica)) as sigla_canonica
-        from {{ ref("partidos_map") }}
-    ),
+sigla_map AS (
+    SELECT
+        TRIM(UPPER(sigla_origem)) AS sigla_origem,
+        TRIM(UPPER(sigla_canonica)) AS sigla_canonica
+    FROM {{ ref('partidos_map') }}
+),
 
-    parlamentares_unificados as (
-        select
-            id as id_parlamentar,
-            trim(upper(nome)) as chave_join_nome,
-            nome as nome_parlamentar,
-            'Deputado' as cargo_parlamentar,
-            siglapartido as sigla_partido,
-            siglauf as uf_parlamentar,
-            urlfoto as url_foto,
-            email
-        from bronze_deputados
+parlamentares_unificados AS (
+    SELECT 
+        id AS id_parlamentar,
+        TRIM(UPPER(nome)) AS chave_join_nome, 
+        nome AS nome_parlamentar,
+        'Deputado' AS cargo_parlamentar,
+        siglapartido AS sigla_partido,
+        siglauf AS uf_parlamentar,
+        urlfoto AS url_foto,
+        email
+    FROM bronze_deputados
 
-        union all
+    UNION ALL
 
-        select
-            id as id_parlamentar,
-            trim(upper(nome_parlamentar)) as chave_join_nome,
-            nome_parlamentar as nome_parlamentar,
-            'Senador' as cargo_parlamentar,
-            sigla_partido as sigla_partido,
-            uf as uf_parlamentar,
-            url_foto as url_foto,
-            email
-        from bronze_senadores
-    ),
+    SELECT 
+        id AS id_parlamentar,
+        TRIM(UPPER(nome_parlamentar)) AS chave_join_nome, 
+        nome_parlamentar AS nome_parlamentar,
+        'Senador' AS cargo_parlamentar,
+        sigla_partido AS sigla_partido,
+        uf AS uf_parlamentar,
+        url_foto AS url_foto,
+        email
+    FROM bronze_senadores
+),
 
-    parlamentares_padronizados as (
-        select
-            p.*, coalesce(m.sigla_canonica, p.sigla_partido) as sigla_partido_padronizada
-        from parlamentares_unificados p
-        left join sigla_map m on trim(upper(p.sigla_partido)) = m.sigla_origem
-    ),
+parlamentares_padronizados AS (
+    SELECT
+        p.*,
+        COALESCE(m.sigla_canonica, p.sigla_partido) AS sigla_partido_padronizada
+    FROM parlamentares_unificados p
+    LEFT JOIN sigla_map m
+        ON TRIM(UPPER(p.sigla_partido)) = m.sigla_origem
+),
 
-    partidos_logo as (
-        select trim(upper(sigla)) as chave_join_sigla_partido, logo_url
-        from {{ ref("partidos_logo") }}
-    )
+partidos_logo AS (
+    SELECT
+        TRIM(UPPER(sigla)) AS chave_join_sigla_partido,
+        logo_url
+    FROM {{ ref('partidos_logo') }}
+)
 
-select
+SELECT
     p.id_parlamentar,
     p.chave_join_nome,
     p.nome_parlamentar,
     p.cargo_parlamentar,
-
-    p.sigla_partido_padronizada as sigla_partido,
-
+    
+    p.sigla_partido_padronizada AS sigla_partido,
+    
     p.uf_parlamentar,
     p.url_foto,
     p.email,
-    pl.logo_url as url_logo_partido
+    pl.logo_url AS url_logo_partido
 
-from parlamentares_padronizados p
+FROM parlamentares_padronizados p
 
-left join
-    partidos_logo pl
-    on trim(upper(p.sigla_partido_padronizada)) = pl.chave_join_sigla_partido
+LEFT JOIN partidos_logo pl
+  ON TRIM(UPPER(p.sigla_partido_padronizada)) = pl.chave_join_sigla_partido

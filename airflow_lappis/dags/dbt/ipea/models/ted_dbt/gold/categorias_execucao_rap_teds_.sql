@@ -1,5 +1,4 @@
--- Transformando o resumo orçamentário em categorias para utilizar no gráfico de barras
--- empilhadas
+-- Transformando o resumo orçamentário em categorias para utilizar no gráfico de barras empilhadas
 select
     plano_acao,
     num_transf,
@@ -7,7 +6,7 @@ select
     restos_a_pagar as valor,
     '1. Restos a pagar inscritos' as categoria,
     dt_ingest
-from {{ ref("ted_resumo_orcamentario") }}
+from {{ ref('ted_resumo_orcamentario') }}
 
 union all
 
@@ -18,7 +17,7 @@ select
     despesas_pagas_rap as valor,
     '2. Detalhe da exec. orçamentária - Restos a Pagar' as categoria,
     dt_ingest
-from {{ ref("ted_resumo_orcamentario") }}
+from {{ ref('ted_resumo_orcamentario') }}
 
 union all
 
@@ -29,4 +28,4 @@ select
     restos_a_pagar - despesas_pagas_rap as valor,
     '2. Detalhe da exec. orçamentária - Restos a Pagar' as categoria,
     dt_ingest
-from {{ ref("ted_resumo_orcamentario") }}
+from {{ ref('ted_resumo_orcamentario') }}

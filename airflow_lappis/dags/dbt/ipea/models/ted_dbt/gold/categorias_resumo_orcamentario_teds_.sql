@@ -42,7 +42,8 @@ with
             num_transf,
             '3.2 A empenhar' as tipo,
             (
-                (orcamento_recebido - orcamento_devolvido) - (empenhado - empenho_anulado)
+                (orcamento_recebido - orcamento_devolvido)
+                - (empenhado - empenho_anulado)
             ) as valor,
             '3. Execução orçamentária' as categoria,
             dt_ingest

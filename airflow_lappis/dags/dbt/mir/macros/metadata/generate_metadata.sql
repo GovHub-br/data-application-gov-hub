@@ -1,22 +1,19 @@
 {% macro get_model_metadata() %}
-    {#
+{#
     Esta macro retorna os metadados do modelo atual.
     Pode ser usada em post-hooks para registrar metadados automaticamente.
 #}
-    select
-        '{{ this.schema }}' as schema_name,
-        '{{ this.name }}' as table_name,
-        '{{ this.database }}' as database_name,
-        (
-            '{{ run_started_at }}'
-            ::timestamp at time zone 'UTC' at time zone 'America/Sao_Paulo'
-        ) as dt_transform,
-        '{{ invocation_id }}' as run_id
+    SELECT
+        '{{ this.schema }}' AS schema_name,
+        '{{ this.name }}' AS table_name,
+        '{{ this.database }}' AS database_name,
+        ('{{ run_started_at }}'::TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dt_transform,
+        '{{ invocation_id }}' AS run_id
 {% endmacro %}
 
 
 {% macro register_model_metadata() %}
-    {#
+{#
     Esta macro registra os metadados do modelo em uma tabela central.
     Deve ser usada como post-hook nos modelos que deseja rastrear.
     
@@ -26,6 +23,7 @@
         +post-hook:
           - "{{ register_model_metadata() }}"
 #}
+
     INSERT INTO {{ target.database }}.metadata.models_metadata (
         schema_name,
         table_name,

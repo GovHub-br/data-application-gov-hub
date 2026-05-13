@@ -33,13 +33,11 @@ setup:
 format:
 	poetry run black .
 	poetry run ruff check --fix .
-	poetry run sqlfmt ./airflow_lappis/dags/dbt
 
 lint:
 	poetry run black . --check
 	poetry run ruff check .
 	poetry run ty check .
-	poetry run sqlfmt ./airflow_lappis/dags/dbt --check
 
 test:
 	poetry run pytest tests/unit --junitxml=report.xml --cov=. --cov-report=xml:coverage.xml

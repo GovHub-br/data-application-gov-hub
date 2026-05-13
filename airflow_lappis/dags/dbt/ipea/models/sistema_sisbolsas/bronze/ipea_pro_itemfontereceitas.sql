@@ -3,7 +3,7 @@
 with
     itemfontereceitas as (
         select
-            {{ safe_bigint("itemfontereceitaid") }} as itemfontereceitaid,
+            {{ safe_bigint('itemfontereceitaid') }} as itemfontereceitaid,
             nomeitemfontereceita::text as nomeitemfontereceita,
             descricaoitemfontereceita::text as descricaoitemfontereceita,
             observacao::text as observacao

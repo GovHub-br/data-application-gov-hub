@@ -23,7 +23,10 @@ select
     siape.sigla_uorg_exercicio as siape_sigla_uorg,
     siape.uf_uorg as siape_uf_uorg,
     siape.nome_situacao_funcional as siape_situacao_funcional,
-    greatest(siorg.dt_ingest, siape.dt_ingest) as dt_ingest
+    greatest(
+        siorg.dt_ingest,
+        siape.dt_ingest
+    ) as dt_ingest
 
 from {{ ref("servidores_detalhados") }} siape
 left join

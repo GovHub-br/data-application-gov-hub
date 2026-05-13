@@ -16,7 +16,7 @@ with
             descricao_ug_emitente_empenho::text as descricao_ug_emitente_empenho,
             fonte_recurso_empenho::text as fonte_recurso_empenho,
             plano_interno_empenho::text as plano_interno_empenho,
-            ptres_empenho::numeric(15, 2) as ptres_empenho,  -- verificar possibilidade de .0 
+            ptres_empenho::numeric(15, 2) as ptres_empenho, -- verificar possibilidade de .0 
             grupo_natureza_despesa_empenho::text as grupo_natureza_despesa_empenho,
             natureza_despesa_empenho::text as natureza_despesa_empenho,
             subitem_empenho::text as subitem_empenho,

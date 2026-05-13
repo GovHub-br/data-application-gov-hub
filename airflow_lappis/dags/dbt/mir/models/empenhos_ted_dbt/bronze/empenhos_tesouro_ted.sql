@@ -22,16 +22,14 @@ with
             ne_ccor_ano_emissao::integer as ne_ccor_ano_emissao,
             ptres::text as ptres,
             fonte_recursos_detalhada::text as fonte_recursos_detalhada,
-            fonte_recursos_detalhada_descricao::text
-            as fonte_recursos_detalhada_descricao,
+            fonte_recursos_detalhada_descricao::text as fonte_recursos_detalhada_descricao,
             {{ parse_financial_value("despesas_empenhadas") }} as despesas_empenhadas,
             {{ parse_financial_value("despesas_liquidadas") }} as despesas_liquidadas,
             {{ parse_financial_value("despesas_pagas") }} as despesas_pagas,
-            {{ parse_financial_value("restos_a_pagar_inscritos") }}
-            as restos_a_pagar_inscritos,
+            {{ parse_financial_value("restos_a_pagar_inscritos") }} as restos_a_pagar_inscritos,
             {{ parse_financial_value("restos_a_pagar_pagos") }} as restos_a_pagar_pagos,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
-        from {{ source("siafi", "ne_tesouro") }}
+        from {{ source("siafi", "ne_tesouro") }} 
         where ne_ccor_ano_emissao ~ '^[0-9]{4}$'
     )
 

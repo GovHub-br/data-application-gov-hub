@@ -181,7 +181,11 @@ with
     ),
 
     servidores_enriquecidos as (
-        select distinct ph.*, du.nome_municipio_uorg, du.dt_ingest as dt_ingest_dados_uorg
+        select
+            distinct
+            ph.*,
+            du.nome_municipio_uorg,
+            du.dt_ingest as dt_ingest_dados_uorg
         from hierarquia_enriquecida as ph
         inner join {{ ref("dados_uorg") }} as du on ph.siglaunidade = du.sigla_uorg
         order by caminho_unidade, hierarquia_cargo

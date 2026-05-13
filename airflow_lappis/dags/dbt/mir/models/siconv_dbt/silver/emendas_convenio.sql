@@ -1,9 +1,18 @@
 {{ config(materialized="table") }}
 
 with
-    emendas as (select * from {{ ref("numero_transferencia") }}),
-    convenio as (select * from {{ ref("convenio") }}),
-    planos_acao as (select * from {{ ref("planos_acao_ted") }})
+    emendas as (
+        select *
+        from {{ ref("numero_transferencia") }}
+    ),
+    convenio as (
+        select *
+        from {{ ref("convenio") }}
+    ),
+    planos_acao as (
+        select *
+        from {{ ref("planos_acao_ted") }}
+    )
 
 select
     e.emissao_mes,

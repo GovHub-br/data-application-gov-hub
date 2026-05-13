@@ -1,5 +1,4 @@
--- Transformando o resumo orçamentário em categorias para utilizar no gráfico de barras
--- empilhadas
+-- Transformando o resumo orçamentário em categorias para utilizar no gráfico de barras empilhadas
 select
     plano_acao,
     num_transf,
@@ -7,7 +6,7 @@ select
     (orcamento_recebido - orcamento_devolvido) as valor,
     '1. Destaque orçamentário' as categoria,
     dt_ingest
-from {{ ref("ted_resumo_orcamentario") }}
+from {{ ref('ted_resumo_orcamentario') }}
 
 union all
 
@@ -18,9 +17,10 @@ select
     (valor_firmado - orcamento_recebido + orcamento_devolvido) as valor,
     '1. Destaque orçamentário' as categoria,
     dt_ingest
-from {{ ref("ted_resumo_orcamentario") }}
+from {{ ref('ted_resumo_orcamentario') }}
 
--- -------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+
 union all
 
 select
@@ -30,7 +30,7 @@ select
     (empenhado - empenho_anulado) as valor,
     '2. Visão geral da exec. orçamentária' as categoria,
     dt_ingest
-from {{ ref("ted_resumo_orcamentario") }}
+from {{ ref('ted_resumo_orcamentario') }}
 
 union all
 
@@ -41,9 +41,10 @@ select
     (orcamento_recebido - orcamento_devolvido) - (empenhado - empenho_anulado) as valor,
     '2. Visão geral da exec. orçamentária' as categoria,
     dt_ingest
-from {{ ref("ted_resumo_orcamentario") }}
+from {{ ref('ted_resumo_orcamentario') }}
 
--- -------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+
 union all
 
 select
@@ -53,7 +54,7 @@ select
     despesas_pagas_exercicio as valor,
     '3. Detalhe da exec. orçamentária' as categoria,
     dt_ingest
-from {{ ref("ted_resumo_orcamentario") }}
+from {{ ref('ted_resumo_orcamentario') }}
 
 union all
 
@@ -64,7 +65,7 @@ select
     despesas_pagas_rap as valor,
     '3. Detalhe da exec. orçamentária' as categoria,
     dt_ingest
-from {{ ref("ted_resumo_orcamentario") }}
+from {{ ref('ted_resumo_orcamentario') }}
 
 union all
 
@@ -72,8 +73,7 @@ select
     plano_acao,
     num_transf,
     '3.3 Saldo empenho' as tipo,
-    (empenhado - empenho_anulado)
-    - (despesas_pagas_exercicio + despesas_pagas_rap) as valor,
+    (empenhado - empenho_anulado) - (despesas_pagas_exercicio + despesas_pagas_rap) as valor,
     '3. Detalhe da exec. orçamentária' as categoria,
     dt_ingest
-from {{ ref("ted_resumo_orcamentario") }}
+from {{ ref('ted_resumo_orcamentario') }}

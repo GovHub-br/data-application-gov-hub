@@ -2,7 +2,9 @@
 
 with
     grupoentidade as (
-        select {{ safe_bigint("grupoentidadeid") }} as grupoentidadeid, nome::text as nome
+        select
+            {{ safe_bigint('grupoentidadeid') }} as grupoentidadeid,
+            nome::text as nome
         from {{ source("ipea_pro", "grupoentidade") }}
     )
 

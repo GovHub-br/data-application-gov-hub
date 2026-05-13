@@ -9,9 +9,7 @@ with
             tipo_ta::text as tipo_ta,
             replace(nullif(vl_global_ta, ''), ',', '.')::numeric(15, 2) as vl_global_ta,
             replace(nullif(vl_repasse_ta, ''), ',', '.')::numeric(15, 2) as vl_repasse_ta,
-            replace(nullif(vl_contrapartida_ta, ''), ',', '.')::numeric(
-                15, 2
-            ) as vl_contrapartida_ta,
+            replace(nullif(vl_contrapartida_ta, ''), ',', '.')::numeric(15, 2) as vl_contrapartida_ta,
             to_date(nullif(dt_assinatura_ta, ''), 'DD/MM/YYYY') as dt_assinatura_ta,
             to_date(nullif(dt_inicio_ta, ''), 'DD/MM/YYYY') as dt_inicio_ta,
             to_date(nullif(dt_fim_ta, ''), 'DD/MM/YYYY') as dt_fim_ta,
