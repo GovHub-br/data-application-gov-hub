@@ -22,8 +22,10 @@ def get_storage_fs() -> fsspec.AbstractFileSystem:
             "secret": os.getenv("MINIO_SECRET_KEY", os.getenv("AWS_SECRET_ACCESS_KEY")),
         }
         if backend == "minio":
-            endpoint = os.getenv("MINIO_ENDPOINT", "minio:9000")
-            kwargs["client_kwargs"] = {"endpoint_url": f"http://{endpoint}"}
+            endpoint = os.getenv("MINIO_ENDPOINT", "https://minio:9000")
+            if not endpoint.startswith(("http://", "https://")):
+                endpoint = f"https://{endpoint}"
+            kwargs["client_kwargs"] = {"endpoint_url": endpoint}
         return s3fs.S3FileSystem(**kwargs)
 
     if backend == "adls":

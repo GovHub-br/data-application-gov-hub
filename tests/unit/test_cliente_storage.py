@@ -37,7 +37,7 @@ class TestGetStorageFs:
         mock_s3fs, mock_instance = self._make_s3_mock()
         env = {
             "STORAGE_BACKEND": "minio",
-            "MINIO_ENDPOINT": "minio:9000",
+            "MINIO_ENDPOINT": "https://minio:9000",
             "MINIO_ACCESS_KEY": "testkey",
             "MINIO_SECRET_KEY": "testsecret",
         }
@@ -48,7 +48,7 @@ class TestGetStorageFs:
         mock_s3fs.S3FileSystem.assert_called_once_with(
             key="testkey",
             secret="testsecret",
-            client_kwargs={"endpoint_url": "http://minio:9000"},  # NOSONAR
+            client_kwargs={"endpoint_url": "https://minio:9000"},
         )
         assert result is mock_instance
 
@@ -61,7 +61,7 @@ class TestGetStorageFs:
                 cliente_storage.get_storage_fs()
 
         call_kwargs = mock_s3fs.S3FileSystem.call_args.kwargs
-        assert call_kwargs["client_kwargs"] == {"endpoint_url": "http://minio:9000"}
+        assert call_kwargs["client_kwargs"] == {"endpoint_url": "https://minio:9000"}
 
     def test_s3_does_not_set_endpoint(self) -> None:
         mock_s3fs, _ = self._make_s3_mock()
