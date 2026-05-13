@@ -81,4 +81,4 @@ def test_source_homologation_dag() -> None:
     store_in_warehouse(check_result)  # type: ignore
 
 
-dag_instance = test_source_homologation_dag()
+test_source_homologation_dag()

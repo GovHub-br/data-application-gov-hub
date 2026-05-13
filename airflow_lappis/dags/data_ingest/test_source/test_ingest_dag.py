@@ -1,7 +1,5 @@
 import logging
 import os
-import random
-import string
 import uuid
 from datetime import datetime, timedelta
 from typing import Any
@@ -20,17 +18,18 @@ SOURCE = "test_source"
 ENTITY = "entities"
 
 
+_CATEGORIES = ["A", "B", "C", "D"]
+
+
 def generate_test_dataframe(n: int) -> pl.DataFrame:
-    """Generate a random DataFrame that mimics a real government entity extract."""
+    """Generate a deterministic DataFrame that mimics a real government entity extract."""
     return pl.DataFrame(
         {
             "id": list(range(1, n + 1)),
-            "name": [
-                "".join(random.choices(string.ascii_uppercase, k=6)) for _ in range(n)
-            ],
-            "value": [round(random.uniform(0.0, 100_000.0), 2) for _ in range(n)],
-            "category": [random.choice(["A", "B", "C", "D"]) for _ in range(n)],
-            "active": [random.choice([True, False]) for _ in range(n)],
+            "name": [f"NAME_{i:04d}" for i in range(1, n + 1)],
+            "value": [float(i * 100) for i in range(1, n + 1)],
+            "category": [_CATEGORIES[i % len(_CATEGORIES)] for i in range(n)],
+            "active": [i % 2 == 0 for i in range(n)],
             "dt_ingest": [datetime.now().isoformat()] * n,
         }
     )
@@ -54,7 +53,7 @@ def test_source_ingest_dag() -> None:
         """Generate random records and write them to the landing zone as Parquet."""
         run_date = context["data_interval_start"].date()
         run_id = str(uuid.uuid4())[:8]
-        n_records = random.randint(50, 200)
+        n_records = 100
 
         logging.info(f"[{SOURCE}] Generating {n_records} records for {run_date}")
         df = generate_test_dataframe(n_records)
@@ -80,4 +79,4 @@ def test_source_ingest_dag() -> None:
     extract_and_store()
 
 
-dag_instance = test_source_ingest_dag()
+test_source_ingest_dag()

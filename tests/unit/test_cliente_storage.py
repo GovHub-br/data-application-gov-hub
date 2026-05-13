@@ -48,7 +48,7 @@ class TestGetStorageFs:
         mock_s3fs.S3FileSystem.assert_called_once_with(
             key="testkey",
             secret="testsecret",
-            client_kwargs={"endpoint_url": "http://minio:9000"},
+            client_kwargs={"endpoint_url": "http://minio:9000"},  # NOSONAR
         )
         assert result is mock_instance
 

@@ -22,8 +22,6 @@ Environment (matches local.env defaults):
 """
 
 import os
-import random
-import string
 import sys
 import uuid
 from datetime import date, datetime
@@ -65,16 +63,17 @@ def _pg_conn_str() -> str:
     )
 
 
+_CATEGORIES = ["A", "B", "C", "D"]
+
+
 def _make_dataframe(n: int) -> pl.DataFrame:
     return pl.DataFrame(
         {
             "id": list(range(1, n + 1)),
-            "name": [
-                "".join(random.choices(string.ascii_uppercase, k=6)) for _ in range(n)
-            ],
-            "value": [round(random.uniform(0.0, 100_000.0), 2) for _ in range(n)],
-            "category": [random.choice(["A", "B", "C", "D"]) for _ in range(n)],
-            "active": [random.choice([True, False]) for _ in range(n)],
+            "name": [f"NAME_{i:04d}" for i in range(1, n + 1)],
+            "value": [float(i * 100) for i in range(1, n + 1)],
+            "category": [_CATEGORIES[i % len(_CATEGORIES)] for i in range(n)],
+            "active": [i % 2 == 0 for i in range(n)],
             "dt_ingest": [datetime.now().isoformat()] * n,
         }
     )
