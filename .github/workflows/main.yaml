@@ -26,8 +26,8 @@ env:
   IMAGE_TAG_SHA: ${{ github.sha }}
 
 jobs:
-  lint:
-    name: Lint
+  setup:
+    name: Setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +37,12 @@ jobs:
           python_version: ${{ env.PYTHON_VERSION }}
           poetry_version: ${{ env.POETRY_VERSION }}
           poetry_cache_dir: ${{ env.POETRY_CACHE_DIR }}
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
 
       - name: Run lint
         run: make lint
@@ -44,14 +50,8 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    needs: setup
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/setup-poetry
-        with:
-          python_version: ${{ env.PYTHON_VERSION }}
-          poetry_version: ${{ env.POETRY_VERSION }}
-          poetry_cache_dir: ${{ env.POETRY_CACHE_DIR }}
 
       - name: Run tests
         run: make test
