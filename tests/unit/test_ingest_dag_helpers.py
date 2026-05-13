@@ -56,11 +56,10 @@ class TestGenerateTestDataframe:
         df = generate_test_dataframe(5)
         assert df["id"].to_list() == [1, 2, 3, 4, 5]
 
-    def test_name_is_six_uppercase_chars(self) -> None:
+    def test_name_is_sequential_identifier(self) -> None:
         df = generate_test_dataframe(20)
-        for name in df["name"].to_list():
-            assert len(name) == 6
-            assert name.isupper()
+        for i, name in enumerate(df["name"].to_list(), start=1):
+            assert name == f"NAME_{i:04d}"
 
     def test_value_in_expected_range(self) -> None:
         df = generate_test_dataframe(100)
