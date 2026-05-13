@@ -23,7 +23,7 @@ def get_storage_fs() -> fsspec.AbstractFileSystem:
         }
         if backend == "minio":
             endpoint = os.getenv("MINIO_ENDPOINT", "https://minio:9000")
-            if not endpoint.startswith(("http://", "https://")):
+            if "://" not in endpoint:
                 endpoint = f"https://{endpoint}"
             kwargs["client_kwargs"] = {"endpoint_url": endpoint}
         return s3fs.S3FileSystem(**kwargs)
