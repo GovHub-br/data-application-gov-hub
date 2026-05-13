@@ -1,13 +1,19 @@
 source:
   type: airflow
-  serviceName: airflow - local
+  serviceName: airflow
   serviceConnection:
     config:
       type: Airflow
-      hostPort: http://localhost:8080
+      hostPort: ${AIRFLOW_HOST_PORT}
       numberOfStatus: 20
       connection:
-        type: Backend
+        type: Postgres
+        username: ${AIRFLOW_DB_USERNAME}
+        authType:
+          password: ${AIRFLOW_DB_PASSWORD}
+        hostPort: ${AIRFLOW_DB_HOST_PORT}
+        database: ${AIRFLOW_DB_DATABASE}
+        sslMode: disable
 
   sourceConfig:
     config:
