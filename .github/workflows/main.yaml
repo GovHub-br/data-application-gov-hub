@@ -39,7 +39,7 @@ jobs:
           poetry_cache_dir: ${{ env.POETRY_CACHE_DIR }}
 
       - name: Run lint
-        run: poetry run make lint
+        run: make lint
 
   test:
     name: Test
@@ -54,10 +54,7 @@ jobs:
           poetry_cache_dir: ${{ env.POETRY_CACHE_DIR }}
 
       - name: Run tests
-        run: >
-          poetry run pytest tests
-          --junitxml=report.xml
-          --cov=. --cov-report=xml:coverage.xml
+        run: make test
 
       - uses: actions/upload-artifact@v4
         with:

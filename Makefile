@@ -43,7 +43,7 @@ lint:
 	[ "${GITLAB_CI}" ] || poetry run sqlfluff lint ./airflow_lappis/dags/dbt --config .sqlfluff.ci --ignore templating
 
 test:
-	poetry run pytest tests/unit
+	poetry run pytest tests/unit --junitxml=report.xml --cov=. --cov-report=xml:coverage.xml
 
 test-integration:
 	@if [ ! -f .env ]; then cp local.env .env; echo ".env created from local.env"; fi
