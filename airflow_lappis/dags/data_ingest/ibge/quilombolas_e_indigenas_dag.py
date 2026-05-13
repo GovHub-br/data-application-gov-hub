@@ -210,4 +210,4 @@ def quilombolas_indigenas_censo_dag() -> None:
 
     processar_arquivo_ibge.expand(arquivo=listar_arquivos_ftp())
 
-dag_instance = quilombolas_indigenas_censo_dag()
+quilombolas_indigenas_censo_dag()
