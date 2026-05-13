@@ -221,7 +221,7 @@ with DAG(
                 return None
 
             # Extrai o CSV do ZIP (UTF-16)
-            with zipfile.ZipFile(io.BytesIO(zip_payload)) as zip_file:
+            with zipfile.ZipFile(io.BytesIO(zip_payload)) as zip_file:  # type: ignore
                 for file_name in zip_file.namelist():
                     if file_name.endswith(".csv"):
                         raw_data = zip_file.read(file_name)

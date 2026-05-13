@@ -1,5 +1,4 @@
-export PYTHONPATH := $(CURDIR)/airflow_lappis
-export MYPYPATH := $(CURDIR):$(CURDIR)/airflow_lappis/dags:$(CURDIR)/airflow_lappis/helpers:$(CURDIR)/airflow_lappis/plugins
+export PYTHONPATH := $(CURDIR)/airflow_lappis:$(CURDIR)/airflow_lappis/helpers:$(CURDIR)/airflow_lappis/plugins
 
 AIRFLOW_SERVICE ?= airflow
 AIRFLOW_LOCAL_ORGAO ?= ipea
@@ -10,6 +9,7 @@ AIRFLOW_LOCAL_DB_PASSWORD ?= postgres
 AIRFLOW_LOCAL_DB_PORT ?= 5432
 
 setup:
+	@echo "Configurando ambiente..."
 	@if ! command -v poetry >/dev/null 2>&1; then \
 		echo "Poetry não encontrado. Instale antes com pipx install poetry==1.8.5"; \
 		exit 1; \
@@ -27,11 +27,8 @@ setup:
 	poetry config virtualenvs.in-project false
 	poetry lock
 	poetry install --no-root --with dev
-	poetry export --without-hashes --format=requirements.txt > requirements.generated.txt
+	poetry export --without-hashes --format=requirements.tpxt > requirements.generated.txt
 	bash setup-git-hooks.sh
-	docker compose up -d --build
-	$(MAKE) dev
-	$(MAKE) dev-check
 
 format:
 	poetry run black .
@@ -41,16 +38,25 @@ format:
 lint:
 	poetry run black . --check
 	poetry run ruff check .
-	poetry run mypy . --explicit-package-bases --install-types --non-interactive
+	poetry run ty check
 	poetry run sqlfmt ./airflow_lappis/dags/dbt --check
-	[ "${GITLAB_CI}" ] || poetry run sqlfluff lint ./airflow_lappis/dags/dbt
-
-lint-ci:
-	poetry run sqlfmt ./airflow_lappis/dags/dbt --check
-	poetry run sqlfluff lint ./airflow_lappis/dags/dbt --config .sqlfluff.ci --ignore templating
+	[ "${GITLAB_CI}" ] || poetry run sqlfluff lint ./airflow_lappis/dags/dbt --config .sqlfluff.ci --ignore templating
 
 test:
-	poetry run pytest tests
+	poetry run pytest tests/unit
+
+test-integration:
+	@if [ ! -f .env ]; then cp local.env .env; echo ".env created from local.env"; fi
+	@docker-compose --env-file local.env up -d minio minio-init postgres
+	@echo "Waiting for services to be healthy..."
+	@docker-compose --env-file local.env ps
+	poetry run pytest tests/integration/ -m integration -v
+
+compose:
+	@echo "Iniciando ambiente local do Airflow com Docker Compose..."
+	docker compose up -d --build
+	$(MAKE) dev
+	$(MAKE) dev-check
 
 dev:
 	@docker compose ps --status running $(AIRFLOW_SERVICE) >/dev/null 2>&1 || (echo "Serviço '$(AIRFLOW_SERVICE)' não está em execução. Rode: docker compose up -d" && exit 1)

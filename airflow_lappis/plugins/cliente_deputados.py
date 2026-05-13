@@ -20,7 +20,7 @@ class ClienteDeputados(ClienteBase):
             f"{ClienteDeputados.BASE_URL}"
         )
 
-    def get_deputados(self, **params: Any) -> list:
+    def get_deputados(self, **params: Any) -> list | None:
         """
         Obter lista de deputados
         """

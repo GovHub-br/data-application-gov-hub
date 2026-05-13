@@ -39,7 +39,7 @@ jobs:
           poetry_cache_dir: ${{ env.POETRY_CACHE_DIR }}
 
       - name: Run lint
-        run: poetry run make lint-ci || true
+        run: poetry run make lint
 
   test:
     name: Test

@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import Any
 from airflow.decorators import dag, task
 import psycopg2
 from postgres_helpers import get_postgres_conn
@@ -59,17 +60,19 @@ def siconv_ingestao_dag() -> None:
             if truncate_before_insert:
                 logging.info(f"Truncando tabela siconv.{nome_tabela}...")
                 with conn.cursor() as cursor:
-                    cursor.execute(f"""
+                    cursor.execute(
+                        f"""
                         DO $$ BEGIN
                         IF EXISTS (
-                            SELECT FROM pg_tables 
-                            WHERE schemaname = 'siconv' 
+                            SELECT FROM pg_tables
+                            WHERE schemaname = 'siconv'
                             AND tablename = '{nome_tabela}'
                         ) THEN
                             TRUNCATE TABLE siconv.{nome_tabela};
                         END IF;
                         END $$;
-                    """)
+                    """
+                    )
 
             for registro in gerador_registros:
                 lote.append(registro)
@@ -129,9 +132,10 @@ def siconv_ingestao_dag() -> None:
 
     ultima_task = path_zip
 
-    for tabela in TABELAS_SICONV:
+    for _tabela in TABELAS_SICONV:
+        tabela: Any = _tabela
         task_atual = ingerir_tabela.override(task_id=f"ingerir_{tabela['nome_tabela']}")(
-            zip_path=path_zip,
+            zip_path=path_zip,  # type: ignore
             nome_tabela=tabela["nome_tabela"],
             nome_csv=tabela["nome_csv"],
             conflict_fields=tabela["conflict_fields"],
@@ -144,7 +148,7 @@ def siconv_ingestao_dag() -> None:
         ultima_task >> task_atual
         ultima_task = task_atual
 
-    ultima_task >> deletar_zip(path_zip)
+    ultima_task >> deletar_zip(path_zip)  # type: ignore
 
 
 siconv_ingestao_dag()

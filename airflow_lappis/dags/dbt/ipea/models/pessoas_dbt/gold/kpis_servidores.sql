@@ -1,6 +1,6 @@
 with
     total_servidores as (
-        select count(distinct cpf) as total, max(dt_ingest) as dt_ingest 
+        select count(distinct cpf) as total, max(dt_ingest) as dt_ingest
         from {{ ref("dados_funcionais") }}
     ),
 
@@ -22,7 +22,10 @@ with
         where nome_situacao_funcional in ('ESTAGIARIO SIGEPE')
     ),
 
-    terceirizados as (select count(distinct id) as total, max(dt_ingest) as dt_ingest from {{ ref("terceirizados") }})
+    terceirizados as (
+        select count(distinct id) as total, max(dt_ingest) as dt_ingest
+        from {{ ref("terceirizados") }}
+    )
 
 select 'total_servidores' as kpi, total as valor, dt_ingest
 from total_servidores

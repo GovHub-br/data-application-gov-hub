@@ -12,9 +12,9 @@ with
             co_unidade::text as co_unidade,
             co_fonte_financeira::text as co_fonte_financeira,
             nu_dias_pago::text as nu_dias_pago,
-            {{ safe_numeric('vl_dia_pago') }} as vl_dia_pago,
-            {{ safe_numeric('vl_total_pago') }} as vl_total_pago,
-            {{ safe_boolean('in_conferencia') }} as in_conferencia
+            {{ safe_numeric("vl_dia_pago") }} as vl_dia_pago,
+            {{ safe_numeric("vl_total_pago") }} as vl_total_pago,
+            {{ safe_boolean("in_conferencia") }} as in_conferencia
         from {{ source("sisbolsas", "tb_folha_bolsista") }}
     )
 

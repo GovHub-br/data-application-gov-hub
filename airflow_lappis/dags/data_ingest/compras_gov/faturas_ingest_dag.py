@@ -46,7 +46,7 @@ def api_faturas_dag() -> None:
                     f"{contrato_id} into PostgreSQL"
                 )
                 db.insert_data(
-                    faturas,
+                    faturas,  # type: ignore
                     "faturas",
                     conflict_fields=["id"],
                     primary_key=["id"],

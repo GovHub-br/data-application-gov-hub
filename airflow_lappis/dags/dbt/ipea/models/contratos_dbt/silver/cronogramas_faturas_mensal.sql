@@ -71,7 +71,7 @@ with
             coalesce(valor_cronograma, 0)
             - coalesce(valor_faturas_pagas, 0)
             - coalesce(valor_faturas_pendentes, 0) as saldo_contratual_disponivel,
-            greatest(dt_ingest_pago, dt_ingest_pendente) AS dt_ingest
+            greatest(dt_ingest_pago, dt_ingest_pendente) as dt_ingest
         from joined_table
         order by contrato_id, mes_ref
     )

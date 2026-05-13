@@ -1,10 +1,8 @@
 with
 
     correcao_funcao as (
-        select 
-            *,
-            replace(funcao, ' ', '') as funcao_sigla,
-            dt_ingest as dt_ingest_estrutura
+        select
+            *, replace(funcao, ' ', '') as funcao_sigla, dt_ingest as dt_ingest_estrutura
         from {{ ref("estrutura_organizacional_cargos") }}
     ),
 

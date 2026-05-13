@@ -9,7 +9,7 @@ with
             co_tipo_escolar::text as co_tipo_escolar,
             st_nivel_escolaridade::text as st_nivel_escolaridade,
             tp_nacionalidade_diploma::text as tp_nacionalidade_diploma,
-            {{ safe_boolean('in_diploma_valido') }} as in_diploma_valido,
+            {{ safe_boolean("in_diploma_valido") }} as in_diploma_valido,
             co_area_formacao::text as co_area_formacao,
             ds_outra_formacao::text as ds_outra_formacao,
             ds_curso::text as ds_curso,

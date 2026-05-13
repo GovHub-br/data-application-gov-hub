@@ -32,18 +32,19 @@ with
     chamadas as (
         select
             c.co_chamada_publica,
-            regexp_replace(btrim(c.co_projeto, E' \t\n\r'), '[.]0+$', '') as co_projeto,
+            regexp_replace(btrim(c.co_projeto, e ' \t\n\r'), '[.]0+$', '') as co_projeto,
             c.co_situacao_chamada,
             c.co_usuario_criacao,
             c.co_programa,
             case
-                when btrim(c.nu_chamada_publica, E' \t\n\r') ~ '^[0-9]+([.]0+)?$'
-                then regexp_replace(btrim(c.nu_chamada_publica, E' \t\n\r'), '[.]0+$', '')
-                else btrim(c.nu_chamada_publica, E' \t\n\r')
+                when btrim(c.nu_chamada_publica, e ' \t\n\r') ~ '^[0-9]+([.]0+)?$'
+                then
+                    regexp_replace(btrim(c.nu_chamada_publica, e ' \t\n\r'), '[.]0+$', '')
+                else btrim(c.nu_chamada_publica, e ' \t\n\r')
             end as nu_chamada_publica,
             case
-                when btrim(c.nu_ano, E' \t\n\r') ~ '^[0-9]{4}([.]0+)?$'
-                then regexp_replace(btrim(c.nu_ano, E' \t\n\r'), '[.]0+$', '')::integer
+                when btrim(c.nu_ano, e ' \t\n\r') ~ '^[0-9]{4}([.]0+)?$'
+                then regexp_replace(btrim(c.nu_ano, e ' \t\n\r'), '[.]0+$', '')::integer
             end as ano_chamada,
             c.ds_chamada_publica,
             c.ds_numero_sei,
@@ -124,8 +125,7 @@ with
     ),
 
     programas as (
-        select p.co_programa, p.ds_programa
-        from {{ ref("sisbolsas_tb_programa") }} as p
+        select p.co_programa, p.ds_programa from {{ ref("sisbolsas_tb_programa") }} as p
     ),
 
     situacoes as (
@@ -137,7 +137,9 @@ with
         select
             cu.co_chamada_publica,
             string_agg(distinct u.ds_sigla, ' | ' order by u.ds_sigla) as unidades_sigla,
-            string_agg(distinct u.ds_unidade, ' | ' order by u.ds_unidade) as unidades_nome,
+            string_agg(
+                distinct u.ds_unidade, ' | ' order by u.ds_unidade
+            ) as unidades_nome,
             string_agg(distinct e.ds_uf, ' | ' order by e.ds_uf) as ufs
         from {{ ref("sisbolsas_tb_chapubli_unidade") }} as cu
         left join {{ ref("sisbolsas_tb_unidade") }} as u on cu.co_unidade = u.co_unidade
@@ -149,32 +151,26 @@ with
         select
             s.co_chamada_publica,
             count(distinct s.co_selecao) as total_selecoes,
-            string_agg(distinct m.ds_modalidade, ' | ' order by m.ds_modalidade)
-            as modalidades,
+            string_agg(
+                distinct m.ds_modalidade, ' | ' order by m.ds_modalidade
+            ) as modalidades,
             sum(
-                case
-                    when s.qt_bolsa ~ '^[0-9]+(\\.[0-9]+)?$'
-                    then s.qt_bolsa::numeric
-                end
+                case when s.qt_bolsa ~ '^[0-9]+(\\.[0-9]+)?$' then s.qt_bolsa::numeric end
             ) as cotas,
             sum(s.vl_total) as valor_total_selecoes,
             max(
                 case
-                    when s.qt_duracao ~ '^[0-9]+(\\.[0-9]+)?$'
-                    then s.qt_duracao::numeric
+                    when s.qt_duracao ~ '^[0-9]+(\\.[0-9]+)?$' then s.qt_duracao::numeric
                 end
             ) as prazo_meses
         from {{ ref("sisbolsas_tb_selecao") }} as s
-        left join {{ ref("sisbolsas_tb_modalidade") }} as m on s.co_modalidade = m.co_modalidade
+        left join
+            {{ ref("sisbolsas_tb_modalidade") }} as m on s.co_modalidade = m.co_modalidade
         group by 1
     ),
 
     processos as (
-        select
-            p.co_selecao,
-            p.in_classificacao,
-            p.in_nao_apto,
-            p.in_bolsa_ativa
+        select p.co_selecao, p.in_classificacao, p.in_nao_apto, p.in_bolsa_ativa
         from {{ ref("sisbolsas_tb_processo_seletivo") }} as p
     ),
 
@@ -182,15 +178,18 @@ with
         select
             s.co_chamada_publica,
             count(*) as total_processos,
-            sum(case when p.in_classificacao is true then 1 else 0 end)
-            as total_classificados,
+            sum(
+                case when p.in_classificacao is true then 1 else 0 end
+            ) as total_classificados,
             sum(case when p.in_nao_apto is true then 1 else 0 end) as total_nao_aptos,
-            sum(case when p.in_bolsa_ativa is true then 1 else 0 end)
-            as total_bolsas_ativas,
+            sum(
+                case when p.in_bolsa_ativa is true then 1 else 0 end
+            ) as total_bolsas_ativas,
             sum(
                 case
-                    when p.in_classificacao is true
-                    and not coalesce(p.in_bolsa_ativa, false)
+                    when
+                        p.in_classificacao is true
+                        and not coalesce(p.in_bolsa_ativa, false)
                     then 1
                     else 0
                 end
@@ -204,9 +203,7 @@ with
         select
             cf.co_chamada_publica,
             string_agg(
-                distinct ff.ds_fonte_financeira,
-                ' | '
-                order by ff.ds_fonte_financeira
+                distinct ff.ds_fonte_financeira, ' | ' order by ff.ds_fonte_financeira
             ) as fontes_recurso_chamada
         from {{ ref("sisbolsas_tb_chapubli_fontfina") }} as cf
         left join
@@ -287,8 +284,9 @@ with
     fontes_projeto_por_ano as (
         select
             f.projetoid::text as co_projeto,
-            jsonb_object_agg(f.ano, f.valor_ano order by f.ano)
-            filter (where f.ano is not null) as valor_por_ano
+            jsonb_object_agg(f.ano, f.valor_ano order by f.ano) filter (
+                where f.ano is not null
+            ) as valor_por_ano
         from fontes_projeto_por_ano_raw as f
         group by 1
     )
@@ -310,8 +308,7 @@ select
     proj.anoprojeto as projeto_ano,
     dir.diretorianome as diretoria,
     dir.diretoriasigla as diretoria_sigla,
-    coalesce(coord_proj.nomeservidor, coord_chamada.coordenador_chamada)
-    as coordenador,
+    coalesce(coord_proj.nomeservidor, coord_chamada.coordenador_chamada) as coordenador,
     coord_chamada.coordenador_chamada,
     coord_proj.nomeservidor as coordenador_projeto,
     status_projeto.nomestatus as status_projeto,
@@ -350,8 +347,7 @@ select
     fontes_projeto.valor_total_fontes_projeto,
     fontes_projeto_por_ano.valor_por_ano,
     coalesce(
-        fontes_chamada.fontes_recurso_chamada,
-        fontes_projeto.fontes_recurso_projeto
+        fontes_chamada.fontes_recurso_chamada, fontes_projeto.fontes_recurso_projeto
     ) as fonte_recurso,
     fontes_chamada.fontes_recurso_chamada,
     fontes_projeto.fontes_recurso_projeto,
@@ -367,15 +363,19 @@ left join programas as prog on c.co_programa = prog.co_programa
 left join situacoes as sit on c.co_situacao_chamada = sit.co_situacao_chamada
 left join unidades on c.co_chamada_publica = unidades.co_chamada_publica
 left join modalidades on c.co_chamada_publica = modalidades.co_chamada_publica
-left join processos_agg as processos on c.co_chamada_publica = processos.co_chamada_publica
+left join
+    processos_agg as processos on c.co_chamada_publica = processos.co_chamada_publica
 left join fontes_chamada on c.co_chamada_publica = fontes_chamada.co_chamada_publica
-left join coordenadores_chamada as coord_chamada
+left join
+    coordenadores_chamada as coord_chamada
     on c.co_chamada_publica = coord_chamada.co_chamada_publica
 left join projetos as proj on c.co_projeto = proj.co_projeto
 left join diretorias as dir on proj.diretoriaid = dir.diretoriaid
-left join coordenadores_projeto as coord_proj
+left join
+    coordenadores_projeto as coord_proj
     on proj.coordenadorid = coord_proj.servidorpublicoid
-left join status_projetos as status_projeto
+left join
+    status_projetos as status_projeto
     on proj.statusprojetoid = status_projeto.statusprojetoid
 left join fontes_projeto on c.co_projeto = fontes_projeto.co_projeto
 left join fontes_projeto_por_ano on c.co_projeto = fontes_projeto_por_ano.co_projeto

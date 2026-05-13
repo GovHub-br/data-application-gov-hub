@@ -112,7 +112,7 @@ with DAG(
         IMAP_SERVER = creds["imap_server"]
         SENDER_EMAIL = creds["sender_email"]
 
-        cliente_email.format_csv = _patched_format_csv
+        cliente_email.format_csv = _patched_format_csv  # type: ignore
 
         try:
             logging.info("Iniciando o processamento dos emails")
@@ -156,7 +156,6 @@ with DAG(
 
             postgres_conn_str = get_postgres_conn()
             db = ClientPostgresDB(postgres_conn_str)
-
 
             db.insert_data(
                 data,

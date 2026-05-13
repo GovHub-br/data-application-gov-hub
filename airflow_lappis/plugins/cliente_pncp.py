@@ -401,7 +401,7 @@ class ClientePNCP(ClienteBase):
         return agregados
 
     def get_itens_e_resultados(
-        self, lista_chaves: List[Tuple[str, int, str]]
+        self, lista_chaves: List[str]
     ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
         Recebe lista de numeroControlePNCP e retorna:

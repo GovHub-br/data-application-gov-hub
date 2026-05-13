@@ -5,7 +5,13 @@ with
     ),
 
     codigos_siorg as (
-        select funcao, nomeunidade, siglaunidade, denominacao, count(*) as qtd_vagas_cargo, max(dt_ingest) as dt_ingest
+        select
+            funcao,
+            nomeunidade,
+            siglaunidade,
+            denominacao,
+            count(*) as qtd_vagas_cargo,
+            max(dt_ingest) as dt_ingest
         from siorg_sem_duplicatas
         group by funcao, nomeunidade, siglaunidade, denominacao
     ),

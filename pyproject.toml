@@ -23,37 +23,23 @@ zeep = "*"
 imap-tools = "*"
 astronomer-cosmos = "*"
 openpyxl = "^3.1.5"
+polars = "*"
+pyarrow = "*"
+s3fs = "*"
+boto3 = "*"
+adlfs = "*"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
 ruff = "*"
 pytest = "*"
 pytest-cov = "*"
-mypy = "*"
-types-psycopg2 = "*"
-pandas-stubs = "*"
-sqlalchemy-stubs = "*"
+ty = "*"
 jupyter = "*"
+moto = {version = "*", extras = ["s3"]}
 shandy-sqlfmt = "*"
 sqlfluff = "*"
 sqlfluff-templater-dbt = "*"
-types-Authlib = "*"
-types-Deprecated = "*"
-types-Pygments = "*"
-types-WTForms = "*"
-types-croniter = "*"
-types-gevent = "*"
-types-jmespath = "*"
-types-jsonschema = "*"
-types-openpyxl = "*"
-types-psutil = "*"
-types-tabulate = "*"
-types-colorama = "*"
-types-decorator = "*"
-types-passlib = "*"
-types-pycurl = "*"
-types-simplejson = "*"
-types-uWSGI = "*"
 
 [build-system]
 requires = ["poetry-core"]
@@ -95,28 +81,16 @@ exclude = [
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90"]
-ignore = []
+ignore = ["C901"]
 
-[tool.mypy]
-python_version = "3.11"
-files = ["**/*.py"]
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = false
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
-follow_untyped_imports = true
-disable_error_code = ["arg-type", "attr-defined"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+markers = [
+    "integration: requires a live MinIO instance (docker-compose up)",
+    "unit: pure unit tests with no external dependencies",
+]
 
 [tool.sqlfmt]
 line_length = 90

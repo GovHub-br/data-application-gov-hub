@@ -29,8 +29,7 @@ with
     preenchimento as (select contrato_id, mes_ref from {{ ref("preenchimento_meses") }}),
 
     contratos as (
-        select id, numero, dt_ingest as dt_ingest_contratos
-        from {{ ref("contratos") }}
+        select id, numero, dt_ingest as dt_ingest_contratos from {{ ref("contratos") }}
     ),
 
     comparativo_mensal as (

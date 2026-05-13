@@ -102,7 +102,7 @@ class ClientPostgresDB:
 
     def insert_data(
         self,
-        data: List[Dict[str, Any]],
+        data: list[Any],
         table_name: str,
         conflict_fields: Optional[List[str]] = None,
         primary_key: Optional[List[str]] = None,
@@ -142,7 +142,8 @@ class ClientPostgresDB:
                     )
                 except psycopg2.errors.UndefinedColumn as err:
                     logging.warning(
-                        f"[cliente_postgres.py] Missing column detected in {schema}.{table_name}: "
+                        f"[cliente_postgres.py] Missing column in "
+                        f"{schema}.{table_name}: "
                         f"{err}. Tentando alterar tabela e reinserir."
                     )
                     connection.rollback()
@@ -152,7 +153,8 @@ class ClientPostgresDB:
                     )
                     psycopg2.extras.execute_values(cursor, sql, values)
                     logging.info(
-                        f"[cliente_postgres.py] Inserted data into {schema}.{table_name} after alter"
+                        f"[cliente_postgres.py] Inserted data into "
+                        f"{schema}.{table_name} after alter"
                     )
                 except psycopg2.Error as err:
                     logging.error(

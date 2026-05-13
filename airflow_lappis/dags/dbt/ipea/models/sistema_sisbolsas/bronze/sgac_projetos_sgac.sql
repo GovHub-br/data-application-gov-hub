@@ -23,8 +23,7 @@ with
             {{ sharepoint_jsonb("coordenador_claims") }} as coordenador_claims,
             {{ extract_jsonb_key_values("nacionalidade", "Value") }} as nacionalidade,
             {{ sharepoint_jsonb("nacionalidade_id") }} as nacionalidade_id,
-            {{ safe_numeric("recursos_orcament_x00", 18, 2) }}
-            as recursos_orcamentarios,
+            {{ safe_numeric("recursos_orcament_x00", 18, 2) }} as recursos_orcamentarios,
             {{ safe_numeric("recursos_orcament_x0", 18, 2) }}
             as recursos_nao_orcamentarios,
             {{ extract_jsonb_key_values("status", "Value") }} as status,
@@ -37,7 +36,8 @@ with
             ({{ safe_numeric("prioridade_id", 18, 0) }})::bigint as prioridade_id,
             {{ clean_sharepoint_html("justificativa") }} as justificativa,
             {{ clean_sharepoint_html("objetivo_s_ge") }} as objetivo_s_ge,
-            {{ extract_jsonb_key_values("equipe_tecnica", "DisplayName") }} as equipe_tecnica,
+            {{ extract_jsonb_key_values("equipe_tecnica", "DisplayName") }}
+            as equipe_tecnica,
             {{ sharepoint_jsonb("equipe_tecnica") }} as equipe_tecnica_json,
             {{ sharepoint_jsonb("equipe_tecnica_claims") }} as equipe_tecnica_claims,
             {{ safe_text("codigo") }} as codigo,

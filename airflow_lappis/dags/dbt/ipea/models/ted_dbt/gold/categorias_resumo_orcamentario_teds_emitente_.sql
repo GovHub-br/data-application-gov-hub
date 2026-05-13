@@ -1,4 +1,5 @@
--- Transformando o resumo orçamentário em categorias para utilizar no gráfico de barras empilhadas
+-- Transformando o resumo orçamentário em categorias para utilizar no gráfico de barras
+-- empilhadas
 select
     plano_acao,
     num_transf,
@@ -6,11 +7,11 @@ select
     valor_firmado as valor,
     '1. Valor firmado' as categoria,
     dt_ingest
-from {{ ref('ted_resumo_orcamentario') }}
+from {{ ref("ted_resumo_orcamentario") }}
 
 union all
 
----------------------------------------------------------------------------------------------
+-- -------------------------------------------------------------------------------------------
 select
     plano_acao,
     num_transf,
@@ -18,7 +19,7 @@ select
     (orcamento_recebido - orcamento_devolvido) as valor,
     '2. Destaque orçamentário' as categoria,
     dt_ingest
-from {{ ref('ted_resumo_orcamentario') }}
+from {{ ref("ted_resumo_orcamentario") }}
 
 union all
 
@@ -29,10 +30,9 @@ select
     (valor_firmado - (orcamento_recebido - orcamento_devolvido)) as valor,
     '2. Destaque orçamentário' as categoria,
     dt_ingest
-from {{ ref('ted_resumo_orcamentario') }}
+from {{ ref("ted_resumo_orcamentario") }}
 
----------------------------------------------------------------------------------------------
-
+-- -------------------------------------------------------------------------------------------
 union all
 
 select
@@ -42,7 +42,7 @@ select
     (financeiro_recebido - (financeiro_devolvido + financeiro_cancelado)) as valor,
     '3. Repasse financeiro' as categoria,
     dt_ingest
-from {{ ref('ted_resumo_orcamentario') }}
+from {{ ref("ted_resumo_orcamentario") }}
 
 union all
 
@@ -50,7 +50,11 @@ select
     plano_acao,
     num_transf,
     '3.2 Financeiro a enviar (em relação ao orçamento)' as tipo,
-    (orcamento_recebido - orcamento_devolvido - (financeiro_recebido - (financeiro_devolvido + financeiro_cancelado))) as valor,
+    (
+        orcamento_recebido
+        - orcamento_devolvido
+        - (financeiro_recebido - (financeiro_devolvido + financeiro_cancelado))
+    ) as valor,
     '3. Repasse financeiro' as categoria,
     dt_ingest
-from {{ ref('ted_resumo_orcamentario') }}
+from {{ ref("ted_resumo_orcamentario") }}

@@ -249,7 +249,7 @@ def _processar_chunk_excel(
     if not mascara_num.any():
         return None
 
-    idx_dados = mascara_num.idxmax()
+    idx_dados = int(mascara_num.idxmax())
     cabecalho = _construir_cabecalho(df_raw, idx_dados)
     nomes = [
         _extrair_nome_coluna_cabecalho(cabecalho, i) for i in range(len(df_raw.columns))
@@ -358,9 +358,11 @@ def mulheres_censo_demografico_dag() -> None:
         abas_validas = [
             a
             for a in excel_file.sheet_names
-            if "gráfico" not in a.lower() and "grafico" not in a.lower()
+            if isinstance(a, str)
+            and "gráfico" not in a.lower()
+            and "grafico" not in a.lower()
         ]
-        sheet_name = abas_validas[-1] if abas_validas else excel_file.sheet_names[0]
+        sheet_name = abas_validas[-1] if abas_validas else str(excel_file.sheet_names[0])
         logging.info("Processando a aba: %s", sheet_name)
 
         df_aba = excel_file.parse(sheet_name, header=None)

@@ -103,13 +103,15 @@ def _clean_existing_historico(
     tags=["MIR", "dados_abertos", "parlamentares", "deputados", "senadores", "historico"],
 )
 def parlamentares_controle_historico_dag() -> None:
-    """Sincroniza parlamentares atuais e controla extração de histórico por ciclo temporal."""
+    """Sincroniza parlamentares atuais e controla extração de histórico
+    por ciclo temporal."""
 
     @task
     def sync_atuais() -> dict[str, list[int]]:
         """Task 1: Busca parlamentares atuais da Câmara e do Senado."""
         logging.info(
-            "[parlamentares_controle_historico_dag.py] Iniciando sync de parlamentares atuais"
+            "[parlamentares_controle_historico_dag.py] "
+            "Iniciando sync de parlamentares atuais"
         )
 
         cliente_deputados = ClienteDeputados()
@@ -217,7 +219,8 @@ def parlamentares_controle_historico_dag() -> None:
                             cursor,
                             f"""
                             INSERT INTO {CONTROLE_SCHEMA}.{CONTROLE_TABLE}
-                                (fonte, parlamentar_id, status, first_seen_at, last_seen_at, updated_at)
+                                (fonte, parlamentar_id, status,
+                                 first_seen_at, last_seen_at, updated_at)
                             VALUES %s
                             ON CONFLICT (fonte, parlamentar_id)
                             DO UPDATE SET
@@ -228,8 +231,9 @@ def parlamentares_controle_historico_dag() -> None:
                         )
 
                         logging.info(
-                            f"[parlamentares_controle_historico_dag.py] Bootstrap realizado para "
-                            f"fonte={fonte}: universo={len(universo)}, atuais={len(ids_atuais)}"
+                            "[parlamentares_controle_historico_dag.py] "
+                            f"Bootstrap realizado para fonte={fonte}: "
+                            f"universo={len(universo)}, atuais={len(ids_atuais)}"
                         )
 
                 for fonte in ("camara", "senado"):
@@ -244,7 +248,8 @@ def parlamentares_controle_historico_dag() -> None:
                             cursor,
                             f"""
                             INSERT INTO {CONTROLE_SCHEMA}.{CONTROLE_TABLE}
-                                (fonte, parlamentar_id, status, first_seen_at, last_seen_at, updated_at)
+                                (fonte, parlamentar_id, status,
+                                 first_seen_at, last_seen_at, updated_at)
                             VALUES %s
                             ON CONFLICT (fonte, parlamentar_id)
                             DO UPDATE SET
@@ -268,11 +273,13 @@ def parlamentares_controle_historico_dag() -> None:
                         )
                     else:
                         logging.warning(
-                            f"[parlamentares_controle_historico_dag.py] Snapshot de atuais vazio para "
-                            f"fonte={fonte}. Fechamento ignorado nesta execucao."
+                            "[parlamentares_controle_historico_dag.py] "
+                            f"Snapshot de atuais vazio para fonte={fonte}. "
+                            "Fechamento ignorado nesta execucao."
                         )
 
-                # Evita recarga inicial desnecessária em parlamentares já contidos na bronze nativa
+                # Evita recarga inicial desnecessária em parlamentares
+                # já contidos na bronze nativa
                 if _table_exists(
                     cursor, "camara_deputados", "deputados_historico"
                 ) and _table_has_column(
@@ -289,7 +296,8 @@ def parlamentares_controle_historico_dag() -> None:
                                SELECT 1
                                  FROM camara_deputados.deputados_historico h
                                 WHERE h.parlamentar_id::text ~ '^[0-9]+$'
-                                  AND CAST(h.parlamentar_id::text AS BIGINT) = c.parlamentar_id
+                                  AND CAST(h.parlamentar_id::text AS BIGINT)
+                                      = c.parlamentar_id
                            )
                         """,
                         (now, now),
@@ -311,7 +319,8 @@ def parlamentares_controle_historico_dag() -> None:
                                SELECT 1
                                  FROM senado_federal.senadores_historico h
                                 WHERE h.parlamentar_id::text ~ '^[0-9]+$'
-                                  AND CAST(h.parlamentar_id::text AS BIGINT) = c.parlamentar_id
+                                  AND CAST(h.parlamentar_id::text AS BIGINT)
+                                      = c.parlamentar_id
                            )
                         """,
                         (now, now),
@@ -358,7 +367,8 @@ def parlamentares_controle_historico_dag() -> None:
         """Task 3: Extrai histórico da fonte oficial e injeta na base."""
         if not candidatos:
             logging.info(
-                "[parlamentares_controle_historico_dag.py] Nenhum parlamentar elegivel para historico"
+                "[parlamentares_controle_historico_dag.py] "
+                "Nenhum parlamentar elegivel para historico"
             )
             return
 
@@ -404,7 +414,8 @@ def parlamentares_controle_historico_dag() -> None:
                 if not extracao_ok:
                     logging.warning(
                         f"[parlamentares_controle_historico_dag.py] Sem confirmação de "
-                        f"extração para fonte={fonte}, parlamentar_id={parlamentar_id}. Status mantido."
+                        f"extração para fonte={fonte}, "
+                        f"parlamentar_id={parlamentar_id}. Status mantido."
                     )
                     continue
 
@@ -412,8 +423,9 @@ def parlamentares_controle_historico_dag() -> None:
                 status_updates.append((novo_status, fonte, parlamentar_id))
             except Exception as e:
                 logging.error(
-                    f"[parlamentares_controle_historico_dag.py] Erro ao extrair historico "
-                    f"fonte={fonte}, parlamentar_id={parlamentar_id}: {e}"
+                    "[parlamentares_controle_historico_dag.py] Erro ao extrair "
+                    f"historico fonte={fonte}, "
+                    f"parlamentar_id={parlamentar_id}: {e}"
                 )
 
         if historico_camara:
@@ -467,8 +479,8 @@ def parlamentares_controle_historico_dag() -> None:
         )
 
     parlamentares_atuais = sync_atuais()
-    candidatos = state_logic(parlamentares_atuais)
-    extrair_historico(candidatos)
+    candidatos = state_logic(parlamentares_atuais)  # type: ignore
+    extrair_historico(candidatos)  # type: ignore
 
 
 parlamentares_controle_historico_dag()
