@@ -51,6 +51,27 @@ def test_parsear_arquivo_indice() -> None:
     assert "População residente" in chunk.df.iloc[0]["descricao"]
 
 
+def test_parsear_arquivo_indice_sem_hifen() -> None:
+    """Índice IBGE pode usar espaços duplos em vez de hífen."""
+    conteudo = "Tabela  3  População por sexo - 2022\n"
+    chunk = parsear_arquivo_indice(conteudo, "Tabelas_selecionadas")
+    assert chunk.df.iloc[0]["numero"] == "3"
+    assert "População por sexo" in chunk.df.iloc[0]["descricao"]
+
+
+def test_localizar_linha_titulo_tabela_complementar() -> None:
+    from quilombolas_parser import _localizar_linha_titulo
+
+    df = pd.DataFrame(
+        [
+            ["Censo Demográfico 2022"],
+            ["Tabela complementar 1 - Alfabetização - 2022"],
+            ["Brasil", "100"],
+        ]
+    )
+    assert _localizar_linha_titulo(df) == 1
+
+
 def test_processar_chunk_excel_apendice() -> None:
     """Simula layout do Apêndice 1 (tabela textual sem valores numéricos)."""
     linhas = [

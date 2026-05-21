@@ -108,18 +108,33 @@ def _identificar_chunks_horizontais(df_aba: pd.DataFrame) -> list[pd.DataFrame]:
     return chunks
 
 
-def _localizar_linha_titulo(df_raw: pd.DataFrame) -> int | None:
-    padrao = re.compile(
-        r"(tabela|ap[eê]ndice|apendice)\s+(complementar|de resultado)?\s*\d+",
-        re.IGNORECASE,
+def _texto_eh_linha_titulo(texto: str) -> bool:
+    """Detecta linha de título IBGE sem regex sujeito a backtracking (ReDoS)."""
+    lower = texto.lower().lstrip()
+    prefixos = (
+        "tabela complementar",
+        "tabela de resultado",
+        "tabela de resultados",
+        "tabela",
+        "apêndice",
+        "apendice",
     )
+    for prefixo in prefixos:
+        if not lower.startswith(prefixo):
+            continue
+        sufixo = lower[len(prefixo) :].lstrip()
+        return bool(sufixo) and sufixo[0].isdigit()
+    return False
+
+
+def _localizar_linha_titulo(df_raw: pd.DataFrame) -> int | None:
     for idx in range(len(df_raw)):
         texto = " ".join(
             str(v).strip()
             for v in df_raw.iloc[idx].tolist()
             if str(v).strip().lower() not in VALORES_NULOS
         )
-        if padrao.search(texto):
+        if _texto_eh_linha_titulo(texto):
             return idx
     return None
 
@@ -357,24 +372,46 @@ def extrair_chunks_de_excel(
     return chunks
 
 
+_TIPOS_INDICE: tuple[tuple[str, str], ...] = (
+    ("cartograma", "Cartograma"),
+    ("tabela", "Tabela"),
+    ("apêndice", "Apêndice"),
+    ("apendice", "Apêndice"),
+)
+
+
+def _parsear_linha_indice(linha: str) -> tuple[str, str, str] | None:
+    """Extrai tipo, número e descrição de uma linha de índice (sem ReDoS)."""
+    lower = linha.lower()
+    for chave, rotulo in _TIPOS_INDICE:
+        if not lower.startswith(chave):
+            continue
+        resto = linha[len(chave) :].lstrip()
+        numero_match = re.match(r"[0-9]+", resto)
+        if not numero_match:
+            return None
+        numero = numero_match.group(0)
+        descricao = resto[numero_match.end() :].lstrip()
+        if descricao and descricao[0] in "-–:":
+            descricao = descricao[1:].lstrip()
+        return rotulo, numero, descricao or linha
+    return None
+
+
 def parsear_arquivo_indice(conteudo: str, subpasta: str) -> ChunkProcessado:
     """Converte arquivo de índice TXT em tabela estruturada."""
     linhas = [ln.strip() for ln in conteudo.splitlines() if ln.strip()]
     registros: list[dict[str, str]] = []
     for idx, linha in enumerate(linhas, start=1):
-        match = re.match(
-            r"^(Tabela|Cartograma|Ap[eê]ndice)\s*(\d+)\s*[-–]?\s*(.*)$",
-            linha,
-            re.IGNORECASE,
-        )
-        if match:
-            tipo, numero, descricao = match.groups()
+        parsed = _parsear_linha_indice(linha)
+        if parsed:
+            tipo, numero, descricao = parsed
             registros.append(
                 {
                     "ordem": str(idx),
-                    "tipo": tipo.strip(),
-                    "numero": numero.strip(),
-                    "descricao": descricao.strip() or linha,
+                    "tipo": tipo,
+                    "numero": numero,
+                    "descricao": descricao,
                     "linha_original": linha,
                 }
             )
