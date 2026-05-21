@@ -156,3 +156,10 @@ sources:
     - name: mulheres_tabela_15_br_gr_uf_mu
     - name: mulheres_tabela_16_br_gr_uf_mu
     - name: mulheres_tabela_17_br_gr_uf_mu
+    # Quilombolas — alfabetização e características dos domicílios (prefixo Q_A_C_D_)
+    - name: Q_A_C_D_apendice_01
+    - name: Q_A_C_D_indice_tabelas_de_resultados
+    - name: Q_A_C_D_indice_tabelas_selecionadas
+    - name: Q_A_C_D_tabela_de_resultado_01
+    - name: Q_A_C_D_tabela_de_resultado_02
+    - name: Q_A_C_D_tabela_complementar_01

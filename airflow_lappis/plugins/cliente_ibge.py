@@ -20,7 +20,7 @@ class ClienteIBGE(ClienteBase):
         logging.info("[cliente_ibge] Inicializando conexão FTP com: %s", self.host)
 
     @contextmanager
-    def _conectar(self):
+    def _conectar(self, subcaminho: str = ""):
         """
         Abre uma conexão FTP com o servidor público do IBGE.
 
@@ -28,7 +28,7 @@ class ClienteIBGE(ClienteBase):
             with self._conectar() as ftp:
                 ftp.nlst()
         """
-        full_path = f"{self.BASE_DIR.rstrip('/')}/{self.database.lstrip('/')}"
+        full_path = self._caminho_remoto(subcaminho)
         ftp = FTP(timeout=30)  # NOSONAR
         try:
             ftp.connect(self.host)
@@ -58,12 +58,113 @@ class ClienteIBGE(ClienteBase):
             logging.error("[cliente_ibge] Erro ao listar arquivos: %s", exc)
             return []
 
-    def obter_conteudo_arquivo(self, nome_arquivo: str) -> io.BytesIO | None:
+    def _caminho_remoto(self, subcaminho: str = "") -> str:
+        base = f"{self.BASE_DIR.rstrip('/')}/{self.database.lstrip('/')}"
+        if not subcaminho:
+            return base
+        return f"{base}/{subcaminho.strip('/')}"
+
+    def listar_arquivos_em_subpastas(
+        self,
+        subpastas: list[str],
+        extensoes: tuple[str, ...] = (".xlsx", ".xls", ".csv"),
+        formato_preferido: str | None = "xlsx",
+    ) -> list[dict[str, str]]:
+        """
+        Lista arquivos alvo em subpastas relativas ao diretório do tema.
+
+        Retorna lista de dicts com chaves ``subcaminho`` e ``arquivo``.
+        Quando ``formato_preferido`` é informado, prioriza arquivos dessa
+        subpasta (ex.: ``xlsx`` em vez de ``ods``).
+        """
+        resultado: list[dict[str, str]] = []
+        try:
+            with self._conectar() as ftp:
+                base = self._caminho_remoto()
+                for subpasta in subpastas:
+                    caminho = f"{base}/{subpasta.strip('/')}"
+                    if formato_preferido:
+                        caminho = f"{caminho}/{formato_preferido}"
+                    try:
+                        ftp.cwd(caminho)
+                    except Exception as exc:
+                        logging.warning(
+                            "[cliente_ibge] Subpasta inacessível '%s': %s",
+                            caminho,
+                            exc,
+                        )
+                        continue
+
+                    for nome in ftp.nlst():
+                        if nome in (".", ".."):
+                            continue
+                        if nome.endswith(extensoes):
+                            resultado.append(
+                                {
+                                    "subcaminho": (
+                                        f"{subpasta.strip('/')}/{formato_preferido}"
+                                        if formato_preferido
+                                        else subpasta.strip("/")
+                                    ),
+                                    "arquivo": nome,
+                                }
+                            )
+
+            logging.info(
+                "[cliente_ibge] %d arquivo(s) em subpastas: %s",
+                len(resultado),
+                subpastas,
+            )
+            return resultado
+
+        except Exception as exc:
+            logging.error("[cliente_ibge] Erro ao listar subpastas: %s", exc)
+            return []
+
+    def listar_arquivos_texto(
+        self, entradas: list[tuple[str, str]]
+    ) -> list[dict[str, str]]:
+        """
+        Lista arquivos de texto (índices) em subpastas.
+
+        ``entradas`` é uma lista de tuplas ``(subpasta, nome_arquivo)``.
+        """
+        encontrados: list[dict[str, str]] = []
+        try:
+            with self._conectar() as ftp:
+                base = self._caminho_remoto()
+                for subpasta, nome_arquivo in entradas:
+                    caminho = f"{base}/{subpasta.strip('/')}"
+                    try:
+                        ftp.cwd(caminho)
+                        if nome_arquivo in ftp.nlst():
+                            encontrados.append(
+                                {
+                                    "subcaminho": subpasta.strip("/"),
+                                    "arquivo": nome_arquivo,
+                                }
+                            )
+                    except Exception as exc:
+                        logging.warning(
+                            "[cliente_ibge] Índice não encontrado em '%s': %s",
+                            caminho,
+                            exc,
+                        )
+            return encontrados
+        except Exception as exc:
+            logging.error("[cliente_ibge] Erro ao listar índices: %s", exc)
+            return []
+
+    def obter_conteudo_arquivo(
+        self, nome_arquivo: str, subcaminho: str = ""
+    ) -> io.BytesIO | None:
         """Baixa um arquivo do FTP diretamente para memória."""
         buffer = io.BytesIO()
         try:
-            with self._conectar() as ftp:
-                logging.info("[cliente_ibge] Baixando: %s", nome_arquivo)
+            with self._conectar(subcaminho=subcaminho) as ftp:
+                logging.info(
+                    "[cliente_ibge] Baixando: %s/%s", subcaminho or ".", nome_arquivo
+                )
                 ftp.retrbinary(f"RETR {nome_arquivo}", buffer.write)
 
             buffer.seek(0)
@@ -72,3 +173,18 @@ class ClienteIBGE(ClienteBase):
         except Exception as exc:
             logging.error("[cliente_ibge] Erro ao baixar '%s': %s", nome_arquivo, exc)
             return None
+
+    def obter_conteudo_texto(
+        self, nome_arquivo: str, subcaminho: str = ""
+    ) -> str | None:
+        """Baixa um arquivo de texto do FTP e retorna o conteúdo decodificado."""
+        buffer = self.obter_conteudo_arquivo(nome_arquivo, subcaminho=subcaminho)
+        if not buffer:
+            return None
+        raw = buffer.read()
+        for encoding in ("utf-8", "latin-1", "cp1252"):
+            try:
+                return raw.decode(encoding)
+            except UnicodeDecodeError:
+                continue
+        return raw.decode("latin-1", errors="replace")

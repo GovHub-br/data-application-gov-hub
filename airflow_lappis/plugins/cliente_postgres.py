@@ -1,4 +1,5 @@
 import logging
+import re
 from contextlib import contextmanager
 from typing import Any, Dict, List, Optional, Tuple
 import psycopg2
@@ -17,6 +18,11 @@ class ClientPostgresDB:
     @staticmethod
     def _get_column_type(value: Any) -> str:
         return ClientPostgresDB.TYPE_MAP.get(type(value), "TEXT")
+
+    @staticmethod
+    def _unique_index_name(table_name: str, columns: List[str]) -> str:
+        raw = f"uq_{table_name}_{'_'.join(columns)}"
+        return re.sub(r"[^\w]", "_", raw)[:63]
 
     def _flatten_data(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         return list(
@@ -123,6 +129,10 @@ class ClientPostgresDB:
             column_probe, table_name, primary_key=primary_key, schema=schema, conn=conn
         )
         self.alter_table(column_probe, table_name, schema=schema, conn=conn)
+        if conflict_fields:
+            self.ensure_unique_constraint(
+                schema, table_name, conflict_fields, conn=conn
+            )
 
         values = [tuple(item.get(col) for col in columns) for item in flattened_data]
 
@@ -356,6 +366,57 @@ class ClientPostgresDB:
                     for row in rows
                 ]
 
+    def ensure_unique_constraint(
+        self,
+        schema: str,
+        table_name: str,
+        columns: List[str],
+        conn=None,
+    ) -> None:
+        """
+        Garante índice UNIQUE para ON CONFLICT quando a tabela já existia
+        sem a PK composta correta (CREATE TABLE IF NOT EXISTS não altera constraints).
+        """
+        if not columns:
+            return
+
+        index_name = self._unique_index_name(table_name, columns)
+        cols_sql = ", ".join(columns)
+        query = (
+            f"CREATE UNIQUE INDEX IF NOT EXISTS {index_name} "
+            f"ON {schema}.{table_name} ({cols_sql});"
+        )
+
+        def _execute(connection):
+            with connection.cursor() as cursor:
+                try:
+                    cursor.execute(query)
+                    logging.info(
+                        "[cliente_postgres.py] Unique index %s on %s.%s (%s)",
+                        index_name,
+                        schema,
+                        table_name,
+                        cols_sql,
+                    )
+                except psycopg2.Error as err:
+                    logging.error(
+                        "[cliente_postgres.py] Failed to create unique index on "
+                        "%s.%s: %s",
+                        schema,
+                        table_name,
+                        err,
+                    )
+                    raise RuntimeError(
+                        f"Failed to ensure unique constraint on {schema}.{table_name}"
+                    ) from err
+
+        if conn is not None:
+            _execute(conn)
+        else:
+            with self._connect() as new_conn:
+                _execute(new_conn)
+                new_conn.commit()
+
     def execute_non_query(self, query: str) -> None:
         logging.info(f"[cliente_postgres.py] Executando non-query: {query}")
         with self._connect() as conn:
@@ -369,6 +430,30 @@ class ClientPostgresDB:
                         f"[cliente_postgres.py] Erro ao executar non-query. Erro: {e}"
                     )
                     raise RuntimeError("Erro ao executar comando SQL sem retorno") from e
+
+    def apply_comments(
+        self,
+        schema: str,
+        table_name: str,
+        table_comment: str | None = None,
+        column_comments: dict[str, str] | None = None,
+    ) -> None:
+        """Aplica COMMENT ON TABLE e COMMENT ON COLUMN no PostgreSQL."""
+        queries: list[str] = []
+        tabela = f"{schema}.{table_name}"
+
+        if table_comment:
+            desc = table_comment.replace("'", "''")
+            queries.append(f"COMMENT ON TABLE {tabela} IS '{desc}';")
+
+        for coluna, descricao in (column_comments or {}).items():
+            if not descricao:
+                continue
+            desc = descricao.replace("'", "''")
+            queries.append(f"COMMENT ON COLUMN {tabela}.{coluna} IS '{desc}';")
+
+        for query in queries:
+            self.execute_non_query(query)
 
     def get_dashboard_kpis(self) -> Dict[str, int]:
         query = "SELECT kpi, valor FROM pessoas.kpis_servidores"

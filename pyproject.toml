@@ -117,6 +117,7 @@ disable_error_code = ["arg-type", "attr-defined"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+pythonpath = ["airflow_lappis", "airflow_lappis/helpers", "airflow_lappis/plugins"]
 
 [tool.sqlfmt]
 line_length = 90
