@@ -24,6 +24,7 @@ zeep = "*"
 imap-tools = "*"
 astronomer-cosmos = "*"
 openpyxl = "^3.1.5"
+httpx = "*"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
