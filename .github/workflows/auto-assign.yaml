@@ -2,7 +2,7 @@ name: Auto assign issue
 
 on:
   issue_comment:
-    types: [created,edited]
+    types: [created]
 
 permissions:
   issues: write
@@ -11,6 +11,7 @@ jobs:
   auto-assign:
     if: ${{ !github.event.issue.pull_request }}
     runs-on: ubuntu-latest
+
     steps:
       - name: Auto assign commenter
         uses: actions/github-script@v8
@@ -20,28 +21,47 @@ jobs:
             const commenter = context.payload.comment.user.login;
             const issue = context.payload.issue;
 
-            const validCommands = ["/issue", "/take"];
+            const commandRegex = /^(\/issue|\/take)(\s|$)/i;
 
-            const hasCommand = validCommands.some(cmd =>
-              comment.includes(cmd)
-            );
-
-            if (!hasCommand) {
+            if (!commandRegex.test(comment)) {
               core.info("Nenhum comando válido encontrado.");
               return;
             }
 
-            const commenterIsAssigneeAlready = issue.assignees.some(
-              a => a.login === commenter
-            );
+            const labels = issue.labels.map(label => label.name);
+            const isOSSIssue = labels.includes("OSS");
 
-            if (commenterIsAssigneeAlready) {
-              core.info(`${commenter} já é um assignee da issue`);
+            const { data: permissionData } =
+              await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: commenter
+              });
+
+            const permission = permissionData.permission;
+
+            const hasWriteAccess = [
+              "admin",
+              "maintain",
+              "write"
+            ].includes(permission);
+
+            if (!hasWriteAccess && !isOSSIssue) {
+              core.info(
+                `${commenter} não possui permissão para assumir esta issue`
+              );
               return;
             }
 
-            core.info(`Atribuindo issue para ${commenter}`);
- 
+            const alreadyAssigned = issue.assignees.some(
+              a => a.login === commenter
+            );
+
+            if (alreadyAssigned) {
+              core.info(`${commenter} já é assignee`);
+              return;
+            }
+
             await github.rest.issues.addAssignees({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -49,4 +69,4 @@ jobs:
               assignees: [commenter]
             });
 
-            core.info("Issue atribuída com sucesso.");
+            core.info(`Issue atribuída para ${commenter}`);
