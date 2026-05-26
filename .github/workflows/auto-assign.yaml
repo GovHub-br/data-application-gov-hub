@@ -1,0 +1,52 @@
+name: Auto assign issue
+
+on:
+  issue_comment:
+    types: [created,edited]
+
+permissions:
+  issues: write
+
+jobs:
+  auto-assign:
+    if: ${{ !github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto assign commenter
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const comment = context.payload.comment.body.trim();
+            const commenter = context.payload.comment.user.login;
+            const issue = context.payload.issue;
+
+            const validCommands = ["/issue", "/take"];
+
+            const hasCommand = validCommands.some(cmd =>
+              comment.includes(cmd)
+            );
+
+            if (!hasCommand) {
+              core.info("Nenhum comando válido encontrado.");
+              return;
+            }
+
+            const commenterIsAssigneeAlready = issue.assignees.some(
+              a => a.login === commenter
+            );
+
+            if (commenterIsAssigneeAlready) {
+              core.info(`${commenter} já é um assignee da issue`);
+              return;
+            }
+
+            core.info(`Atribuindo issue para ${commenter}`);
+ 
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              assignees: [commenter]
+            });
+
+            core.info("Issue atribuída com sucesso.");
