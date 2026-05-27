@@ -33,7 +33,7 @@ class ClienteBase:
         kwargs["timeout"] = kwargs.get("timeout", self.DEFAULT_TIMEOUT)
         response = None
 
-        for attempt in range(self.DEFAULT_MAX_RETRIES):
+        for attempt in range(self.DEFAULT_MAX_RETRIES + 1):
             try:
                 logging.info(
                     f"[cliente_base.py] Attempt {attempt + 1} for {method} "
