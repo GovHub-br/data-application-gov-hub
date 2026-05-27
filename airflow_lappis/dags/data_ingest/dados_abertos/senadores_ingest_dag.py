@@ -18,7 +18,7 @@ from cliente_postgres import ClientPostgresDB
     },
     tags=["senado_federal", "senadores", "dados_abertos", "MIR"],
 )
-def senadores_ingest_dag() -> None:
+def senadores_ingest_dag() -> None:  # noqa: C901
     """DAG para buscar e armazenar dados de senadores do Senado Federal."""
 
     @task

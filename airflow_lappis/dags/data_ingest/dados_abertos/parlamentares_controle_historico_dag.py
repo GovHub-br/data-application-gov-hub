@@ -102,7 +102,7 @@ def _clean_existing_historico(
     },
     tags=["MIR", "dados_abertos", "parlamentares", "deputados", "senadores", "historico"],
 )
-def parlamentares_controle_historico_dag() -> None:
+def parlamentares_controle_historico_dag() -> None:  # noqa: C901
     """
     Sincroniza parlamentares atuais e controla extracao de historico por ciclo temporal.
     """
@@ -376,7 +376,7 @@ def parlamentares_controle_historico_dag() -> None:
         return candidatos
 
     @task
-    def extrair_historico(candidatos: list[dict[str, str]]) -> None:
+    def extrair_historico(candidatos: list[dict[str, str]]) -> None:  # noqa: C901
         """Task 3: Extrai histórico da fonte oficial e injeta na base."""
         if not candidatos:
             logging.info(

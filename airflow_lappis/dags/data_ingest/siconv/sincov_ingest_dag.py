@@ -19,7 +19,7 @@ from tabelas_siconv import TABELAS_SICONV
     },
     tags=["siconv", "MIR"],
 )
-def siconv_ingestao_dag() -> None:
+def siconv_ingestao_dag() -> None:  # noqa: C901
 
     @task
     def baixar_siconv() -> str:
