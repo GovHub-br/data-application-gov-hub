@@ -9,7 +9,7 @@ from cliente_base import ClienteBase
 
 @pytest.fixture
 def cliente_base() -> ClienteBase:
-    return ClienteBase(base_url="http://example.com")
+    return ClienteBase(base_url="https://example.com")
 
 
 def _mock_response(
