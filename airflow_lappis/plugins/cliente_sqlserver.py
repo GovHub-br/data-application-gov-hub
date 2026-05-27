@@ -1,8 +1,7 @@
 import logging
-import re
 import math
 from datetime import date, datetime, time
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 from airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook
 
 

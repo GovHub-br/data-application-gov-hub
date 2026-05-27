@@ -78,7 +78,7 @@ class ClienteTransfereGov(ClienteBase):
 
         while True:
             logging.info(
-                f"[cliente_transfere_gov.py] Fetching page {page} " f"(offset: {offset})"
+                f"[cliente_transfere_gov.py] Fetching page {page} (offset: {offset})"
             )
 
             data = self.get_programas_especiais(limit=page_size, offset=offset)
@@ -202,7 +202,8 @@ class ClienteTransfereGov(ClienteBase):
         }
 
         logging.info(
-            f"[cliente_transfere_gov.py] Fetching executores (limit={limit}, offset={offset})"
+            f"[cliente_transfere_gov.py] Fetching executores "
+            f"(limit={limit}, offset={offset})"
         )
 
         status, data = self.request(
@@ -359,7 +360,7 @@ class ClienteTransfereGov(ClienteBase):
 
         while True:
             logging.info(
-                f"[cliente_transfere_gov.py] Fetching page {page} " f"(offset: {offset})"
+                f"[cliente_transfere_gov.py] Fetching page {page} (offset: {offset})"
             )
 
             data = self.get_empenhos_especiais(limit=page_size, offset=offset)
@@ -441,7 +442,8 @@ class ClienteTransfereGov(ClienteBase):
         }
 
         logging.info(
-            f"[cliente_transfere_gov.py] Fetching relatorios with limit={limit}, offset={offset}"
+            f"[cliente_transfere_gov.py] Fetching relatorios with "
+            f"limit={limit}, offset={offset}"
         )
 
         status, data = self.request(
@@ -464,7 +466,8 @@ class ClienteTransfereGov(ClienteBase):
         page = 1
 
         logging.info(
-            "[cliente_transfere_gov.py] Starting full extraction of relatorio_gestao_especial"
+            "[cliente_transfere_gov.py] Starting full extraction of "
+            "relatorio_gestao_especial"
         )
 
         while True:
@@ -480,7 +483,8 @@ class ClienteTransfereGov(ClienteBase):
 
             all_data.extend(data)
             logging.info(
-                f"[cliente_transfere_gov.py] Page {page} fetched. Total so far: {len(all_data)}"
+                f"[cliente_transfere_gov.py] Page {page} fetched. "
+                f"Total so far: {len(all_data)}"
             )
 
             if len(data) < page_size:
@@ -556,7 +560,7 @@ class ClienteTransfereGov(ClienteBase):
 
         while True:
             logging.info(
-                f"[cliente_transfere_gov.py] Fetching page {page} " f"(offset: {offset})"
+                f"[cliente_transfere_gov.py] Fetching page {page} (offset: {offset})"
             )
 
             data = self.get_documentos_habeis_especiais(limit=page_size, offset=offset)
@@ -815,13 +819,12 @@ class ClienteTransfereGov(ClienteBase):
         page = 1
 
         logging.info(
-            "[cliente_transfere_gov.py] Starting full extraction of "
-            "finalidades especiais"
+            "[cliente_transfere_gov.py] Starting full extraction of finalidades especiais"
         )
 
         while True:
             logging.info(
-                f"[cliente_transfere_gov.py] Fetching page {page} " f"(offset: {offset})"
+                f"[cliente_transfere_gov.py] Fetching page {page} (offset: {offset})"
             )
 
             data = self.get_finalidades_especiais(limit=page_size, offset=offset)
@@ -917,7 +920,7 @@ class ClienteTransfereGov(ClienteBase):
 
         while True:
             logging.info(
-                f"[cliente_transfere_gov.py] Fetching page {page} " f"(offset: {offset})"
+                f"[cliente_transfere_gov.py] Fetching page {page} (offset: {offset})"
             )
 
             data = self.get_ordens_bancarias_especiais(limit=page_size, offset=offset)
@@ -1013,7 +1016,7 @@ class ClienteTransfereGov(ClienteBase):
 
         while True:
             logging.info(
-                f"[cliente_transfere_gov.py] Fetching page {page} " f"(offset: {offset})"
+                f"[cliente_transfere_gov.py] Fetching page {page} (offset: {offset})"
             )
 
             data = self.get_relatorio_gestao_novo_especial(limit=page_size, offset=offset)

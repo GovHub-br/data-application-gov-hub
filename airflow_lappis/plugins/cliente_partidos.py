@@ -6,7 +6,8 @@ from cliente_base import ClienteBase
 
 class ClientePartidos(ClienteBase):
     """
-    Cliente para consumir a API de Dados Abertos da Câmara dos Deputados para pegar a logo dos partidos.
+    Cliente para consumir a API de Dados Abertos da Camara dos Deputados para
+    pegar a logo dos partidos.
     """
 
     BASE_URL = "https://dadosabertos.camara.leg.br/api/v2"
@@ -50,7 +51,12 @@ class ClientePartidos(ClienteBase):
         pagina = 1
 
         while True:
-            params = {"pagina": pagina, "itens": 100, "ordem": "ASC", "ordenarPor": "sigla"}
+            params = {
+                "pagina": pagina,
+                "itens": 100,
+                "ordem": "ASC",
+                "ordenarPor": "sigla",
+            }
             partidos = self.get_partidos(**params)
 
             if not partidos:
@@ -81,6 +87,7 @@ class ClientePartidos(ClienteBase):
             return partido
         else:
             logging.warning(
-                f"[cliente_partidos.py] Failed to fetch partido {partido_id} with status: {status}"
+                f"[cliente_partidos.py] Failed to fetch partido {partido_id} "
+                f"with status: {status}"
             )
             return None

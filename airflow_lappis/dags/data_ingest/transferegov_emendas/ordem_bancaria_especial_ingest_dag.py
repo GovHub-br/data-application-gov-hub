@@ -24,7 +24,8 @@ def api_ordem_bancaria_especial_dag() -> None:
     @task
     def fetch_and_store_ordem_bancaria_especial() -> None:
         logging.info(
-            "[ordem_bancaria_especial_ingest_dag.py] Iniciando extração ordens bancárias especiais"
+            "[ordem_bancaria_especial_ingest_dag.py] Iniciando extracao "
+            "ordens bancarias especiais"
         )
 
         api = ClienteTransfereGov()

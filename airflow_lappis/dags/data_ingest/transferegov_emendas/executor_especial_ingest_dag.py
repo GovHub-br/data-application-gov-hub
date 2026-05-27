@@ -18,12 +18,15 @@ from cliente_postgres import ClientPostgresDB
     tags=["transfere_gov_api", "planos_acao_especiais", "MIR"],
 )
 def api_executor_especial_dag() -> None:
-    """DAG para buscar e armazenar executores especiais do Transfere Gov de forma massiva."""
+    """
+    DAG para buscar e armazenar executores especiais do Transfere Gov de forma massiva.
+    """
 
     @task
     def fetch_and_store_executores_especiais() -> None:
         logging.info(
-            "[executores_especiais_ingest_dag.py] Iniciando extração massiva de executores especiais"
+            "[executores_especiais_ingest_dag.py] Iniciando extracao massiva de "
+            "executores especiais"
         )
 
         api = ClienteTransfereGov()
@@ -65,7 +68,8 @@ def api_executor_especial_dag() -> None:
             )
         else:
             logging.warning(
-                "[executores_especiais_ingest_dag.py] Nenhum executor especial encontrado na API"
+                "[executores_especiais_ingest_dag.py] Nenhum executor especial "
+                "encontrado na API"
             )
 
     fetch_and_store_executores_especiais()

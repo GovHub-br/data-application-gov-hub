@@ -83,7 +83,6 @@ def fetch_email_with_zip(
     return zip_payloads
 
 
-
 def fetch_email_with_csv(
     imap_server: str, email: str, password: str, sender_email: str, subject: str
 ) -> List[bytes]:
@@ -92,7 +91,9 @@ def fetch_email_with_csv(
     csv_payloads: List[bytes] = []
     with MailBox(imap_server).login(email, password) as mailbox:
         # bulk=True: single IMAP FETCH command for all messages (avoids overquota)
-        for msg in mailbox.fetch(AND(date=today, from_=sender_email, subject=subject), bulk=True):
+        for msg in mailbox.fetch(
+            AND(date=today, from_=sender_email, subject=subject), bulk=True
+        ):
             for attachment in msg.attachments:
                 file_name = (attachment.filename or "").lower()
                 if file_name.endswith(".csv"):

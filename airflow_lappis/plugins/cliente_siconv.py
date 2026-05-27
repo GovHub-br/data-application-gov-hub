@@ -4,6 +4,7 @@ import io
 import logging
 import requests
 
+
 class ClienteSiconv:
     URL_ZIP = "https://repositorio.dados.gov.br/seges/detru/siconv.zip"
     ZIP_PATH = "/tmp/siconv.zip"
@@ -23,17 +24,20 @@ class ClienteSiconv:
             with z.open(nome_csv) as f:
                 conteudo = io.TextIOWrapper(f, encoding="utf-8-sig")
                 reader = csv.DictReader(conteudo, delimiter=";")
-                
+
                 if colunas_esperadas:
                     colunas_csv = reader.fieldnames or []
                     faltando = [c for c in colunas_esperadas if c not in colunas_csv]
                     if faltando:
-                        raise ValueError(f"[cliente_siconv.py] Colunas faltando em {nome_csv}: {faltando}")
+                        raise ValueError(
+                            f"[cliente_siconv.py] Colunas faltando em {nome_csv}: "
+                            f"{faltando}"
+                        )
 
                 for i, row in enumerate(reader):
                     if i < skip_rows:
                         continue
-                    
+
                     if colunas_esperadas:
                         yield {k.lower(): row[k] for k in colunas_esperadas}
                     else:

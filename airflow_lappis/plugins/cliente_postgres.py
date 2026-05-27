@@ -130,9 +130,7 @@ class ClientPostgresDB:
         )
         self.alter_table(column_probe, table_name, schema=schema, conn=conn)
         if conflict_fields:
-            self.ensure_unique_constraint(
-                schema, table_name, conflict_fields, conn=conn
-            )
+            self.ensure_unique_constraint(schema, table_name, conflict_fields, conn=conn)
 
         values = [tuple(item.get(col) for col in columns) for item in flattened_data]
 
@@ -152,8 +150,9 @@ class ClientPostgresDB:
                     )
                 except psycopg2.errors.UndefinedColumn as err:
                     logging.warning(
-                        f"[cliente_postgres.py] Missing column detected in {schema}.{table_name}: "
-                        f"{err}. Tentando alterar tabela e reinserir."
+                        f"[cliente_postgres.py] Missing column detected in "
+                        f"{schema}.{table_name}: {err}. Tentando alterar tabela "
+                        "e reinserir."
                     )
                     connection.rollback()
                     column_probe = {col: None for col in columns}
@@ -162,7 +161,8 @@ class ClientPostgresDB:
                     )
                     psycopg2.extras.execute_values(cursor, sql, values)
                     logging.info(
-                        f"[cliente_postgres.py] Inserted data into {schema}.{table_name} after alter"
+                        f"[cliente_postgres.py] Inserted data into "
+                        f"{schema}.{table_name} after alter"
                     )
                 except psycopg2.Error as err:
                     logging.error(

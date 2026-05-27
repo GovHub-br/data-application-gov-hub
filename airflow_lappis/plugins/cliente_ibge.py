@@ -174,9 +174,7 @@ class ClienteIBGE(ClienteBase):
             logging.error("[cliente_ibge] Erro ao baixar '%s': %s", nome_arquivo, exc)
             return None
 
-    def obter_conteudo_texto(
-        self, nome_arquivo: str, subcaminho: str = ""
-    ) -> str | None:
+    def obter_conteudo_texto(self, nome_arquivo: str, subcaminho: str = "") -> str | None:
         """Baixa um arquivo de texto do FTP e retorna o conteúdo decodificado."""
         buffer = self.obter_conteudo_arquivo(nome_arquivo, subcaminho=subcaminho)
         if not buffer:

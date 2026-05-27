@@ -456,4 +456,3 @@ def preparar_registros_insercao(chunk: ChunkProcessado) -> list[dict[str, str]]:
     df["nome_fonte"] = chunk.arquivo
     df["subcaminho_fonte"] = chunk.subcaminho
     return df.astype(str).to_dict(orient="records")
-

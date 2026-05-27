@@ -7,6 +7,7 @@ from postgres_helpers import get_postgres_conn
 from cliente_ted import ClienteTed
 from cliente_postgres import ClientPostgresDB
 
+
 @dag(
     schedule_interval=get_dynamic_schedule("api_programas_ted_dag"),
     start_date=datetime(2023, 1, 1),
@@ -23,13 +24,13 @@ def api_programas_ted_dag() -> None:
     @task
     def fetch_and_ingest_programas() -> None:
         logging.info("Iniciando extração de programas")
-        
+
         api = ClienteTed()
         postgres_conn_str = get_postgres_conn("postgres_mir")
         db = ClientPostgresDB(postgres_conn_str)
 
         sigla_alvo = Variable.get("airflow_orgao_ted", default_var="MIR")
-        
+
         logging.info(f"Filtrando programas pela sigla: {sigla_alvo}")
         programas_data = api.get_programas_by_sigla_unidade_descentralizadora(sigla_alvo)
 
@@ -39,7 +40,7 @@ def api_programas_ted_dag() -> None:
 
         for programa in programas_data:
             programa["dt_ingest"] = datetime.now().isoformat()
-            
+
         db.insert_data(
             programas_data,
             "programas",
@@ -48,8 +49,12 @@ def api_programas_ted_dag() -> None:
             schema="transfere_gov",
         )
 
-        logging.info(f"Sucesso: {len(programas_data)} programas inseridos/atualizados para {sigla_alvo}")
+        logging.info(
+            f"Sucesso: {len(programas_data)} programas inseridos/atualizados "
+            f"para {sigla_alvo}"
+        )
 
     fetch_and_ingest_programas()
+
 
 api_programas_ted_dag()

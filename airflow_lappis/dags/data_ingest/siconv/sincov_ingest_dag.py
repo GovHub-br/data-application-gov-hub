@@ -59,17 +59,19 @@ def siconv_ingestao_dag() -> None:
             if truncate_before_insert:
                 logging.info(f"Truncando tabela siconv.{nome_tabela}...")
                 with conn.cursor() as cursor:
-                    cursor.execute(f"""
+                    cursor.execute(
+                        f"""
                         DO $$ BEGIN
                         IF EXISTS (
-                            SELECT FROM pg_tables 
-                            WHERE schemaname = 'siconv' 
+                            SELECT FROM pg_tables
+                            WHERE schemaname = 'siconv'
                             AND tablename = '{nome_tabela}'
                         ) THEN
                             TRUNCATE TABLE siconv.{nome_tabela};
                         END IF;
                         END $$;
-                    """)
+                    """
+                    )
 
             for registro in gerador_registros:
                 lote.append(registro)

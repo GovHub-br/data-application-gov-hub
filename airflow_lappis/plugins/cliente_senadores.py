@@ -21,8 +21,9 @@ class ClienteSenadores(ClienteBase):
 
     def get_senadores_por_legislatura(self) -> list:
         """
-        Obtém a lista de senadores ativose inativos.
-        O Senado geralmente retorna tudo em uma única chamada, sem paginação complexa como a Câmara.
+        Obtem a lista de senadores ativos e inativos.
+        O Senado geralmente retorna tudo em uma unica chamada, sem paginacao
+        complexa como a Camara.
         """
         endpoint = "/senador/lista/legislatura/0/100"
         logging.info("[cliente_senadores.py] Fetching senadores atuais")
@@ -32,7 +33,8 @@ class ClienteSenadores(ClienteBase):
         )
 
         if status == http.HTTPStatus.OK and isinstance(data, dict):
-            # A estrutura do JSON do Senado é: ListaParlamentarLegislatura -> Parlamentares -> Parlamentar
+            # Estrutura do JSON do Senado:
+            # ListaParlamentarLegislatura -> Parlamentares -> Parlamentar
             try:
                 lista_root = data.get("ListaParlamentarLegislatura", {})
                 parlamentares = lista_root.get("Parlamentares", {}).get("Parlamentar", [])
@@ -66,7 +68,8 @@ class ClienteSenadores(ClienteBase):
         )
 
         if status == http.HTTPStatus.OK and isinstance(data, dict):
-            # A estrutura do JSON do Senado é: ListaLegislatura -> Parlamentares -> Parlamentar
+            # Estrutura do JSON do Senado:
+            # ListaLegislatura -> Parlamentares -> Parlamentar
             try:
                 lista_root = data.get("ListaLegislatura", {})
                 legislaturas = lista_root.get("Legislaturas", {}).get("Legislatura", [])
@@ -75,7 +78,8 @@ class ClienteSenadores(ClienteBase):
                     legislaturas = [legislaturas]
 
                 logging.info(
-                    f"[cliente_senadores.py] Successfully fetched {len(legislaturas)} legislaturas"
+                    f"[cliente_senadores.py] Successfully fetched "
+                    f"{len(legislaturas)} legislaturas"
                 )
                 return legislaturas
             except Exception as e:
@@ -103,7 +107,9 @@ class ClienteSenadores(ClienteBase):
 
         if status == http.HTTPStatus.OK and isinstance(data, dict):
             try:
-                root = data.get("FiliacaoParlamentar", data.get("ListaFiliacoesParlamentar", {}))
+                root = data.get(
+                    "FiliacaoParlamentar", data.get("ListaFiliacoesParlamentar", {})
+                )
                 parlamentar = root.get("Parlamentar")
                 if isinstance(parlamentar, dict):
                     root = parlamentar
