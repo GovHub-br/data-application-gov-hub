@@ -51,6 +51,8 @@ lint-ci:
 
 test:
 	poetry run pytest tests
+	@echo ""
+	@echo "Coverage HTML: $(CURDIR)/htmlcov/index.html"
 
 dev:
 	@docker compose ps --status running $(AIRFLOW_SERVICE) >/dev/null 2>&1 || (echo "Serviço '$(AIRFLOW_SERVICE)' não está em execução. Rode: docker compose up -d" && exit 1)
