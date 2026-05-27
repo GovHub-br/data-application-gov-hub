@@ -133,6 +133,7 @@ source = ["airflow_lappis/plugins", "airflow_lappis/helpers"]
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
+pythonpath = ["airflow_lappis", "airflow_lappis/helpers", "airflow_lappis/plugins"]
 
 [tool.sqlfmt]
 line_length = 90
