@@ -152,8 +152,9 @@ with DAG(
             creds["email"],
             creds["password"],
             creds["sender_email"],
-            EMAIL_SUBJECT,
+            None,
             target_date=target_date,
+            subject_suffix=EMAIL_SUBJECT,
         )
 
         if not zip_payloads:

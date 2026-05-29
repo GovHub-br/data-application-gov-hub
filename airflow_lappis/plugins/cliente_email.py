@@ -65,23 +65,37 @@ def fetch_email_with_zip(
     email: str,
     password: str,
     sender_email: str,
-    subject: str,
+    subject: Optional[str],
     target_date: Optional[date] = None,
+    subject_suffix: Optional[str] = None,
 ) -> List[bytes]:
     """Busca e-mails da data alvo (ou dia atual) e retorna os anexos ZIP."""
+    if not subject and not subject_suffix:
+        raise ValueError("subject ou subject_suffix precisa ser informado.")
+
     query_date = target_date or datetime.now(pytz.timezone("America/Sao_Paulo")).date()
     zip_payloads: List[bytes] = []
     with MailBox(imap_server).login(email, password) as mailbox:
         # bulk=True: single IMAP FETCH command for all messages (avoids overquota)
-        for msg in mailbox.fetch(
-            AND(date=query_date, from_=sender_email, subject=subject),
-            bulk=True,
-        ):
-            for attachment in msg.attachments:
-                if attachment.filename.lower().endswith(".zip"):
-                    zip_payloads.append(cast(bytes, attachment.payload))
+        if subject_suffix:
+            for msg in mailbox.fetch(
+                AND(date=query_date, from_=sender_email),
+                bulk=True,
+            ):
+                msg_subject = msg.subject or ""
+                if msg_subject.endswith(subject_suffix):
+                    for attachment in msg.attachments:
+                        if attachment.filename.lower().endswith(".zip"):
+                            zip_payloads.append(cast(bytes, attachment.payload))
+        else:
+            for msg in mailbox.fetch(
+                AND(date=query_date, from_=sender_email, subject=subject),
+                bulk=True,
+            ):
+                for attachment in msg.attachments:
+                    if attachment.filename.lower().endswith(".zip"):
+                        zip_payloads.append(cast(bytes, attachment.payload))
     return zip_payloads
-
 
 
 def fetch_email_with_csv(
@@ -92,7 +106,9 @@ def fetch_email_with_csv(
     csv_payloads: List[bytes] = []
     with MailBox(imap_server).login(email, password) as mailbox:
         # bulk=True: single IMAP FETCH command for all messages (avoids overquota)
-        for msg in mailbox.fetch(AND(date=today, from_=sender_email, subject=subject), bulk=True):
+        for msg in mailbox.fetch(
+            AND(date=today, from_=sender_email, subject=subject), bulk=True
+        ):
             for attachment in msg.attachments:
                 file_name = (attachment.filename or "").lower()
                 if file_name.endswith(".csv"):
