@@ -16,7 +16,8 @@ with
             ug_pagadora_dh::integer as ug_pagadora_dh,
             descricao_ug_pagadora_dh::text as descricao_ug_pagadora_dh,
             variacao_patrimonial_diminuta_dh::text as variacao_patrimonial_diminuta_dh,
-            passivo_transferencia_constitucional_legal_dh::text as passivo_transferencia_constitucional_legal_dh,
+            passivo_transferencia_constitucional_legal_dh::text
+            as passivo_transferencia_constitucional_legal_dh,
             centro_custo_empenho::text as centro_custo_empenho,
             codigo_siorg_empenho::integer as codigo_siorg_empenho,
             mes_referencia_empenho::text as mes_referencia_empenho,

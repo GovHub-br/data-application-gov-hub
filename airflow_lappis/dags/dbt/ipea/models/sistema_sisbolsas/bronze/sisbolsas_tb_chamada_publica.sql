@@ -12,7 +12,7 @@ with
             nu_ano::text as nu_ano,
             ds_chamada_publica::text as ds_chamada_publica,
             ds_numero_sei::text as ds_numero_sei,
-            {{ safe_numeric('vl_global_estimado') }} as vl_global_estimado,
+            {{ safe_numeric("vl_global_estimado") }} as vl_global_estimado,
             dt_ini_pesquisa::text as dt_ini_pesquisa,
             dt_fim_pesquisa::text as dt_fim_pesquisa,
             dt_publicacao_dou::text as dt_publicacao_dou,

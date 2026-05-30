@@ -11,7 +11,7 @@ with
     nc_siafi as (
         select distinct
             left(nc, 6) as ug, right(nc, 12) as nc, nt.nc_transferencia as num_transf
-        from {{ref("nc_tesouro_mir")}} nt
+        from {{ ref("nc_tesouro_mir") }} nt
         where nc_transferencia != '-8'
     ),
 
@@ -31,24 +31,20 @@ with
         from joined
     ),
 
-    via_nc as (
-        select num_transf, plano_acao
-        from ranked
-        where rn = 1
-    ),
+    via_nc as (select num_transf, plano_acao from ranked where rn = 1),
 
     via_sq_instrumento as (
-        select
-            sq_instrumento as num_transf,
-            id_plano_acao::text as plano_acao
+        select sq_instrumento as num_transf, id_plano_acao::text as plano_acao
         from {{ ref("planos_acao_ted") }}
         where sq_instrumento is not null
     ),
 
     unificado as (
-        select * from via_nc
+        select *
+        from via_nc
         union
-        select * from via_sq_instrumento
+        select *
+        from via_sq_instrumento
     ),
 
     final as (

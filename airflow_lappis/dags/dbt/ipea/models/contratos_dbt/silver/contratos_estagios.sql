@@ -101,7 +101,13 @@ with
     ),
 
     contratos as (
-        select id, numero, fornecedor_cnpj_cpf_idgener, fornecedor_tipo, fornecedor_nome, dt_ingest as dt_ingest_contratos
+        select
+            id,
+            numero,
+            fornecedor_cnpj_cpf_idgener,
+            fornecedor_tipo,
+            fornecedor_nome,
+            dt_ingest as dt_ingest_contratos
         from {{ ref("contratos") }}
     )
 

@@ -1,6 +1,12 @@
 with
     educacao_principal as (
-        select cpf, cod_escolaridade, nome_escolaridade, cod_titulacao, nome_titulacao, dt_ingest as dt_ingest_ep
+        select
+            cpf,
+            cod_escolaridade,
+            nome_escolaridade,
+            cod_titulacao,
+            nome_titulacao,
+            dt_ingest as dt_ingest_ep
         from {{ ref("dados_escolares") }}
     ),
     uorg_completo as (
@@ -146,10 +152,7 @@ select
     uorg_c.fax_uorg,
 
     greatest(
-        dp.dt_ingest,
-        df.dt_ingest,
-        ep.dt_ingest_ep,
-        uorg_c.dt_ingest_du
+        dp.dt_ingest, df.dt_ingest, ep.dt_ingest_ep, uorg_c.dt_ingest_du
     ) as dt_ingest
 
 from {{ ref("dados_pessoais") }} dp

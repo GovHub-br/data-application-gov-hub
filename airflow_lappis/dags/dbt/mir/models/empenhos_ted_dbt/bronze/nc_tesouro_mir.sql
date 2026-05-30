@@ -1,4 +1,4 @@
-{{ config(materialized='table')}}
+{{ config(materialized="table") }}
 
 with
 
@@ -27,12 +27,13 @@ with
             favorecido_municipio,
             favorecido_municipio_descricao,
 
-            {{parse_financial_value("nc_valor_linha")}} as valor_celula, 
-            {{parse_financial_value("movimento_liquido_moeda_origem")}} as movimento_liquido_moeda_origem,
+            {{ parse_financial_value("nc_valor_linha") }} as valor_celula,
+            {{ parse_financial_value("movimento_liquido_moeda_origem") }}
+            as movimento_liquido_moeda_origem,
 
             (dt_ingest || '-03:00')::timestamptz as dt_ingest,
 
-            cast(null as varchar) as  descricao,
+            cast(null as varchar) as descricao,
             nc_plano_interno_descricao2,
             nc_evento,
             cast(null as varchar) as nc_item_detalhamento,
@@ -48,7 +49,7 @@ with
     ),
     notas_credito_pos as (
         select
-        -- campos nulos:
+            -- campos nulos:
             cast(null as varchar) as programa_governo,
             cast(null as varchar) as programa_governo_descricao,
             cast(null as varchar) as acao_governo,
@@ -72,25 +73,27 @@ with
             cast(null as varchar) as favorecido_municipio,
             cast(null as varchar) as favorecido_municipio_descricao,
 
-            {{parse_financial_value("valor_celula")}} as nc_valor_linha,
-            {{parse_financial_value("total_lista")}} as movimento_liquido_moeda_origem,
+            {{ parse_financial_value("valor_celula") }} as nc_valor_linha,
+            {{ parse_financial_value("total_lista") }} as movimento_liquido_moeda_origem,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest,
 
             descricao,
-            cast(null as varchar)as nc_plano_interno_descricao2,
-            cast(null as varchar)as nc_evento,
+            cast(null as varchar) as nc_plano_interno_descricao2,
+            cast(null as varchar) as nc_evento,
             nc_item_detalhamento,
             to_date(emissao_dia, 'DD/MM/YYYY') as emissao_dia,
             emissao_mes,
             emissao_ano,
             ro,
             dc,
-            {{parse_financial_value("total_lista")}} as total_lista,
+            {{ parse_financial_value("total_lista") }} as total_lista,
             esfera_orcamentaria_codigo,
             esfera_orcamentaria_nome
         from {{ source("siafi", "nc_tesouro_pos__2026") }}
     )
 
-select * from notas_credito_pre
+select *
+from notas_credito_pre
 union all
-select * from notas_credito_pos
+select *
+from notas_credito_pos

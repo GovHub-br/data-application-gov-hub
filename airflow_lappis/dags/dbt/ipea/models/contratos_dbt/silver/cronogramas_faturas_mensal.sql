@@ -71,17 +71,23 @@ with
             coalesce(valor_cronograma, 0)
             - coalesce(valor_faturas_pagas, 0)
             - coalesce(valor_faturas_pendentes, 0) as saldo_contratual_disponivel,
-            greatest(dt_ingest_pago, dt_ingest_pendente) AS dt_ingest
+            greatest(dt_ingest_pago, dt_ingest_pendente) as dt_ingest
         from joined_table
         order by contrato_id, mes_ref
     ),
 
     contratos as (
-        select id::text as contrato_id, numero, fornecedor_cnpj_cpf_idgener, fornecedor_tipo, fornecedor_nome, dt_ingest
+        select
+            id::text as contrato_id,
+            numero,
+            fornecedor_cnpj_cpf_idgener,
+            fornecedor_tipo,
+            fornecedor_nome,
+            dt_ingest
         from {{ ref("contratos") }}
     )
 
-select 
+select
     ja.contrato_id,
     ja.mes_ref,
     ja.valor_cronograma,
@@ -92,6 +98,8 @@ select
     c.fornecedor_cnpj_cpf_idgener,
     c.fornecedor_tipo,
     c.fornecedor_nome,
-    greatest(ja.dt_ingest::timestamp with time zone, c.dt_ingest::timestamp with time zone) as dt_ingest
+    greatest(
+        ja.dt_ingest::timestamp with time zone, c.dt_ingest::timestamp with time zone
+    ) as dt_ingest
 from joined_ajustado ja
 left join contratos c using (contrato_id)

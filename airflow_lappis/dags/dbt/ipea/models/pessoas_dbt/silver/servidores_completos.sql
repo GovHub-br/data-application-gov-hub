@@ -62,7 +62,7 @@ with
     )
 
 select distinct
-        se.codigo_siape,
+    se.codigo_siape,
     se.codigo_siorg,
     se.codigo_combinacao_siape,
     se.codigo_combinacao_siorg,

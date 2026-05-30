@@ -13,7 +13,9 @@ with
             nr_siafi::text as nr_siafi,
             nullif(ug_emitente_dh, '')::integer as ug_emitente_dh,
             observacao_dh::text as observacao_dh,
-            replace(nullif(vl_desembolsado, ''), ',', '.')::numeric(15, 2) as vl_desembolsado
+            replace(nullif(vl_desembolsado, ''), ',', '.')::numeric(
+                15, 2
+            ) as vl_desembolsado
         from {{ source("siconv", "desembolso") }}
     )
 

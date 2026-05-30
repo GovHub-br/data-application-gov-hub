@@ -1,14 +1,8 @@
 {{ config(materialized="table") }}
 
 with
-    convenio as (
-        select *
-        from {{ ref("convenio") }}
-    ),
-    proposta as (
-        select *
-        from {{ ref("proposta") }}
-    )
+    convenio as (select * from {{ ref("convenio") }}),
+    proposta as (select * from {{ ref("proposta") }})
 
 select
     -- Colunas do convênio

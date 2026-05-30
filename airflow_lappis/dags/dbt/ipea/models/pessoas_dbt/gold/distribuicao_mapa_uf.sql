@@ -4,7 +4,10 @@ with
     -- Obter todos os servidores com localização
     servidores_localizacao as (
         select distinct
-            df.cpf, du.uf_uorg, du.nome_municipio_uorg, df.nome_situacao_funcional,
+            df.cpf,
+            du.uf_uorg,
+            du.nome_municipio_uorg,
+            df.nome_situacao_funcional,
             greatest(df.dt_ingest, du.dt_ingest) as dt_ingest
         from {{ ref("dados_funcionais") }} df
         inner join {{ ref("dados_uorg") }} du on df.sigla_uorg_exercicio = du.sigla_uorg

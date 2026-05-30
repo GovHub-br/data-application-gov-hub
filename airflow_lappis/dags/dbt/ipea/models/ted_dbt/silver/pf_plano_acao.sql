@@ -21,12 +21,12 @@ with
             tx_numero_programacao as pf,
             ug_emitente_programacao as ug_emitente,
             id_plano_acao as plano_acao,
-            (dt_ingest || '-03:00')::timestamptz as dt_ingest_tg 
-        from {{ source("transfere_gov", "programacao_financeira") }} -- raw
+            (dt_ingest || '-03:00')::timestamptz as dt_ingest_tg
+        from {{ source("transfere_gov", "programacao_financeira") }}  -- raw
     ),
 
     joined_by_transfere_gov as (
-        select 
+        select
             pf,
             num_transf,
             emissao_mes,
@@ -37,14 +37,14 @@ with
             pf_evento_descricao,
             pf_acao,
             pf_valor_linha,
-            t.plano_acao, 
+            t.plano_acao,
             greatest(pf.dt_ingest_pf, t.dt_ingest_tg) as dt_ingest
         from programacoes_financeira pf
         inner join pf_transfere_gov t using (pf, ug_emitente)
     ),
 
     joined_by_num_transf as (
-        select 
+        select
             pf.pf,
             pf.num_transf,
             pf.emissao_mes,
@@ -60,11 +60,12 @@ with
         from programacoes_financeira pf
         inner join {{ ref("num_transf_n_plano_acao") }} v using (num_transf)
         -- Exclui registros que já existem em joined_by_transfere_gov
-        where not exists (
-            select 1 
-            from pf_transfere_gov t 
-            where t.pf = pf.pf and t.ug_emitente = pf.ug_emitente
-        )
+        where
+            not exists (
+                select 1
+                from pf_transfere_gov t
+                where t.pf = pf.pf and t.ug_emitente = pf.ug_emitente
+            )
     )
 
 select *

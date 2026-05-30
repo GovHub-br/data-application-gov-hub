@@ -13,8 +13,10 @@ with
             data_emissao_ob::date as data_emissao_ob,
             numero_ordem_bancaria::text as numero_ordem_bancaria,
             numero_ordem_lancamento::text as numero_ordem_lancamento,
-            data_assinatura_ordenador_despesa_ob::date as data_assinatura_ordenador_despesa_ob,
-            data_assinatura_gestor_financeiro_ob::date as data_assinatura_gestor_financeiro_ob,
+            data_assinatura_ordenador_despesa_ob::date
+            as data_assinatura_ordenador_despesa_ob,
+            data_assinatura_gestor_financeiro_ob::date
+            as data_assinatura_gestor_financeiro_ob,
             id_dh::integer as id_dh,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("transferegov_emendas", "ordens_bancarias_especiais") }}

@@ -19,4 +19,5 @@ select
     max(dt_ingest) as dt_ingest
 
 from {{ ref("contratos_comparativo_mensal") }}
-group by contrato_id, numero, fornecedor_cnpj_cpf_idgener, fornecedor_tipo, fornecedor_nome
+group by
+    contrato_id, numero, fornecedor_cnpj_cpf_idgener, fornecedor_tipo, fornecedor_nome

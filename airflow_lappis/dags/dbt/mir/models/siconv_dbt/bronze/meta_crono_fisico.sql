@@ -24,4 +24,4 @@ with
     )
 
 select *
-from meta_crono_fisico_raw 
+from meta_crono_fisico_raw

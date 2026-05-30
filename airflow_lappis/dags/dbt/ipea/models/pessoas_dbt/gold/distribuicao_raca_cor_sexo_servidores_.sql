@@ -1,10 +1,10 @@
 -- Distribuição de servidores por raça/cor e sexo do servidor
-SELECT
+select
     nome_cor,
-    SUM(CASE WHEN nome_sexo = 'FEMININO' THEN 1 ELSE 0 END) * -1 AS feminino,
-    SUM(CASE WHEN nome_sexo = 'MASCULINO' THEN 1 ELSE 0 END) AS masculino,
+    sum(case when nome_sexo = 'FEMININO' then 1 else 0 end) * -1 as feminino,
+    sum(case when nome_sexo = 'MASCULINO' then 1 else 0 end) as masculino,
     nome_situacao_funcional,
     max(dt_ingest) as dt_ingest
-FROM {{ ref("hierarquia") }}
-GROUP BY nome_cor, nome_situacao_funcional
-ORDER BY nome_cor
+from {{ ref("hierarquia") }}
+group by nome_cor, nome_situacao_funcional
+order by nome_cor

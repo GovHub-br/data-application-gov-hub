@@ -78,9 +78,11 @@ with
     -- Saldo financeiro = Financeiro recebido - Financeiro devolvido - Utilizado/pago
     -- Financeiro a receber = Valor firmado - Financeiro recebido + Financeiro devolvido
     join_parcial as (
-        select 
+        select
             *,
-            greatest(vo.dt_ingest_vo, ve.dt_ingest_ve, vfin.dt_ingest_vfin) as dt_ingest_jp
+            greatest(
+                vo.dt_ingest_vo, ve.dt_ingest_ve, vfin.dt_ingest_vfin
+            ) as dt_ingest_jp
         from valores_orcamentos_tb vo
         full join valores_empenhados_tb ve using (plano_acao, num_transf)
         full join valores_financeiro_tb vfin using (plano_acao, num_transf)

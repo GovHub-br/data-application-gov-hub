@@ -1,8 +1,8 @@
 {{
     config(
-        materialized='incremental',
-        unique_key=['schema_name', 'table_name'],
-        on_schema_change='sync_all_columns'
+        materialized="incremental",
+        unique_key=["schema_name", "table_name"],
+        on_schema_change="sync_all_columns",
     )
 }}
 
@@ -21,42 +21,49 @@
     A tabela é atualizada de forma incremental, mantendo apenas o registro
     mais recente para cada combinação de schema + table_name.
 #}
-
-WITH dbt_models AS (
-    {# 
+with
+    dbt_models as (
+        {# 
         Usando a função graph do dbt para iterar sobre todos os modelos do projeto.
         Isso garante que capturamos metadados de todos os modelos definidos.
     #}
-    {% set models_data = [] %}
-    
-    {% for node in graph.nodes.values() %}
-        {% if node.resource_type == 'model' %}
-            {% do models_data.append({
-                'schema_name': node.schema,
-                'table_name': node.name,
-                'database_name': node.database,
-                'materialization': node.config.materialized,
-                'description': node.description | default('') | replace("'", "''")
-            }) %}
-        {% endif %}
-    {% endfor %}
+        {% set models_data = [] %}
 
-    {% for model in models_data %}
-        SELECT
-            '{{ model.schema_name }}' AS schema_name,
-            '{{ model.table_name }}' AS table_name,
-            '{{ model.database_name }}' AS database_name,
-            '{{ model.materialization }}' AS materialization,
-            '{{ model.description[:500] }}' AS description,
-            ('{{ run_started_at }}'::TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dt_transform,
-            '{{ invocation_id }}' AS run_id
-        {% if not loop.last %}
-        UNION ALL
-        {% endif %}
-    {% endfor %}
-)
+        {% for node in graph.nodes.values() %}
+            {% if node.resource_type == "model" %}
+                {% do models_data.append(
+                    {
+                        "schema_name": node.schema,
+                        "table_name": node.name,
+                        "database_name": node.database,
+                        "materialization": node.config.materialized,
+                        "description": node.description
+                        | default("")
+                        | replace("'", "''"),
+                    }
+                ) %}
+            {% endif %}
+        {% endfor %}
 
-SELECT
+        {% for model in models_data %}
+            select
+                '{{ model.schema_name }}' as schema_name,
+                '{{ model.table_name }}' as table_name,
+                '{{ model.database_name }}' as database_name,
+                '{{ model.materialization }}' as materialization,
+                '{{ model.description[:500] }}' as description,
+                (
+                    '{{ run_started_at }}'
+                    ::timestamp at time zone 'UTC' at time zone 'America/Sao_Paulo'
+                ) as dt_transform,
+                '{{ invocation_id }}' as run_id
+            {% if not loop.last %}
+                union all
+            {% endif %}
+        {% endfor %}
+    )
+
+select
     schema_name,
     table_name,
     database_name,
@@ -64,4 +71,4 @@ SELECT
     description,
     dt_transform,
     run_id
-FROM dbt_models
+from dbt_models
