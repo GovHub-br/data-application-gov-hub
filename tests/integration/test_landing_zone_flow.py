@@ -9,11 +9,11 @@ Run with:
     pytest tests/integration/ -m integration -v
 
 Environment (matches local.env defaults):
-    STORAGE_BACKEND=minio
-    MINIO_ENDPOINT=localhost:9000
-    MINIO_ACCESS_KEY=minioadmin
-    MINIO_SECRET_KEY=minioadmin
-    MINIO_BUCKET=data-lake-ipea
+    STORAGE_BACKEND=s3
+    S3_ENDPOINT=http://localhost:9000
+    AWS_ACCESS_KEY_ID=minioadmin
+    AWS_SECRET_ACCESS_KEY=minioadmin
+    RAW_STORAGE_CONTAINER=data-lake-ipea
     POSTGRES_HOST=localhost
     POSTGRES_PORT=5432
     POSTGRES_USER=postgres
@@ -36,11 +36,11 @@ _REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 sys.path.insert(0, os.path.join(_REPO, "airflow_lappis", "plugins"))
 sys.path.insert(0, os.path.join(_REPO, "airflow_lappis", "helpers"))
 
-os.environ.setdefault("STORAGE_BACKEND", "minio")
-os.environ.setdefault("MINIO_ENDPOINT", "localhost:9000")
-os.environ.setdefault("MINIO_ACCESS_KEY", "minioadmin")
-os.environ.setdefault("MINIO_SECRET_KEY", "minioadmin")
-os.environ.setdefault("MINIO_BUCKET", "data-lake-ipea")
+os.environ.setdefault("STORAGE_BACKEND", "s3")
+os.environ.setdefault("S3_ENDPOINT", "http://localhost:9000")
+os.environ.setdefault("AWS_ACCESS_KEY_ID", "minioadmin")
+os.environ.setdefault("AWS_SECRET_ACCESS_KEY", "minioadmin")
+os.environ.setdefault("RAW_STORAGE_CONTAINER", "data-lake-ipea")
 os.environ.setdefault("POSTGRES_HOST", "localhost")
 os.environ.setdefault("POSTGRES_PORT", "5432")
 os.environ.setdefault("POSTGRES_USER", "postgres")

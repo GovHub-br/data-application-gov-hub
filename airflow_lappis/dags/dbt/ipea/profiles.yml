@@ -1,6 +1,46 @@
 ipea:
-  target: prod
+  target: "{{ env_var('DBT_ENGINE', env_var('DBT_TARGET', 'prod')) }}"
   outputs:
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH_IPEA', '/opt/airflow/duckdb/ipea.duckdb') }}"
+      schema: "{{ env_var('DBT_SCHEMA', 'main') }}"
+      threads: "{{ env_var('DBT_THREADS', '4') | int }}"
+      extensions:
+        - httpfs
+        - azure
+        - postgres
+      settings:
+        s3_endpoint: "{{ env_var('S3_ENDPOINT', env_var('MINIO_ENDPOINT', '')) | replace('http://', '') | replace('https://', '') }}"
+        s3_access_key_id: "{{ env_var('AWS_ACCESS_KEY_ID', env_var('MINIO_ACCESS_KEY', '')) }}"
+        s3_secret_access_key: "{{ env_var('AWS_SECRET_ACCESS_KEY', env_var('MINIO_SECRET_KEY', '')) }}"
+        s3_region: "{{ env_var('AWS_REGION', env_var('MINIO_REGION', 'us-east-1')) }}"
+        s3_use_ssl: "{{ env_var('S3_USE_SSL', env_var('MINIO_USE_SSL', 'false')) }}"
+        s3_url_style: "{{ env_var('S3_URL_STYLE', env_var('MINIO_URL_STYLE', 'path')) }}"
+      attach:
+        - path: "postgresql://{{ env_var('DB_DW_USER', 'postgres') }}:{{ env_var('DB_DW_PASSWORD', 'postgres') }}@{{ env_var('DB_DW_HOST', 'postgres') }}:{{ env_var('DB_DW_PORT', '5432') }}/{{ env_var('DB_DW_DBNAME', 'postgres') }}"
+          type: postgres
+          alias: dw
+    duckdb_postgres:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH_IPEA', '/opt/airflow/duckdb/ipea.duckdb') }}"
+      schema: "{{ env_var('DBT_SCHEMA', 'main') }}"
+      threads: "{{ env_var('DBT_THREADS', '4') | int }}"
+      extensions:
+        - httpfs
+        - azure
+        - postgres
+      settings:
+        s3_endpoint: "{{ env_var('S3_ENDPOINT', env_var('MINIO_ENDPOINT', '')) | replace('http://', '') | replace('https://', '') }}"
+        s3_access_key_id: "{{ env_var('AWS_ACCESS_KEY_ID', env_var('MINIO_ACCESS_KEY', '')) }}"
+        s3_secret_access_key: "{{ env_var('AWS_SECRET_ACCESS_KEY', env_var('MINIO_SECRET_KEY', '')) }}"
+        s3_region: "{{ env_var('AWS_REGION', env_var('MINIO_REGION', 'us-east-1')) }}"
+        s3_use_ssl: "{{ env_var('S3_USE_SSL', env_var('MINIO_USE_SSL', 'false')) }}"
+        s3_url_style: "{{ env_var('S3_URL_STYLE', env_var('MINIO_URL_STYLE', 'path')) }}"
+      attach:
+        - path: "postgresql://{{ env_var('DB_DW_USER', 'postgres') }}:{{ env_var('DB_DW_PASSWORD', 'postgres') }}@{{ env_var('DB_DW_HOST', 'postgres') }}:{{ env_var('DB_DW_PORT', '5432') }}/{{ env_var('DB_DW_DBNAME', 'postgres') }}"
+          type: postgres
+          alias: dw
     prod:
       type: postgres
       host: "{{ env_var('DB_DW_HOST', 'postgres') }}"

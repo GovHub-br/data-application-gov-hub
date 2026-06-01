@@ -19,7 +19,7 @@ clean-targets:
 
 models:
   ipea: 
-    +database: analytics
+    +database: "{{ env_var('DBT_DATABASE', target.database) }}"
     metadata:
       +materialized: incremental
       +schema: metadata
@@ -50,6 +50,11 @@ models:
       +schema: sistema_sisbolsas
       bronze:
         +materialized: table
+    test_source:
+      +materialized: table
+      +schema: test_source
+      bronze:
+        +materialized: table
     # siape_dbt: 
     #   +materialized: table 
     #   +schema: siape 
@@ -58,4 +63,5 @@ models:
 
 
 on-run-start:
+  - '{{ configure_storage() }}'
   - '{{create_udfs()}}'

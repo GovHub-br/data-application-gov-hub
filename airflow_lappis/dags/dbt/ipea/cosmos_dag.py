@@ -10,7 +10,9 @@ os.environ[DBT_LOG_PATH_ENVVAR] = dbt_log_path
 profile_config = ProfileConfig(
     profiles_yml_filepath=f"{os.environ['AIRFLOW_REPO_BASE']}/dags/dbt/ipea/profiles.yml",
     profile_name="ipea",
-    target_name="prod",
+    # Engine/adapter is chosen independently from object storage. DBT_TARGET is
+    # kept as a compatibility fallback for older local env files.
+    target_name=os.getenv("DBT_ENGINE", os.getenv("DBT_TARGET", "prod")),
 )
 
 my_cosmos_dag = DbtDag(

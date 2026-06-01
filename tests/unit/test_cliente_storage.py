@@ -11,11 +11,15 @@ import cliente_storage
 
 class TestGetBucket:
     def test_returns_env_var(self) -> None:
-        with patch.dict(os.environ, {"MINIO_BUCKET": "my-bucket"}):
+        with patch.dict(os.environ, {"RAW_STORAGE_CONTAINER": "my-bucket"}):
             assert cliente_storage.get_bucket() == "my-bucket"
 
     def test_default_when_env_not_set(self) -> None:
-        env = {k: v for k, v in os.environ.items() if k != "MINIO_BUCKET"}
+        env = {
+            k: v
+            for k, v in os.environ.items()
+            if k not in ("RAW_STORAGE_CONTAINER", "DATA_BUCKET", "MINIO_BUCKET")
+        }
         with patch.dict(os.environ, env, clear=True):
             assert cliente_storage.get_bucket() == "data-lake-ipea"
 
@@ -33,13 +37,13 @@ class TestGetStorageFs:
         mock_module.AzureBlobFileSystem.return_value = mock_instance
         return mock_module, mock_instance
 
-    def test_minio_uses_s3fs_with_endpoint(self) -> None:
+    def test_s3_uses_s3fs_with_endpoint(self) -> None:
         mock_s3fs, mock_instance = self._make_s3_mock()
         env = {
-            "STORAGE_BACKEND": "minio",
-            "MINIO_ENDPOINT": "https://minio:9000",
-            "MINIO_ACCESS_KEY": "testkey",
-            "MINIO_SECRET_KEY": "testsecret",
+            "STORAGE_BACKEND": "s3",
+            "S3_ENDPOINT": "https://minio:9000",
+            "AWS_ACCESS_KEY_ID": "testkey",
+            "AWS_SECRET_ACCESS_KEY": "testsecret",
         }
         with patch.dict(sys.modules, {"s3fs": mock_s3fs}):
             with patch.dict(os.environ, env):
@@ -52,10 +56,12 @@ class TestGetStorageFs:
         )
         assert result is mock_instance
 
-    def test_minio_endpoint_defaults(self) -> None:
+    def test_s3_endpoint_can_use_minio_alias(self) -> None:
         mock_s3fs, _ = self._make_s3_mock()
-        env = {k: v for k, v in os.environ.items() if k not in ("MINIO_ENDPOINT",)}
-        env["STORAGE_BACKEND"] = "minio"
+        env = {
+            "STORAGE_BACKEND": "s3",
+            "MINIO_ENDPOINT": "https://minio:9000",
+        }
         with patch.dict(sys.modules, {"s3fs": mock_s3fs}):
             with patch.dict(os.environ, env, clear=True):
                 cliente_storage.get_storage_fs()
@@ -67,8 +73,8 @@ class TestGetStorageFs:
         mock_s3fs, _ = self._make_s3_mock()
         env = {
             "STORAGE_BACKEND": "s3",
-            "MINIO_ACCESS_KEY": "k",
-            "MINIO_SECRET_KEY": "s",
+            "AWS_ACCESS_KEY_ID": "k",
+            "AWS_SECRET_ACCESS_KEY": "s",
         }
         with patch.dict(sys.modules, {"s3fs": mock_s3fs}):
             with patch.dict(os.environ, env):
@@ -99,8 +105,8 @@ class TestGetStorageFs:
         mock_adlfs, mock_instance = self._make_adls_mock()
         env = {
             "STORAGE_BACKEND": "adls",
-            "ADLS_ACCOUNT_NAME": "myaccount",
-            "ADLS_ACCOUNT_KEY": "mykey",
+            "AZURE_STORAGE_ACCOUNT": "myaccount",
+            "AZURE_STORAGE_KEY": "mykey",
         }
         with patch.dict(sys.modules, {"adlfs": mock_adlfs}):
             with patch.dict(os.environ, env):
