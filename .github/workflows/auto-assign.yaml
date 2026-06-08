@@ -1,0 +1,72 @@
+name: Auto assign issue
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+
+jobs:
+  auto-assign:
+    if: ${{ !github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Auto assign commenter
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const comment = context.payload.comment.body.trim();
+            const commenter = context.payload.comment.user.login;
+            const issue = context.payload.issue;
+
+            const commandRegex = /^(\/issue|\/take)(\s|$)/i;
+
+            if (!commandRegex.test(comment)) {
+              core.info("Nenhum comando válido encontrado.");
+              return;
+            }
+
+            const labels = issue.labels.map(label => label.name);
+            const isOSSIssue = labels.includes("OSS");
+
+            const { data: permissionData } =
+              await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: commenter
+              });
+
+            const permission = permissionData.permission;
+
+            const hasWriteAccess = [
+              "admin",
+              "maintain",
+              "write"
+            ].includes(permission);
+
+            if (!hasWriteAccess && !isOSSIssue) {
+              core.info(
+                `${commenter} não possui permissão para assumir esta issue`
+              );
+              return;
+            }
+
+            const alreadyAssigned = issue.assignees.some(
+              a => a.login === commenter
+            );
+
+            if (alreadyAssigned) {
+              core.info(`${commenter} já é assignee`);
+              return;
+            }
+
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              assignees: [commenter]
+            });
+
+            core.info(`Issue atribuída para ${commenter}`);
