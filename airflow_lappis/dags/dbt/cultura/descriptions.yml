@@ -1,0 +1,13 @@
+models:
+  - name: agentes_pf
+    description: Dados brutos de proponentes pessoa física da LPG
+  - name: agentes_pj
+    description: Dados brutos de proponentes pessoa jurídica da LPG
+  - name: agentes_coletivos
+    description: Dados brutos de proponentes coletivos da LPG
+  - name: identificadores_agentes
+    description: Consolidação dos identificadores de todos os tipos de proponentes
+  - name: perfil_agentes_historico
+    description: Perfil dos agentes com higienização do histórico de acesso a recursos de fomento
+  - name: primeiro_acesso_resumo
+    description: Resumo agregado do indicador de primeiro acesso a recursos de fomento (Meta 5)

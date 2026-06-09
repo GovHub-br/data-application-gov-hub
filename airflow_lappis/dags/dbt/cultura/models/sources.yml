@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: transferegov_fundo_a_fundo
+    schema: transferegov_fundo_a_fundo
+    tables:
+      - name: lpg_dados_pessoa_fisica
+      - name: lpg_dados_pessoa_juridica
+      - name: lpg_dados_coletivos

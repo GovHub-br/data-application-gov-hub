@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: identificadores_agentes
+    description: >
+      Camada Views — consolidação dos três modelos bronze (PF, PJ e Coletivos)
+      em um único dataset via UNION ALL. Padroniza identificador_unico e adiciona
+      a coluna literal tipo_proponente para rastrear a origem de cada registro.
+    config:
+      meta:
+        tags: [views, agentes, identificadores]
+    columns:
+      - name: identificador_unico
+        description: Identificador único do proponente (CPF, CNPJ ou CPF do representante).
+      - name: ja_acessou_recursos_bruto
+        description: Resposta bruta sobre acesso anterior a recursos de fomento.
+      - name: tipo_proponente
+        description: Tipo do proponente — 'Pessoa Física', 'Pessoa Jurídica' ou 'Coletivo'.

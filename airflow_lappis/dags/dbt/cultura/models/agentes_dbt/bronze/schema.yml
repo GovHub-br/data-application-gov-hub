@@ -1,0 +1,89 @@
+version: 2
+
+models:
+  - name: agentes_pf
+    description: >
+      Camada Bronze — dados brutos de pessoas físicas da LPG (Lei Paulo Gustavo).
+      Mapeia o CPF como identificador único e traz a coluna bruta de histórico
+      de acesso a recursos públicos de fomento à cultura.
+    config:
+      meta:
+        tags:
+          - bronze
+          - agentes
+          - pessoa_fisica
+    columns:
+      - name: identificador_unico
+        description: CPF do proponente pessoa física, normalizado para lowercase.
+        tests:
+          - not_null
+      - name: ja_acessou_recursos_bruto
+        description: Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento.
+    data_tests:
+      - row_count_match:
+          arguments:
+            source_table: transferegov_fundo_a_fundo.lpg_dados_pessoa_fisica
+            target_table: agentes.agentes_pf
+      - verificacao_tipagem:
+          arguments:
+            nome_tabela: 'agentes.agentes_pf'
+            nome_coluna: 'identificador_unico'
+            tipo_esperado: 'text'
+
+  - name: agentes_pj
+    description: >
+      Camada Bronze — dados brutos de pessoas jurídicas da LPG.
+      Mapeia o CNPJ como identificador único e traz a coluna bruta de histórico
+      de acesso a recursos públicos de fomento à cultura.
+    config:
+      meta:
+        tags:
+          - bronze
+          - agentes
+          - pessoa_juridica
+    columns:
+      - name: identificador_unico
+        description: CNPJ do proponente pessoa jurídica, normalizado para lowercase.
+        tests:
+          - not_null
+      - name: ja_acessou_recursos_bruto
+        description: Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento.
+    data_tests:
+      - row_count_match:
+          arguments:
+            source_table: transferegov_fundo_a_fundo.lpg_dados_pessoa_juridica
+            target_table: agentes.agentes_pj
+      - verificacao_tipagem:
+          arguments:
+            nome_tabela: 'agentes.agentes_pj'
+            nome_coluna: 'identificador_unico'
+            tipo_esperado: 'text'
+
+  - name: agentes_coletivos
+    description: >
+      Camada Bronze — dados brutos de proponentes coletivos da LPG.
+      Mapeia o CPF do representante como identificador único e traz a coluna bruta
+      de histórico de acesso a recursos públicos de fomento à cultura.
+    config:
+      meta:
+        tags:
+          - bronze
+          - agentes
+          - coletivo
+    columns:
+      - name: identificador_unico
+        description: CPF do representante do coletivo, normalizado para lowercase.
+        tests:
+          - not_null
+      - name: ja_acessou_recursos_bruto
+        description: Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento.
+    data_tests:
+      - row_count_match:
+          arguments:
+            source_table: transferegov_fundo_a_fundo.lpg_dados_coletivos
+            target_table: agentes.agentes_coletivos
+      - verificacao_tipagem:
+          arguments:
+            nome_tabela: 'agentes.agentes_coletivos'
+            nome_coluna: 'identificador_unico'
+            tipo_esperado: 'text'

@@ -1,0 +1,24 @@
+
+version: 2
+
+macros:
+  - name: create_udfs
+    description: >
+      Função que cria as UDFs necessárias para o funcionamento do projeto.
+      Essa função deve ser chamada no início de cada run para garantir que todas as UDFs estejam disponíveis.
+  
+  - name: generate_schema_name
+    description: >
+      Função que gera o nome do schema a ser utilizado no projeto.
+      A função dentro desta macro é built-in do dbt.
+  
+  ## UDFS
+  - name: create_f_parse_dates
+    description: >
+      Função que cria a UDF f_parse_dates, que é utilizada para converter texto no formato MÊS(texto)/ANO(numero) em datas.
+    arguments:
+      - name: in_text
+        type: text
+        description: >
+          Texto a ser convertido em data.
+          O texto deve estar no formato MÊS(texto)/ANO(numero). Ex.: FEV/2024 -> 2024-02-01
