@@ -27,19 +27,26 @@ class ClientPostgresDB:
         return ClientPostgresDB.TYPE_MAP.get(type(value), "TEXT")
 
     def _flatten_data(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Flatten nested JSON data.
+        """Flatten nested JSON data and normalize keys to lowercase.
+
+        Normalizing to lowercase avoids PostgreSQL case-folding conflicts:
+        unquoted identifiers are folded to lowercase by Postgres, so sending
+        CamelCase keys (e.g. ``tipoAnexo``) would create columns named
+        ``tipoanexo`` while the INSERT would reference ``tipoAnexo`` — causing
+        ``UndefinedColumn``.  By lowercasing on the Python side we guarantee
+        consistency between column creation and column reference.
 
         Args:
             data (List[Dict[str, Any]]): List of nested dictionaries.
 
         Returns:
-            List[Dict[str, Any]]: List of flat dictionaries.
+            List[Dict[str, Any]]: List of flat dictionaries with lowercase keys.
         """
         return list(
             map(
                 lambda d: {
-                    str(k): v if type(v) is not list else str(v) for k, v in d.items()
+                    str(k).lower(): v if type(v) is not list else str(v)
+                    for k, v in d.items()
                 },
                 json_normalize(data, sep=ClientPostgresDB.SEPARATOR).to_dict(
                     orient="records"
@@ -78,7 +85,7 @@ class ClientPostgresDB:
                 column_definitions: List[str] = []
 
                 for column in flattened_sample.keys():
-                    column_definitions.append(f"{column} TEXT")
+                    column_definitions.append(f'"{column}" TEXT')
 
                 if primary_key:
                     pk_str = ", ".join(primary_key)
@@ -104,6 +111,73 @@ class ClientPostgresDB:
                         f"Failed to create table {schema}.{table_name}"
                     ) from err
 
+    def _evolve_schema(
+        self,
+        columns: List[str],
+        table_name: str,
+        schema: str = "raw",
+    ) -> None:
+        """Adiciona colunas novas à tabela que ainda não existem no banco.
+
+        Consulta ``information_schema.columns`` para descobrir as colunas
+        existentes e, para cada chave em *columns* que não esteja presente,
+        executa ``ALTER TABLE … ADD COLUMN`` com tipo ``TEXT``.
+
+        Isso resolve o problema de *Schema Drift* quando APIs governamentais
+        retornam chaves inéditas nos JSONs — camada RAW aceita qualquer
+        coluna nova sem quebrar o pipeline.
+
+        Parameters
+        ----------
+        columns : List[str]
+            Lista de nomes de colunas extraídas dos dados de entrada.
+        table_name : str
+            Nome da tabela destino.
+        schema : str
+            Schema do banco (default: ``"raw"``).
+        """
+        with psycopg2.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT column_name
+                    FROM information_schema.columns
+                    WHERE table_schema = %s AND table_name = %s
+                    """,
+                    (schema, table_name),
+                )
+                existing = {row[0] for row in cursor.fetchall()}
+
+                novas = [c for c in columns if c not in existing]
+                if not novas:
+                    return
+
+                for col in novas:
+                    try:
+                        cursor.execute(
+                            f'ALTER TABLE {schema}.{table_name} '
+                            f'ADD COLUMN "{col}" TEXT;'
+                        )
+                        logging.info(
+                            f"[cliente_postgres.py] Schema evolution: "
+                            f'adicionada coluna "{col}" (TEXT) em '
+                            f"{schema}.{table_name}"
+                        )
+                    except psycopg2.errors.DuplicateColumn:
+                        conn.rollback()
+                        logging.debug(
+                            f"[cliente_postgres.py] Coluna \"{col}\" "
+                            f"já existe em {schema}.{table_name} — ignorando"
+                        )
+                    except psycopg2.Error as err:
+                        conn.rollback()
+                        logging.warning(
+                            f"[cliente_postgres.py] Falha ao adicionar coluna "
+                            f"\"{col}\" em {schema}.{table_name}: {err}"
+                        )
+
+                conn.commit()
+
     def insert_data(
         self,
         data: List[Dict[str, Any]],
@@ -113,6 +187,11 @@ class ClientPostgresDB:
         schema: str = "raw",
     ) -> None:
         """Insert data into database table.
+
+        Automatically normalizes all keys to **lowercase** and evolves
+        the table schema (``_evolve_schema``) before the INSERT, so new
+        or CamelCase keys returned by upstream APIs never cause an
+        ``UndefinedColumn`` error.
 
         Args:
             data: List of dictionaries to insert
@@ -127,19 +206,29 @@ class ClientPostgresDB:
             )
             return
 
+        # ── Normalização: todas as chaves para minúsculo ──
+        data_norm = [
+            {str(k).lower(): v for k, v in row.items()} for row in data
+        ]
+
         self.create_table_if_not_exists(
-            data[0], table_name, primary_key=primary_key, schema=schema
+            data_norm[0], table_name, primary_key=primary_key, schema=schema
         )
 
-        flattened_data = self._flatten_data(data)
+        flattened_data = self._flatten_data(data_norm)
         columns = list(flattened_data[0].keys())
         values = [tuple(item.values()) for item in flattened_data]
 
-        sql = f"INSERT INTO {schema}.{table_name} ({', '.join(columns)}) VALUES %s"
+        self._evolve_schema(columns, table_name, schema=schema)
+
+        cols_sql = ", ".join(f'"{c}"' for c in columns)
+        sql = f'INSERT INTO {schema}.{table_name} ({cols_sql}) VALUES %s'
 
         if conflict_fields:
             conflict_str = ", ".join(conflict_fields)
-            update_str = ", ".join([f"{col} = EXCLUDED.{col}" for col in columns])
+            update_str = ", ".join(
+                [f'"{col}" = EXCLUDED."{col}"' for col in columns]
+            )
             sql += f" ON CONFLICT ({conflict_str}) DO UPDATE SET {update_str}"
 
         with psycopg2.connect(self.conn_str) as conn:
@@ -159,6 +248,32 @@ class ClientPostgresDB:
                     raise RuntimeError(
                         f"Failed to insert data into {schema}.{table_name}"
                     ) from err
+
+    def insert_data_por_tabela(
+        self,
+        data: List[Dict[str, Any]],
+        table_name: str,
+        schema: str = "raw",
+    ) -> None:
+        """Insere dados em tabela destino determinada dinamicamente.
+
+        Wrapper de conveniência sobre ``insert_data`` para o fluxo PNAB
+        onde cada sub-tabela pode ir para uma tabela diferente
+        (ex: ``raw_pnab_informacoes``, ``raw_pnab_acoes_gerais``, etc.).
+
+        Args:
+            data: Lista de dicionários a inserir.
+            table_name: Nome da tabela destino (determinado pelo
+                roteamento de abas em ``extrair_pnab``).
+            schema: Schema do banco (default: ``"raw"``).
+        """
+        self.insert_data(
+            data,
+            table_name=table_name,
+            conflict_fields=None,
+            primary_key=None,
+            schema=schema,
+        )
 
     def execute_query(self, query: str) -> List[Tuple[Any, ...]]:
         """Execute a query and return the results.
@@ -280,9 +395,12 @@ class ClientPostgresDB:
     def alter_table(
         self, data: Dict[str, Any], table_name: str, schema: str = "raw"
     ) -> None:
-        """
-        Alter table to add columns that exist in the data but not in the table.
-        All new columns will be created as TEXT type.
+        """Alter table to add columns that exist in the data but not in the table.
+
+        Delegates to ``_evolve_schema`` for consistent schema evolution
+        across the helper.  Kept for backward compatibility with existing
+        DAGs that call ``db.alter_table(…)`` directly.  Keys are
+        normalized to lowercase before comparison.
 
         Args:
             data: Sample data containing new columns
@@ -291,44 +409,8 @@ class ClientPostgresDB:
         """
         flattened_data = self._flatten_data([data])[0]
         columns = list(flattened_data.keys())
+        self._evolve_schema(columns, table_name, schema=schema)
 
-        with psycopg2.connect(self.conn_str) as conn:
-            with conn.cursor() as cursor:
-                # Get existing columns
-                cursor.execute(
-                    f"""
-                    SELECT column_name
-                    FROM information_schema.columns
-                    WHERE table_schema = '{schema}'
-                    AND table_name = '{table_name}'
-                """
-                )
-                existing_columns = [row[0] for row in cursor.fetchall()]
-
-                # Add columns that don't exist
-                for column in columns:
-                    if column not in existing_columns:
-                        alter_query = (
-                            f"ALTER TABLE {schema}.{table_name} "
-                            f"ADD COLUMN IF NOT EXISTS {column} TEXT;"
-                        )
-                        try:
-                            cursor.execute(alter_query)
-                            logging.info(
-                                f"[cliente_postgres.py] Added column {column} "
-                                f"to {schema}.{table_name}"
-                            )
-                        except psycopg2.Error as e:
-                            logging.error(
-                                f"[cliente_postgres.py] Failed to add {column} "
-                                f"to {schema}.{table_name}. Error: {str(e)}"
-                            )
-
-                conn.commit()
-                logging.info(
-                    f"[cliente_postgres.py] Table {schema}.{table_name} "
-                    f"altered successfully"
-                )
 
     def get_nota_credito(self) -> List[Tuple[Any, ...]]:
         """Extrai o número da nota de crédito e o valor da tabela nota_credito.

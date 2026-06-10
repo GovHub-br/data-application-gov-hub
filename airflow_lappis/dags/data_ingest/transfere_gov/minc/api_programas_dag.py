@@ -4,6 +4,7 @@ from typing import Any
 
 from airflow.decorators import dag, task
 from airflow.models import Variable
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator 
 
 from cliente_postgres import ClientPostgresDB
 from cliente_transferegov_fundo_a_fundo import ClienteTransfereGov
@@ -79,7 +80,15 @@ def minc_api_programas_dag() -> None:
             len(programas_data),
         )
 
-    load_programas_to_postgres(fetch_programas())
+    carga_finalizada = load_programas_to_postgres(fetch_programas())
+
+    trigger_planos_acao = TriggerDagRunOperator(
+        task_id="trigger_planos_acao",
+        trigger_dag_id="minc_api_planos_acao_dag",
+        wait_for_completion=False,
+    )
+
+    carga_finalizada >>  trigger_planos_acao
 
 
 minc_api_programas_dag()

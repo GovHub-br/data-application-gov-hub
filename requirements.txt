@@ -4,3 +4,9 @@ astronomer-cosmos==1.9.0
 dbt-postgres==1.7.13
 imap-tools==1.10.0
 zeep==4.3.1
+openpyxl
+xlrd>=2.0.1
+odfpy>=1.4.1
+pyxlsb
+python-calamine
+apache-airflow-providers-amazon

@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from airflow.decorators import dag, task
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 from cliente_postgres import ClientPostgresDB
 from cliente_transferegov_fundo_a_fundo import ClienteTransfereGovBackend
@@ -12,7 +13,7 @@ from schedule_loader import get_dynamic_schedule
 
 default_args = {
     "owner": "Caio Borges",
-    "retries": 3,
+    "retries": 2,
     "retry_delay": timedelta(minutes=5),
 }
 
@@ -94,7 +95,13 @@ def minc_api_anexos_relatorios_dag() -> None:
             len(anexos_data),
         )
 
-    load_anexos_to_postgres(fetch_anexos_relatorios())
+    trigger_download = TriggerDagRunOperator(
+        task_id="trigger_download_anexos",
+        trigger_dag_id="ingestao_anexos_transferegov",
+        wait_for_completion=False,
+    )
+
+    load_anexos_to_postgres(fetch_anexos_relatorios()) >> trigger_download
 
 
 minc_api_anexos_relatorios_dag()
