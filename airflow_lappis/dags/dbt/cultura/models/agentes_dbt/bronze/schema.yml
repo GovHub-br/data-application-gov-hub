@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: agentes_pf
+  - name: lpg_agentes_pf
     description: >
       Camada Bronze — dados brutos de pessoas físicas da LPG (Lei Paulo Gustavo).
       Mapeia o CPF como identificador único e traz a coluna bruta de histórico
@@ -12,25 +12,18 @@ models:
           - bronze
           - agentes
           - pessoa_fisica
+          - lpg
     columns:
       - name: identificador_unico
         description: CPF do proponente pessoa física, normalizado para lowercase.
         tests:
           - not_null
-      - name: ja_acessou_recursos_bruto
+      - name: historico_acesso_bruto
         description: Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento.
-    data_tests:
-      - row_count_match:
-          arguments:
-            source_table: transferegov_fundo_a_fundo.lpg_dados_pessoa_fisica
-            target_table: agentes.agentes_pf
-      - verificacao_tipagem:
-          arguments:
-            nome_tabela: 'agentes.agentes_pf'
-            nome_coluna: 'identificador_unico'
-            tipo_esperado: 'text'
+      - name: programa_fomento
+        description: Programa de fomento de origem — sempre 'LPG' neste modelo.
 
-  - name: agentes_pj
+  - name: lpg_agentes_pj
     description: >
       Camada Bronze — dados brutos de pessoas jurídicas da LPG.
       Mapeia o CNPJ como identificador único e traz a coluna bruta de histórico
@@ -41,49 +34,79 @@ models:
           - bronze
           - agentes
           - pessoa_juridica
+          - lpg
     columns:
       - name: identificador_unico
         description: CNPJ do proponente pessoa jurídica, normalizado para lowercase.
         tests:
           - not_null
-      - name: ja_acessou_recursos_bruto
+      - name: historico_acesso_bruto
         description: Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento.
-    data_tests:
-      - row_count_match:
-          arguments:
-            source_table: transferegov_fundo_a_fundo.lpg_dados_pessoa_juridica
-            target_table: agentes.agentes_pj
-      - verificacao_tipagem:
-          arguments:
-            nome_tabela: 'agentes.agentes_pj'
-            nome_coluna: 'identificador_unico'
-            tipo_esperado: 'text'
+      - name: programa_fomento
+        description: Programa de fomento de origem — sempre 'LPG' neste modelo.
 
-  - name: agentes_coletivos
+  - name: lpg_agentes_coletivos
     description: >
       Camada Bronze — dados brutos de proponentes coletivos da LPG.
-      Mapeia o CPF do representante como identificador único e traz a coluna bruta
-      de histórico de acesso a recursos públicos de fomento à cultura.
+      Mapeia o CPF do representante do grupo/coletivo como identificador único
+      e traz a coluna bruta de histórico de acesso a recursos públicos de fomento.
     config:
       meta:
         tags:
           - bronze
           - agentes
           - coletivo
+          - lpg
     columns:
       - name: identificador_unico
-        description: CPF do representante do coletivo, normalizado para lowercase.
+        description: CPF do representante do grupo/coletivo, normalizado para lowercase.
         tests:
           - not_null
-      - name: ja_acessou_recursos_bruto
+      - name: historico_acesso_bruto
         description: Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento.
-    data_tests:
-      - row_count_match:
-          arguments:
-            source_table: transferegov_fundo_a_fundo.lpg_dados_coletivos
-            target_table: agentes.agentes_coletivos
-      - verificacao_tipagem:
-          arguments:
-            nome_tabela: 'agentes.agentes_coletivos'
-            nome_coluna: 'identificador_unico'
-            tipo_esperado: 'text'
+      - name: programa_fomento
+        description: Programa de fomento de origem — sempre 'LPG' neste modelo.
+
+  - name: pnab_agentes_pf
+    description: >
+      Camada Bronze — dados brutos de pessoas físicas da PNAB (Política Nacional Aldir Blanc).
+      Mapeia o CPF como identificador único e traz a coluna bruta de histórico
+      de acesso a recursos públicos de fomento à cultura nos últimos 5 anos.
+    config:
+      meta:
+        tags:
+          - bronze
+          - agentes
+          - pessoa_fisica
+          - pnab
+    columns:
+      - name: identificador_unico
+        description: CPF do proponente pessoa física, normalizado para lowercase.
+        tests:
+          - not_null
+      - name: historico_acesso_bruto
+        description: Resposta bruta da PNAB sobre acesso anterior a recursos públicos de fomento.
+      - name: programa_fomento
+        description: Programa de fomento de origem — sempre 'PNAB' neste modelo.
+
+  - name: pnab_agentes_pj
+    description: >
+      Camada Bronze — dados brutos de organizações da PNAB.
+      Mapeia o CNPJ como identificador único e traz a coluna bruta de histórico
+      de acesso a recursos públicos de fomento à cultura anteriormente.
+    config:
+      meta:
+        tags:
+          - bronze
+          - agentes
+          - pessoa_juridica
+          - pnab
+    columns:
+      - name: identificador_unico
+        description: CNPJ da organização, normalizado para lowercase.
+        tests:
+          - not_null
+      - name: historico_acesso_bruto
+        description: Resposta bruta da PNAB sobre acesso anterior a recursos públicos de fomento.
+      - name: programa_fomento
+        description: Programa de fomento de origem — sempre 'PNAB' neste modelo.

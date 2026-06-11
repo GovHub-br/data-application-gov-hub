@@ -7,3 +7,5 @@ sources:
       - name: lpg_dados_pessoa_fisica
       - name: lpg_dados_pessoa_juridica
       - name: lpg_dados_coletivos
+      - name: pnab_pessoas
+      - name: pnab_organizacoes

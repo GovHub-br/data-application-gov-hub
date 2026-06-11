@@ -7,6 +7,7 @@ models:
       de acesso a recursos públicos. Remove valores nulos, 'nan' e caracteres
       inválidos (ponto, ponto-e-vírgula). Classifica as respostas em três
       categorias padronizadas: 'Sim', 'Não' e 'Não sabe/Não informou'.
+      Propaga a coluna programa_fomento para rastreabilidade por programa.
     config:
       meta:
         tags: [silver, agentes, higienizacao]
@@ -16,8 +17,15 @@ models:
         tests:
           - not_null
       - name: tipo_proponente
-        description: Tipo do proponente — 'Pessoa Física', 'Pessoa Jurídica' ou 'Coletivo'.
-      - name: ja_acessou_recursos_limpo
+        description: >
+          Tipo do proponente — 'Pessoa Física', 'Pessoa Jurídica',
+          'Coletivo' ou 'Organização'.
+      - name: programa_fomento
+        description: Programa de fomento de origem — 'LPG' ou 'PNAB'.
+        tests:
+          - accepted_values:
+              values: ['LPG', 'PNAB']
+      - name: historico_acesso_limpo
         description: Texto limpo da resposta bruta sobre acesso anterior a recursos de fomento.
       - name: categoria_primeiro_acesso
         description: >
@@ -25,5 +33,4 @@ models:
         tests:
           - not_null
           - accepted_values:
-              arguments:
-                values: ['Sim', 'Não', 'Não sabe/Não informou']
+              values: ['Sim', 'Não', 'Não sabe/Não informou']

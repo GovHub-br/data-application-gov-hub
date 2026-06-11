@@ -6,7 +6,8 @@ WITH identificadores AS (
     SELECT
         identificador_unico,
         tipo_proponente,
-        ja_acessou_recursos_bruto
+        programa_fomento,
+        historico_acesso_bruto
     FROM {{ ref('identificadores_agentes') }}
 ),
 
@@ -14,32 +15,34 @@ higienizados AS (
     SELECT
         identificador_unico,
         tipo_proponente,
+        programa_fomento,
         TRIM(
             REPLACE(
                 REPLACE(
                     REPLACE(
-                        ja_acessou_recursos_bruto,
+                        historico_acesso_bruto,
                         '.', ''
                     ),
                     ';', ''
                 ),
                 '"', ''
             )
-        ) AS ja_acessou_recursos_limpo
+        ) AS historico_acesso_limpo
     FROM identificadores
-    WHERE ja_acessou_recursos_bruto IS NOT NULL
-      AND LOWER(ja_acessou_recursos_bruto) != 'nan'
-      AND TRIM(ja_acessou_recursos_bruto) != ''
+    WHERE historico_acesso_bruto IS NOT NULL
+      AND LOWER(historico_acesso_bruto) != 'nan'
+      AND TRIM(historico_acesso_bruto) != ''
 )
 
 SELECT
     identificador_unico,
     tipo_proponente,
-    ja_acessou_recursos_limpo,
+    programa_fomento,
+    historico_acesso_limpo,
     CASE
-        WHEN ja_acessou_recursos_limpo = 'sim' THEN 'Sim'
-        WHEN ja_acessou_recursos_limpo IN ('não', 'nao', 'nâo') THEN 'Não'
-        WHEN ja_acessou_recursos_limpo IN (
+        WHEN historico_acesso_limpo = 'sim' THEN 'Sim'
+        WHEN historico_acesso_limpo IN ('não', 'nao', 'nâo') THEN 'Não'
+        WHEN historico_acesso_limpo IN (
             'não sei informar',
             'nao sei informar',
             'não informado',

@@ -54,7 +54,14 @@ ABA_PARA_TABELA: dict[str, str] = {
     "operacionalizacao": "raw_pnab_operacionalizacao",
     "lista de contemplados geral": "raw_pnab_lista_contemplados_geral",
     "lista contemplados pncv": "raw_pnab_lista_contemplados_pncv",
+    "pessoas": "pnab_pessoas",
+    "organizacoes": "pnab_organizacoes",
 }
+
+# Abas de proponentes da PNAB
+_ABAS_PROPONENTES_PNAB = {"pessoas", "organizacoes"}
+# Aba "Organizações" tem células mescladas no topo — exige leitura dinâmica
+_ABA_ORGANIZACOES_PNAB = {"organizacoes"}
 
 
 def _norm_texto(s: str) -> str:
@@ -546,6 +553,10 @@ def extrair_pnab(
     separadas por linhas de categoria (nome do edital). Cada DataFrame
     gerado recebe ``id_anexo`` na primeira posição e ``tipo_edital``.
 
+    Abas de proponentes (``Pessoas`` / ``Organizações``) são lidas com
+    ``header=1`` (linha 0 = título, linha 1 = cabeçalho, linha 2+ = dados),
+    seguindo o mesmo padrão dos "Dados Básicos" da LPG.
+
     Parameters
     ----------
     file_buffer : io.BytesIO
@@ -592,6 +603,45 @@ def extrair_pnab(
                 tabela_destino,
             )
 
+            # ── Abas de proponentes (Pessoas / Organizações) ──
+            # Seguem o padrão "Dados Básicos" da LPG: linha 0 = título,
+            # linha 1 = header, linha 2+ = dados + linha de instruções.
+            aba_norm = _norm_texto(aba)
+            if aba_norm in _ABAS_PROPONENTES_PNAB:
+                try:
+                    df = _com_timeout(
+                        pd.read_excel, xls, sheet_name=aba, header=1, dtype=str
+                    )
+                except TimeoutLeituraError:
+                    raise
+                except Exception as exc:
+                    log.warning(
+                        "[extracao_planilhas.py] Erro ao ler aba de "
+                        "proponentes '%s' de '%s': %s",
+                        aba,
+                        file_name,
+                        exc,
+                    )
+                    continue
+
+                if df.empty:
+                    continue
+
+                # Drop da linha de instruções (primeira linha após header)
+                df = df.iloc[1:].copy()
+                df = df.reset_index(drop=True)
+                df.insert(0, "id_anexo", id_anexo)
+                df = df.astype(str)
+
+                resultados.append({
+                    "nome_tabela_destino": tabela_destino,
+                    "dataframe": df,
+                })
+                del df
+                gc.collect()
+                continue
+
+            # ── Abas padrão (editais / contemplados / operacionalização) ──
             try:
                 df = _com_timeout(pd.read_excel, xls, sheet_name=aba, dtype=str)
             except TimeoutLeituraError:

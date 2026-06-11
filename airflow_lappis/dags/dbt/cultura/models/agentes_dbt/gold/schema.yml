@@ -4,30 +4,36 @@ models:
   - name: primeiro_acesso_resumo
     description: >
       Camada Gold — resumo agregado da Meta 5 (Indicador de Primeiro Acesso).
-      Conta proponentes distintos por categoria de acesso anterior a recursos
-      públicos de fomento à cultura e calcula o percentual de cada categoria
-      sobre o total geral.
+      Conta proponentes distintos por programa de fomento e categoria de acesso
+      anterior a recursos públicos. Calcula o percentual de cada categoria
+      sobre o total do respectivo programa (cada programa soma 100%).
     config:
       meta:
         meta_objetivo: 'Meta 5 — Indicador de Primeiro Acesso'
-        origem_dados: 'LPG — Lei Paulo Gustavo'
+        origem_dados: 'LPG e PNAB'
         tags: [gold, agentes, primeiro_acesso, meta5]
     columns:
+      - name: programa_fomento
+        description: Programa de fomento — 'LPG' ou 'PNAB'.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['LPG', 'PNAB']
       - name: categoria_primeiro_acesso
         description: >
           Categoria padronizada da resposta sobre acesso anterior a recursos
           de fomento — 'Sim', 'Não' ou 'Não sabe/Não informou'.
         tests:
           - not_null
-          - unique
           - accepted_values:
-              arguments:
-                values: ['Sim', 'Não', 'Não sabe/Não informou']
+              values: ['Sim', 'Não', 'Não sabe/Não informou']
       - name: total_proponentes
-        description: Contagem distinta de proponentes na categoria.
+        description: Contagem distinta de proponentes na categoria dentro do programa.
         tests:
           - not_null
       - name: percentual
-        description: Percentual da categoria sobre o total geral de proponentes.
+        description: >
+          Percentual da categoria sobre o total de proponentes do mesmo programa
+          (cada programa soma 100% independentemente).
         tests:
           - not_null

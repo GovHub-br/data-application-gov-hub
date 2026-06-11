@@ -4,18 +4,22 @@
 
 WITH resumo AS (
     SELECT
+        programa_fomento,
         categoria_primeiro_acesso,
         COUNT(DISTINCT identificador_unico) AS total_proponentes
     FROM {{ ref('perfil_agentes_historico') }}
-    GROUP BY categoria_primeiro_acesso
+    GROUP BY programa_fomento, categoria_primeiro_acesso
 )
 
 SELECT
+    programa_fomento,
     categoria_primeiro_acesso,
     total_proponentes,
     ROUND(
-        (total_proponentes * 100.0) / SUM(total_proponentes) OVER (),
+        (total_proponentes::NUMERIC
+         / SUM(total_proponentes) OVER (PARTITION BY programa_fomento))
+        * 100,
         2
     ) AS percentual
 FROM resumo
-ORDER BY total_proponentes DESC
+ORDER BY programa_fomento, total_proponentes DESC
