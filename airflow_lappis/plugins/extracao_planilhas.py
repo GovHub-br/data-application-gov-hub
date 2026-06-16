@@ -109,19 +109,18 @@ _ENGINE_MAP = {
     ".xlsm": "calamine",
     ".xls": "calamine",
     ".xlsb": "calamine",
-    # .ods intencionalmente REMOVIDO — a engine odf (fallback) carrega
-    # o DOM XML inteiro em memória e causa OOM Kills em planilhas grandes.
-    # Calamine pode ler .ods, mas se falhar o fallback é destrutivo.
+    ".ods": "calamine",
 }
 
 # Extensões proibidas: causam OOM no Worker do Airflow
-_EXTENSOES_PROIBIDAS = {".ods"}
+_EXTENSOES_PROIBIDAS: set[str] = set()
 
 
 def detectar_engine(file_path: str | Path) -> Optional[str]:
     """Retorna a engine pandas adequada para a extensão do arquivo.
 
-    Retorna ``None`` para extensões proibidas (.ods), emitindo warning.
+    Extensões proibidas (``_EXTENSOES_PROIBIDAS``) retornam ``None``
+    com warning, mas atualmente nenhuma extensão é proibida.
     """
     ext = Path(file_path).suffix.lower()
     if ext in _EXTENSOES_PROIBIDAS:

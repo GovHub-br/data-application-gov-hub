@@ -9,3 +9,6 @@ sources:
       - name: lpg_dados_coletivos
       - name: pnab_pessoas
       - name: pnab_organizacoes
+      - name: lpg_contemplados
+      - name: raw_pnab_lista_contemplados_geral
+      - name: raw_pnab_lista_contemplados_pncv
