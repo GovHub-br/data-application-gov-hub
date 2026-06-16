@@ -15,13 +15,28 @@ LOCAL_TIMEZONE = ZoneInfo("America/Sao_Paulo")
 MAX_EXCEPTION_CHARS = 500
 
 
-def _get_telegram_config() -> tuple[str | None, str | None]:
+def _normalize_chat_ids(value: Any) -> list[str]:
+    if isinstance(value, list):
+        return [str(chat_id) for chat_id in value if chat_id]
+
+    if value:
+        return [str(value)]
+
+    return []
+
+
+def _get_telegram_config() -> tuple[str | None, list[str]]:
     config_raw = Variable.get(TELEGRAM_CONFIG_VARIABLE, default_var=None)
 
     if config_raw:
         try:
             config = json.loads(config_raw)
-            return config.get("bot_token"), config.get("chat_id")
+            bot_token = config.get("bot_token")
+            chat_ids = _normalize_chat_ids(
+                config.get("chat_ids", config.get("chat_id"))
+            )
+
+            return bot_token, chat_ids
         except json.JSONDecodeError as exc:
             logging.warning(
                 "Invalid JSON in Airflow Variable %s: %s",
@@ -29,7 +44,7 @@ def _get_telegram_config() -> tuple[str | None, str | None]:
                 exc,
             )
 
-    return None, None
+    return None, []
 
 
 def _format_execution_date(value: Any) -> str:
@@ -47,30 +62,39 @@ def _format_execution_date(value: Any) -> str:
 
 def send_telegram_message(message: str) -> None:
     """Envia uma mensagem para o grupo configurado nas Airflow Variables."""
-    bot_token, chat_id = _get_telegram_config()
+    bot_token, chat_ids = _get_telegram_config()
 
-    if not bot_token or not chat_id:
-        logging.warning("Telegram notification skipped: missing bot token or chat id")
+    if not bot_token or not chat_ids:
+        logging.warning("Telegram notification skipped: missing bot token or chat ids")
         return
 
     url = TELEGRAM_API_URL.format(token=bot_token)
-    payload = {
-        "chat_id": chat_id,
-        "text": message,
-        "parse_mode": "HTML",
-        "disable_web_page_preview": True,
-    }
 
-    try:
-        response = httpx.post(
-            url,
-            json=payload,
-            timeout=TELEGRAM_TIMEOUT_SECONDS,
-        )
-        response.raise_for_status()
-        logging.info("Telegram failure notification sent successfully.")
-    except httpx.HTTPError as exc:
-        logging.error("Failed to send Telegram failure notification: %s", exc)
+    for chat_id in chat_ids:
+        payload = {
+            "chat_id": chat_id,
+            "text": message,
+            "parse_mode": "HTML",
+            "disable_web_page_preview": True,
+        }
+
+        try:
+            response = httpx.post(
+                url,
+                json=payload,
+                timeout=TELEGRAM_TIMEOUT_SECONDS,
+            )
+            response.raise_for_status()
+            logging.info(
+                "Telegram failure notification sent successfully to %s.",
+                chat_id,
+            )
+        except httpx.HTTPError as exc:
+            logging.error(
+                "Failed to send Telegram failure notification to %s: %s",
+                chat_id,
+                exc,
+            )
 
 
 def telegram_failure_callback(context: dict[str, Any]) -> None:
@@ -97,9 +121,17 @@ def telegram_failure_callback(context: dict[str, Any]) -> None:
     execution_date_text = _format_execution_date(execution_date)
 
     exception = context.get("exception")
-    exception_text = (
-        str(exception)[:MAX_EXCEPTION_CHARS] if exception else "não informado"
-    )
+    reason = context.get("reason")
+    state = getattr(task_instance, "state", "unknown")
+
+    if exception:
+        exception_text = str(exception)[:MAX_EXCEPTION_CHARS]
+    elif reason:
+        exception_text = str(reason)[:MAX_EXCEPTION_CHARS]
+    elif state == "upstream_failed":
+        exception_text = "Cancelada: Falha em task anterior (upstream_failed)"
+    else:
+        exception_text = "Erro externo/Scheduler (Verifique os logs na interface)"
 
     safe_dag_id = html.escape(str(dag_id))
     safe_task_id = html.escape(str(task_id))

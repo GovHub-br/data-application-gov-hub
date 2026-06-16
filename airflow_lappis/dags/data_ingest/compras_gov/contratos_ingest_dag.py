@@ -8,7 +8,7 @@ from schedule_loader import get_dynamic_schedule
 from postgres_helpers import get_postgres_conn
 from cliente_contratos import ClienteContratos
 from cliente_postgres import ClientPostgresDB
-from helpers.telegram_helpers import telegram_failure_callback
+from telegram_helpers import telegram_failure_callback
 
 
 @dag(
