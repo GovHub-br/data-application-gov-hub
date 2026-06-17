@@ -91,6 +91,9 @@ models:
           Data de término da vigência do contrato, validada e convertida para formato de data padrão.
         tests:
           - not_null
+      - name: vigencia_fim
+        description: >
+          Data de término da vigência do contrato, validada e convertida para formato de data padrão.
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
@@ -159,6 +162,9 @@ models:
           Identificador do contrato relacionado ao cronograma.
         tests:
           - not_null
+      - name: contrato_id
+        description: >
+          Identificador do contrato relacionado ao cronograma.
       - name: tipo
         description: >
           Tipo de cada item do cronograma.
@@ -223,6 +229,9 @@ models:
           Identificador do contrato relacionado à fatura.
         tests:
           - not_null
+      - name: contrato_id
+        description: >
+          Identificador do contrato relacionado à fatura.
       - name: numero
         description: >
           Número da fatura emitida pelo fornecedor.
@@ -349,6 +358,9 @@ models:
           Identificador do contrato relacionado ao empenho.
         tests:
           - not_null
+      - name: contrato_id
+        description: >
+          Identificador do contrato relacionado ao empenho.
       - name: nota_empenho
         description: >
           Número da nota de empenho registrada no sistema.

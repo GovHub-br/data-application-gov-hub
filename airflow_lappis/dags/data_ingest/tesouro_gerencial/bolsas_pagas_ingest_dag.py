@@ -19,6 +19,10 @@ default_args = {
     "retries": 1,
     "retry_delay": timedelta(minutes=5),
 }
+from datetime import datetime
+
+from airflow import DAG
+from email_ingest_dag_factory import build_email_ingest_dag
 
 COLUMN_MAPPING = {
     0: "credor_codigo",
@@ -54,6 +58,17 @@ SKIPROWS = 11
 with DAG(
     dag_id="email_bolsas_pagas_tesouro_ingest",
     default_args=default_args,
+dag: DAG = build_email_ingest_dag(
+    dag_id="email_bolsas_pagas_tesouro_ingest",
+    email_subject="bolsas_pagas_ipea",
+    column_mapping=COLUMN_MAPPING,
+    skiprows=11,
+    table_name="bolsas_pagas",
+    schedule_key="bolsas_pagas_ingest_dag",
+    schema="siafi",
+    owner="Davi",
+    start_date=datetime(2023, 12, 1),
+    tags=["email", "tesouro", "bolsas_pagas"],
     description=(
         "Processa anexos de bolsas pagas do Tesouro Gerencial recebidos por email "
         "e insere no banco"
@@ -150,3 +165,4 @@ with DAG(
     )
 
     process_emails_task >> insert_to_db_task >> clean_duplicates_task
+)

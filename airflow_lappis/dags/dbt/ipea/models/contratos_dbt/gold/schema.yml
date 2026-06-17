@@ -24,6 +24,9 @@ models:
           CNPJ ou CPF do fornecedor contratado, com formatação padronizada.
         tests:
           - not_null
+      - name: fornecedor_cnpj_cpf
+        description: >
+          CNPJ ou CPF do fornecedor contratado, com formatação padronizada.
       - name: numero
         description: >
           Número do contrato no sistema ComprasGov.
@@ -64,6 +67,9 @@ models:
           Data de término da vigência do contrato.
         tests:
           - not_null
+      - name: vigencia_fim
+        description: >
+          Data de término da vigência do contrato.
       - name: num_parcelas
         description: >
           Número de parcelas para pagamento do contrato.

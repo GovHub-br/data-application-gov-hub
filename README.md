@@ -81,6 +81,14 @@ Você pode configurá-las seguindo **[este guia](https://gov-hub.io/govhub/docum
 
 ## 🏃‍♂️ Executando localmente
 
+
+Este projeto depende de variáveis de ambiente para o desenvolvimento local.
+
+Você pode configurá-las seguindo **[este guia](https://gov-hub.io/govhub/documentacao/instalacao/)**.
+
+
+## 🏃‍♂️ Executando localmente
+
 Inicie todos os serviços usando Docker Compose:
 
 ```bash
@@ -166,3 +174,21 @@ git config --global commit.gpgsign true
 1. Crie uma nova branch para sua feature
 2. Faça as alterações e garanta que todos os testes passam
 3. Envie um merge request
+
+## 📚 Documentação
+
+- [Documentação do Airflow](https://airflow.apache.org/docs/)
+- [Documentação do dbt](https://docs.getdbt.com/)
+- [Documentação do Superset](https://superset.apache.org/docs/intro)
+- [Documentação do GovHub](https://gov-hub.io/govhub/documentacao/instalacao/)
+
+## 🤝 Contribuição
+
+Antes de contribuir, leia o [Guia de Contribuição](.github/CONTRIBUTING.md) e o [Protocolo de Aprovação de Pull Requests](.github/MERGE_REQUEST_PROTOCOL.md), que definem o fluxo de branches, commits, Pull Requests, revisão de código, testes e lint.
+
+Resumo do fluxo:
+
+1. Crie uma branch seguindo o padrão `<tipo>/<descricao-curta>`
+2. Faça commits seguindo Conventional Commits
+3. Garanta que testes e lint passam
+4. Abra um Pull Request usando o template do repositório
