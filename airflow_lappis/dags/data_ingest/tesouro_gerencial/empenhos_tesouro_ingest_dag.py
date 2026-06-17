@@ -30,21 +30,23 @@ COLUMN_MAPPING = {
     6: "doc_observacao",
     7: "natureza_despesa",
     8: "natureza_despesa_descricao",
-    9: "ne_ccor_favorecido",
-    10: "ne_ccor_favorecido_descricao",
-    11: "ne_ccor_ano_emissao",
-    12: "ptres",
-    13: "fonte_recursos_detalhada",
-    14: "fonte_recursos_detalhada_descricao",
-    15: "despesas_empenhadas",
-    16: "despesas_liquidadas",
-    17: "despesas_pagas",
-    18: "restos_a_pagar_inscritos",
-    19: "restos_a_pagar_pagos",
+    9: "natureza_despesa_detalhada",
+    10: "natureza_despesa_detalhada_descricao",
+    11: "ne_ccor_favorecido",
+    12: "ne_ccor_favorecido_descricao",
+    13: "ne_ccor_ano_emissao",
+    14: "ptres",
+    15: "fonte_recursos_detalhada",
+    16: "fonte_recursos_detalhada_descricao",
+    17: "despesas_empenhadas",
+    18: "despesas_liquidadas",
+    19: "despesas_pagas",
+    20: "restos_a_pagar_inscritos",
+    21: "restos_a_pagar_pagos",
 }
 
-EMAIL_SUBJECT = "notas_de_empenhos_a_partir_de_2024"
-SKIPROWS = 9
+EMAIL_SUBJECT = "notas_de_empenhos_ipea"
+SKIPROWS = 8
 
 # Configurações da DAG
 with DAG(
@@ -115,6 +117,7 @@ with DAG(
             unique_key = [
                 "ne_ccor",
                 "natureza_despesa",
+                "natureza_despesa_detalhada",
                 "doc_observacao",
                 "ne_ccor_ano_emissao",
                 "emissao_dia",

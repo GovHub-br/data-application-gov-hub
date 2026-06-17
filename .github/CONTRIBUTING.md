@@ -11,6 +11,7 @@ Obrigado por considerar contribuir com o **Gov Hub BR**! O GovHub BR é uma plat
 - [Configurando o Ambiente Local](#configurando-o-ambiente-local)
 - [Convenções de Branch e Commit](#convenções-de-branch-e-commit)
 - [Fluxo de Pull Request](#fluxo-de-pull-request)
+- [Protocolo de Aprovação de Pull Requests](#protocolo-de-aprovação-de-pull-requests)
 - [Como Pegar ou Atribuir Issues](#como-pegar-ou-atribuir-issues)
 - [Processo de Code Review](#processo-de-code-review)
 - [Executando os Testes](#executando-os-testes)
@@ -22,7 +23,7 @@ Obrigado por considerar contribuir com o **Gov Hub BR**! O GovHub BR é uma plat
 
 ## Código de Conduta
 
-Por favor, leia nosso [Código de Conduta](CODE_OF_CONDUCT.md). Ele está em vigor o tempo todo e esperamos que seja respeitado por todos que contribuem para este projeto. Comportamentos inadequados não serão tolerados.
+Esperamos que todas as pessoas contribuam com respeito, colaboração e responsabilidade. Comportamentos inadequados, ofensivos ou discriminatórios não serão tolerados.
 
 ---
 
@@ -34,6 +35,8 @@ Por favor, leia nosso [Código de Conduta](CODE_OF_CONDUCT.md). Ele está em vig
 │   ├── actions/
 │   ├── TEMPLATES/
 │   ├── workflows/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── MERGE_REQUEST_PROTOCOL.md
 │   └── CONTRIBUTING.md        # Este arquivo
 ├── airflow_lappis/
 │   ├── dags/
@@ -121,7 +124,12 @@ Os mesmos prefixos são usados tanto no nome da branch quanto na mensagem de com
 | `fix` | Correção de bug ou inconsistência de dados |
 | `docs` | Alterações apenas em documentação |
 | `refactor` | Refatoração sem mudança de comportamento |
+| `perf` | Melhoria de desempenho |
+| `test` | Adição ou correção de testes |
+| `build` | Mudanças em dependências ou sistema de build |
 | `ci` | Mudanças em CI/CD ou infraestrutura |
+| `chore` | Ajustes que não afetam código-fonte ou testes |
+| `style` | Formatação que não afeta lógica |
 
 **Branch:** `<tipo>/<descricao-curta>`
 
@@ -165,17 +173,27 @@ git rebase upstream/main
 git push origin feat/integracao-siafi-despesas
 ```
 
-Em seguida, abra um Pull Request no GitHub apontando para a branch `main` do repositório principal. O modelo de PR está disponível em `.github/TEMPLATES/PULL_REQUEST_TEMPLATE.md` e será preenchido automaticamente ao abrir um PR.
+Em seguida, abra um Pull Request no GitHub apontando para a branch `main` do repositório principal. O modelo de PR está disponível em `.github/PULL_REQUEST_TEMPLATE.md` e será preenchido automaticamente ao abrir um PR.
+
+As regras obrigatórias de abertura, revisão, aprovação e merge estão documentadas no [Protocolo de Aprovação de Pull Requests](MERGE_REQUEST_PROTOCOL.md).
 
 ### Checklist antes de abrir o PR
 
 - [ ] As alterações funcionam corretamente no ambiente local
 - [ ] Os testes passam (`make test`)
 - [ ] O lint não aponta erros (`make lint`)
-- [ ] A branch está atualizada com `upstream/main`
+- [ ] A branch está atualizada com `upstream/main` ou `origin/main`
 - [ ] O título segue o padrão Conventional Commits
 - [ ] A issue relacionada está referenciada (`Closes #<número>`)
 - [ ] Documentação atualizada, se aplicável
+
+---
+
+## Protocolo de Aprovação de Pull Requests
+
+O fluxo formal de revisão e aprovação está definido no [Protocolo de Aprovação de Pull Requests](MERGE_REQUEST_PROTOCOL.md).
+
+Esse protocolo detalha critérios obrigatórios de documentação, testes, lint, revisão por domínio, quantidade mínima de aprovações, regras para merges urgentes e responsabilidades de autores e revisores.
 
 ---
 
@@ -195,6 +213,8 @@ Toda solicitação de mudança ou sugestão deve ser registrada como issue.
 
 ## Processo de Code Review
 
+Consulte o [Protocolo de Aprovação de Pull Requests](MERGE_REQUEST_PROTOCOL.md) para os critérios obrigatórios de revisão, aprovação e merge.
+
 **Para quem submete o PR:** responda a todos os comentários de revisão, implemente as mudanças em novos commits e aguarde nova aprovação antes do merge.
 
 **Para quem faz o review:** seja construtivo e específico, explique o *porquê* das sugestões, diferencie bloqueadores de sugestões opcionais, e verifique qualidade dos modelos DBT, linhagem de dados, testes e impacto em pipelines existentes. O merge é responsabilidade dos mantenedores.
@@ -208,7 +228,8 @@ Toda solicitação de mudança ou sugestão deve ser registrada como issue.
 make test
 
 # Testes DBT por modelo específico
-dbt test --select modelo_gold_orcamento
+cd airflow_lappis/dags/dbt/<projeto>
+dbt test --select <nome_do_modelo>
 
 # Compilar modelos sem executar (validação de SQL)
 dbt compile

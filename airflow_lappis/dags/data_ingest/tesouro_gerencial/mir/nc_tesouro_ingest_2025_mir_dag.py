@@ -49,9 +49,9 @@ COLUMN_MAPPING = {
 # Configurações dos emails
 EMAIL_CONFIGS = {
     "enviadas": {
-        "subject": "notas_credito_enviadas_devolvidas_ate_2025",
+        "subject": "notas_credito_mir_ate_2025",
         "column_mapping": COLUMN_MAPPING,
-        "skiprows": 3,
+        "skiprows": 6,
     },
     "recebidas": {
         "subject": "notas_credito_recebidas_ate_2025",

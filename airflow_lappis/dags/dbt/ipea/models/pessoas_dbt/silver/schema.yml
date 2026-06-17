@@ -385,3 +385,69 @@ models:
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+
+  - name: terceirizados_ativos
+    description: >
+      Tabela silver que cruza os trabalhadores terceirizados ativos (`terceirizados`)
+      com os contratos ativos (`contratos`) do sistema ComprasGov. Mantém apenas os
+      terceirizados cuja `situacao` é 'Ativo' e que estão vinculados a um contrato
+      também com `situacao` 'Ativo', enriquecendo cada registro com o número do
+      contrato e os dados do fornecedor. A junção é feita por `contrato_id` (terceirizado)
+      contra `id` (contrato), e a granularidade é de um registro por trabalhador terceirizado.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: numero_contrato
+        description: Número do contrato ativo ao qual o trabalhador está vinculado (`contratos.numero`).
+        tests:
+          - not_null
+      - name: fornecedor_nome
+        description: Razão social do fornecedor responsável pelo contrato.
+      - name: fornecedor
+        description: CNPJ/CPF/identificador genérico do fornecedor do contrato (`contratos.fornecedor_cnpj_cpf_idgener`).
+      - name: id
+        description: Identificador único do registro do trabalhador terceirizado.
+        tests:
+          - unique
+          - not_null
+      - name: contrato_id
+        description: Identificador do contrato ativo ao qual o trabalhador está vinculado.
+        tests:
+          - not_null
+      - name: cpf
+        description: CPF do trabalhador, extraído da string `usuario`.
+      - name: nome
+        description: Nome do trabalhador, extraído da string `usuario`.
+      - name: funcao_id
+        description: Identificador da função exercida pelo trabalhador.
+      - name: descricao_complementar
+        description: Descrição complementar da função ou atividade do trabalhador.
+      - name: jornada
+        description: Quantidade de horas de jornada de trabalho semanal do trabalhador.
+      - name: unidade
+        description: Unidade organizacional onde o trabalhador presta serviço.
+      - name: salario
+        description: Valor do salário mensal do trabalhador em R$.
+      - name: custo
+        description: Custo total do trabalhador para a instituição em R$.
+      - name: escolaridade_id
+        description: Identificador do grau de escolaridade do trabalhador.
+      - name: data_inicio
+        description: Data de início do contrato do trabalhador.
+      - name: data_fim
+        description: Data de término do contrato do trabalhador.
+      - name: situacao
+        description: Situação do vínculo contratual do trabalhador. Restrita a 'Ativo' neste modelo.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Ativo']
+      - name: aux_transporte
+        description: Valor mensal do auxílio transporte recebido pelo trabalhador em R$.
+      - name: vale_alimentacao
+        description: Valor mensal do vale alimentação recebido pelo trabalhador em R$.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) de ingestão do registro na fonte `terceirizados`.

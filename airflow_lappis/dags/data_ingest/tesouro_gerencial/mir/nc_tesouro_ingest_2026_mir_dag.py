@@ -53,7 +53,7 @@ COLUMN_MAPPING_NC = {
     27: "emissao_mes",
 }
 
-EMAIL_SUBJECT = "notas_credito_enviadas_devolvidas_a_partir_2026"
+EMAIL_SUBJECT = "notas_credito_mir_apos_2026"
 SKIPROWS = 3
 
 with DAG(

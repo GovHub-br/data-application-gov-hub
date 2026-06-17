@@ -3,6 +3,7 @@
         unique_key=[
             "ne_ccor",
             "natureza_despesa",
+            "natureza_despesa_detalhada",
             "doc_observacao",
             "ne_ccor_ano_emissao",
             "emissao_dia",
@@ -27,6 +28,8 @@ with
             doc_observacao::text as doc_observacao,
             natureza_despesa::text as natureza_despesa,
             natureza_despesa_descricao::text as natureza_despesa_descricao,
+            natureza_despesa_detalhada::text as natureza_despesa_detalhada,
+            natureza_despesa_detalhada_descricao::text as natureza_despesa_detalhada_descricao,
             upper(ne_ccor_favorecido::text) as ne_ccor_favorecido,
             ne_ccor_favorecido_descricao::text as ne_ccor_favorecido_descricao,
             ne_ccor_ano_emissao::integer as ne_ccor_ano_emissao,

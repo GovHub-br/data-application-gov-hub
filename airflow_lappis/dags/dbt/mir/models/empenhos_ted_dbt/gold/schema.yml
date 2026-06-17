@@ -114,3 +114,92 @@ models:
           nome_tabela: 'siafi_dbt.ted_resumo_orcamentario'
           nome_coluna: 'dt_ingest'
           tipo_esperado: 'timestamp with time zone'
+
+  - name: ted_empenhos_plano_acao
+    description: >
+      Tabela gold de Notas de Empenho do SIAFI vinculadas a Planos de Ação TED do MIR.
+      Filtra empenhos_por_plano_acao mantendo apenas os registros com plano_acao não nulo,
+      ou seja, NEs cujo número de transferência TED foi identificado e possui correspondência
+      no TransfereGov. Remove as colunas operacionais do pipeline de extração (complemento_ted,
+      num_ted, numero_base, ano_raw, ano_normalizado, ano_oficial, numero_ted_normalizado,
+      num_transf_pa), expondo somente os campos de negócio.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: emissao_mes
+        description: "Mês de emissão da NE no SIAFI."
+      - name: emissao_dia
+        description: "Data de emissão da NE no SIAFI."
+      - name: ne_ccor
+        description: "Chave completa da Nota de Empenho no SIAFI."
+      - name: ne_num_processo
+        description: "Número do processo administrativo associado à NE, limpo de pontos, barras e hifens."
+      - name: ne_info_complementar
+        description: "Campo complementar da NE."
+      - name: ne_ccor_descricao
+        description: "Descrição livre da NE — campo principal de onde os métodos de extração identificam o num_transf via regex."
+      - name: doc_observacao
+        description: "Campo de observação do documento associado à NE."
+      - name: natureza_despesa
+        description: "Código da natureza de despesa da NE (ex: 339030)."
+      - name: natureza_despesa_descricao
+        description: "Descrição da natureza de despesa da NE."
+      - name: ne_ccor_favorecido
+        description: "CNPJ ou CPF do favorecido do empenho, padronizado em maiúsculas."
+      - name: ne_ccor_favorecido_descricao
+        description: "Nome ou razão social do favorecido da NE."
+      - name: ne_ccor_ano_emissao
+        description: "Ano de emissão da NE (integer, YYYY)."
+      - name: ptres
+        description: "Programa de Trabalho Resumido (PTRES) vinculado à NE no SIAFI."
+      - name: fonte_recursos_detalhada
+        description: "Código detalhado da fonte de recursos da NE."
+      - name: fonte_recursos_detalhada_descricao
+        description: "Descrição da fonte de recursos da NE."
+      - name: despesas_empenhadas
+        description: "Valor empenhado da NE (numeric 15,2). Positivo = novo empenho; negativo = anulação."
+      - name: despesas_liquidadas
+        description: "Valor liquidado (numeric 15,2) — despesas com bens ou serviços confirmados como entregues."
+      - name: despesas_pagas
+        description: "Valor efetivamente pago no exercício corrente (numeric 15,2)."
+      - name: restos_a_pagar_inscritos
+        description: "Valor inscrito em Restos a Pagar (numeric 15,2) — empenhado e não pago até o encerramento do exercício."
+      - name: restos_a_pagar_pagos
+        description: "Valor de Restos a Pagar efetivamente quitado (numeric 15,2)."
+      - name: ne
+        description: "Identificador curto da Nota de Empenho — últimos 12 caracteres de ne_ccor."
+      - name: orgao_id
+        description: "Código do órgão emitente da NE — primeiros 6 caracteres de ne_ccor."
+      - name: nc
+        description: "Número da Nota de Crédito associada à NE, extraído de ne_ccor_descricao e formatado pela UDF format_nc."
+      - name: num_transf
+        description: "Número da transferência TED extraído da NE. Chave de ligação com o Plano de Ação no TransfereGov."
+      - name: plano_acao
+        description: >
+          Identificador do Plano de Ação no TransfereGov (integer), obtido via ponte
+          num_transf_n_plano_acao a partir do num_transf. Nunca nulo nesta tabela gold —
+          o filtro plano_acao is not null é a condição de entrada.
+      - name: dt_ingest
+        description: "Timestamp de ingestão da NE no SIAFI (timestamptz, UTC-3)."
+    tests:
+      - verificacao_tipagem:
+          nome_tabela: 'siafi_dbt.ted_empenhos_plano_acao'
+          nome_coluna: 'plano_acao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'siafi_dbt.ted_empenhos_plano_acao'
+          nome_coluna: 'ne_ccor_ano_emissao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'siafi_dbt.ted_empenhos_plano_acao'
+          nome_coluna: 'despesas_empenhadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'siafi_dbt.ted_empenhos_plano_acao'
+          nome_coluna: 'despesas_liquidadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'siafi_dbt.ted_empenhos_plano_acao'
+          nome_coluna: 'restos_a_pagar_inscritos'
+          tipo_esperado: 'numeric'

@@ -534,13 +534,15 @@ SELECT
     COALESCE(ert.nc, r.nc) AS nc,
     COALESCE(ert.num_transf, r.num_transf) AS num_transf,
     -- método calculado dinamicamente
+    /*
     CASE
         WHEN (ert.nc IS NULL AND r.nc IS NOT NULL)
           OR (ert.num_transf IS NULL AND r.num_transf IS NOT NULL)
         THEN 'metodo 9'
         ELSE ert.metodo
     END AS metodo,
-    complemento_ted, num_ted, metodo_ted, numero_base, ano_raw, ano_normalizado, ano_oficial,
+    */
+    complemento_ted, num_ted, numero_base, ano_raw, ano_normalizado, ano_oficial,
     numero_ted_normalizado
     FROM union_metodo_7_8 ert
     LEFT JOIN ids_agregados_num_ted_normalizado r USING (orgao_id,numero_ted_normalizado)

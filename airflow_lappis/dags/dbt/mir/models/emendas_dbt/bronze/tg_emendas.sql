@@ -24,8 +24,14 @@ with
 			localizador_gasto::text as localizador_gasto,
 			localizador_gasto_descricao::text as localizador_gasto_descricao,
 			regiao_pt::text as regiao_pt,
-			uf_pt::text as uf_pt,
-			uf_pt_descricao::text as uf_pt_descricao,
+			case
+    			when uf_pt = '-8' then regiao_pt
+    			else uf_pt
+			end as uf_pt,
+			case
+    			when uf_pt_descricao = 'SEM INFORMACAO' then regiao_pt
+    			else uf_pt_descricao
+			end::text as uf_pt_descricao,
 			municipio_pt::text as municipio_pt,
 			ne_ccor::text as ne_ccor,
 			ne_num_processo::text as ne_num_processo,

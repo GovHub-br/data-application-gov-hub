@@ -163,6 +163,11 @@ git config --global commit.gpgsign true
 
 ## 🤝 Contribuição
 
-1. Crie uma nova branch para sua feature
-2. Faça as alterações e garanta que todos os testes passam
-3. Envie um merge request
+Antes de contribuir, leia o [Guia de Contribuição](.github/CONTRIBUTING.md) e o [Protocolo de Aprovação de Pull Requests](.github/MERGE_REQUEST_PROTOCOL.md), que definem o fluxo de branches, commits, Pull Requests, revisão de código, testes e lint.
+
+Resumo do fluxo:
+
+1. Crie uma branch seguindo o padrão `<tipo>/<descricao-curta>`
+2. Faça commits seguindo Conventional Commits
+3. Garanta que testes e lint passam
+4. Abra um Pull Request usando o template do repositório

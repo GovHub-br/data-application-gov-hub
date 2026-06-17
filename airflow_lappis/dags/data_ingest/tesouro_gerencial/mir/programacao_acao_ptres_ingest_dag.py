@@ -42,7 +42,7 @@ COLUMN_MAPPING = {
 }
 
 # Assunto do email a ser processado
-EMAIL_SUBJECT = "programacao_acao_por_PTRES"
+EMAIL_SUBJECT = "programacao_acao_por_ptres_mir"
 SKIPROWS = 5
 
 # Configurações da DAG
