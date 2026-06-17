@@ -1,4 +1,5 @@
 from ftplib import error_perm
+import io
 
 import pytest
 from unittest.mock import patch, MagicMock
@@ -408,4 +409,79 @@ def test_listar_arquivos_texto_handles_exception(
     mock_ftp.cwd.assert_not_called()
     mock_ftp.nlst.assert_not_called()
 
+    assert error_msg in caplog.text
+
+
+# ---------------------------------------------------------------------------
+# obter_conteudo_arquivo
+# ---------------------------------------------------------------------------
+
+
+def test_obter_conteudo_arquivo_successfully(
+    cliente_ibge: ClienteIBGE, mock_ftp, caplog
+) -> None:
+
+    file_content = b"Test file content"
+
+    file = "data.csv"
+
+    def mock_retrbinary(_, callback):
+        callback(file_content)
+
+    mock_ftp.retrbinary.side_effect = mock_retrbinary
+
+    with caplog.at_level("INFO"):
+        buffer = cliente_ibge.obter_conteudo_arquivo(file)
+
+    assert isinstance(buffer, io.BytesIO)
+    assert buffer.tell() == 0  # moves buffer to the beginning after writing
+    assert buffer.read() == file_content
+    mock_ftp.retrbinary.assert_called_once_with("RETR " + file, buffer.write)
+
+    mock_ftp.cwd.assert_called_once_with(BASE_DIR + DB)
+
+    assert f"./{file}" in caplog.text
+
+
+def test_obter_conteudo_arquivo_with_subcaminho(
+    cliente_ibge: ClienteIBGE, mock_ftp, caplog
+) -> None:
+
+    file_content = b""
+
+    file = "data.xlsx"
+    subcaminho = "folderA"
+
+    def mock_retrbinary(_, callback):
+        callback(file_content)
+
+    mock_ftp.retrbinary.side_effect = mock_retrbinary
+
+    with caplog.at_level("INFO"):
+        buffer = cliente_ibge.obter_conteudo_arquivo(file, subcaminho=subcaminho)
+
+    assert isinstance(buffer, io.BytesIO)
+    assert buffer.tell() == 0  # moves buffer to the beginning after writing
+    assert buffer.read() == file_content
+    mock_ftp.retrbinary.assert_called_once_with("RETR " + file, buffer.write)
+
+    mock_ftp.cwd.assert_called_once_with(BASE_DIR + DB + "/" + subcaminho)
+
+    assert f"{subcaminho}/{file}" in caplog.text
+
+
+def test_obter_conteudo_arquivo_handles_exception(
+    cliente_ibge: ClienteIBGE, mock_ftp, caplog
+) -> None:
+
+    file = "data.txt"
+
+    error_msg = "Error downloading file"
+    mock_ftp.retrbinary.side_effect = Exception(error_msg)
+
+    with caplog.at_level("ERROR"):
+        buffer = cliente_ibge.obter_conteudo_arquivo(file)
+
+    assert buffer is None
+    mock_ftp.retrbinary.assert_called_once()
     assert error_msg in caplog.text
