@@ -19,6 +19,9 @@ models:
       - name: id
         description: >
           Identificador único do contrato, utilizado para referenciar o contrato em outras tabelas e análises.
+        tests:
+          - unique
+          - not_null
       - name: receita_despesa
         description: >
           Indica se o contrato é de receita ou despesa.
@@ -67,6 +70,8 @@ models:
       - name: fornecedor_cnpj_cpf_idgener
         description: >
           CNPJ, CPF ou identificador genérico do fornecedor, com formatação padronizada para remoção de caracteres especiais.
+        tests:
+          - not_null
       - name: processo
         description: >
           Número do processo administrativo relacionado ao contrato, formatado para remover caracteres especiais.
@@ -79,9 +84,13 @@ models:
       - name: vigencia_inicio
         description: >
           Data de início da vigência do contrato, validada e convertida para formato de data padrão.
+        tests:
+          - not_null
       - name: vigencia_fim
         description: >
           Data de término da vigência do contrato, validada e convertida para formato de data padrão.
+        tests:
+          - not_null
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
@@ -142,9 +151,14 @@ models:
       - name: id
         description: >
           Identificador único do cronograma.
+        tests:
+          - unique
+          - not_null
       - name: contrato_id
         description: >
           Identificador do contrato relacionado ao cronograma.
+        tests:
+          - not_null
       - name: tipo
         description: >
           Tipo de cada item do cronograma.
@@ -201,9 +215,14 @@ models:
       - name: id
         description: >
           Identificador único da fatura.
+        tests:
+          - unique
+          - not_null
       - name: contrato_id
         description: >
           Identificador do contrato relacionado à fatura.
+        tests:
+          - not_null
       - name: numero
         description: >
           Número da fatura emitida pelo fornecedor.
@@ -322,9 +341,14 @@ models:
       - name: id
         description: >
           Identificador único do empenho no ComprasGov.
+        tests:
+          - unique
+          - not_null
       - name: contrato_id
         description: >
           Identificador do contrato relacionado ao empenho.
+        tests:
+          - not_null
       - name: nota_empenho
         description: >
           Número da nota de empenho registrada no sistema.
