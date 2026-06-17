@@ -1,8 +1,10 @@
+from ftplib import error_perm
+
 import pytest
 from unittest.mock import patch, MagicMock
 from cliente_ibge import ClienteIBGE
 
-DB = "teste"
+DB = "test"
 FTP_HOST = "ftp.ibge.gov.br"
 BASE_DIR = "/Censos/Censo_Demografico_2022/"
 
@@ -30,7 +32,7 @@ def test_init_cliente_ibge(cliente_ibge):
 # ---------------------------------------------------------------------------
 
 
-def test_conectar_estabelece_conexao(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
+def test_conectar_establishes_connection(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
 
     with cliente_ibge._conectar() as ftp:
         assert ftp == mock_ftp
@@ -44,14 +46,34 @@ def test_conectar_estabelece_conexao(cliente_ibge: ClienteIBGE, mock_ftp) -> Non
     mock_ftp.close.assert_not_called()
 
 
-def test_conectar_trata_excecao_conexao(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
-    mock_ftp.connect.side_effect = Exception("Erro de conexão")
+def test_conectar_establishes_connection_with_subpath(
+    cliente_ibge: ClienteIBGE, mock_ftp
+) -> None:
+
+    with cliente_ibge._conectar(subcaminho="subfolder") as ftp:
+        assert ftp == mock_ftp
+
+    mock_ftp.connect.assert_called_once_with(FTP_HOST)
+    mock_ftp.login.assert_called_once_with(user="anonymous", passwd="anonymous@")
+    mock_ftp.set_pasv.assert_called_once_with(True)
+    mock_ftp.cwd.assert_called_once_with(BASE_DIR + DB + "/subfolder")
+
+    mock_ftp.quit.assert_called_once()
+    mock_ftp.close.assert_not_called()
+
+
+def test_conectar_handles_connection_exception(
+    cliente_ibge: ClienteIBGE, mock_ftp
+) -> None:
+
+    error_msg = "Connection error"
+    mock_ftp.connect.side_effect = Exception(error_msg)
 
     with pytest.raises(Exception) as exc_info:
         with cliente_ibge._conectar():
             pass
 
-    assert str(exc_info.value) == "Erro de conexão"
+    assert str(exc_info.value) == error_msg
     mock_ftp.connect.assert_called_once_with(FTP_HOST)
     mock_ftp.login.assert_not_called()
     mock_ftp.set_pasv.assert_not_called()
@@ -60,8 +82,8 @@ def test_conectar_trata_excecao_conexao(cliente_ibge: ClienteIBGE, mock_ftp) -> 
     mock_ftp.close.assert_not_called()
 
 
-def test_conectar_trata_excecao_quit(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
-    mock_ftp.quit.side_effect = Exception("Erro ao fechar conexão")
+def test_conectar_handles_quit_exception(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
+    mock_ftp.quit.side_effect = Exception("Error closing connection")
 
     with cliente_ibge._conectar():
         pass
@@ -75,36 +97,45 @@ def test_conectar_trata_excecao_quit(cliente_ibge: ClienteIBGE, mock_ftp) -> Non
 # ---------------------------------------------------------------------------
 
 
-def test_listar_arquivos_alvo_filtra_arquivos(
-    cliente_ibge: ClienteIBGE, mock_ftp
-) -> None:
+def test_listar_arquivos_alvo_filters_files(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
+    """
+    -> Normal execution with a mix of target and non-target files in the listing.
+    """
     mock_ftp.nlst.return_value = [
-        "dados.xlsx",
-        "dados.csv",
-        "dados.txt",
-        "imagem.png",
-        "relatorio.xls",
+        "data.xlsx",
+        "data.csv",
+        "data.txt",
+        "image.png",
+        "report.xls",
     ]
 
-    arquivos = cliente_ibge.listar_arquivos_alvo()
-    assert arquivos == ["dados.xlsx", "dados.csv", "relatorio.xls"]
+    files = cliente_ibge.listar_arquivos_alvo()
+    assert files == ["data.xlsx", "data.csv", "report.xls"]
     mock_ftp.nlst.assert_called_once()
 
 
-def test_listar_arquivos_alvo_sem_arquivos(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
-    mock_ftp.nlst.return_value = ["dados.txt", "imagem.png"]
+def test_listar_arquivos_alvo_without_files(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
+    mock_ftp.nlst.return_value = ["data.txt", "image.png"]
 
-    arquivos = cliente_ibge.listar_arquivos_alvo()
-    assert arquivos == []
+    files = cliente_ibge.listar_arquivos_alvo()
+    assert files == []
     mock_ftp.nlst.assert_called_once()
 
 
-def test_listar_arquivos_alvo_trata_excecao(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
-    mock_ftp.nlst.side_effect = Exception("Erro ao listar arquivos")
+def test_listar_arquivos_alvo_handles_exception(
+    cliente_ibge: ClienteIBGE, mock_ftp, caplog
+) -> None:
 
-    arquivos = cliente_ibge.listar_arquivos_alvo()
-    assert arquivos == []
+    error_msg = "Error listing files"
+    mock_ftp.nlst.side_effect = Exception(error_msg)
+
+    with caplog.at_level("ERROR"):
+        files = cliente_ibge.listar_arquivos_alvo()
+
+    assert files == []
     mock_ftp.nlst.assert_called_once()
+
+    assert error_msg in caplog.text
 
 
 # ---------------------------------------------------------------------------
@@ -112,63 +143,269 @@ def test_listar_arquivos_alvo_trata_excecao(cliente_ibge: ClienteIBGE, mock_ftp)
 # ---------------------------------------------------------------------------
 
 
-def test_listar_arquivos_em_subpastas_com_sucesso(
+def test_listar_arquivos_em_subpastas_successfully(
     cliente_ibge: ClienteIBGE, mock_ftp
 ) -> None:
+    """
+    -> Normal execution with valid files in subfolders.
+        --> validates subfolder slash trimming with strip()
+        --> ignores non-target files and directories in the listing
+    """
 
     mock_ftp.nlst.side_effect = [
-        [".", "..", "dado_A.xlsx", "leia_me.txt"],
-        ["dado_B1.csv", "dado_B2.xls"],
-        ["dado_C.pdf"],
+        [".", "..", "data_A.xlsx", "leia_me.txt"],
+        ["data_B1.csv", "data_B2.xls"],
+        ["data_C.pdf"],
     ]
 
-    resultado = cliente_ibge.listar_arquivos_em_subpastas(
-        subpastas=["pastaA", "pastaB", "pastaC"],
+    result = cliente_ibge.listar_arquivos_em_subpastas(
+        subpastas=["folderA", "folderB", "folderC"],
         extensoes=(".xlsx", ".xls", ".csv"),
         formato_preferido="xlsx",
     )
 
-    expect_resultado = [
-        {"subcaminho": "pastaA/xlsx", "arquivo": "dado_A.xlsx"},
-        {"subcaminho": "pastaB/xlsx", "arquivo": "dado_B1.csv"},
-        {"subcaminho": "pastaB/xlsx", "arquivo": "dado_B2.xls"},
+    expected_result = [
+        {"subcaminho": "folderA/xlsx", "arquivo": "data_A.xlsx"},
+        {"subcaminho": "folderB/xlsx", "arquivo": "data_B1.csv"},
+        {"subcaminho": "folderB/xlsx", "arquivo": "data_B2.xls"},
     ]
 
-    assert resultado == expect_resultado
+    assert result == expected_result
 
-    # 1 chamada para cada subpasta + 1 chamada para o diretório base
+    # 1 call for each subfolder + 1 call for the base directory
     assert mock_ftp.cwd.call_count == 4
 
-    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/pastaA/xlsx")
-    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/pastaB/xlsx")
-    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/pastaC/xlsx")
+    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/folderA/xlsx")
+    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/folderB/xlsx")
+    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/folderC/xlsx")
 
     assert mock_ftp.nlst.call_count == 3
 
 
-def test_listar_arquivos_em_subpastas_sem_formato_preferido(
+def test_listar_arquivos_em_subpastas_without_preferred_format(
     cliente_ibge: ClienteIBGE, mock_ftp
 ) -> None:
     mock_ftp.nlst.side_effect = [
-        ["dado_A.xlsx", "dado_B.csv", "dado_C.txt"],
-        ["leia_me.txt"],
+        ["data_A1.xlsx", "data_A2.csv", "data_A3.txt"],
+        ["readme.txt"],
     ]
 
-    resultado = cliente_ibge.listar_arquivos_em_subpastas(
-        subpastas=["pastaA", "pastaB"],
+    result = cliente_ibge.listar_arquivos_em_subpastas(
+        subpastas=["folderA", "folderB"],
         extensoes=(".xlsx", ".csv"),
         formato_preferido=None,
     )
 
-    expect_resultado = [
-        {"subcaminho": "pastaA", "arquivo": "dado_A.xlsx"},
-        {"subcaminho": "pastaA", "arquivo": "dado_B.csv"},
+    expected_result = [
+        {"subcaminho": "folderA", "arquivo": "data_A1.xlsx"},
+        {"subcaminho": "folderA", "arquivo": "data_A2.csv"},
     ]
 
-    assert resultado == expect_resultado
+    assert result == expected_result
 
-    # 1 chamada para cada subpasta + 1 chamada para o diretório base
+    # 1 call for each subfolder + 1 call for the base directory
     assert mock_ftp.cwd.call_count == 3
-    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/pastaA")
-    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/pastaB")
+    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/folderA")
+    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/folderB")
     assert mock_ftp.nlst.call_count == 2
+
+
+def test_listar_arquivos_em_subpastas_without_valid_files(
+    cliente_ibge: ClienteIBGE, mock_ftp
+) -> None:
+    mock_ftp.nlst.side_effect = [
+        ["data_A.txt", "readme.txt"],
+        [".", "data_B.pdf", "subfolder"],
+    ]
+
+    result = cliente_ibge.listar_arquivos_em_subpastas(
+        subpastas=["folderA", "folderB"],
+        extensoes=(".xlsx", ".csv"),
+        formato_preferido=None,
+    )
+
+    assert result == []
+    # 1 call for each subfolder + 1 call for the base directory
+    assert mock_ftp.cwd.call_count == 3
+    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/folderA")
+    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/folderB")
+    assert mock_ftp.nlst.call_count == 2
+
+
+def test_listar_arquivos_em_subpastas_with_inaccessible_subfolder(
+    cliente_ibge: ClienteIBGE, mock_ftp, caplog
+) -> None:
+
+    error_msg = "550 Failed to change directory."
+
+    mock_ftp.cwd.side_effect = [
+        None,  # _conectar() to base directory
+        None,
+        error_perm(error_msg),
+    ]
+
+    mock_ftp.nlst.return_value = ["data_A.xlsx", "readme.txt"]
+
+    with caplog.at_level("WARNING"):
+        resultado = cliente_ibge.listar_arquivos_em_subpastas(
+            subpastas=["exists", "not-exists"],
+            extensoes=(".xlsx",),
+            formato_preferido="xlsx",
+        )
+
+    expected_result = [
+        {"subcaminho": "exists/xlsx", "arquivo": "data_A.xlsx"},
+    ]
+
+    assert resultado == expected_result
+
+    # 1 call for each subfolder + 1 call for the base directory
+    assert mock_ftp.cwd.call_count == 3
+    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/not-exists/xlsx")
+    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/exists/xlsx")
+    assert mock_ftp.nlst.call_count == 1
+
+    assert BASE_DIR + DB + "/not-exists/xlsx" in caplog.text
+    assert error_msg in caplog.text
+
+
+def test_listar_arquivos_em_subpastas_handles_exception(
+    cliente_ibge: ClienteIBGE, mock_ftp, caplog
+) -> None:
+
+    error_msg = "Error listing files"
+
+    mock_ftp.nlst.side_effect = Exception(error_msg)
+
+    with caplog.at_level("ERROR"):
+        resultado = cliente_ibge.listar_arquivos_em_subpastas(
+            subpastas=["folderA"],
+            extensoes=(".xlsx",),
+            formato_preferido="xlsx",
+        )
+
+    assert resultado == []
+    mock_ftp.cwd.assert_any_call(BASE_DIR + DB + "/folderA/xlsx")
+    mock_ftp.nlst.assert_called_once()
+
+    assert error_msg in caplog.text
+
+
+# ---------------------------------------------------------------------------
+# listar_arquivos_texto
+# ---------------------------------------------------------------------------
+
+
+def test_listar_arquivos_texto_successfully(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
+    """
+    -> Normal execution with text files present in the listing.
+        --> ignores missing input entries
+        --> validates subfolder slash trimming with strip()
+    """
+
+    entries = [
+        ("folderA", "index_a1.txt"),
+        ("folderA", "index_a2.txt"),
+        ("folderB", "dont_exist.txt"),
+        ("folderC/", "index_c.txt"),
+    ]
+
+    mock_ftp.nlst.side_effect = [
+        ["index_a1.txt"],
+        ["index_a2.txt"],
+        ["other.txt"],
+        ["index_c.txt"],
+    ]
+
+    result = cliente_ibge.listar_arquivos_texto(entries)
+
+    expected_result = [
+        {"subcaminho": "folderA", "arquivo": "index_a1.txt"},
+        {"subcaminho": "folderA", "arquivo": "index_a2.txt"},
+        {"subcaminho": "folderC", "arquivo": "index_c.txt"},
+    ]
+
+    assert result == expected_result
+    # 1 call for each entry + 1 call for the base directory
+    assert mock_ftp.cwd.call_count == 5
+    assert mock_ftp.nlst.call_count == 4
+
+
+def test_listar_arquivos_texto_without_existing_files(
+    cliente_ibge: ClienteIBGE, mock_ftp
+) -> None:
+    entries = [
+        ("folderA", "index_a.txt"),
+        ("folderB", "index_b.txt"),
+    ]
+
+    mock_ftp.nlst.side_effect = [
+        ["other.txt"],
+        ["another.txt"],
+    ]
+
+    result = cliente_ibge.listar_arquivos_texto(entries)
+
+    assert result == []
+    # 1 call for each entry + 1 call for the base directory
+    assert mock_ftp.cwd.call_count == 3
+    assert mock_ftp.nlst.call_count == 2
+
+
+def test_listar_arquivos_texto_invalid_folder(
+    cliente_ibge: ClienteIBGE, mock_ftp, caplog
+) -> None:
+
+    error_msg = "550 Failed to change directory."
+
+    entries = [
+        ("folderA", "index_a.pdf"),
+        ("invalid_folder", "index_b.pdf"),
+    ]
+
+    mock_ftp.cwd.side_effect = [
+        None,  # _conectar() to base directory
+        None,
+        error_perm(error_msg),
+    ]
+
+    mock_ftp.nlst.side_effect = [["index_a.pdf"]]
+
+    with caplog.at_level("WARNING"):
+        result = cliente_ibge.listar_arquivos_texto(entries)
+
+    expected_result = [
+        {"subcaminho": "folderA", "arquivo": "index_a.pdf"},
+    ]
+
+    assert result == expected_result
+    # 1 call for each entry + 1 call for the base directory
+    assert mock_ftp.cwd.call_count == 3
+    assert mock_ftp.nlst.call_count == 1
+
+    assert BASE_DIR + DB + "/invalid_folder" in caplog.text
+    assert error_msg in caplog.text
+
+
+def test_listar_arquivos_texto_handles_exception(
+    cliente_ibge: ClienteIBGE, mock_ftp, caplog
+) -> None:
+
+    entries = [
+        ("folderA", "index_a.pdf"),
+        ("folderB", "index_b.pdf"),
+    ]
+
+    error_msg = "Connection error"
+    mock_ftp.connect.side_effect = Exception(error_msg)
+
+    with caplog.at_level("ERROR"):
+        result = cliente_ibge.listar_arquivos_texto(entries)
+
+    assert result == []
+
+    mock_ftp.connect.assert_called_once()
+    mock_ftp.cwd.assert_not_called()
+    mock_ftp.nlst.assert_not_called()
+
+    assert error_msg in caplog.text
