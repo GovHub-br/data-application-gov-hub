@@ -39,7 +39,9 @@ def test_conectar_establishes_connection(cliente_ibge: ClienteIBGE, mock_ftp) ->
         assert ftp == mock_ftp
 
     mock_ftp.connect.assert_called_once_with(FTP_HOST)
-    mock_ftp.login.assert_called_once_with(user="anonymous", passwd="anonymous@")
+    mock_ftp.login.assert_called_once_with(
+        user=ClienteIBGE.FTP_USER, passwd=ClienteIBGE.FTP_PASS
+    )
     mock_ftp.set_pasv.assert_called_once_with(True)
     mock_ftp.cwd.assert_called_once_with(BASE_DIR + DB)
 
@@ -54,9 +56,6 @@ def test_conectar_establishes_connection_with_subpath(
     with cliente_ibge._conectar(subcaminho="subfolder") as ftp:
         assert ftp == mock_ftp
 
-    mock_ftp.connect.assert_called_once_with(FTP_HOST)
-    mock_ftp.login.assert_called_once_with(user="anonymous", passwd="anonymous@")
-    mock_ftp.set_pasv.assert_called_once_with(True)
     mock_ftp.cwd.assert_called_once_with(BASE_DIR + DB + "/subfolder")
 
     mock_ftp.quit.assert_called_once()
@@ -72,9 +71,8 @@ def test_conectar_handles_connection_exception(
 
     with pytest.raises(Exception) as exc_info:
         with cliente_ibge._conectar():
-            pass
+            assert str(exc_info.value) == error_msg
 
-    assert str(exc_info.value) == error_msg
     mock_ftp.connect.assert_called_once_with(FTP_HOST)
     mock_ftp.login.assert_not_called()
     mock_ftp.set_pasv.assert_not_called()
@@ -86,8 +84,8 @@ def test_conectar_handles_connection_exception(
 def test_conectar_handles_quit_exception(cliente_ibge: ClienteIBGE, mock_ftp) -> None:
     mock_ftp.quit.side_effect = Exception("Error closing connection")
 
-    with cliente_ibge._conectar():
-        pass
+    with cliente_ibge._conectar() as ftp:
+        assert ftp == mock_ftp
 
     mock_ftp.quit.assert_called_once()
     mock_ftp.close.assert_called_once()

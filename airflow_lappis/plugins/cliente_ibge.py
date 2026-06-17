@@ -13,6 +13,8 @@ from cliente_base import ClienteBase
 class ClienteIBGE(ClienteBase):
     FTP_HOST = "ftp.ibge.gov.br"
     BASE_DIR = "/Censos/Censo_Demografico_2022/"
+    FTP_USER = "anonymous"
+    FTP_PASS = "anonymous@"
 
     def __init__(self, database: str) -> None:
         self.host = ClienteIBGE.FTP_HOST
@@ -32,7 +34,7 @@ class ClienteIBGE(ClienteBase):
         ftp = FTP(timeout=30)  # NOSONAR
         try:
             ftp.connect(self.host)
-            resp = ftp.login(user="anonymous", passwd="anonymous@")
+            resp = ftp.login(user=self.FTP_USER, passwd=self.FTP_PASS)
             logging.info("[cliente_ibge] FTP login: %s", resp)
             ftp.set_pasv(True)
             ftp.cwd(full_path)
