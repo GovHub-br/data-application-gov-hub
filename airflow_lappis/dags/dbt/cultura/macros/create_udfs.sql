@@ -1,22 +1,33 @@
 {% macro create_udfs() %}
+{#
+  Cria/atualiza as UDFs do projeto via run_query, isolada do on-run-start.
 
-CREATE SCHEMA IF NOT EXISTS {{ target.schema }};
+  Antes, esta macro era chamada em todo on-run-start do dbt — como o Cosmos
+  dispara um processo dbt por task/modelo em paralelo, várias conexões
+  executavam CREATE OR REPLACE FUNCTION ao mesmo tempo, causando
+  "tuple concurrently updated" no catálogo pg_proc do Postgres.
 
-DO $do$
-BEGIN
-  -- Serializa a criação das UDFs entre threads paralelas do dbt/Cosmos.
-  -- Sem isso, múltiplas conexões tentam CREATE OR REPLACE FUNCTION ao mesmo
-  -- tempo, causando "tuple concurrently updated" no catálogo pg_proc.
-  PERFORM pg_advisory_lock(hashtext('{{ target.schema }}_create_udfs'));
+  Agora ela só deve ser chamada explicitamente, uma única vez, via:
+    dbt run-operation create_udfs
+  em uma task isolada do Airflow, executada antes das tasks de modelo
+  geradas pelo Cosmos — eliminando a concorrência na origem.
+#}
 
+{% set create_schema_sql %}
+  CREATE SCHEMA IF NOT EXISTS {{ target.schema }};
+{% endset %}
+{% do run_query(create_schema_sql) %}
+
+{% set parse_date_sql %}
   {{ create_f_parse_dates() }}
-  {{ create_f_format_nc() }}
+{% endset %}
+{% do run_query(parse_date_sql) %}
 
-  PERFORM pg_advisory_unlock(hashtext('{{ target.schema }}_create_udfs'));
-EXCEPTION WHEN OTHERS THEN
-  PERFORM pg_advisory_unlock(hashtext('{{ target.schema }}_create_udfs'));
-  RAISE;
-END;
-$do$;
+{% set format_nc_sql %}
+  {{ create_f_format_nc() }}
+{% endset %}
+{% do run_query(format_nc_sql) %}
+
+{% do log("UDFs criadas/atualizadas no schema " ~ target.schema, info=True) %}
 
 {% endmacro %}

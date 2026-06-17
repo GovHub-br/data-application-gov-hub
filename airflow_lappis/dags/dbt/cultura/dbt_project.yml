@@ -28,6 +28,3 @@ models:
         +materialized: incremental
       views:
         +materialized: view
-
-on-run-start:
-  - '{{ create_udfs() }}'
