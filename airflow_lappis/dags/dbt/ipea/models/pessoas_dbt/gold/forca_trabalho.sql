@@ -139,7 +139,14 @@ with
             ) as ordem_grandeza,
             coalesce(nomeunidade, nome_uorg_exercicio) as nomeunidade,
             coalesce(siglaunidade, sigla_uorg_exercicio) as siglaunidade,
-            coalesce(denominacao, nome_cargo) as nome_cargo,
+            -- Estagiários (ESTAGIARIO SIGEPE) não têm cod_funcao e portanto não têm
+            -- correspondência SIORG; usamos nome_cargo do SIAPE diretamente para
+            -- garantir que o campo não fique nulo nessa situação funcional.
+            case
+                when upper(pr.nome_situacao_funcional) = 'ESTAGIARIO SIGEPE'
+                then pr.nome_cargo
+                else coalesce(pr.denominacao, pr.nome_cargo)
+            end as nome_cargo,
             case
                 when cod_situacao_funcional = '04' then 'Nomeação livre' else 'Carreira'
             end as servidores_carreira,

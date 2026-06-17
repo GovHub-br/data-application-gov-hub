@@ -50,7 +50,7 @@ with
                 then 'Ativo em outro órgão'
                 else siglaunidade
             end as unidade_exercicio
-        from {{ ref("hierarquia") }} ph
+        from {{ ref("forca_trabalho") }} ph
         inner join {{ ref("dados_funcionais") }} df on ph.cpf = df.cpf
     ),
 
