@@ -518,25 +518,38 @@ def test_obter_conteudo_texto_decodes_utf8(
 ) -> None:
 
     file = "data.txt"
-    expected_text = "Cenário com acentuação: áéíóú ç"
 
-    mock_obter_conteudo.return_value = io.BytesIO(expected_text.encode("utf-8"))
+    mock_obter_conteudo.return_value = io.BytesIO(
+        b"Dados atuais com a\xc3\xa7\xc3\xa3o"  # "ação" in utf-8
+    )
 
     result = cliente_ibge.obter_conteudo_texto(file)
 
-    assert result == expected_text
+    assert result == "Dados atuais com ação"
     mock_obter_conteudo.assert_called_once_with(file, subcaminho="")
+
+
+def test_obter_conteudo_texto_decodes_cp1252_fallback(
+    cliente_ibge: ClienteIBGE, mock_obter_conteudo
+) -> None:
+
+    mock_obter_conteudo.return_value = io.BytesIO(
+        b"Dados Windows com a\xe7\xe3o"  # bytes (\xe7\xe3 == çã) doesnt exist in uft-8
+    )
+
+    result = cliente_ibge.obter_conteudo_texto("Windows.txt")
+
+    assert result == "Dados Windows com ação"
 
 
 def test_obter_conteudo_texto_decodes_latin1(
     cliente_ibge: ClienteIBGE, mock_obter_conteudo
 ) -> None:
 
-    file = "unsualfile.txt"
-    expected_text = "Cenário latin-1: áéíóú"
+    mock_obter_conteudo.return_value = io.BytesIO(
+        b"Dado \x81 legado"  # \x81 causes error in uft-8 AND cp1252
+    )
 
-    mock_obter_conteudo.return_value = io.BytesIO(expected_text.encode("latin-1"))
+    result = cliente_ibge.obter_conteudo_texto("unsualfile.txt")
 
-    result = cliente_ibge.obter_conteudo_texto(file)
-
-    assert result == expected_text
+    assert result == "Dado \x81 legado"

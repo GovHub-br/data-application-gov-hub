@@ -174,17 +174,16 @@ class ClienteIBGE(ClienteBase):
             logging.error("[cliente_ibge] Erro ao baixar '%s': %s", nome_arquivo, exc)
             return None
 
-    def obter_conteudo_texto(
-        self, nome_arquivo: str, subcaminho: str = ""
-    ) -> str | None:
+    def obter_conteudo_texto(self, nome_arquivo: str, subcaminho: str = "") -> str | None:
         """Baixa um arquivo de texto do FTP e retorna o conteúdo decodificado."""
         buffer = self.obter_conteudo_arquivo(nome_arquivo, subcaminho=subcaminho)
         if not buffer:
             return None
         raw = buffer.read()
-        for encoding in ("utf-8", "latin-1", "cp1252"):
+        for encoding in ("utf-8", "cp1252"):
             try:
                 return raw.decode(encoding)
             except UnicodeDecodeError:
                 continue
-        return raw.decode("latin-1", errors="replace")
+
+        return raw.decode("latin-1")
