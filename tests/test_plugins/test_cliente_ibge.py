@@ -485,3 +485,58 @@ def test_obter_conteudo_arquivo_handles_exception(
     assert buffer is None
     mock_ftp.retrbinary.assert_called_once()
     assert error_msg in caplog.text
+
+
+# ---------------------------------------------------------------------------
+# obter_conteudo_texto
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def mock_obter_conteudo(cliente_ibge: ClienteIBGE):
+    with patch.object(cliente_ibge, "obter_conteudo_arquivo") as mock_metodo:
+        yield mock_metodo
+
+
+def test_obter_conteudo_texto_with_nonexistent_file(
+    cliente_ibge: ClienteIBGE, mock_obter_conteudo
+) -> None:
+
+    file = "nonexistent.txt"
+    subpath = "folder/subfolder"
+
+    mock_obter_conteudo.return_value = None
+
+    result = cliente_ibge.obter_conteudo_texto(file, subcaminho=subpath)
+
+    assert result is None
+    mock_obter_conteudo.assert_called_once_with(file, subcaminho=subpath)
+
+
+def test_obter_conteudo_texto_decodes_utf8(
+    cliente_ibge: ClienteIBGE, mock_obter_conteudo
+) -> None:
+
+    file = "data.txt"
+    expected_text = "Cenário com acentuação: áéíóú ç"
+
+    mock_obter_conteudo.return_value = io.BytesIO(expected_text.encode("utf-8"))
+
+    result = cliente_ibge.obter_conteudo_texto(file)
+
+    assert result == expected_text
+    mock_obter_conteudo.assert_called_once_with(file, subcaminho="")
+
+
+def test_obter_conteudo_texto_decodes_latin1(
+    cliente_ibge: ClienteIBGE, mock_obter_conteudo
+) -> None:
+
+    file = "unsualfile.txt"
+    expected_text = "Cenário latin-1: áéíóú"
+
+    mock_obter_conteudo.return_value = io.BytesIO(expected_text.encode("latin-1"))
+
+    result = cliente_ibge.obter_conteudo_texto(file)
+
+    assert result == expected_text
