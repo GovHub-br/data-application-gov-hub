@@ -1,0 +1,85 @@
+version: 2
+
+models:
+  - name: sgac_relatorio_termino_vigencia_2025
+    description: >
+      Relatório gold no layout da planilha de controle de término de vigência,
+      usando dados confiáveis do SGAC.
+    meta:
+      tags:
+        - gold
+        - sgac
+        - relatorio
+    columns:
+      - name: diretoria
+        description: Diretoria responsável pelo instrumento.
+      - name: instrumento
+        description: Tipo de instrumento registrado no SGAC.
+      - name: objeto
+        description: Objeto do instrumento.
+      - name: entidades_externas
+        description: Entidades externas envolvidas.
+      - name: inicio
+        description: Data de início do instrumento.
+      - name: conclusao
+        description: Data de conclusão ou vencimento do instrumento.
+      - name: recursos_externos
+        description: Valor de recursos externos conforme campo orçamentário do SGAC.
+      - name: recursos_ipea
+        description: Valor de recursos IPEA conforme campo não orçamentário do SGAC.
+      - name: numero_do_processo
+        description: Número do processo SEI associado.
+      - name: coordenador
+        description: Coordenador registrado no SGAC.
+      - name: fiscal_e_substituto
+        description: Fiscal e substituto com marcações HTML básicas removidas.
+      - name: situacao
+        description: Situação do instrumento no SGAC.
+
+  - name: sgac_relatorio_teds_vigentes
+    description: >
+      Relatório gold no layout da planilha de TEDs vigentes. Usa dados do SGAC
+      e complementa valores financeiros apenas pelo cruzamento validável com
+      número SIAFI.
+    meta:
+      tags:
+        - gold
+        - sgac
+        - relatorio
+    columns:
+      - name: entidades_externas
+        description: Entidades externas envolvidas.
+      - name: instrumento
+        description: Tipo de instrumento registrado no SGAC.
+      - name: diretoria
+        description: Diretoria responsável pelo instrumento.
+      - name: inicio_execucao
+        description: Data de início da execução.
+      - name: data_de_conclusao
+        description: Data de conclusão ou vencimento.
+      - name: numero_do_processo
+        description: Número do processo SEI associado.
+      - name: recursos_externos
+        description: Valor de recursos externos conforme campo orçamentário do SGAC.
+      - name: recursos_ipea
+        description: Valor de recursos IPEA conforme campo não orçamentário do SGAC.
+      - name: numero_siafi
+        description: Número SIAFI registrado no SGAC.
+      - name: termos_aditivos
+        description: Informação de termos aditivos registrada no SGAC.
+      - name: apostilamentos
+        description: Campo presente na planilha de referência; não existe no SGAC.
+      - name: prorrogacao_oficio
+        description: Campo presente na planilha de referência; não existe no SGAC.
+      - name: planejamento_diarias_passagens
+        description: Campo presente na planilha de referência; não existe no SGAC.
+      - name: pago
+        description: Valor pago derivado do cruzamento por número SIAFI, quando houver.
+      - name: pendente_de_pagamento
+        description: Diferença entre valor firmado/total e valor pago no cruzamento por número SIAFI, quando houver.
+      - name: situacao
+        description: Situação do instrumento no SGAC.
+      - name: sgac_id
+        description: Identificador do item no SGAC.
+      - name: eh_ted
+        description: Indica se o instrumento foi classificado como TED ou dispensa de TED.
