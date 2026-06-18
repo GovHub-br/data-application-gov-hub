@@ -197,3 +197,53 @@ models:
         description: Total de processos com bolsa ativa.
       - name: usuario_criacao
         description: Usuário que criou a chamada pública.
+
+  - name: sgac_teds_siafi
+    description: >
+      Cruzamento conservador entre TEDs do SGAC e dados SIAFI/TransfereGov
+      usando apenas o número SIAFI informado em `sgac_projetos_sgac` contra
+      o número de transferência (`num_transf`).
+      Não utiliza número de processo SEI como chave de integração.
+    meta:
+      tags:
+        - silver
+        - sgac
+        - siafi
+        - ted
+    columns:
+      - name: sgac_id
+        description: Identificador do item no SGAC.
+      - name: titulo
+        description: Título do projeto no SGAC.
+      - name: instrumento
+        description: Tipo de instrumento registrado no SGAC.
+      - name: numero_do_proc
+        description: Número do processo SEI mantido apenas como atributo informativo.
+      - name: numero_siafi
+        description: Número SIAFI usado como chave de integração.
+      - name: data_inicio
+        description: Data de início registrada no SGAC.
+      - name: data_vencimento
+        description: Data de vencimento registrada no SGAC.
+      - name: diretoria_responsavel
+        description: Diretoria responsável registrada no SGAC.
+      - name: fiscal_e_substituto
+        description: Fiscal e substituto registrados no SGAC.
+      - name: total_de_recursos
+        description: Valor total de recursos registrado no SGAC.
+      - name: plano_acao
+        description: Plano de ação correspondente ao número SIAFI, quando encontrado.
+      - name: num_transf
+        description: Número de transferência usado como chave de integração com o número SIAFI do SGAC.
+      - name: sq_instrumento
+        description: Sequencial do instrumento mantido apenas como atributo informativo do Plano de Ação.
+      - name: valor_firmado
+        description: Valor firmado no cruzamento SIAFI/TransfereGov.
+      - name: despesas_pagas_exercicio
+        description: Despesas pagas no exercício.
+      - name: despesas_pagas_rap
+        description: Despesas pagas de restos a pagar.
+      - name: chave_match
+        description: Chave utilizada no cruzamento, sempre `numero_siafi`.
+      - name: caminho_match
+        description: Descrição do caminho de integração utilizado.
