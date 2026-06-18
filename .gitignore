@@ -56,5 +56,4 @@ Thumbs.db
 
 # Airflow local files
 airflow.db
-airflow.cfg
 webserver_config.py

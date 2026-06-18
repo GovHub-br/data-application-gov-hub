@@ -32,104 +32,79 @@ Esse trabalho  é mantido pelo [Lab Livre](https://www.instagram.com/lab.livre/)
 Para dúvidas, sugestões ou para contribuir com o projeto, entre em contato conosco: [lablivreunb@gmail.com](mailto:lablivreunb@gmail.com)
 
 
-# Data Pipeline Project
+# Data Application MinC
 
-This project implements a modern data stack using Airflow, dbt, Jupyter, and Superset for data orchestration, transformation, analysis, and visualization.
+Este repositório organiza a aplicação de dados em torno do Airflow e do dbt. A
+raiz contém o código executado pelo Airflow; a pasta `infra/` concentra Docker,
+Compose e arquivos de suporte para o ambiente local.
 
-## 🚀 Stack Components
+## Stack
 
-- **Apache Airflow**: Workflow orchestration
-- **dbt**: Data transformation
-- **Jupyter**: Interactive data analysis
-- **Apache Superset**: Data visualization and exploration
-- **Docker**: Containerization and local development
-- **Make**: Build automation and setup
+- **Apache Airflow**: orquestração dos pipelines
+- **dbt**: transformação dos dados
+- **PostgreSQL**: banco local para desenvolvimento
+- **Docker Compose**: execução local dos serviços
+- **Make**: automação de comandos de desenvolvimento
 
-## 📋 Prerequisites
+## Estrutura
 
-- Docker and Docker Compose
-- Make
-- Python 3.x
-- Git
-
-## 🔧 Setup
-
-1. Clone the repository:
-```bash
-git clone git@gitlab.com:lappis-unb/gest-odadosipea/app-lappis-ipea.git
-cd app-lappis-ipea
+```text
+.
+├── dags/                 # DAGs carregadas pelo Airflow
+│   ├── data_ingest/
+│   ├── dashboards/
+│   └── dbt/              # DAGs Cosmos que executam os projetos dbt
+├── dbt/                  # Projetos dbt fora do parser de DAGs
+│   ├── ipea/
+│   └── mir/
+├── helpers/              # Utilitários importados pelas DAGs
+├── plugins/              # Clientes e extensões usados pelo Airflow
+├── templates/            # Templates Jinja/XML usados pelos clientes
+├── infra/                # Docker, compose, Airflow config e init de banco
+├── tests/
+├── Makefile
+├── pyproject.toml
+└── requirements.txt
 ```
 
-2. Run the setup using Make:
+## Setup
+
 ```bash
 make setup
 ```
 
-This will:
-- Create necessary virtual environments
-- Install dependencies
-- Set up pre-commit hooks
-- Configure development environment
+Para usar Docker Compose, mantenha um `.env` na raiz do projeto. Um exemplo de
+variáveis esperadas está em `infra/env/.env.example`.
 
-## 🏃‍♂️ Running Locally
-
-Start all services using Docker Compose:
+## Rodando Localmente
 
 ```bash
-docker-compose up -d
+make up
 ```
 
-Access the different components:
+Serviços principais:
+
 - Airflow: http://localhost:8080
-- Jupyter: http://localhost:8888
-- Superset: http://localhost:8088
+- Airflow MCP: http://localhost:8000
+- PostgreSQL: localhost:5432
 
-## 💻 Development
+Comandos úteis:
 
-### Code Quality
-
-This project uses several tools to maintain code quality:
-- Pre-commit hooks
-- Linting configurations
-- Automated testing
-
-Run linting checks:
 ```bash
-make lint
+make compose-config
+make logs-airflow
+make down
 ```
 
-Run tests:
+## Desenvolvimento
+
 ```bash
+make format
+make lint
 make test
 ```
 
-### Project Structure
-
-```
-.
-├── airflow/
-│   ├── dags/
-│   └── plugins/
-├── dbt/
-│   └── models/
-├── jupyter/
-│   └── notebooks/
-├── superset/
-│   └── dashboards/
-├── docker-compose.yml
-├── Makefile
-└── README.md
-```
-
-### Makefile Commands
-
-- `make setup`: Initial project setup
-- `make lint`: Run linting checks
-- `make tests`: Run test suite
-- `make clean`: Clean up generated files
-- `make build`: Build Docker images
-
-## 🔐 Git Workflow
+## Git Workflow
 
 This project requires signed commits. To set up GPG signing:
 
@@ -146,13 +121,12 @@ git config --global commit.gpgsign true
 
 3. Add your GPG key to your GitLab account
 
-## 📚 Documentation
+## Documentation
 
 - [Airflow Documentation](https://airflow.apache.org/docs/)
 - [dbt Documentation](https://docs.getdbt.com/)
-- [Superset Documentation](https://superset.apache.org/docs/intro)
 
-## 🤝 Contributing
+## Contributing
 
 1. Create a new branch for your feature
 2. Make changes and ensure all tests pass

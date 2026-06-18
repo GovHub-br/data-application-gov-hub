@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: models_metadata
+    description: Metadados dos modelos dbt do projeto MinC.
+    columns:
+      - name: schema_name
+        tests:
+          - not_null
+      - name: table_name
+        tests:
+          - not_null
+      - name: database_name
+      - name: materialization
+      - name: description
+      - name: dt_transform
+        tests:
+          - not_null
+      - name: run_id

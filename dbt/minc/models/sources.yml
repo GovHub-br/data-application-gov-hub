@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: transferegov_fundo_a_fundo
+    schema: transferegov_fundo_a_fundo
+    tables:
+      - name: raw_programas
+      - name: raw_planos_acao
+      - name: relatorios_gestao
+      - name: anexos_relatorios
