@@ -19,10 +19,9 @@ pandas = "*"
 requests = "*"
 zeep = "*"
 imap-tools = "*"
-astronomer-cosmos = "*"
+astronomer-cosmos = "1.14.2"
 odfpy = "^1.4.1"
 python-calamine = "^0.6.2"
-astronomer-cosmos = "1.14.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
