@@ -21,6 +21,9 @@ models:
         description: >
           Identificador único do deputado na API da Câmara.
           Utilizado como chave primária e referência para relacionamentos com outras tabelas.
+        tests:
+          - unique
+          - not_null
 
       - name: nome
         description: >
@@ -107,6 +110,9 @@ models:
         description: >
           Identificador único do senador na API do Senado Federal.
           Utilizado como chave primária e referência para relacionamentos com outras tabelas.
+        tests:
+          - unique
+          - not_null
 
       - name: nome_parlamentar
         description: >
@@ -210,6 +216,9 @@ models:
       - name: id
         description: >
           Identificador único da legislatura na API da Câmara dos Deputados.
+        tests:
+          - unique
+          - not_null
 
       - name: data_inicio
         description: >
@@ -265,12 +274,25 @@ models:
     columns:
       - name: id
         description: Identificador do deputado na Câmara.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('deputados')
+              field: id
+              config:
+                severity: warn
       - name: nome
         description: Nome oficial do deputado na API da Câmara.
       - name: sigla_partido
         description: Partido politico atrelado ao registro do histórico de filiação.
       - name: id_legislatura
         description: Código numérico referente a legislatura do evento histórico do deputado.
+        tests:
+          - relationships:
+              to: ref('legislaturas')
+              field: id
+              config:
+                severity: warn
       - name: situacao
         description: Situação legal ou institucional durante aquele período (ex. Exercício, Afastado, Licença, etc).
       - name: data_filiacao
@@ -318,6 +340,13 @@ models:
     columns:
       - name: parlamentar_id
         description: Identificador base do senador.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('senadores')
+              field: id
+              config:
+                severity: warn
       - name: codigo_partido
         description: Código associado com o registro partidário original do Senado.
       - name: sigla_partido

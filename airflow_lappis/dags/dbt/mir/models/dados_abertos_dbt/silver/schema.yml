@@ -14,6 +14,8 @@ models:
         description: >
           Identificador único do parlamentar na base unificada
           de deputados e senadores.
+        tests:
+          - not_null
       - name: chave_join_nome
         description: >
           Chave de junção padronizada (nome em caixa alta e trimado),
@@ -24,6 +26,8 @@ models:
       - name: cargo_parlamentar
         description: >
           Cargo do parlamentar (por exemplo, Deputado ou Senador).
+        tests:
+          - not_null
       - name: sigla_partido
         description: >
           Sigla do partido ao qual o parlamentar está filiado.
@@ -41,6 +45,10 @@ models:
           URL da imagem (logo) do partido do parlamentar,
           proveniente do seed partidos_logo.
     tests:
+      # Chave primária composta: a base unifica deputados e senadores via 
+      # UNION ALL, portanto o id só é único quando combinado com o cargo.
+      - unique:
+          column_name: "(id_parlamentar::text || '-' || cargo_parlamentar)"
       - verificacao_tipagem:
           nome_tabela: 'dados_abertos.parlamentares'
           nome_coluna: 'id_parlamentar'
@@ -88,12 +96,16 @@ models:
     columns:
       - name: id_parlamentar
         description: Identificador base unificado que representa o político (proveniente da Câmara ou Senado).
+        tests:
+          - not_null
       - name: chave_join_nome
         description: Chave string de junção formatada em caixa alta e conversões 'unaccent' na rotina TRANSLATE projetada para merge rústico.
       - name: nome_parlamentar
         description: Nome extenso original proveniente da camada bronze agregada.
       - name: cargo_parlamentar
         description: Atribuição legal do período ('Deputado' ou 'Senador').
+        tests:
+          - not_null
       - name: sigla_partido
         description: Partido representativo desta dimensão temporal do parlamentar com padronização via mapas canônicos.
       - name: uf_parlamentar
