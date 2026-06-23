@@ -454,3 +454,231 @@ models:
           nome_tabela: 'siconv_dbt.proposta_convenio'
           nome_coluna: 'vl_global_prop'
           tipo_esperado: 'numeric'
+
+  - name: termo_fomento
+    description: >
+      Tabela da camada silver dedicada exclusivamente a termos de fomento do SICONV.
+      Filtra apenas registros cuja modalidade seja 'TERMO DE FOMENTO' na tabela de
+      propostas, consolidando os principais atributos do instrumento e enriquecendo
+      os dados com informações agregadas de empenhos, desembolsos, pagamentos,
+      programas associados e última situação registrada no histórico.
+      O modelo utiliza INNER JOIN com a proposta para garantir que apenas termos de
+      fomento sejam incluídos, e LEFT JOINs com tabelas de enriquecimento agregadas
+      para evitar duplicação indevida de registros.
+    meta:
+      tags:
+        - silver
+    columns:
+      # Dados do instrumento (convênio)
+      - name: nr_convenio
+        description: "Número do convênio/termo de fomento."
+      - name: id_proposta
+        description: "Identificador único da proposta que originou o termo de fomento."
+      - name: dia_conv
+        description: "Dia de assinatura do termo de fomento."
+      - name: mes_conv
+        description: "Mês de assinatura do termo de fomento."
+      - name: ano_conv
+        description: "Ano de assinatura do termo de fomento."
+      - name: dia_assin_conv
+        description: "Data de assinatura do termo de fomento."
+      - name: sit_convenio
+        description: "Situação do termo de fomento."
+      - name: subsituacao_conv
+        description: "Subsituação do termo de fomento."
+      - name: situacao_publicacao
+        description: "Situação de publicação do termo de fomento."
+      - name: instrumento_ativo
+        description: "Indica se o instrumento está ativo."
+      - name: ind_opera_obtv
+        description: "Indicador de operação OBTV."
+      - name: nr_processo
+        description: "Número do processo."
+      - name: ug_emitente
+        description: "Código da UG emitente."
+      - name: dia_publ_conv
+        description: "Data de publicação do termo de fomento."
+      - name: dia_inic_vigenc_conv
+        description: "Data de início da vigência do termo de fomento."
+      - name: dia_fim_vigenc_conv
+        description: "Data de fim da vigência do termo de fomento."
+      - name: dia_fim_vigenc_original_conv
+        description: "Data de fim da vigência original do termo de fomento."
+      - name: dias_prest_contas
+        description: "Prazo em dias para prestação de contas."
+      - name: dia_limite_prest_contas
+        description: "Data limite para prestação de contas."
+      - name: data_suspensiva
+        description: "Data da cláusula suspensiva."
+      - name: data_retirada_suspensiva
+        description: "Data de retirada da cláusula suspensiva."
+      - name: dias_clausula_suspensiva
+        description: "Dias de cláusula suspensiva."
+      - name: situacao_contratacao
+        description: "Situação da contratação."
+      - name: ind_assinado
+        description: "Indica se o termo de fomento foi assinado."
+      - name: motivo_suspensao
+        description: "Motivo da suspensão do termo de fomento."
+      - name: ind_foto
+        description: "Indica se há foto associada."
+      - name: qtde_convenios
+        description: "Quantidade de convênios."
+      - name: qtd_ta
+        description: "Quantidade de termos aditivos."
+      - name: qtd_prorroga
+        description: "Quantidade de prorrogações."
+      # Valores financeiros do instrumento
+      - name: vl_global_conv
+        description: "Valor global do termo de fomento."
+      - name: vl_repasse_conv
+        description: "Valor de repasse do termo de fomento."
+      - name: vl_contrapartida_conv
+        description: "Valor de contrapartida do termo de fomento."
+      - name: vl_empenhado_conv
+        description: "Valor empenhado do termo de fomento."
+      - name: vl_desembolsado_conv
+        description: "Valor desembolsado do termo de fomento."
+      - name: vl_saldo_reman_tesouro
+        description: "Valor do saldo remanescente do tesouro."
+      - name: vl_saldo_reman_convenente
+        description: "Valor do saldo remanescente do convenente."
+      - name: vl_rendimento_aplicacao
+        description: "Valor do rendimento de aplicação."
+      - name: vl_ingresso_contrapartida
+        description: "Valor de ingresso de contrapartida."
+      - name: vl_saldo_conta
+        description: "Valor do saldo em conta."
+      - name: valor_global_original_conv
+        description: "Valor global original do termo de fomento."
+      # Dados do proponente (proposta)
+      - name: uf_proponente
+        description: "Unidade Federativa do proponente."
+      - name: munic_proponente
+        description: "Município do proponente."
+      - name: cod_munic_ibge
+        description: "Código IBGE do município."
+      - name: cod_orgao_sup
+        description: "Código do órgão superior (concedente)."
+      - name: desc_orgao_sup
+        description: "Descrição do órgão superior (concedente)."
+      - name: natureza_juridica
+        description: "Natureza jurídica do proponente."
+      - name: nr_proposta
+        description: "Número da proposta."
+      - name: dia_proposta
+        description: "Data da proposta."
+      - name: cod_orgao
+        description: "Código do órgão concedente."
+      - name: desc_orgao
+        description: "Descrição do órgão concedente."
+      - name: modalidade
+        description: "Modalidade da proposta (sempre 'TERMO DE FOMENTO')."
+      - name: identif_proponente
+        description: "Identificação do proponente (CNPJ/CPF)."
+      - name: nm_proponente
+        description: "Nome do proponente."
+      - name: cep_proponente
+        description: "CEP do proponente."
+      - name: endereco_proponente
+        description: "Endereço do proponente."
+      - name: bairro_proponente
+        description: "Bairro do proponente."
+      - name: nm_banco
+        description: "Nome do banco."
+      - name: situacao_conta
+        description: "Situação da conta bancária."
+      - name: situacao_projeto_basico
+        description: "Situação do projeto básico."
+      - name: sit_proposta
+        description: "Situação da proposta."
+      - name: dia_inic_vigencia_proposta
+        description: "Data de início da vigência da proposta."
+      - name: dia_fim_vigencia_proposta
+        description: "Data de fim da vigência da proposta."
+      - name: objeto_proposta
+        description: "Objeto da proposta."
+      - name: item_investimento
+        description: "Item de investimento."
+      - name: enviada_mandataria
+        description: "Indica se foi enviada à mandatária."
+      - name: nome_subtipo_proposta
+        description: "Nome do subtipo da proposta."
+      - name: descricao_subtipo_proposta
+        description: "Descrição do subtipo da proposta."
+      - name: vl_global_prop
+        description: "Valor global da proposta."
+      - name: vl_repasse_prop
+        description: "Valor de repasse da proposta."
+      - name: vl_contrapartida_prop
+        description: "Valor de contrapartida da proposta."
+      # Enriquecimento: empenhos agregados
+      - name: qtd_empenhos
+        description: "Quantidade total de empenhos vinculados ao termo de fomento."
+      - name: vl_total_empenhos
+        description: "Valor total dos empenhos vinculados ao termo de fomento."
+      - name: data_primeiro_empenho
+        description: "Data do primeiro empenho registrado."
+      - name: data_ultimo_empenho
+        description: "Data do último empenho registrado."
+      # Enriquecimento: desembolsos agregados
+      - name: qtd_desembolsos
+        description: "Quantidade total de desembolsos realizados."
+      - name: vl_total_desembolsos
+        description: "Valor total desembolsado."
+      - name: data_primeiro_desembolso
+        description: "Data do primeiro desembolso realizado."
+      - name: data_ultimo_desembolso
+        description: "Data do último desembolso realizado."
+      - name: max_dias_sem_desembolso
+        description: "Máximo de dias sem desembolso registrado."
+      # Enriquecimento: pagamentos agregados
+      - name: qtd_pagamentos
+        description: "Quantidade total de pagamentos realizados."
+      - name: vl_total_pagamentos
+        description: "Valor total de pagamentos realizados."
+      - name: data_primeiro_pagamento
+        description: "Data do primeiro pagamento."
+      - name: data_ultimo_pagamento
+        description: "Data do último pagamento."
+      # Enriquecimento: programa associado
+      - name: cod_programa_meta
+        description: "Código do programa de governo associado ao termo de fomento."
+      - name: nome_programa_meta
+        description: "Nome do programa de governo associado ao termo de fomento."
+      # Enriquecimento: última situação
+      - name: data_ultima_situacao
+        description: "Data da última situação registrada no histórico."
+      - name: ultima_situacao_desc
+        description: "Descrição da última situação registrada no histórico."
+      - name: cod_ultima_situacao
+        description: "Código da última situação registrada no histórico."
+    tests:
+      - verificacao_tipagem:
+          nome_tabela: 'siconv_dbt.termo_fomento'
+          nome_coluna: 'nr_convenio'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'siconv_dbt.termo_fomento'
+          nome_coluna: 'id_proposta'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'siconv_dbt.termo_fomento'
+          nome_coluna: 'vl_global_conv'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'siconv_dbt.termo_fomento'
+          nome_coluna: 'vl_global_prop'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'siconv_dbt.termo_fomento'
+          nome_coluna: 'vl_total_empenhos'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'siconv_dbt.termo_fomento'
+          nome_coluna: 'vl_total_desembolsos'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'siconv_dbt.termo_fomento'
+          nome_coluna: 'vl_total_pagamentos'
+          tipo_esperado: 'numeric'
