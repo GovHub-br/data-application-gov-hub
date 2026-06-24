@@ -174,6 +174,118 @@ models:
           nome_coluna: 'vl_global_conv'
           tipo_esperado: 'numeric'
 
+  - name: convenios_consolidados
+    description: >
+      Tabela da camada silver que consolida os convênios do SICONV relacionados à
+      UG 810008. Inclui (a) todos os convênios cuja `ug_emitente` é 810008 na
+      tabela bronze `convenio` e (b) convênios adicionais identificados a partir
+      dos empenhos do Tesouro (`siafi.ne_tesouro`) cujo `ne_ccor` começa com
+      '810008' e cujo `ne_info_complementar` corresponde ao `nr_convenio`. O
+      `UNION DISTINCT` garante que não há duplicidade entre as duas fontes.
+      Esta tabela substitui a tabela `convenio` como base para todos os
+      cruzamentos da camada silver (proposta, desembolso, cronograma de
+      desembolso, desbloqueio, empenho, licitação, pagamento, pagamento de
+      tributo, ingresso de contrapartida, histórico de situação, meta /
+      cronograma físico, prorrogação de ofício, solicitação de alteração,
+      solicitação de rendimento de aplicação e termo aditivo).
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: nr_convenio
+        description: "Número do convênio."
+      - name: id_proposta
+        description: "Identificador único da proposta que originou o convênio."
+      - name: dia
+        description: "Dia de assinatura do convênio."
+      - name: mes
+        description: "Mês de assinatura do convênio."
+      - name: ano
+        description: "Ano de assinatura do convênio."
+      - name: dia_assin_conv
+        description: "Data de assinatura do convênio."
+      - name: sit_convenio
+        description: "Situação do convênio."
+      - name: subsituacao_conv
+        description: "Subsituação do convênio."
+      - name: situacao_publicacao
+        description: "Situação de publicação do convênio."
+      - name: instrumento_ativo
+        description: "Indica se o instrumento está ativo."
+      - name: ind_opera_obtv
+        description: "Indicador de operação OBTV."
+      - name: nr_processo
+        description: "Número do processo."
+      - name: ug_emitente
+        description: "Código da UG emitente."
+      - name: dia_publ_conv
+        description: "Data de publicação do convênio."
+      - name: dia_inic_vigenc_conv
+        description: "Data de início da vigência do convênio."
+      - name: dia_fim_vigenc_conv
+        description: "Data de fim da vigência do convênio."
+      - name: dia_fim_vigenc_original_conv
+        description: "Data de fim da vigência original do convênio."
+      - name: dias_prest_contas
+        description: "Prazo em dias para prestação de contas."
+      - name: dia_limite_prest_contas
+        description: "Data limite para prestação de contas."
+      - name: data_suspensiva
+        description: "Data da cláusula suspensiva."
+      - name: data_retirada_suspensiva
+        description: "Data de retirada da cláusula suspensiva."
+      - name: dias_clausula_suspensiva
+        description: "Dias de cláusula suspensiva."
+      - name: situacao_contratacao
+        description: "Situação da contratação."
+      - name: ind_assinado
+        description: "Indica se o convênio foi assinado."
+      - name: motivo_suspensao
+        description: "Motivo da suspensão do convênio."
+      - name: ind_foto
+        description: "Indica se há foto associada."
+      - name: qtde_convenios
+        description: "Quantidade de convênios."
+      - name: qtd_ta
+        description: "Quantidade de termos aditivos."
+      - name: qtd_prorroga
+        description: "Quantidade de prorrogações."
+      - name: vl_global_conv
+        description: "Valor global do convênio."
+      - name: vl_repasse_conv
+        description: "Valor de repasse do convênio."
+      - name: vl_contrapartida_conv
+        description: "Valor de contrapartida do convênio."
+      - name: vl_empenhado_conv
+        description: "Valor empenhado do convênio."
+      - name: vl_desembolsado_conv
+        description: "Valor desembolsado do convênio."
+      - name: vl_saldo_reman_tesouro
+        description: "Valor do saldo remanescente do tesouro."
+      - name: vl_saldo_reman_convenente
+        description: "Valor do saldo remanescente do convenente."
+      - name: vl_rendimento_aplicacao
+        description: "Valor do rendimento de aplicação."
+      - name: vl_ingresso_contrapartida
+        description: "Valor de ingresso de contrapartida."
+      - name: vl_saldo_conta
+        description: "Valor do saldo em conta."
+      - name: valor_global_original_conv
+        description: "Valor global original do convênio."
+    tests:
+      - verificacao_tipagem:
+          nome_tabela: 'siconv_dbt.convenios_consolidados'
+          nome_coluna: 'nr_convenio'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'siconv_dbt.convenios_consolidados'
+          nome_coluna: 'ug_emitente'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'siconv_dbt.convenios_consolidados'
+          nome_coluna: 'vl_global_conv'
+          tipo_esperado: 'numeric'
+
   - name: proposta_convenio
     description: >
       Tabela da camada silver que cruza convênios com propostas do SICONV,
