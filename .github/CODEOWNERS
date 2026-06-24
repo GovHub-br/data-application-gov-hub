@@ -1,0 +1,27 @@
+# Revisores por dominio do repositorio
+#
+# Para que estas regras bloqueiem merge sem aprovacao do dominio correto,
+# a branch main deve exigir "Require review from Code Owners".
+
+# DAGs, modelos dbt e documentacao tecnica de dados
+/airflow_lappis/dags/ @GovHub-br/developers
+/airflow_lappis/templates/ @GovHub-br/developers
+
+# Plugins, helpers e componentes compartilhados da aplicacao
+/airflow_lappis/plugins/ @GovHub-br/developers
+/airflow_lappis/helpers/ @GovHub-br/developers
+
+# Configuracao do GitHub, CI/CD e documentacao de contribuicao
+/.github/ @GovHub-br/infra
+
+# Configuracoes de build, ambiente e execucao local
+/Dockerfile @GovHub-br/infra
+/Dockerfile.superset @GovHub-br/infra
+/docker-compose.yml @GovHub-br/infra
+/Makefile @GovHub-br/infra
+/pyproject.toml @GovHub-br/infra
+/requirements.txt @GovHub-br/infra
+/setup-git-hooks.sh @GovHub-br/infra
+
+# Documentacao geral do projeto
+/README.md @GovHub-br/developers @GovHub-br/infra

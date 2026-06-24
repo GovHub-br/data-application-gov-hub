@@ -3,7 +3,7 @@
 with
     convenio as (
         select *
-        from {{ ref("convenio") }}
+        from {{ ref("convenios_consolidados") }}
     ),
     meta_crono_fisico as (
         select *
