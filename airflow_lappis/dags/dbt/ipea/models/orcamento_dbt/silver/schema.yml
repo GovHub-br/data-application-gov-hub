@@ -2,7 +2,7 @@ version: 2
 
 models:
 
-  - name: categoria_gasto_orcamento_total
+  - name: categoria_gastos_orcamento_total_
     description: >
       Tabela que transforma a visão orçamentária em categorias de gastos para utilização em gráficos de barras empilhadas.
       As categorias são: Dotação, Orçamento alocado (empenhado), Despesas programadas e Despesas pagas.
@@ -13,6 +13,8 @@ models:
     columns:
       - name: ano_exercicio
         description: Ano do exercício orçamentário.
+        tests:
+          - not_null
       - name: acao_governo
         description: Código da ação de governo.
       - name: acao_governo_desc
@@ -23,15 +25,28 @@ models:
         description: Descrição do elemento de despesa.
       - name: valor
         description: Valor numérico associado à categoria (com COALESCE 0 para nulos).
+        tests:
+          - not_null
+          - valor_nao_negativo
       - name: categoria
         description: >
           Categoria do gasto para agrupamento no gráfico.
           Valores possíveis: 'Dotação', 'Orçamento alocado (empenhado)', 'Despesas programadas', 'Despesas pagas'.
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'Dotação'
+                - 'Orçamento alocado (empenhado)'
+                - 'Despesas programadas'
+                - 'Despesas pagas'
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+        tests:
+          - not_null
 
-  - name: orcamento_total
+  - name: orcamento_total_
     description: >
       Tabela que consolida o orçamento total por ano de exercício, combinando duas visões:
       (1) orçamento das TEDs, calculado como crédito disponível + despesas empenhadas excluindo unidades específicas (25300, 47204);
@@ -43,8 +58,16 @@ models:
     columns:
       - name: ano_exercicio
         description: Ano do exercício orçamentário.
+        tests:
+          - unique
+          - not_null
       - name: orcamento
         description: Soma do orçamento total (TEDs + geral) para o ano de exercício.
+        tests:
+          - not_null
+          - valor_nao_negativo
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+        tests:
+          - not_null
