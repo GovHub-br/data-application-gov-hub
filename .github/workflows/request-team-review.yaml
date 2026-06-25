@@ -1,0 +1,226 @@
+name: Request team review
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, synchronize, labeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  request-team-review:
+    name: Request review by domain
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Apply team labels and request reviewers
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            const teamByLabel = {
+              "team:gces": "oss",
+              "team:ipea": "ipea",
+              "team:mir": "mir",
+              "team:mcid": "mcid",
+              "team:minc": "minc",
+              "team:oss": "oss",
+            };
+
+            const labelConfig = {
+              "team:gces": {
+                color: "5319e7",
+                description: "Revisao de PRs da disciplina GCES pelo time OSS",
+              },
+              "team:ipea": {
+                color: "0e8a16",
+                description: "Revisao do dominio IPEA",
+              },
+              "team:mir": {
+                color: "1d76db",
+                description: "Revisao do dominio MIR",
+              },
+              "team:mcid": {
+                color: "fbca04",
+                description: "Revisao do dominio MCid",
+              },
+              "team:minc": {
+                color: "d93f0b",
+                description: "Revisao do dominio MinC",
+              },
+              "team:oss": {
+                color: "5319e7",
+                description: "Revisao de contribuicoes OSS, GCES e governanca aberta",
+              },
+            };
+
+            const rules = [
+              {
+                label: "team:ipea",
+                paths: [
+                  "airflow_lappis/dags/dashboards/",
+                  "airflow_lappis/dags/data_ingest/compras_gov/",
+                  "airflow_lappis/dags/dbt/ipea/",
+                  "airflow_lappis/dags/data_ingest/ipea_pro/",
+                  "airflow_lappis/dags/data_ingest/pncp/",
+                  "airflow_lappis/dags/data_ingest/sgac/",
+                  "airflow_lappis/dags/data_ingest/siafi/",
+                  "airflow_lappis/dags/data_ingest/siape/",
+                  "airflow_lappis/dags/data_ingest/siorg/",
+                  "airflow_lappis/dags/data_ingest/sisbolsas/",
+                  "airflow_lappis/dags/data_ingest/tesouro_gerencial/",
+                  "airflow_lappis/dags/data_ingest/transfere_gov/",
+                ],
+                excludePaths: [
+                  "airflow_lappis/dags/data_ingest/tesouro_gerencial/mcid/",
+                  "airflow_lappis/dags/data_ingest/tesouro_gerencial/mir/",
+                  "airflow_lappis/dags/data_ingest/transfere_gov/mir/",
+                ],
+              },
+              {
+                label: "team:mir",
+                paths: [
+                  "airflow_lappis/dags/dbt/mir/",
+                  "airflow_lappis/dags/data_ingest/dados_abertos/",
+                  "airflow_lappis/dags/data_ingest/siconv/",
+                  "airflow_lappis/dags/data_ingest/tesouro_gerencial/mir/",
+                  "airflow_lappis/dags/data_ingest/transfere_gov/mir/",
+                  "airflow_lappis/dags/data_ingest/transferegov_emendas/",
+                ],
+              },
+              {
+                label: "team:mcid",
+                paths: [
+                  "airflow_lappis/dags/data_ingest/tesouro_gerencial/mcid/",
+                ],
+              },
+              {
+                label: "team:gces",
+                paths: [
+                  "airflow_lappis/dags/data_ingest/ibge/",
+                ],
+              },
+              {
+                label: "team:oss",
+                paths: [
+                  ".github/",
+                  "airflow_lappis/dags/",
+                  "airflow_lappis/helpers/",
+                  "airflow_lappis/plugins/",
+                  "airflow_lappis/templates/",
+                  "docker/",
+                  ".github/CONTRIBUTING.md",
+                  ".github/PULL_REQUEST_TEMPLATE.md",
+                  ".github/MERGE_REQUEST_PROTOCOL.md",
+                  "tests/",
+                  "Dockerfile",
+                  "Dockerfile.superset",
+                  "Makefile",
+                  "docker-compose.yml",
+                  "pyproject.toml",
+                  "requirements.txt",
+                  "setup-git-hooks.sh",
+                  "README.md",
+                  "LICENSE",
+                ],
+                excludePaths: [
+                  "airflow_lappis/dags/dashboards/",
+                  "airflow_lappis/dags/data_ingest/compras_gov/",
+                  "airflow_lappis/dags/dbt/ipea/",
+                  "airflow_lappis/dags/data_ingest/ipea_pro/",
+                  "airflow_lappis/dags/data_ingest/pncp/",
+                  "airflow_lappis/dags/data_ingest/sgac/",
+                  "airflow_lappis/dags/data_ingest/siafi/",
+                  "airflow_lappis/dags/data_ingest/siape/",
+                  "airflow_lappis/dags/data_ingest/siorg/",
+                  "airflow_lappis/dags/data_ingest/sisbolsas/",
+                  "airflow_lappis/dags/data_ingest/tesouro_gerencial/",
+                  "airflow_lappis/dags/data_ingest/transfere_gov/",
+                  "airflow_lappis/dags/dbt/mir/",
+                  "airflow_lappis/dags/data_ingest/dados_abertos/",
+                  "airflow_lappis/dags/data_ingest/siconv/",
+                  "airflow_lappis/dags/data_ingest/transferegov_emendas/",
+                  "airflow_lappis/dags/data_ingest/ibge/",
+                ],
+              },
+            ];
+
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              { owner, repo, pull_number, per_page: 100 }
+            );
+
+            const changedPaths = files.map((file) => file.filename);
+            const inferredLabels = new Set();
+
+            const pathMatches = (filePath, paths) =>
+              paths.some((path) => filePath === path || filePath.startsWith(path));
+
+            for (const rule of rules) {
+              if (changedPaths.some((filePath) =>
+                pathMatches(filePath, rule.paths)
+                && !pathMatches(filePath, rule.excludePaths || [])
+              )) {
+                inferredLabels.add(rule.label);
+              }
+            }
+
+            const currentLabels = new Set(
+              context.payload.pull_request.labels.map((label) => label.name)
+            );
+
+            const labelsToAdd = [...inferredLabels]
+              .filter((label) => !currentLabels.has(label));
+
+            if (labelsToAdd.length > 0) {
+              for (const label of labelsToAdd) {
+                try {
+                  await github.rest.issues.getLabel({
+                    owner,
+                    repo,
+                    name: label,
+                  });
+                } catch (error) {
+                  if (error.status !== 404) {
+                    throw error;
+                  }
+
+                  await github.rest.issues.createLabel({
+                    owner,
+                    repo,
+                    name: label,
+                    ...labelConfig[label],
+                  });
+                }
+              }
+
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: pull_number,
+                labels: labelsToAdd,
+              });
+            }
+
+            const labelsForReview = new Set([...currentLabels, ...inferredLabels]);
+            const team_reviewers = [...new Set([...labelsForReview]
+              .map((label) => teamByLabel[label])
+              .filter(Boolean))];
+
+            if (team_reviewers.length === 0) {
+              core.info("No team labels found for this PR.");
+              return;
+            }
+
+            await github.rest.pulls.requestReviewers({
+              owner,
+              repo,
+              pull_number,
+              team_reviewers,
+            });
+
+            core.info(`Requested review from teams: ${team_reviewers.join(", ")}`);

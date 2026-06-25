@@ -14,6 +14,17 @@
 ## Issues relacionadas
 Closes #
 
+## Domínio de revisão
+<!-- Marque o domínio/time principal impactado por este PR. Use labels team:* quando ajudar na triagem. -->
+
+- [ ] GCES / OSS
+- [ ] IPEA
+- [ ] MIR
+- [ ] MCid
+- [ ] MinC
+- [ ] OSS
+- [ ] Múltiplos domínios: ___
+
 ## Como testar / validar
 
 ```bash
@@ -42,3 +53,4 @@ make test
 - [ ] Documentação atualizada, se aplicável
 - [ ] Sem dados sensíveis ou credenciais no código
 - [ ] Branch atualizada com `upstream/main` ou `origin/main`
+- [ ] Revisores automáticos por domínio foram solicitados pelo GitHub ou justificados no PR

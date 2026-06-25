@@ -237,16 +237,20 @@ models:
         description: Descrição do localizador de gasto.
       - name: regiao_pt
         description: Região associada ao programa de trabalho (PT) da emenda.
-      - name: item_informacao
-        description: Hash ou item identificatório especial acoplado das métricas adicionais requeridas pelo processo contábil.
-      - name: item_informacao_descricao
-        description: Especificidade textual legível para auditoria relacionada fundamentalmente ao "item informação" do registro.
+      - name: fonte_recursos_detalhada
+        description: Código da fonte de recursos detalhada que financia a despesa da emenda.
+      - name: fonte_recursos_detalhada_descricao
+        description: Descrição da fonte de recursos detalhada, por exemplo RECURSOS LIVRES DA UNIAO.
       - name: despesas_empenhadas
         description: Limite de fundos transacionados com base monetária ou saldo reservado à entidade recebedora na etapa de empenho.
       - name: despesas_liquidadas
         description: Montante e liquidez monetária contendo aprovação de entrega ou contraprestação referencial.
       - name: despesas_pagas
         description: Transferência monetária e emulação do recurso que se concretizou no processo de desembolso bancário explícito ao fornecedor.
+      - name: restos_a_pagar_inscritos
+        description: Valor de restos a pagar inscritos vinculado à execução da emenda.
+      - name: restos_a_pagar_pagos
+        description: Valor de restos a pagar pagos vinculado à execução da emenda.
       - name: id_autor
         description: Chave estrangeira extraída derivando-se da base histórica associatória dos parlamentares unificados.
       - name: cargo_autor

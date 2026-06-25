@@ -70,16 +70,20 @@ models:
         description: "Ano de emissão da nota de empenho."
       - name: ptres
         description: "Programa de Trabalho Resumido."
-      - name: item_informacao
-        description: "Código do item de informação."
-      - name: item_informacao_descricao
-        description: "Descrição do item de informação."
+      - name: fonte_recursos_detalhada
+        description: "Código da fonte de recursos detalhada que financia a despesa da emenda."
+      - name: fonte_recursos_detalhada_descricao
+        description: "Descrição da fonte de recursos detalhada (ex.: RECURSOS LIVRES DA UNIAO)."
       - name: despesas_empenhadas
         description: "Valor total das despesas empenhadas."
       - name: despesas_liquidadas
         description: "Valor das despesas liquidadas."
       - name: despesas_pagas
         description: "Valor das despesas pagas."
+      - name: restos_a_pagar_inscritos
+        description: "Valor de restos a pagar inscritos vinculado à execução da emenda."
+      - name: restos_a_pagar_pagos
+        description: "Valor de restos a pagar pagos vinculado à execução da emenda."
       - name: id_autor
         description: "Identificador do autor da emenda."
       - name: cargo_autor

@@ -1,0 +1,124 @@
+- name: gold_convenios
+  description: >
+    Tabela gold de convênios do MIR. Consolida em uma única linha por convênio
+    todas as informações relevantes agregadas das tabelas do SICONV, incluindo
+    execução financeira, metas físicas, licitações, pagamentos, aditivos e
+    emendas parlamentares associadas.
+  meta:
+    tags:
+      - gold
+  columns:
+    - name: nr_convenio
+      description: "Número único do convênio — chave principal."
+    - name: modalidade_instrumento
+      description: "Modalidade do instrumento: Convênio ou Termo de Fomento."
+    - name: uf_execucao
+      description: "UF onde o projeto será executado."
+    - name: municipio_execucao
+      description: "Município onde o projeto será executado."
+    - name: nome_convenente
+      description: "Nome do convenente — município, estado ou organização que vai executar o projeto."
+    - name: categoria_convenente
+      description: "Categoria do convenente: Administração Pública Municipal, Estadual, Organização da Sociedade Civil etc."
+    - name: objeto
+      description: "Descrição do objeto do convênio — o que será executado."
+    - name: valor_firmado_atualizado
+      description: "Valor global atual do convênio, já refletindo os termos aditivos."
+    - name: valor_firmado_inicial
+      description: "Valor global original do convênio antes de qualquer aditivo."
+    - name: valor_repasse_previsto
+      description: "Valor de repasse previsto pelo governo federal."
+    - name: valor_repassado
+      description: "Valor efetivamente repassado pelo governo federal até o momento."
+    - name: saldo_disponivel
+      description: "Saldo disponível na conta do convenente para gastar."
+    - name: valor_contrapartida_previsto
+      description: "Valor de contrapartida que o convenente deve aportar."
+    - name: situacao_atual
+      description: "Situação atual do convênio: Em execução, Aguardando Prestação de Contas etc."
+    - name: data_assinatura
+      description: "Data de assinatura do convênio."
+    - name: inicio_vigencia
+      description: "Data de início da vigência do convênio."
+    - name: fim_vigencia
+      description: "Data de fim da vigência do convênio."
+    - name: prazo_vigente
+      description: "Indica se o convênio ainda está dentro do prazo de vigência."
+    - name: inadimplente
+      description: "Indica se o convênio já esteve em situação de inadimplência."
+    - name: rescindido
+      description: "Indica se o convênio foi rescindido."
+    - name: anulado
+      description: "Indica se o convênio foi anulado."
+    - name: quantidade_mudancas_situacao
+      description: "Quantidade de vezes que o convênio mudou de situação."
+    - name: valor_total_repassado
+      description: "Soma dos desembolsos reais registrados na tabela de desembolso."
+    - name: quantidade_desembolsos
+      description: "Quantidade de desembolsos realizados."
+    - name: data_ultimo_desembolso
+      description: "Data do último desembolso realizado."
+    - name: max_dias_sem_repasse
+      description: "Maior período em dias sem receber repasse."
+    - name: valor_empenhado
+      description: "Valor total empenhado no SICONV."
+    - name: quantidade_empenhos
+      description: "Quantidade de empenhos associados ao convênio."
+    - name: valor_total_pago
+      description: "Valor total pago aos fornecedores."
+    - name: quantidade_pagamentos
+      description: "Quantidade de pagamentos realizados."
+    - name: data_ultimo_pagamento
+      description: "Data do último pagamento realizado."
+    - name: valor_desbloqueado
+      description: "Valor total desbloqueado pelo banco."
+    - name: valor_bloqueado
+      description: "Valor ainda bloqueado aguardando liberação."
+    - name: data_ultimo_desbloqueio
+      description: "Data do último desbloqueio."
+    - name: valor_total_tributos
+      description: "Valor total pago em tributos com recursos do convênio."
+    - name: quantidade_pagamentos_tributo
+      description: "Quantidade de pagamentos de tributos realizados."
+    - name: valor_contrapartida_depositado
+      description: "Valor total depositado de contrapartida pelo convenente."
+    - name: quantidade_licitacoes
+      description: "Quantidade de licitações realizadas no âmbito do convênio."
+    - name: valor_total_contratado
+      description: "Valor total contratado via licitações."
+    - name: quantidade_metas
+      description: "Quantidade de metas físicas previstas no convênio."
+    - name: prazo_meta_expirado
+      description: "Indica se o prazo de pelo menos uma meta física já expirou."
+    - name: quantidade_aditivos
+      description: "Quantidade de termos aditivos formalizados."
+    - name: valor_total_aditivado
+      description: "Valor total adicionado via termos aditivos."
+    - name: novo_prazo_vigencia
+      description: "Novo prazo de vigência definido pelo último termo aditivo."
+    - name: quantidade_prorrogacoes
+      description: "Quantidade de prorrogações de ofício por atraso do concedente."
+    - name: total_dias_prorrogado
+      description: "Total de dias que o convênio foi prorrogado por culpa do concedente."
+    - name: quantidade_solicitacoes_alteracao
+      description: "Quantidade de solicitações de alteração feitas pelo convenente."
+    - name: valor_solicitado_rendimento_aplicacao
+      description: "Valor total solicitado para uso dos rendimentos de aplicação."
+    - name: valor_aprovado_rendimento_aplicacao
+      description: "Valor total aprovado para uso dos rendimentos de aplicação."
+    - name: valor_total_previsto
+      description: "Valor total previsto no cronograma de desembolso."
+    - name: valor_previsto_concedente
+      description: "Valor previsto de repasse pelo concedente no cronograma."
+    - name: valor_previsto_convenente
+      description: "Valor previsto de aporte pelo convenente no cronograma."
+    - name: valor_previsto_rendimento
+      description: "Valor previsto de rendimento de aplicação no cronograma."
+    - name: quantidade_parcelas
+      description: "Quantidade de parcelas previstas no cronograma de desembolso."
+    - name: parlamentares
+      description: "Parlamentares que direcionaram emendas para este convênio. NULL se não há emenda associada."
+    - name: partidos
+      description: "Partidos dos parlamentares que direcionaram emendas. NULL se não há emenda associada."
+    - name: ufs_parlamentares
+      description: "UFs dos parlamentares que direcionaram emendas. NULL se não há emenda associada."

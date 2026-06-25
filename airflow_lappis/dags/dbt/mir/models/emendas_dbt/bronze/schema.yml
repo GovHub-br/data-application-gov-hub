@@ -1082,16 +1082,20 @@ models:
         description: "Descrição do localizador de gasto."
       - name: regiao_pt
         description: "Região associada ao programa de trabalho (PT) da emenda."
-      - name: item_informacao
-        description: "Código do item de informação orçamentária."
-      - name: item_informacao_descricao
-        description: "Descrição do item de informação orçamentária."
+      - name: fonte_recursos_detalhada
+        description: "Código da fonte de recursos detalhada que financia a despesa da emenda."
+      - name: fonte_recursos_detalhada_descricao
+        description: "Descrição da fonte de recursos detalhada (ex.: RECURSOS LIVRES DA UNIAO)."
       - name: despesas_empenhadas
         description: "Valor total das despesas empenhadas para a combinação de classificações."
       - name: despesas_liquidadas
         description: "Valor total das despesas liquidadas para a combinação de classificações."
       - name: despesas_pagas
         description: "Valor total das despesas pagas para a combinação de classificações."
+      - name: restos_a_pagar_inscritos
+        description: "Valor de restos a pagar inscritos para a combinação de classificações."
+      - name: restos_a_pagar_pagos
+        description: "Valor de restos a pagar pagos para a combinação de classificações."
       - name: dt_ingest
         description: "Data e hora (UTC-3 Brasília) da ingestão dos dados para a camada bronze."
 
@@ -1135,4 +1139,12 @@ models:
       - verificacao_tipagem:
           nome_tabela: 'emendas.tg_emendas'
           nome_coluna: 'despesas_pagas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'restos_a_pagar_inscritos'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.tg_emendas'
+          nome_coluna: 'restos_a_pagar_pagos'
           tipo_esperado: 'numeric'

@@ -3,8 +3,16 @@
 with
 	tg_emendas_raw as (
 		select
-			{{ target.schema }}.parse_date(emissao_mes) as emissao_mes,
-			to_date(emissao_dia, 'DD/MM/YYYY') as emissao_dia,
+			-- Linhas de Restos a Pagar vem sem data de emissao aplicavel
+			-- (emissao_mes/dia = '000/AAAA'); nesses casos a data fica nula.
+			case
+				when emissao_mes ~ '^[A-Z]{3}/[0-9]{4}$'
+				then {{ target.schema }}.parse_date(emissao_mes)
+			end as emissao_mes,
+			case
+				when emissao_dia ~ '^[0-9]{2}/[0-9]{2}/[0-9]{4}$'
+				then to_date(emissao_dia, 'DD/MM/YYYY')
+			end as emissao_dia,
 			programa_governo::integer as programa_governo,
 			programa_governo_descricao::text as programa_governo_descricao,
 			acao_governo::text as acao_governo,
@@ -48,11 +56,13 @@ with
 			ne_ccor_favorecido_descricao::text as ne_ccor_favorecido_descricao,
 			ne_ccor_ano_emissao::integer as ne_ccor_ano_emissao,
 			ptres::integer as ptres,
-			item_informacao::text as item_informacao,
-			item_informacao_descricao::text as item_informacao_descricao,
+			fonte_recursos_detalhada::text as fonte_recursos_detalhada,
+			fonte_recursos_detalhada_descricao::text as fonte_recursos_detalhada_descricao,
 			{{ parse_financial_value("despesas_empenhadas") }} as despesas_empenhadas,
             {{ parse_financial_value("despesas_liquidadas") }} as despesas_liquidadas,
             {{ parse_financial_value("despesas_pagas") }} as despesas_pagas,
+            {{ parse_financial_value("restos_a_pagar_inscritos") }} as restos_a_pagar_inscritos,
+            {{ parse_financial_value("restos_a_pagar_pagos") }} as restos_a_pagar_pagos,
 			(dt_ingest || '-03:00')::timestamptz as dt_ingest
 		from {{ source("siafi", "ne_tesouro_emendas") }}
 	)

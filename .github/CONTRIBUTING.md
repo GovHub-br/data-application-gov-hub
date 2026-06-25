@@ -215,6 +215,8 @@ Toda solicitação de mudança ou sugestão deve ser registrada como issue.
 
 Consulte o [Protocolo de Aprovação de Pull Requests](MERGE_REQUEST_PROTOCOL.md) para os critérios obrigatórios de revisão, aprovação e merge.
 
+O repositório usa domínios de revisão (`IPEA`, `MIR`, `MCid`, `MinC` e `OSS`) e a workflow `Request team review` para solicitar revisões automaticamente conforme os caminhos alterados ou labels `team:*` aplicadas no PR. PRs originados na disciplina GCES devem usar a label `team:gces`, que solicita revisão do time `OSS`.
+
 **Para quem submete o PR:** responda a todos os comentários de revisão, implemente as mudanças em novos commits e aguarde nova aprovação antes do merge.
 
 **Para quem faz o review:** seja construtivo e específico, explique o *porquê* das sugestões, diferencie bloqueadores de sugestões opcionais, e verifique qualidade dos modelos DBT, linhagem de dados, testes e impacto em pipelines existentes. O merge é responsabilidade dos mantenedores.
