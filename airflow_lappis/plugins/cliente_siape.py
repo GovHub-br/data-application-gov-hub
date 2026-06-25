@@ -13,9 +13,7 @@ class ClienteSiape:
     and dynamic XML generation with Jinja2 templates.
     """
 
-    BEARER_ENDPOINT = (
-        "***REMOVED***"
-    )
+    BEARER_ENDPOINT = "***REMOVED***"
     SOAP_ENDPOINT = "https://apigateway.conectagov.estaleiro.serpro.gov.br/api-consulta-siape/v1/consulta-siape"
 
     def __init__(self) -> None:

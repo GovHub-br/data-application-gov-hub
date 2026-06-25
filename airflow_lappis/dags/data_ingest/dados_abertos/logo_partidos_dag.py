@@ -7,6 +7,7 @@ from postgres_helpers import get_postgres_conn
 from cliente_partidos import ClientePartidos
 from cliente_postgres import ClientPostgresDB
 
+
 @dag(
     schedule_interval=get_dynamic_schedule("logo_partidos_dag"),
     start_date=datetime(2025, 1, 1),
@@ -30,7 +31,7 @@ def logo_partidos_dag() -> None:
         db = ClientPostgresDB(postgres_conn_str)
 
         partidos_basicos = api.get_all_partidos()
-        
+
         partidos_completos = []
 
         if partidos_basicos:
@@ -45,10 +46,10 @@ def logo_partidos_dag() -> None:
                             "nome": detalhe.get("nome"),
                             "uri": detalhe.get("uri"),
                             "urllogo": detalhe.get("urlLogo"),
-                            "dt_ingest": datetime.now().isoformat()
+                            "dt_ingest": datetime.now().isoformat(),
                         }
                         partidos_completos.append(registro)
-                    
+
                     time.sleep(0.5)
 
             logging.info(
@@ -70,10 +71,15 @@ def logo_partidos_dag() -> None:
                     f"Total de {len(partidos_completos)} registros processados."
                 )
             else:
-                logging.warning("[logo_partidos_dag.py] Nenhum dado de detalhe retornado para os partidos.")
+                logging.warning(
+                    "[logo_partidos_dag.py] Nenhum dado de detalhe retornado para os partidos."
+                )
         else:
-            logging.warning("[logo_partidos_dag.py] Nenhum partido encontrado na lista principal.")
+            logging.warning(
+                "[logo_partidos_dag.py] Nenhum partido encontrado na lista principal."
+            )
 
     fetch_and_store_partidos()
+
 
 logo_partidos_dag()

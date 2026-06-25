@@ -159,8 +159,7 @@ def parse_tesouro_emendas_csv(
 
     lines = csv_data.splitlines()
     header_indices = [
-        i for i, line in enumerate(lines)
-        if line.lstrip().startswith(HEADER_MARKER)
+        i for i, line in enumerate(lines) if line.lstrip().startswith(HEADER_MARKER)
     ]
     if not header_indices:
         raise ValueError(
@@ -247,9 +246,7 @@ def reset_table_if_legacy_schema(db: ClientPostgresDB) -> None:
         TABLE_SCHEMA,
         TABLE_NAME,
     )
-    db.execute_non_query(
-        f"DROP TABLE IF EXISTS {TABLE_SCHEMA}.{TABLE_NAME} CASCADE;"
-    )
+    db.execute_non_query(f"DROP TABLE IF EXISTS {TABLE_SCHEMA}.{TABLE_NAME} CASCADE;")
 
 
 with DAG(

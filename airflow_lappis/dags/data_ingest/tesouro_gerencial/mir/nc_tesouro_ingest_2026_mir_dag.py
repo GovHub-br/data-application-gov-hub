@@ -20,7 +20,7 @@ default_args = {
     "retry_delay": timedelta(minutes=5),
 }
 
-pd.read_csv = partial(pd.read_csv, sep='\t', on_bad_lines='skip')
+pd.read_csv = partial(pd.read_csv, sep="\t", on_bad_lines="skip")
 
 COLUMN_MAPPING_NC = {
     0: "emissao_dia",
@@ -79,7 +79,7 @@ with DAG(
                 COLUMN_MAPPING_NC,
                 skiprows=SKIPROWS,
             )
-            
+
             if not csv_data:
                 logging.warning("Nenhum CSV extraído.")
                 return None
@@ -97,9 +97,9 @@ with DAG(
             if not csv_data:
                 return
 
-            df = pd.read_csv(io.StringIO(csv_data), sep=',')
+            df = pd.read_csv(io.StringIO(csv_data), sep=",")
             data = df.to_dict(orient="records")
-            
+
             for record in data:
                 record["dt_ingest"] = datetime.now().isoformat()
 

@@ -130,9 +130,7 @@ class ClientPostgresDB:
         )
         self.alter_table(column_probe, table_name, schema=schema, conn=conn)
         if conflict_fields:
-            self.ensure_unique_constraint(
-                schema, table_name, conflict_fields, conn=conn
-            )
+            self.ensure_unique_constraint(schema, table_name, conflict_fields, conn=conn)
 
         values = [tuple(item.get(col) for col in columns) for item in flattened_data]
 

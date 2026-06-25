@@ -50,7 +50,12 @@ class ClientePartidos(ClienteBase):
         pagina = 1
 
         while True:
-            params = {"pagina": pagina, "itens": 100, "ordem": "ASC", "ordenarPor": "sigla"}
+            params = {
+                "pagina": pagina,
+                "itens": 100,
+                "ordem": "ASC",
+                "ordenarPor": "sigla",
+            }
             partidos = self.get_partidos(**params)
 
             if not partidos:

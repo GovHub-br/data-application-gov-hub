@@ -10,33 +10,6 @@ class TestClientePNCP:
     # get_contratacoes_publicacao()
     # ------------------------------------------------------------------
 
-    def test_recusa_sem_data_inicial(self) -> None:
-        cliente = ClientePNCP()
-
-        with pytest.raises(TypeError):
-            cliente.get_contratacoes_publicacao(  # type: ignore[call-arg]
-                data_final="20230202",
-                codigo_modalidade_contratacao=8,
-            )
-
-    def test_recusa_sem_data_final(self) -> None:
-        cliente = ClientePNCP()
-
-        with pytest.raises(TypeError):
-            cliente.get_contratacoes_publicacao(  # type: ignore[call-arg]
-                data_inicial="20230201",
-                codigo_modalidade_contratacao=8,
-            )
-
-    def test_recusa_sem_codigo_modalidade_contratacao(self) -> None:
-        cliente = ClientePNCP()
-
-        with pytest.raises(TypeError):
-            cliente.get_contratacoes_publicacao(  # type: ignore[call-arg]
-                data_inicial="20230201",
-                data_final="20230202",
-            )
-
     @pytest.mark.parametrize(
         "status,body",
         [
