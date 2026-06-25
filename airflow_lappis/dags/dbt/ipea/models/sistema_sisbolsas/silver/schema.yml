@@ -237,8 +237,30 @@ models:
         description: Número de transferência usado como chave de integração com o número SIAFI do SGAC.
       - name: sq_instrumento
         description: Sequencial do instrumento mantido apenas como atributo informativo do Plano de Ação.
+      - name: sigla_unidade_descentralizada
+        description: Sigla da unidade descentralizada recebedora no TransfereGov.
+      - name: unidade_descentralizada
+        description: Nome da unidade descentralizada recebedora no TransfereGov.
+      - name: sigla_unidade_descentralizadora
+        description: Sigla da unidade descentralizadora repassadora vinculada ao programa do Plano de Ação.
+      - name: sigla_unidade_responsavel_acompanhamento
+        description: Sigla da unidade responsável pelo acompanhamento do programa no TransfereGov.
+      - name: programa
+        description: Identificador do programa vinculado ao Plano de Ação no TransfereGov.
+      - name: nome_institucional_programa
+        description: Nome institucional do programa vinculado ao Plano de Ação no TransfereGov.
+      - name: percentual_vigencia
+        description: Percentual de vigência do plano de ação calculado a partir das datas de início e fim no TransfereGov.
       - name: valor_firmado
         description: Valor firmado no cruzamento SIAFI/TransfereGov.
+      - name: numeros_empenho
+        description: Lista agregada dos números de nota de empenho associados ao Plano de Ação.
+      - name: quantidade_empenhos
+        description: Quantidade distinta de notas de empenho associadas ao Plano de Ação.
+      - name: numeros_nc
+        description: Lista agregada dos números de nota de crédito associados ao Plano de Ação.
+      - name: quantidade_ncs
+        description: Quantidade distinta de notas de crédito associadas ao Plano de Ação.
       - name: despesas_pagas_exercicio
         description: Despesas pagas no exercício.
       - name: despesas_pagas_rap
