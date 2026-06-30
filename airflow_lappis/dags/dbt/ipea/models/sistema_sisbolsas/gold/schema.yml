@@ -27,6 +27,8 @@ models:
         description: Valor de recursos externos conforme campo orçamentário do SGAC.
       - name: recursos_ipea
         description: Valor de recursos IPEA conforme campo não orçamentário do SGAC.
+      - name: recursos_totais
+        description: Soma de recursos externos e recursos IPEA com nulos tratados como zero.
       - name: numero_do_processo
         description: Número do processo SEI associado.
       - name: coordenador
@@ -35,6 +37,20 @@ models:
         description: Fiscal e substituto com marcações HTML básicas removidas.
       - name: situacao
         description: Situação do instrumento no SGAC.
+      - name: dias_para_vencer
+        description: Quantidade de dias entre a data de conclusão e a data atual.
+      - name: mes_conclusao
+        description: Primeiro dia do mês de conclusão do instrumento.
+      - name: ano_conclusao
+        description: Ano da data de conclusão do instrumento.
+      - name: faixa_vencimento
+        description: Classificação da proximidade do vencimento em faixas de dias.
+      - name: status_vigencia
+        description: Situação de vigência do instrumento na data corrente.
+      - name: status_fiscal
+        description: Indica se há fiscal informado no registro.
+      - name: status_coordenador
+        description: Indica se há coordenador informado no registro.
 
   - name: sgac_relatorio_teds_vigentes
     description: >
@@ -63,6 +79,8 @@ models:
         description: Valor de recursos externos conforme campo orçamentário do SGAC.
       - name: recursos_ipea
         description: Valor de recursos IPEA conforme campo não orçamentário do SGAC.
+      - name: recursos_totais_sgac
+        description: Soma de recursos externos e recursos IPEA registrados no SGAC.
       - name: numero_siafi
         description: Número SIAFI registrado no SGAC.
       - name: termos_aditivos
@@ -73,13 +91,109 @@ models:
         description: Campo presente na planilha de referência; não existe no SGAC.
       - name: planejamento_diarias_passagens
         description: Campo presente na planilha de referência; não existe no SGAC.
+      - name: plano_acao
+        description: Plano de ação do TransfereGov associado ao número SIAFI, quando houver cruzamento.
+      - name: num_transf
+        description: Número de transferência usado no cruzamento com o número SIAFI do SGAC.
+      - name: sq_instrumento
+        description: Sequencial do instrumento no TransfereGov, mantido como atributo informativo.
+      - name: sigla_unidade_descentralizada
+        description: Sigla da unidade descentralizada no TransfereGov.
+      - name: unidade_descentralizada
+        description: Nome da unidade descentralizada no TransfereGov.
+      - name: sigla_unidade_descentralizadora
+        description: Sigla da unidade descentralizadora repassadora vinculada ao programa do Plano de Ação.
+      - name: sigla_unidade_responsavel_acompanhamento
+        description: Sigla da unidade responsável pelo acompanhamento do programa no TransfereGov.
+      - name: programa
+        description: Identificador do programa vinculado ao Plano de Ação no TransfereGov.
+      - name: nome_institucional_programa
+        description: Nome institucional do programa vinculado ao Plano de Ação no TransfereGov.
+      - name: percentual_vigencia
+        description: Percentual de vigência do plano de ação calculado a partir das datas de início e fim no TransfereGov.
+      - name: dt_inicio_vigencia_transferegov
+        description: Data de início da vigência no TransfereGov.
+      - name: dt_fim_vigencia_transferegov
+        description: Data de fim da vigência no TransfereGov.
+      - name: situacao_plano_acao
+        description: Situação do plano de ação no TransfereGov.
+      - name: vl_total_plano_acao
+        description: Valor total do plano de ação no TransfereGov.
+      - name: valor_firmado
+        description: Valor firmado do TED conforme TransfereGov/SIAFI.
+      - name: numeros_empenho
+        description: Lista agregada dos números de nota de empenho associados ao TED.
+      - name: quantidade_empenhos
+        description: Quantidade distinta de notas de empenho associadas ao TED.
+      - name: numeros_nc
+        description: Lista agregada dos números de nota de crédito associados ao TED.
+      - name: quantidade_ncs
+        description: Quantidade distinta de notas de crédito associadas ao TED.
+      - name: orcamento_recebido
+        description: Valor de orçamento recebido por nota de crédito.
+      - name: orcamento_devolvido
+        description: Valor de orçamento devolvido por nota de crédito.
+      - name: orcamento_liquido
+        description: Diferença entre orçamento recebido e orçamento devolvido.
+      - name: empenhado
+        description: Valor total empenhado.
+      - name: empenho_anulado
+        description: Valor total de empenhos anulados.
+      - name: empenhado_liquido
+        description: Diferença entre empenhado e empenho anulado.
+      - name: despesas_liquidada
+        description: Valor total de despesas liquidadas.
       - name: pago
         description: Valor pago derivado do cruzamento por número SIAFI, quando houver.
+      - name: despesas_pagas_exercicio
+        description: Valor de despesas pagas no exercício.
+      - name: despesas_pagas_rap
+        description: Valor de despesas pagas em restos a pagar.
+      - name: restos_a_pagar
+        description: Valor inscrito em restos a pagar.
+      - name: financeiro_recebido
+        description: Valor financeiro recebido via programação financeira.
+      - name: financeiro_devolvido
+        description: Valor financeiro devolvido.
+      - name: financeiro_cancelado
+        description: Valor financeiro cancelado.
+      - name: financeiro_liquido
+        description: Financeiro recebido menos devoluções e cancelamentos.
       - name: pendente_de_pagamento
         description: Diferença entre valor firmado/total e valor pago no cruzamento por número SIAFI, quando houver.
+      - name: valor_referencia_ted
+        description: Valor usado como referência para percentuais, priorizando valor firmado e usando recursos totais do SGAC como fallback.
+      - name: diferenca_valor_sgac_siafi
+        description: Diferença entre recursos totais do SGAC e valor firmado no SIAFI/TransfereGov.
       - name: situacao
         description: Situação do instrumento no SGAC.
       - name: sgac_id
         description: Identificador do item no SGAC.
       - name: eh_ted
         description: Indica se o instrumento foi classificado como TED ou dispensa de TED.
+      - name: dias_para_conclusao
+        description: Quantidade de dias entre a data de conclusão e a data atual.
+      - name: mes_conclusao
+        description: Primeiro dia do mês de conclusão do TED.
+      - name: ano_conclusao
+        description: Ano da data de conclusão do TED.
+      - name: faixa_vencimento
+        description: Classificação da proximidade do vencimento em faixas de dias.
+      - name: status_vigencia
+        description: Situação de vigência do TED na data corrente.
+      - name: status_numero_siafi
+        description: Indica se o TED possui número SIAFI informado no SGAC.
+      - name: status_cruzamento_siafi
+        description: Indica se o TED teve cruzamento com SIAFI/TransfereGov.
+      - name: status_financeiro
+        description: Classificação gerencial da execução financeira do TED.
+      - name: status_termo_aditivo
+        description: Indica se há termo aditivo informado no SGAC.
+      - name: status_entidade_externa
+        description: Indica se há entidade externa informada no SGAC.
+      - name: percentual_execucao_financeira
+        description: Percentual pago sobre o valor de referência do TED.
+      - name: percentual_empenhado
+        description: Percentual empenhado líquido sobre o valor firmado.
+      - name: percentual_financeiro_recebido
+        description: Percentual financeiro recebido sobre o valor firmado.

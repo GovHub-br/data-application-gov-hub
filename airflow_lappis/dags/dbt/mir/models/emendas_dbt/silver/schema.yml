@@ -323,3 +323,217 @@ models:
           nome_tabela: 'emendas.emendas_partidos'
           nome_coluna: 'pais'
           tipo_esperado: 'text'
+
+  - name: instrumentos_emendas
+    description: >
+      Tabela silver que unifica as emendas parlamentares (já cruzadas com seus autores no
+      modelo numero_transferencia) com o instrumento de transferência que as executa.
+      Para cada emenda com número de transferência identificado, associa o convênio ou
+      termo de fomento (SICONV, via proposta_convenio) ou o Termo de Execução
+      Descentralizada (TED, via ted_resumo_orcamentario), consolidando tipo, objeto,
+      beneficiário, programa e valor firmado do instrumento em uma visão única.
+    meta:
+      tags:
+        - silver
+    columns:
+      # Colunas herdadas de numero_transferencia (emenda + autor)
+      - name: emissao_mes
+        description: Mês de emissão referencial da emenda orçamentária.
+      - name: emissao_dia
+        description: Data exata de emissão referencial da emenda.
+      - name: codigo_programa
+        description: Código orçamentário do programa de governo.
+      - name: programa
+        description: Descrição do programa de governo que abrange o recurso.
+      - name: codigo_acao_ajustada
+        description: Código da ação ajustada governamental.
+      - name: acao_ajustada
+        description: Descrição da ação de governo que recebe o recurso.
+      - name: autor_emendas_orcamento_descricao
+        description: Descrição completa do autor da emenda conforme o SIAFI.
+      - name: autor_emendas_orcamento_nome
+        description: Nome do autor da emenda extraído na camada bronze.
+      - name: localizador_gasto
+        description: Código do localizador de gasto da programação orçamentária.
+      - name: localizador_gasto_descricao
+        description: Descrição do localizador de gasto.
+      - name: regiao_pt
+        description: Região associada ao programa de trabalho (PT) da emenda.
+      - name: uf
+        description: Unidade federativa favorecida pelo recurso da emenda.
+      - name: uf_descricao
+        description: Nome por extenso da UF favorecida.
+      - name: municipio
+        description: Município receptor do recurso.
+      - name: pais
+        description: País consolidado do recurso ('Brasil').
+      - name: ne_ccor
+        description: Identificador da conta corrente da Nota de Empenho (NE CCOR).
+      - name: ne_num_processo
+        description: Número do processo associado à Nota de Empenho.
+      - name: ne_info_complementar
+        description: Informações complementares da Nota de Empenho.
+      - name: ne_ccor_descricao
+        description: Descrição da conta corrente da Nota de Empenho.
+      - name: doc_observacao
+        description: Observações de cadastro do documento.
+      - name: codigo_gnd
+        description: Código do Grupo de Natureza de Despesa.
+      - name: gnd
+        description: Descrição do Grupo de Natureza de Despesa.
+      - name: natureza_despesa
+        description: Código da natureza de despesa.
+      - name: natureza_despesa_descricao
+        description: Descrição da natureza de despesa.
+      - name: codigo_modalidade
+        description: Código da modalidade de aplicação.
+      - name: modalidade
+        description: Descrição da modalidade de aplicação.
+      - name: ne_ccor_favorecido
+        description: CPF ou CNPJ do favorecido da Nota de Empenho.
+      - name: ne_ccor_favorecido_descricao
+        description: Razão social ou nome do favorecido da Nota de Empenho.
+      - name: ne_ccor_ano_emissao
+        description: Ano de emissão da Nota de Empenho.
+      - name: ptres
+        description: Programa de Trabalho Resumido (PTRES) do SIAFI.
+      - name: fonte_recursos_detalhada
+        description: Código da fonte de recursos detalhada que financia a despesa.
+      - name: fonte_recursos_detalhada_descricao
+        description: Descrição da fonte de recursos detalhada.
+      - name: despesas_empenhadas
+        description: Valor empenhado da emenda.
+      - name: despesas_liquidadas
+        description: Valor liquidado da emenda.
+      - name: despesas_pagas
+        description: Valor pago da emenda.
+      - name: restos_a_pagar_inscritos
+        description: Valor de restos a pagar inscritos vinculado à execução da emenda.
+      - name: restos_a_pagar_pagos
+        description: Valor de restos a pagar pagos vinculado à execução da emenda.
+      - name: id_autor
+        description: Identificador do parlamentar autor na base unificada.
+      - name: cargo_autor
+        description: Cargo do parlamentar autor (Deputado ou Senador).
+      - name: autor
+        description: Nome do parlamentar autor da emenda.
+      - name: partido
+        description: Sigla do partido do autor à época da emenda.
+      - name: uf_autor
+        description: UF representada pelo parlamentar autor.
+      - name: url_foto_autor
+        description: URL da foto oficial do parlamentar autor.
+      - name: email_autor
+        description: E-mail institucional do parlamentar autor.
+      - name: url_foto_partido
+        description: URL do logotipo do partido do autor.
+      - name: numero_transferencia
+        description: >
+          Número da transferência derivado da Nota de Empenho, usado como chave para
+          vincular a emenda ao instrumento (convênio/termo de fomento ou TED).
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas
+          fonte utilizadas neste modelo.
+      # Colunas do instrumento (convênio/termo de fomento ou TED)
+      - name: tipo_instrumento
+        description: >
+          Tipo do instrumento que executa a emenda: 'TED' quando há correspondência na
+          base de TEDs; caso contrário, a modalidade do convênio/termo de fomento (SICONV).
+      - name: numero_instrumento
+        description: Número do instrumento (igual ao número de transferência da emenda).
+      - name: objeto_instrumento
+        description: >
+          Objeto do instrumento: objeto da proposta (convênio) ou objetivo do programa
+          (TED).
+      - name: beneficiario
+        description: >
+          Identificação do executor/beneficiário: município, UF e nome do proponente
+          (convênio) ou sigla da unidade descentralizada (TED).
+      - name: nome_programa_ted
+        description: Nome institucional do programa do TED, quando o instrumento é um TED.
+      - name: programa_governo
+        description: Código do programa de governo associado ao TED.
+      - name: programa_governo_descricao
+        description: Descrição do programa de governo associado ao TED.
+      - name: valor_firmado
+        description: >
+          Valor global firmado do instrumento: valor global do convênio (SICONV) ou valor
+          total do plano de ação do TED.
+    tests:
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'emissao_mes'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'emissao_dia'
+          tipo_esperado: 'date'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'codigo_programa'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'codigo_gnd'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'codigo_modalidade'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'ne_ccor_ano_emissao'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'ptres'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'despesas_empenhadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'despesas_liquidadas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'despesas_pagas'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'id_autor'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'numero_transferencia'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'numero_instrumento'
+          tipo_esperado: 'integer'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'valor_firmado'
+          tipo_esperado: 'numeric'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'tipo_instrumento'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'objeto_instrumento'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'beneficiario'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'autor'
+          tipo_esperado: 'text'
+      - verificacao_tipagem:
+          nome_tabela: 'emendas.instrumentos_emendas'
+          nome_coluna: 'pais'
+          tipo_esperado: 'text'

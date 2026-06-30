@@ -25,12 +25,18 @@ models:
 
       - name: database_name
         description: Nome do banco de dados onde o modelo está materializado.
+        tests:
+          - not_null
 
       - name: materialization
         description: Tipo de materialização do modelo (table, view, incremental, etc).
+        tests:
+          - not_null
 
       - name: description
         description: Descrição do modelo extraída do schema.yml.
+        tests:
+          - not_null
 
       - name: dt_transform
         description: >
@@ -44,3 +50,5 @@ models:
         description: >
           Identificador único da execução do dbt (invocation_id).
           Permite rastrear qual execução gerou a transformação.
+        tests:
+          - not_null

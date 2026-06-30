@@ -1,4 +1,5 @@
-- name: gold_convenios
+models:
+- name: resumo_convenios
   description: >
     Tabela gold de convênios do MIR. Consolida em uma única linha por convênio
     todas as informações relevantes agregadas das tabelas do SICONV, incluindo

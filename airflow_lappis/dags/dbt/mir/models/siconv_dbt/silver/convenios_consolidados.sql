@@ -23,7 +23,10 @@ with
             and left(et.ne_ccor, 6) = '810008'
     ),
     convenios_consolidado as (
-        select *
+        select
+            *,
+            round((vl_desembolsado_conv / nullif(vl_global_conv, 0) * 100)::numeric, 1) as percentual_executado,
+            round(((vl_global_conv - vl_desembolsado_conv) / nullif(vl_global_conv, 0) * 100)::numeric, 1) as percentual_faltante
         from convenio
         where ug_emitente = 810008
         union distinct
@@ -67,7 +70,9 @@ with
             vl_rendimento_aplicacao,
             vl_ingresso_contrapartida,
             vl_saldo_conta,
-            valor_global_original_conv
+            valor_global_original_conv,
+            round((vl_desembolsado_conv / nullif(vl_global_conv, 0) * 100)::numeric, 1) as percentual_executado,
+            round(((vl_global_conv - vl_desembolsado_conv) / nullif(vl_global_conv, 0) * 100)::numeric, 1) as percentual_faltante
         from convenios_ppa
     )
 

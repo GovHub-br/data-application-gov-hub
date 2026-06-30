@@ -194,11 +194,11 @@ Os nomes acima usam os slugs dos times no GitHub. O time pode aparecer visualmen
 
 A estratégia adotada para domínios de dados é **GitHub Actions + labels `team:*`**:
 
-- A workflow `Request team review` aplica labels de domínio quando identifica caminhos conhecidos.
-- A mesma workflow solicita revisão dos times correspondentes.
-- Labels `team:*` adicionadas manualmente ao PR também solicitam revisão do time associado.
+- A label `team:*` deve ser adicionada manualmente ao PR conforme o domínio principal da mudança.
+- A workflow `Request team review` roda quando uma label é adicionada ao PR.
+- A workflow não cria nem aplica labels automaticamente; ela apenas solicita revisão dos times correspondentes às labels já presentes no PR.
 
-Essa escolha centraliza o roteamento em um único lugar, evita manter listas paralelas de caminhos, reduz erros de configuração e permite tratar casos em que o domínio é definido por label, não apenas pelo caminho do arquivo.
+Essa escolha evita manter listas frágeis de caminhos na automação, reduz falsos positivos e deixa a decisão do domínio explícita no PR.
 
 Mapa atual dos principais caminhos de DAGs e modelos:
 
@@ -206,7 +206,7 @@ Mapa atual dos principais caminhos de DAGs e modelos:
 | --- | --- |
 | `airflow_lappis/dags/dashboards/` | IPEA |
 | `airflow_lappis/dags/dbt/ipea/` | IPEA |
-| `airflow_lappis/dags/data_ingest/compras_gov/` | IPEA |
+| `airflow_lappis/dags/data_ingest/compras_gov/` | IPEA, exceto subpasta `mir/` |
 | `airflow_lappis/dags/data_ingest/ipea_pro/` | IPEA |
 | `airflow_lappis/dags/data_ingest/pncp/` | IPEA |
 | `airflow_lappis/dags/data_ingest/sgac/` | IPEA |
@@ -217,6 +217,7 @@ Mapa atual dos principais caminhos de DAGs e modelos:
 | `airflow_lappis/dags/data_ingest/tesouro_gerencial/` | IPEA, exceto subpastas `mir/` e `mcid/` |
 | `airflow_lappis/dags/data_ingest/transfere_gov/` | IPEA, exceto subpasta `mir/` |
 | `airflow_lappis/dags/dbt/mir/` | MIR |
+| `airflow_lappis/dags/data_ingest/compras_gov/mir/` | MIR |
 | `airflow_lappis/dags/data_ingest/dados_abertos/` | MIR |
 | `airflow_lappis/dags/data_ingest/siconv/` | MIR |
 | `airflow_lappis/dags/data_ingest/tesouro_gerencial/mir/` | MIR |
@@ -225,11 +226,11 @@ Mapa atual dos principais caminhos de DAGs e modelos:
 | `airflow_lappis/dags/data_ingest/tesouro_gerencial/mcid/` | MCid |
 | `airflow_lappis/dags/data_ingest/ibge/` | GCES / OSS |
 
-Quando um PR alterar arquivos de um domínio mapeado, a workflow deve aplicar a label `team:*` correspondente e solicitar review do time associado. A ruleset da branch `main` deve exigir pelo menos uma aprovação antes do merge.
+Quando um PR alterar arquivos de um domínio, o autor ou mantenedor deve aplicar a label `team:*` correspondente. A workflow solicita review do time associado a essa label. A ruleset da branch `main` deve exigir pelo menos uma aprovação antes do merge.
 
 ### Labels de Apoio
 
-Labels podem ser usadas como sinalização complementar quando o domínio do PR não for evidente apenas pelos caminhos alterados:
+Labels são a referência para o roteamento automático de revisores:
 
 - `team:ipea`
 - `team:mir`
@@ -238,7 +239,7 @@ Labels podem ser usadas como sinalização complementar quando o domínio do PR 
 - `team:gces`
 - `team:oss`
 
-As labels são a referência principal para o roteamento automático. Se uma label indicar um domínio diferente dos arquivos alterados, o autor deve justificar no PR ou ajustar a regra da workflow se o novo padrão de caminhos for permanente.
+Se uma label indicar um domínio diferente dos arquivos alterados, o autor deve justificar no PR ou ajustar a label antes do merge.
 
 ### Como Incluir Novos Projetos ou Times
 
@@ -247,9 +248,10 @@ Para adicionar um novo projeto, ministério ou disciplina ao fluxo de revisão:
 1. Criar o time correspondente na organização `GovHub-br`.
 2. Adicionar os membros responsáveis ao time.
 3. Definir o slug oficial do time, por exemplo `@GovHub-br/minc`.
-4. Criar ou identificar os diretórios do domínio no repositório.
-5. Adicionar os caminhos na workflow `Request team review`, ou documentar a label manual quando o domínio não puder ser inferido por caminho.
-6. Abrir um PR de teste alterando um arquivo do domínio ou aplicando a label correspondente e confirmar que o GitHub solicita revisão do time correto.
+4. Criar a label `team:*` correspondente, se ela ainda não existir.
+5. Mapear a label para o slug do time na workflow `Request team review`.
+6. Documentar quando a label deve ser usada.
+7. Abrir um PR de teste, aplicar a label correspondente e confirmar que o GitHub solicita revisão do time correto.
 
 ### Número Mínimo de Aprovações
 
@@ -260,6 +262,8 @@ Para adicionar um novo projeto, ministério ou disciplina ao fluxo de revisão:
 ### Configuração Recomendada no GitHub
 
 Para aplicar essas regras automaticamente, o repositório usa a workflow `Request team review`.
+
+Caso o GitHub recuse a solicitação automática de review de um time, a workflow deve registrar um aviso sem bloquear o PR. Se a solicitação de reviewers por time continuar falhando, configure o secret `TEAM_REVIEW_TOKEN` com um token autorizado a solicitar reviewers no repositório e ler times da organização.
 
 Além da workflow, a branch `main` deve manter as seguintes proteções habilitadas:
 
