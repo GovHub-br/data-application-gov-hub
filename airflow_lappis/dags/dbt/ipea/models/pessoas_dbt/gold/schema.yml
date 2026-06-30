@@ -106,13 +106,15 @@ models:
 
 
 
-  - name: hierarquia
+  - name: forca_trabalho
     description: >
       Tabela que correlaciona dados do SIAPE (dados funcionais e pessoais dos servidores)
       com a estrutura organizacional do SIORG, atribuindo uma métrica de hierarquia aos cargos
       com base na codificação da função. A hierarquia é determinada por uma fórmula baseada
       na categoria e no nível do cargo. A tabela também indica se o cargo é de carreira ou de
       nomeação livre, além de consolidar informações sobre o servidor e sua chefia imediata.
+      Estagiários (ESTAGIARIO SIGEPE) utilizam nome_cargo diretamente do SIAPE, pois não
+      possuem correspondência na estrutura SIORG.
 
     meta:
       tags:
@@ -379,7 +381,7 @@ models:
   - name: distribuicao_raca_cor_sexo
     description: >
       Tabela agregada que apresenta a distribuição de servidores por raça/cor e sexo.
-      A análise utiliza dados da tabela de hierarquia para calcular a quantidade de servidores
+      A análise utiliza dados da tabela de forca_trabalho para calcular a quantidade de servidores
       por gênero em cada categoria de raça/cor e situação funcional.
       O campo 'feminino' é multiplicado por -1 para facilitar visualizações em pirâmide.
     meta:
