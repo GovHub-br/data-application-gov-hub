@@ -50,6 +50,9 @@ models:
       +schema: sistema_sisbolsas
       bronze:
         +materialized: table
+    mcid:
+      +materialized: table
+      +schema: mcid
     # siape_dbt: 
     #   +materialized: table 
     #   +schema: siape 

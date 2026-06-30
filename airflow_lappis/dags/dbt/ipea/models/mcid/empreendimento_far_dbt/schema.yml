@@ -1,0 +1,108 @@
+version: 2
+
+models:
+  - name: empreendimento_far
+    description: Tabela de empreendimentos FAR do sistema MCID.
+    columns:
+      - name: apf
+        description: Chave primaria do empreendimento FAR.
+        tests:
+          - unique
+          - not_null
+      - name: uf
+        description: Sigla da unidade federativa do empreendimento.
+        tests:
+          - accepted_values:
+              values:
+                - AC
+                - AL
+                - AP
+                - AM
+                - BA
+                - CE
+                - DF
+                - ES
+                - GO
+                - MA
+                - MT
+                - MS
+                - MG
+                - PA
+                - PB
+                - PR
+                - PE
+                - PI
+                - RJ
+                - RN
+                - RS
+                - RO
+                - RR
+                - SC
+                - SP
+                - SE
+                - TO
+      - name: valor_contratado
+        description: Valor contratado do empreendimento.
+        tests:
+          - accepted_numeric_range:
+              min_value: 0
+      - name: valor_investimento
+        description: Valor de investimento do empreendimento.
+        tests:
+          - accepted_numeric_range:
+              min_value: 0
+      - name: valor_repasse
+        description: Valor de repasse do empreendimento.
+        tests:
+          - accepted_numeric_range:
+              min_value: 0
+      - name: percentual_execucao_fisica
+        description: Percentual de execucao fisica do empreendimento.
+        tests:
+          - accepted_numeric_range:
+              min_value: 0
+              max_value: 120
+      - name: percentual_execucao_financeira
+        description: Percentual de execucao financeira do empreendimento.
+        tests:
+          - accepted_numeric_range:
+              min_value: 0
+              max_value: 120
+
+  - name: evolucao_financeira
+    description: Tabela de evolucao financeira dos empreendimentos FAR.
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns:
+            - apf
+            - data_referencia
+    columns:
+      - name: apf
+        description: Identificador do empreendimento FAR.
+        tests:
+          - not_null
+      - name: data_referencia
+        description: Data de referencia da evolucao financeira.
+        tests:
+          - not_null
+      - name: valor_liberado
+        description: Valor financeiro liberado no periodo.
+        tests:
+          - accepted_numeric_range:
+              min_value: 0
+      - name: valor_desembolsado
+        description: Valor financeiro desembolsado no periodo.
+        tests:
+          - accepted_numeric_range:
+              min_value: 0
+      - name: valor_executado
+        description: Valor financeiro executado no periodo.
+        tests:
+          - accepted_numeric_range:
+              min_value: 0
+      - name: percentual_execucao_financeira
+        description: Percentual de execucao financeira no periodo.
+        tests:
+          - accepted_numeric_range:
+              min_value: 0
+              max_value: 120
