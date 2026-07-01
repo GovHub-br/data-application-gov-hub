@@ -4,7 +4,11 @@ sources:
   - name: transferegov_fundo_a_fundo
     schema: transferegov_fundo_a_fundo
     tables:
-      - name: raw_programas
-      - name: raw_planos_acao
-      - name: relatorios_gestao
-      - name: anexos_relatorios
+      - name: lpg_dados_pessoa_fisica
+      - name: lpg_dados_pessoa_juridica
+      - name: lpg_dados_coletivos
+      - name: pnab_pessoas
+      - name: pnab_organizacoes
+      - name: lpg_contemplados
+      - name: raw_pnab_lista_contemplados_geral
+      - name: raw_pnab_lista_contemplados_pncv
