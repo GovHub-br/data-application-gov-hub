@@ -1,0 +1,278 @@
+version: 2
+
+models:
+  - name: silver_abecip_novos_financiamentos_imobiliarios
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [ano, mes, banco]
+    columns:
+      - name: ano
+        tests: [not_null]
+      - name: mes
+        tests: [not_null]
+      - name: banco
+        tests: [not_null]
+
+  - name: silver_abecip_poupanca_sbpe
+    columns:
+      - name: data_referencia
+        tests: [unique, not_null]
+
+  - name: silver_abecip_sbpe_financiamentos_habitacionais
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [ano, mes]
+    columns:
+      - name: ano
+        tests: [not_null]
+      - name: mes
+        tests: [not_null]
+
+  - name: silver_abramat_indice
+    columns:
+      - name: data_referencia
+        tests: [unique, not_null]
+
+  - name: silver_bacen_financiamentos_imobiliarios
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [tipo, data_referencia]
+    columns:
+      - name: tipo
+        tests: [not_null]
+      - name: data_referencia
+        tests: [not_null]
+
+  - name: silver_balancos_empresas
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [nome_empresa, ano_balanco, trimestre_balanco]
+    columns:
+      - name: nome_empresa
+        tests: [not_null]
+      - name: ano_balanco
+        tests: [not_null]
+      - name: trimestre_balanco
+        tests: [not_null]
+
+  - name: silver_cbic_lancamentos_vendas
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [ano, trimestre]
+    columns:
+      - name: ano
+        tests: [not_null]
+      - name: trimestre
+        tests: [not_null]
+
+  - name: silver_fgts_financiamentos_habitacionais
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [ano, mes]
+    columns:
+      - name: ano
+        tests: [not_null]
+      - name: mes
+        tests: [not_null]
+
+  - name: silver_fgv_icst
+    columns:
+      - name: data_referencia
+        tests: [unique, not_null]
+
+  - name: silver_fgv_incc_m
+    columns:
+      - name: data_referencia
+        tests: [unique, not_null]
+
+  - name: silver_financiamentos_habitacionais
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [ano, trimestre]
+    columns:
+      - name: ano
+        tests: [not_null]
+      - name: trimestre
+        tests: [not_null]
+
+  - name: silver_fipezap_locacao
+    columns:
+      - name: data_referencia
+        tests: [unique, not_null]
+
+  - name: silver_ibge_pib_construcao_civil
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [variavel_id, periodo]
+    columns:
+      - name: variavel_id
+        tests: [not_null]
+      - name: periodo
+        tests: [not_null]
+
+  - name: silver_ibge_pnadc_ocupados_construcao
+    columns:
+      - name: periodo
+        tests: [unique, not_null]
+
+  - name: silver_ibge_pnadc_rendimento_construcao
+    columns:
+      - name: periodo
+        tests: [unique, not_null]
+
+  - name: silver_ibge_sinapi
+    columns:
+      - name: data_referencia
+        tests: [unique, not_null]
+
+  - name: silver_imob_infomoney
+    columns:
+      - name: data_referencia
+        tests: [unique, not_null]
+
+  - name: silver_novo_caged
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [ano, mes]
+    columns:
+      - name: ano
+        tests: [not_null]
+      - name: mes
+        tests: [not_null]
+
+  - name: silver_ticket_medio_empresas
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [ano, trimestre]
+    columns:
+      - name: ano
+        tests: [not_null]
+      - name: trimestre
+        tests: [not_null]
+
+  - name: gold_abecip_novos_financiamentos_imobiliarios
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [ano, mes, banco]
+    columns:
+      - name: ano
+        tests: [not_null]
+      - name: mes
+        tests: [not_null]
+      - name: banco
+        tests: [not_null]
+
+  - name: gold_balancos_empresas_lancamentos
+    columns:
+      - name: nome_empresa
+        tests: [unique, not_null]
+
+  - name: gold_balancos_empresas_vendas
+    columns:
+      - name: nome_empresa
+        tests: [unique, not_null]
+
+  - name: gold_cbic_lancamentos
+    columns:
+      - name: periodo
+        tests: [unique, not_null]
+
+  - name: gold_cbic_lancamentos_regiao
+    columns:
+      - name: regiao
+        tests: [unique, not_null]
+
+  - name: gold_cbic_vendas
+    columns:
+      - name: periodo
+        tests: [unique, not_null]
+
+  - name: gold_cbic_vendas_regiao
+    columns:
+      - name: regiao
+        tests: [unique, not_null]
+
+  - name: gold_empregos_construcao
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [ano, trimestre]
+    columns:
+      - name: ano
+        tests: [not_null]
+      - name: trimestre
+        tests: [not_null]
+
+  - name: gold_fgts_renda_familiar
+    columns:
+      - name: ordem
+        tests: [unique, not_null]
+
+  - name: gold_financiamentos_habitacionais
+    columns:
+      - name: periodo
+        tests: [unique, not_null]
+
+  - name: gold_financiamentos_imobiliarios
+    columns:
+      - name: periodo
+        tests: [unique, not_null]
+
+  - name: gold_financiamento_pf_por_faixa
+    columns:
+      - name: ordem
+        tests: [unique, not_null]
+
+  - name: gold_ibge_pnad_construcao
+    columns:
+      - name: periodo
+        tests: [unique, not_null]
+
+  - name: gold_indicadores_financiamento_pf
+    description: >
+      Tabela singleton com indicadores consolidados de financiamento PF.
+      Retorna exatamente uma linha e nao ha chave primaria natural.
+    columns:
+      - name: mcmv_sbpe_uh_25
+        tests: [not_null]
+      - name: fin_pf_uh_25
+        tests: [not_null]
+
+  - name: gold_indices_mercado_imobiliario
+    columns:
+      - name: periodo
+        tests: [unique, not_null]
+
+  - name: gold_pib_construcao_civil
+    columns:
+      - name: indicador
+        tests: [unique, not_null]
+
+  - name: gold_precos_construcao
+    description: >
+      Tabela singleton com indicadores consolidados de precos da construcao.
+      Retorna exatamente uma linha e nao ha chave primaria natural.
+    columns:
+      - name: sinapi_custo_m2_dez25
+        tests: [not_null]
+      - name: incc_indice_dez25
+        tests: [not_null]
+
+  - name: gold_saldo_caderneta_poupanca
+    columns:
+      - name: ordem
+        tests: [unique, not_null]
+
+  - name: gold_ticket_medio_vs_incc
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [ano, trimestre]
+    columns:
+      - name: ano
+        tests: [not_null]
+      - name: trimestre
+        tests: [not_null]
+
+  - name: gold_uh_condicao_uso
+    columns:
+      - name: ordem
+        tests: [unique, not_null]

@@ -163,3 +163,52 @@ sources:
     - name: Q_A_C_D_tabela_de_resultado_01
     - name: Q_A_C_D_tabela_de_resultado_02
     - name: Q_A_C_D_tabela_complementar_01
+
+  - name: conjuntura_silver
+    database: cidades
+    schema: conjuntura_silver
+    tables:
+      - name: silver_abecip_novos_financiamentos_imobiliarios
+      - name: silver_abecip_poupanca_sbpe
+      - name: silver_abecip_sbpe_financiamentos_habitacionais
+      - name: silver_abramat_indice
+      - name: silver_bacen_financiamentos_imobiliarios
+      - name: silver_balancos_empresas
+      - name: silver_cbic_lancamentos_vendas
+      - name: silver_fgts_financiamentos_habitacionais
+      - name: silver_fgv_icst
+      - name: silver_fgv_incc_m
+      - name: silver_financiamentos_habitacionais
+      - name: silver_fipezap_locacao
+      - name: silver_ibge_pib_construcao_civil
+      - name: silver_ibge_pnadc_ocupados_construcao
+      - name: silver_ibge_pnadc_rendimento_construcao
+      - name: silver_ibge_sinapi
+      - name: silver_imob_infomoney
+      - name: silver_novo_caged
+      - name: silver_ticket_medio_empresas
+
+  - name: conjuntura_gold
+    database: cidades
+    schema: conjuntura_gold
+    tables:
+      - name: gold_abecip_novos_financiamentos_imobiliarios
+      - name: gold_balancos_empresas_lancamentos
+      - name: gold_balancos_empresas_vendas
+      - name: gold_cbic_lancamentos
+      - name: gold_cbic_lancamentos_regiao
+      - name: gold_cbic_vendas
+      - name: gold_cbic_vendas_regiao
+      - name: gold_empregos_construcao
+      - name: gold_fgts_renda_familiar
+      - name: gold_financiamentos_habitacionais
+      - name: gold_financiamentos_imobiliarios
+      - name: gold_financiamento_pf_por_faixa
+      - name: gold_ibge_pnad_construcao
+      - name: gold_indicadores_financiamento_pf
+      - name: gold_indices_mercado_imobiliario
+      - name: gold_pib_construcao_civil
+      - name: gold_precos_construcao
+      - name: gold_saldo_caderneta_poupanca
+      - name: gold_ticket_medio_vs_incc
+      - name: gold_uh_condicao_uso

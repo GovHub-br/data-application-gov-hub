@@ -50,6 +50,16 @@ models:
       +schema: sistema_sisbolsas
       bronze:
         +materialized: table
+    mcid:
+      conjuntura_dbt:
+        +materialized: table
+        +schema: conjuntura
+        silver:
+          +materialized: table
+          +schema: conjuntura_silver
+        gold:
+          +materialized: table
+          +schema: conjuntura_gold
     # siape_dbt: 
     #   +materialized: table 
     #   +schema: siape 
