@@ -1,9 +1,9 @@
-name: 'cultura'
+name: 'minc'
 
 version: 1.0.0
 config-version: 2
 
-profile: cultura
+profile: minc
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
@@ -17,7 +17,7 @@ clean-targets:
   - "logs"
 
 models:
-  cultura:
+  minc:
     metadata:
       +materialized: incremental
       +schema: metadata

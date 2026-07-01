@@ -1,12 +1,12 @@
-cultura:
+minc:
   target: prod
   outputs:
     prod:
       type: postgres
-      host: "{{ env_var('DB_DW_HOST_CULTURA', 'dummy_host') }}"
-      port: "{{ env_var('DB_DW_PORT_CULTURA', '5432') | int }}"
-      user: "{{ env_var('DB_DW_USER_CULTURA', 'dummy_user') }}"
-      password: "{{ env_var('DB_DW_PASS_CULTURA', 'dummy_pass') }}"
-      dbname: "{{ env_var('DB_DW_DATABASE_CULTURA', 'dummy_db') }}"
-      schema: "{{ env_var('DB_DW_SCHEMA_CULTURA', 'cultura') }}"
+      host: "{{ env_var('DB_DW_HOST', 'postgres') }}"
+      user: "{{ env_var('DB_DW_USER', 'postgres_dw') }}"
+      password: "{{ env_var('DB_DW_PASSWORD', 'postgres_dw') }}"
+      port: "{{ env_var('DB_DW_PORT', '5432') | int }}"
+      dbname: "{{ env_var('DB_DW_DBNAME', 'data_warehouse') }}"
+      schema: "{{ env_var('DB_DW_SCHEMA', 'minc') }}"
       threads: 4
