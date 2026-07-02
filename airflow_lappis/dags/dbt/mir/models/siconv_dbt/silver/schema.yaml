@@ -459,7 +459,7 @@ models:
           nome_coluna: 'vl_global_prop'
           tipo_esperado: 'numeric'
 
-- name: convenio_proposta_pagamento
+  - name: convenio_proposta_pagamento
     description: >
       Tabela silver que cruza os 628 convênios do MIR com seus respectivos
       pagamentos e dados da proposta de origem. Granularidade de 1 linha por
