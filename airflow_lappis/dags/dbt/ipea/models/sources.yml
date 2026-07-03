@@ -18,6 +18,8 @@ sources:
       - name: nc_tesouro
       - name: pf_tesouro
       - name: visao_orcamentaria_total
+      - name: bolsas_pagas
+      - name: pagamentos_ob_bolsa
   
   - name: transfere_gov
     schema: transfere_gov

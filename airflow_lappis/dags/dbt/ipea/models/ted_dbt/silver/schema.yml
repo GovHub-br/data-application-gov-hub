@@ -123,3 +123,133 @@ models:
     - name: dt_ingest
       description: >
         Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: bolsistas_nc_tesouro
+    description: >
+      Liga cada pagamento de bolsa por bolsista (pagamentos_ob_bolsa) ao número de transferência (TED) de
+      origem, usando bolsas_pagas como ponte e nc_tesouro como destino. O grão é a linha de pagamento
+      (ob, oblc_sequencial) — preserva o mesmo bolsista que recebe em vários meses/OBs. Join 1:
+      pagamentos_ob_bolsa.ob = bolsas_pagas.item_informacao (traz a fonte de recurso e o ptres da bolsa).
+      Join 2: (fonte_recursos_codigo, ptres) = (nc_tesouro.nc_fonte_recursos, ptres), apenas notas de
+      crédito que são transferências reais (nc_transferencia não em '-8'/'-9'). Quando (fonte, ptres)
+      aponta para um único TED, num_transferencia é preenchido. Quando a fonte é compartilhada por vários
+      TEDs (ex.: o mesmo TED em tranches/anos diferentes, ou a fonte genérica '1000000000'), o vínculo é
+      ambíguo e num_transferencia fica EM BRANCO — não há como desambiguar automaticamente (a observação
+      do pagamento cita o nome do TED, mas nunca o número da transferência; só análise manual resolveria).
+      Todos os pagamentos são mantidos (LEFT JOIN); qtd_transferencia indica o motivo do branco:
+      0 = sem TED, >= 2 = ambíguo. É um modelo largo (silver): além do vínculo do TED, carrega o detalhe
+      do pagamento/bolsista, dados bancários, a classificação orçamentária da bolsa (fonte, ptres,
+      natureza, PI, empenhos) e um resumo do TED resolvido; a curadoria final de campos é feita na gold.
+    meta:
+      tags:
+        - silver
+    columns:
+    - name: ob
+      description: >
+        Número da Ordem Bancária que pagou o bolsista.
+      tests:
+        - not_null
+    - name: oblc_sequencial
+      description: >
+        Sequencial do bolsista dentro da OB/LC. Com ob forma a chave da linha de pagamento (grão).
+    - name: ob_lista_credores
+      description: >
+        Número da Lista de Credores (LC) associada à OB.
+    - name: documento_habil
+      description: >
+        Documento hábil do pagamento (ex.: NP) registrado em pagamentos_ob_bolsa.
+    - name: dh_mes_emissao
+      description: >
+        Mês de emissão do documento de pagamento.
+    - name: dh_dia_emissao
+      description: >
+        Data de emissão do documento de pagamento.
+    - name: dh_dia_pagamento
+      description: >
+        Data de pagamento da bolsa ao bolsista.
+    - name: emitente_ug_codigo
+      description: >
+        Código da Unidade Gestora emitente da OB.
+    - name: emitente_ug_nome
+      description: >
+        Nome da Unidade Gestora emitente da OB.
+    - name: bolsista_cpf
+      description: >
+        Documento (CPF) do bolsista favorecido pelo pagamento.
+    - name: bolsista_nome
+      description: >
+        Nome do bolsista favorecido pelo pagamento.
+    - name: oblc_banco_codigo
+      description: >
+        Código do banco do bolsista.
+    - name: oblc_banco_nome
+      description: >
+        Nome do banco do bolsista.
+    - name: oblc_agencia_bancaria_codigo
+      description: >
+        Código da agência bancária do bolsista.
+    - name: oblc_agencia_bancaria_nome
+      description: >
+        Nome da agência bancária do bolsista.
+    - name: oblc_conta_bancaria
+      description: >
+        Conta bancária do bolsista.
+    - name: valor_pago
+      description: >
+        Valor pago ao bolsista na OB/LC, em R$.
+    - name: ob_processo
+      description: >
+        Número do processo administrativo (SEI) da OB.
+    - name: observacao_pagamento
+      description: >
+        Observação do documento de pagamento (doc_observacao); costuma citar o nome do TED.
+    - name: fontes_recurso
+      description: >
+        Lista das fontes de recurso (códigos) da bolsa vinculadas à OB.
+    - name: fonte_recursos_descricao
+      description: >
+        Descrição (representativa por OB) da fonte de recurso da bolsa.
+    - name: ptres_list
+      description: >
+        Lista de PTRES da bolsa vinculados à OB.
+    - name: natureza_codigo
+      description: >
+        Código da natureza da despesa da bolsa (representativo por OB).
+    - name: natureza_descricao
+      description: >
+        Descrição da natureza da despesa da bolsa (representativa por OB).
+    - name: pi_codigo
+      description: >
+        Código do Plano Interno (PI) da bolsa (representativo por OB).
+    - name: pi_descricao
+      description: >
+        Descrição do Plano Interno (PI) da bolsa (representativa por OB).
+    - name: empenhos
+      description: >
+        Lista das notas de empenho (ne_ccor) da bolsa vinculadas à OB.
+    - name: processo_bolsa
+      description: >
+        Número do processo (SEI) registrado na bolsa paga.
+    - name: observacao_bolsa
+      description: >
+        Observação da bolsa paga; costuma citar o nome do TED.
+    - name: num_transferencia
+      description: >
+        Número de transferência (TED) de origem. Preenchido só quando (fonte, ptres) aponta para um único
+        TED; em branco quando não há TED ou quando é ambíguo — ver qtd_transferencia.
+    - name: qtd_transferencia
+      description: >
+        Quantidade de TEDs candidatos para a OB. 0 = sem TED; 1 = único (num_transferencia preenchido);
+        >= 2 = ambíguo (num_transferencia em branco; só análise manual resolve).
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) de ingestão do pagamento (pagamentos_ob_bolsa).
+    - name: ted_fonte_descricao
+      description: >
+        Descrição da fonte de recurso na nota de crédito do TED resolvido (ajuda a nomear o TED).
+    - name: ted_ug_responsavel
+      description: >
+        UG responsável pela nota de crédito do TED resolvido.
+    - name: ted_objeto
+      description: >
+        Objeto/finalidade do TED resolvido (do plano detalhado da nota de crédito).
