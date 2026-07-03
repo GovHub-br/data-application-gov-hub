@@ -63,7 +63,9 @@ with
         left join
             {{ ref("unidade_organizacional") }} as uo
             on df.sigla_uorg_exercicio = uo.sigla
-        where dt_ocorr_aposentadoria is null and dt_ocorr_exclusao is null
+        -- mantém servidores ativos e aposentados, excluindo apenas os
+        -- desligados (dt_ocorr_exclusao preenchida)
+        where df.dt_ocorr_exclusao is null
     ),
 
     -- select count(*) from codigos_siape;
@@ -175,7 +177,15 @@ with
                 when ph.nome_situacao_funcional = 'ATIVO EM OUTRO ORGAO'
                 then 'Ativo em outro órgão'
                 else ph.siglaunidade
-            end as unidade_exercicio
+            end as unidade_exercicio,
+            case
+                when
+                    df.nome_situacao_funcional = 'APOSENTADO'
+                    and df.dt_ocorr_aposentadoria is not null
+                    and df.dt_ocorr_exclusao is null
+                then true
+                else false
+            end as aposentado
         from hierarquia_filtrada as ph
         inner join {{ ref("dados_funcionais") }} as df on ph.cpf = df.cpf
     ),
@@ -185,9 +195,11 @@ with
             distinct
             ph.*,
             du.nome_municipio_uorg,
-            du.dt_ingest as dt_ingest_dados_uorg
+            -- left join para manter servidores sem uorg ativa (ex.: aposentados);
+            -- usa dt_ingest da hierarquia como fallback quando não há linha em uorg
+            coalesce(du.dt_ingest, ph.dt_ingest) as dt_ingest_dados_uorg
         from hierarquia_enriquecida as ph
-        inner join {{ ref("dados_uorg") }} as du on ph.cpf = du.cpf
+        left join {{ ref("dados_uorg") }} as du on ph.cpf = du.cpf
         order by caminho_unidade, hierarquia_cargo
     ),
 
@@ -222,6 +234,7 @@ with
             se.servidores_carreira,
             se.pdg,
             se.unidade_exercicio,
+            se.aposentado,
             se.nome_municipio_uorg,
             sd.cod_escolaridade_principal,
             sd.nome_escolaridade_principal,

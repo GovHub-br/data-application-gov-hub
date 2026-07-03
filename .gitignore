@@ -49,7 +49,10 @@ logs/
 .DS_Store
 Thumbs.db
 
-# VPN 
+# VPN
 /connect.sh
 *.ovpn
 *.p12
+
+poetry.toml
+mise.toml

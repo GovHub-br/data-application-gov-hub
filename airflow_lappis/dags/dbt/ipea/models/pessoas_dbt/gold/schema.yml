@@ -113,6 +113,8 @@ models:
       com base na codificação da função. A hierarquia é determinada por uma fórmula baseada
       na categoria e no nível do cargo. A tabela também indica se o cargo é de carreira ou de
       nomeação livre, além de consolidar informações sobre o servidor e sua chefia imediata.
+      Inclui servidores ativos e aposentados (excluindo apenas os desligados), sinalizando
+      os aposentados por meio da coluna booleana `aposentado`.
 
     meta:
       tags:
@@ -176,6 +178,12 @@ models:
         description: Modalidade de participação do servidor no PGD, com valores padronizados para análise.
       - name: unidade_exercicio
         description: Unidade de exercício tratada para exibição nas análises de hierarquia.
+      - name: aposentado
+        description: >
+          Flag booleana que indica se o servidor está aposentado. É verdadeira quando a
+          situação funcional é 'APOSENTADO', há data de ocorrência de aposentadoria
+          (dt_ocorr_aposentadoria preenchida) e não há data de exclusão
+          (dt_ocorr_exclusao nula); caso contrário, é falsa.
       - name: nome_municipio_uorg
         description: Município da unidade organizacional associado à sigla da unidade.
       - name: cod_escolaridade_principal
