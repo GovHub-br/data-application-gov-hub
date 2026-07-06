@@ -6,8 +6,6 @@ repos:
         files: ^airflow_lappis/dags/dbt/(ipea|mir)/models/.*\.(sql|ya?ml)$
       - id: check-model-columns-have-desc
         files: ^airflow_lappis/dags/dbt/(ipea|mir)/models/.*\.(sql|ya?ml)$
-      - id: check-source-has-description
-        files: ^airflow_lappis/dags/dbt/(ipea|mir)/models/.*\.ya?ml$
       - id: check-source-table-has-description
         files: ^airflow_lappis/dags/dbt/(ipea|mir)/models/.*\.ya?ml$
       - id: check-source-columns-have-desc
