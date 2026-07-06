@@ -8,6 +8,8 @@ AIRFLOW_LOCAL_DB_NAME ?= postgres
 AIRFLOW_LOCAL_DB_USER ?= postgres
 AIRFLOW_LOCAL_DB_PASSWORD ?= postgres
 AIRFLOW_LOCAL_DB_PORT ?= 5432
+DBT_IPEA_DIR := airflow_lappis/dags/dbt/ipea
+DBT_MIR_DIR := airflow_lappis/dags/dbt/mir
 
 setup:
 	@if ! command -v poetry >/dev/null 2>&1; then \
@@ -50,8 +52,8 @@ lint-ci:
 	poetry run sqlfluff lint ./airflow_lappis/dags/dbt --config .sqlfluff.ci --ignore templating
 
 dbt-docs-check:
-	cd airflow_lappis/dags/dbt/ipea && poetry run dbt parse --profiles-dir .
-	cd airflow_lappis/dags/dbt/mir && poetry run dbt parse --profiles-dir .
+	poetry run dbt parse --project-dir $(DBT_IPEA_DIR) --profiles-dir $(DBT_IPEA_DIR)
+	poetry run dbt parse --project-dir $(DBT_MIR_DIR) --profiles-dir $(DBT_MIR_DIR)
 	poetry run pre-commit run --config .pre-commit-config.yaml --all-files
 
 test:
