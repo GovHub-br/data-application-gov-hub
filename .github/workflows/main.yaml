@@ -45,6 +45,12 @@ jobs:
           BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
           HEAD_REF: ${{ github.sha }}
         run: |
+          cd airflow_lappis/dags/dbt/ipea
+          poetry run dbt parse --profiles-dir .
+          cd ../mir
+          poetry run dbt parse --profiles-dir .
+          cd "${GITHUB_WORKSPACE}"
+
           if [ -n "$BASE_REF" ] && [ "$BASE_REF" != "0000000000000000000000000000000000000000" ]; then
             poetry run pre-commit run --config .pre-commit-config.yaml --from-ref "$BASE_REF" --to-ref "$HEAD_REF"
           else

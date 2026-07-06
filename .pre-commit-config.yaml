@@ -3,10 +3,34 @@ repos:
     rev: v2.0.7
     hooks:
       - id: check-model-has-description
-        files: ^airflow_lappis/dags/dbt/(ipea|mir)/models/.*\.(sql|ya?ml)$
+        name: Check IPEA model descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/ipea/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/ipea/models/.*\.(sql|ya?ml)$
       - id: check-model-columns-have-desc
-        files: ^airflow_lappis/dags/dbt/(ipea|mir)/models/.*\.(sql|ya?ml)$
+        name: Check IPEA model column descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/ipea/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/ipea/models/.*\.(sql|ya?ml)$
       - id: check-source-table-has-description
-        files: ^airflow_lappis/dags/dbt/(ipea|mir)/models/.*\.ya?ml$
+        name: Check IPEA source table descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/ipea/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/ipea/models/.*\.ya?ml$
       - id: check-source-columns-have-desc
-        files: ^airflow_lappis/dags/dbt/(ipea|mir)/models/.*\.ya?ml$
+        name: Check IPEA source column descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/ipea/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/ipea/models/.*\.ya?ml$
+      - id: check-model-has-description
+        name: Check MIR model descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/mir/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/mir/models/.*\.(sql|ya?ml)$
+      - id: check-model-columns-have-desc
+        name: Check MIR model column descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/mir/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/mir/models/.*\.(sql|ya?ml)$
+      - id: check-source-table-has-description
+        name: Check MIR source table descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/mir/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/mir/models/.*\.ya?ml$
+      - id: check-source-columns-have-desc
+        name: Check MIR source column descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/mir/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/mir/models/.*\.ya?ml$

@@ -50,6 +50,8 @@ lint-ci:
 	poetry run sqlfluff lint ./airflow_lappis/dags/dbt --config .sqlfluff.ci --ignore templating
 
 dbt-docs-check:
+	cd airflow_lappis/dags/dbt/ipea && poetry run dbt parse --profiles-dir .
+	cd airflow_lappis/dags/dbt/mir && poetry run dbt parse --profiles-dir .
 	poetry run pre-commit run --config .pre-commit-config.yaml --all-files
 
 test:
