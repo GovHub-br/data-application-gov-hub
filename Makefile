@@ -49,6 +49,9 @@ lint-ci:
 	poetry run sqlfmt ./airflow_lappis/dags/dbt --check
 	poetry run sqlfluff lint ./airflow_lappis/dags/dbt --config .sqlfluff.ci --ignore templating
 
+dbt-docs-check:
+	poetry run pre-commit run --config .pre-commit-config.yaml --all-files
+
 test:
 	poetry run pytest tests
 	@echo ""
