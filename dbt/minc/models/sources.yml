@@ -4,6 +4,7 @@ sources:
   - name: transferegov_fundo_a_fundo
     schema: transferegov_fundo_a_fundo
     tables:
+<<<<<<< Updated upstream
       - name: lpg_dados_pessoa_fisica
       - name: lpg_dados_pessoa_juridica
       - name: lpg_dados_coletivos
@@ -12,3 +13,15 @@ sources:
       - name: lpg_contemplados
       - name: raw_pnab_lista_contemplados_geral
       - name: raw_pnab_lista_contemplados_pncv
+=======
+      - name: raw_programas
+      - name: raw_planos_acao
+      - name: raw_planos_acao_dado_bancario
+      - name: relatorios_gestao
+      - name: anexos_relatorios
+
+  - name: bsc_pnab
+    schema: bsc_pnab
+    tables:
+      - name: fato_bbagil
+>>>>>>> Stashed changes

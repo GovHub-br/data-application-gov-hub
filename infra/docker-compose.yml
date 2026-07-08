@@ -20,6 +20,7 @@ x-airflow-common: &airflow-common
     - ../helpers:/opt/airflow/helpers/
     - ../templates:/opt/airflow/templates/
     - ../dbt:/opt/airflow/dbt/
+    - ../data:/opt/airflow/data/
     - ../dbt/minc/profiles.yml:/opt/airflow/.dbt/profiles.yml
   depends_on: &airflow-common-depends-on
     postgres:
@@ -29,7 +30,13 @@ x-airflow-common: &airflow-common
 x-airflow-environment: &airflow-common-env
   AIRFLOW__CORE__DEFAULT_TIMEZONE: 'America/Sao_Paulo'
   AIRFLOW__CORE__EXECUTOR: LocalExecutor
-  AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY:-}
+  # Sem valor fixo, cada `docker compose up` sem .env pode gerar/perder uma
+  # chave diferente -- e qualquer senha de Connection criptografada com a
+  # chave antiga vira lixo indecifravel (foi o que corrompeu postgres_default
+  # e minio_default). Default aqui e so para dev local nunca ficar vazio;
+  # em producao, defina AIRFLOW__CORE__FERNET_KEY no .env e NUNCA troque sem
+  # antes re-criptografar as connections existentes (`airflow rotate-fernet-key`).
+  AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY:-I9n8l_FqCBVdaOEsuoAo92lCW2Qk2oSvUtaTW4OX17A=}
   AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
   AIRFLOW__CORE__TEST_CONNECTION: Enabled
   AIRFLOW__CORE__MAX_MAP_LENGTH: 15000
@@ -43,6 +50,12 @@ x-airflow-environment: &airflow-common-env
   AIRFLOW__WEBSERVER__NAVBAR_COLOR: '#112130'
   AIRFLOW__WEBSERVER__RELOAD_ON_PLUGIN_CHANGE: 'true'
   AIRFLOW__API__SECRET_KEY: ${AIRFLOW__API__SECRET_KEY:-local-dev-airflow-secret-key}
+  # Sem isso, cada subprocesso do `airflow standalone` (scheduler,
+  # api-server, dag-processor, triggerer) gera seu proprio jwt_secret
+  # aleatorio em memoria -- o token que o scheduler assina para uma task
+  # nao bate com a chave que o api-server usa para validar, e toda task
+  # falha com "Invalid auth token: Signature verification failed".
+  AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW__API_AUTH__JWT_SECRET:-local-dev-airflow-jwt-secret}
   PYTHONPATH: "/opt/airflow/dags:/opt/airflow/plugins:/opt/airflow/helpers"
   _AIRFLOW_DB_MIGRATE: 'true'
   AIRFLOW__CORE__PLUGINS_FOLDER: /opt/airflow/plugins
