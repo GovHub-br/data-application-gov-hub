@@ -195,6 +195,34 @@ def _extrair_subtransacoes(caminhos_extrato: dict[str, str]) -> dict[str, int]:
     else:
         pendentes_transacoes = df_extrato_bruto.iloc[0:0]
 
+    if not pendentes_transacoes.empty:
+        # A resposta do BSC nao devolve agencia/conta no corpo (apesar do
+        # que a doc antiga do endpoint sugeria) -- busca esses dois campos
+        # pelo id_plano_acao (== COL_ENTE) na tabela ja persistida pela
+        # descoberta Transferegov, em vez de depender do echo da API.
+        db = ClientPostgresDB(get_postgres_conn())
+        contas = db.execute_query(
+            "SELECT id_plano_acao, agencia, conta FROM "
+            "transferegov_fundo_a_fundo.raw_planos_acao_dado_bancario"
+        )
+        df_contas = pd.DataFrame(contas, columns=[regras.COL_ENTE, "agencia", "conta"])
+        pendentes_transacoes = pendentes_transacoes.copy()
+        tipo_ente_original = pendentes_transacoes[regras.COL_ENTE].dtype
+        pendentes_transacoes[regras.COL_ENTE] = pendentes_transacoes[
+            regras.COL_ENTE
+        ].astype(str)
+        df_contas[regras.COL_ENTE] = df_contas[regras.COL_ENTE].astype(str)
+        pendentes_transacoes = pendentes_transacoes.merge(
+            df_contas, on=regras.COL_ENTE, how="left"
+        )
+        # Volta ao dtype original -- o merge exige string dos dois lados
+        # (Postgres guarda id_plano_acao como TEXT), mas o restante do
+        # pipeline (e o concat com o extrato em montar_fato_bbagil) espera
+        # o mesmo tipo numerico usado no resto do dataframe.
+        pendentes_transacoes[regras.COL_ENTE] = pendentes_transacoes[
+            regras.COL_ENTE
+        ].astype(tipo_ente_original)
+
     itens = [linha for _, linha in pendentes_transacoes.iterrows()]
     pendentes = [item for item in itens if not _caminho_subtransacao(item).exists()]
     logging.info(

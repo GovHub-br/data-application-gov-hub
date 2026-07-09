@@ -68,7 +68,7 @@ class AsyncBscClient:
         self,
         session: aiohttp.ClientSession,
         token_provider: AsyncTokenProvider,
-        base_url: str = settings.BSC_BASE_URL,
+        base_url: str = settings.SERPRO_BASE_URL,
         max_concurrent_requests: int = settings.BSC_MAX_CONCURRENT_REQUESTS,
         request_throttle_seconds: float = settings.BSC_REQUEST_THROTTLE_SECONDS,
         max_retries: int = settings.BSC_MAX_RETRIES,
@@ -181,44 +181,42 @@ class AsyncBscClient:
     # -- Beneficiarios (CPF/CNPJ) ------------------------------------------------
 
     async def cpf_list(self, cpfs: list[str]) -> Any:
-        return await self._post(
-            "/serpro/api/cpf/list", payloads.build_payload_cpf_list(cpfs)
-        )
+        return await self._post("/api/cpf/list", payloads.build_payload_cpf_list(cpfs))
 
     async def cnpj_detalhe(self, cnpj: str) -> Any:
         return await self._post(
-            "/serpro/api/cnpj/detalhe", payloads.build_payload_cnpj_detalhe(cnpj)
+            "/api/cnpj/detalhe", payloads.build_payload_cnpj_detalhe(cnpj)
         )
 
     async def cnpj_basico(self, cnpj: str) -> Any:
         return await self._post(
-            "/serpro/api/cnpj/basico", payloads.build_payload_cnpj_basico(cnpj)
+            "/api/cnpj/basico", payloads.build_payload_cnpj_basico(cnpj)
         )
 
     async def cadunico_cpf(self, cpf: str) -> Any:
         return await self._post(
-            "/serpro/api/cadunico/cpf", payloads.build_payload_cadunico(cpf)
+            "/api/cadunico/cpf", payloads.build_payload_cadunico(cpf)
         )
 
     async def beneficio_prestacao_continuada(self, cpf: str) -> Any:
         return await self._post(
-            "/serpro/api/inss/v2/beneficio-prestacao-continuada",
+            "/api/inss/v2/beneficio-prestacao-continuada",
             payloads.build_payload_bpc(cpf),
         )
 
     async def relacao_trabalhista(self, cpf: str) -> Any:
         return await self._post(
-            "/serpro/api/inss/v1/relacao-trabalhista",
+            "/api/inss/v1/relacao-trabalhista",
             payloads.build_payload_relacao_trabalhista(cpf),
         )
 
-    # -- BB Gestao Agil ------------------------------------------------------
+    # -- BB Gestao Agil (Orgao de Controle) ------------------------------------
 
     async def bbagil_extrato_orgao_controle(
         self, agencia: int, numero_conta: int, periodo_inicial: str, periodo_final: str
     ) -> Any:
         return await self._post(
-            "/serpro/api/bb-gestao-agil/extrato-orgao-controle",
+            "/api/bb-gestao-agil/extrato-orgao-controle",
             payloads.build_payload_bbagil_extrato_controle(
                 agencia, numero_conta, periodo_inicial, periodo_final
             ),
@@ -228,10 +226,34 @@ class AsyncBscClient:
         self, agencia: str, numero_conta: str, id_transaction: str
     ) -> Any:
         return await self._post(
-            "/serpro/api/bb-gestao-agil/extrato-sub-lancamentos-orgao-controle",
+            "/api/bb-gestao-agil/extrato-sub-lancamentos-orgao-controle",
             payloads.build_payload_bbagil_subtransacoes(
                 agencia, numero_conta, id_transaction
             ),
+        )
+
+    # -- Endpoints de saldo (Orgao de Repasse) --------------------------------
+    # Sem contrapartida confirmada para "orgao-controle" no Swagger visto ate
+    # agora. Nao usados pela DAG atual (extrato/subtransacoes de orgao de
+    # controle) -- mantidos aqui sem validacao contra a API ate confirmar o
+    # endpoint certo para consulta de saldo de conta de ente recebedor.
+    async def bbagil_saldo_conta_corrente_orgao_repasse(
+        self, agencia: int, numero_conta: int
+    ) -> Any:
+        # Path com a grafia exata do Swagger do BSC ("correte", nao
+        # "corrente") -- nao "corrigir" o typo, o servidor so responde
+        # nesse path literal.
+        return await self._post(
+            "/api/bb-gestao-agil/saldo-conta-correte-orgao-repasse",
+            payloads.build_payload_bbagil_saldo_conta(agencia, numero_conta),
+        )
+
+    async def bbagil_saldo_aplicacoes_financeiras(
+        self, agencia: int, numero_conta: int
+    ) -> Any:
+        return await self._post(
+            "/api/bb-gestao-agil/saldo-aplicacoes-financeiras",
+            payloads.build_payload_bbagil_saldo_conta(agencia, numero_conta),
         )
 
 

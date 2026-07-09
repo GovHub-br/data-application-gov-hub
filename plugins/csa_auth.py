@@ -57,8 +57,9 @@ class TokenProvider:
         )
         headers = {
             "accept": "*/*",
-            "clientId": self.client_id,
+            "clientid": self.client_id,
             "clientSecret": self.client_secret,
+            "ldap": "false",
         }
         response = httpx.get(self.token_url, headers=headers, timeout=self.timeout)
         response.raise_for_status()
@@ -114,8 +115,9 @@ class AsyncTokenProvider:
             )
             headers = {
                 "accept": "*/*",
-                "clientId": self.client_id,
+                "clientid": self.client_id,
                 "clientSecret": self.client_secret,
+                "ldap": "false",
             }
             async with self.session.get(
                 self.token_url,

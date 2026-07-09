@@ -92,6 +92,17 @@ def build_payload_bbagil_extrato_controle(
     }
 
 
+def build_payload_bbagil_saldo_conta(agencia: int, numero_conta: int) -> dict[str, Any]:
+    """Usado pelos endpoints de saldo (conta corrente e aplicacoes
+    financeiras), que compartilham o mesmo contrato de requisicao do
+    extrato menos os campos de periodo."""
+    return {
+        **_base_auditoria(),
+        "agencia": agencia,
+        "numeroConta": numero_conta,
+    }
+
+
 def build_payload_bbagil_subtransacoes(
     agencia: str, numero_conta: str, id_transaction: str
 ) -> dict[str, Any]:

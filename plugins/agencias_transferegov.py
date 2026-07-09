@@ -9,6 +9,7 @@ testar fora do container. O restante da logica (paginacao, parsing de
 Content-Range, selecao de conta ativa etc.) esta inalterado.
 """
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 import logging
 from pathlib import Path
@@ -341,6 +342,7 @@ def get_contas_agencias_programas(
     codigos_programas: list[str],
     page_size: int = 1000,
     logger: logging.Logger | None = None,
+    max_workers: int = 20,
 ) -> list[dict]:
     """
     Retorna contas e agências dos planos de ação dos programas informados.
@@ -355,14 +357,18 @@ def get_contas_agencias_programas(
     O fluxo é, para cada id em ``codigos_programas``:
     1. Consulta o programa no Transferegov (``get_id_programa``);
     2. Consulta os planos de ação vinculados (``get_ids_plano_acao``);
-    3. Consulta a conta/agência de cada plano de ação (``get_agencia_conta``).
+    3. Consulta a conta/agência de cada plano de ação (``get_agencia_conta``),
+       em paralelo (``max_workers`` threads) -- programas grandes (5-6 mil
+       planos) rodavam essa etapa em serie, um HTTP GET por plano.
     """
 
     logger = _get_logger(logger)
     logger.info(
-        "Iniciando extração de contas e agências | programas=%s | page_size=%s",
+        "Iniciando extração de contas e agências | programas=%s | page_size=%s | "
+        "max_workers=%s",
         len(codigos_programas),
         page_size,
+        max_workers,
     )
 
     registros = []
@@ -400,31 +406,42 @@ def get_contas_agencias_programas(
             total_planos,
         )
 
-        for plano_acao in planos_acao.to_dict("records"):
-            agencia_conta = get_agencia_conta(plano_acao["id_plano_acao"]) or {}
+        planos_acao_records = planos_acao.to_dict("records")
 
-            if agencia_conta:
-                contas_encontradas_programa += 1
-                total_contas_encontradas += 1
-            else:
-                planos_sem_conta_programa += 1
-                total_planos_sem_conta += 1
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_para_plano = {
+                executor.submit(get_agencia_conta, plano_acao["id_plano_acao"]): plano_acao
+                for plano_acao in planos_acao_records
+            }
 
-            registros.append(
-                {
-                    "id_programa": programa_api["id_programa"],
-                    "codigo_programa": programa_api["codigo_programa"],
-                    "nome_programa": programa_api["nome_programa"],
-                    "id_plano_acao": plano_acao["id_plano_acao"],
-                    "agencia": agencia_conta.get(
-                        "numero_agencia_plano_acao_dado_bancario"
-                    ),
-                    "conta": agencia_conta.get("numero_conta_plano_acao_dado_bancario"),
-                    "situacao_conta": agencia_conta.get(
-                        "situacao_conta_plano_acao_dado_bancario"
-                    ),
-                }
-            )
+            for future in as_completed(future_para_plano):
+                plano_acao = future_para_plano[future]
+                agencia_conta = future.result() or {}
+
+                if agencia_conta:
+                    contas_encontradas_programa += 1
+                    total_contas_encontradas += 1
+                else:
+                    planos_sem_conta_programa += 1
+                    total_planos_sem_conta += 1
+
+                registros.append(
+                    {
+                        "id_programa": programa_api["id_programa"],
+                        "codigo_programa": programa_api["codigo_programa"],
+                        "nome_programa": programa_api["nome_programa"],
+                        "id_plano_acao": plano_acao["id_plano_acao"],
+                        "agencia": agencia_conta.get(
+                            "numero_agencia_plano_acao_dado_bancario"
+                        ),
+                        "conta": agencia_conta.get(
+                            "numero_conta_plano_acao_dado_bancario"
+                        ),
+                        "situacao_conta": agencia_conta.get(
+                            "situacao_conta_plano_acao_dado_bancario"
+                        ),
+                    }
+                )
 
         logger.info(
             "Programa finalizado | id_programa=%s | planos=%s | contas=%s | sem_conta=%s",

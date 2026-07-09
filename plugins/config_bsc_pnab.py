@@ -56,7 +56,15 @@ SCA_TOKEN_TTL_SECONDS = int(os.getenv("SCA_TOKEN_TTL_SECONDS", str(55 * 60)))
 # --------------------------------------------------------------------------
 # BSC / auditoria (campos obrigatorios em todo payload)
 # --------------------------------------------------------------------------
+# Dominio raiz do BSC. A autenticacao (SCA_TOKEN_URL) e os endpoints de
+# negocio (SERPRO_BASE_URL) vivem sob prefixos distintos (/sca/ vs /serpro/)
+# do mesmo dominio -- nao reaproveitar a base do token para as chamadas de
+# negocio.
 BSC_BASE_URL = os.getenv("BSC_BASE_URL", "https://bsc.cultura.gov.br")
+
+# Base URL dos endpoints de negocio (BB Gestao Agil, CPF/CNPJ, CadUnico etc.),
+# sob o prefixo /serpro/ conforme o Swagger do BSC.
+SERPRO_BASE_URL = os.getenv("SERPRO_BASE_URL", f"{BSC_BASE_URL}/serpro")
 BSC_CPF_CONSULTA = os.getenv("BSC_CPF_CONSULTA", "")
 BSC_USUARIO = os.getenv("BSC_USUARIO", "admin.user")
 BSC_IP_ORIGEM = os.getenv("BSC_IP_ORIGEM", "127.0.0.1")
@@ -81,7 +89,7 @@ BSC_MAX_RETRIES = int(os.getenv("BSC_MAX_RETRIES", "3"))
 BSC_RETRY_BACKOFF_BASE_SECONDS = float(os.getenv("BSC_RETRY_BACKOFF_BASE_SECONDS", "1.0"))
 BSC_MAX_REQUESTS = int(os.getenv("BSC_MAX_REQUESTS", "200000"))
 
-EMPTY_EXTRATO_ERROR_MESSAGE = "Nao existem lancamentos para a conta no periodo informado"
+EMPTY_EXTRATO_ERROR_MESSAGE = "Não existem lançamentos para a conta no período informado"
 
 # --------------------------------------------------------------------------
 # Parametros de negocio (PNAB) - ajustaveis via Airflow Variable sem deploy

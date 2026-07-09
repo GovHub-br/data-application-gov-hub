@@ -29,7 +29,7 @@ COL_DESCRICAO = "descriptionName"
 COL_CREDITO_DEBITO = "creditDebitIndicator"
 COL_VALUE_DATE = "valueDate"  # extrato, formato DD/MM/YYYY
 COL_PAYMENT_DATE = "paymentDate"  # subtransacoes, formato DD/MM/YYYY
-COL_VALOR_EXTRATO = "valor"
+COL_VALOR_EXTRATO = "value"
 COL_VALOR_SUBTRANSACAO = "value"
 COL_ACCOUNTABILITY = "subtransactionAccountabilityName"
 COL_ENTE = "ente"
@@ -259,16 +259,22 @@ def montar_fato_bbagil(
     ``fato_bbagil``."""
     partes = []
 
+    # COL_ENTE normalizado para string nas duas partes: extrato e
+    # subtransacoes podem trazer o id_plano_acao em dtypes diferentes
+    # (a origem final e sempre um identificador, nao um numero a operar),
+    # e um dtype misto no concat quebra a serializacao para Parquet.
     if not df_extrato_filtrado.empty:
         parte_extrato = df_extrato_filtrado.rename(
             columns={COL_VALOR_EXTRATO: "valor_pago"}
         )[[COL_ENTE, COL_BENEFICIARIO_DOC, "valor_pago"]]
+        parte_extrato[COL_ENTE] = parte_extrato[COL_ENTE].astype(str)
         partes.append(parte_extrato)
 
     if not df_subtransacoes_filtradas.empty:
         parte_sub = df_subtransacoes_filtradas.rename(
             columns={COL_VALOR_SUBTRANSACAO: "valor_pago"}
         )[[COL_ENTE, COL_BENEFICIARIO_DOC, "valor_pago"]]
+        parte_sub[COL_ENTE] = parte_sub[COL_ENTE].astype(str)
         partes.append(parte_sub)
 
     if not partes:
