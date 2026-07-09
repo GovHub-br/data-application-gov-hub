@@ -103,7 +103,9 @@ class ClienteSenadores(ClienteBase):
 
         if status == http.HTTPStatus.OK and isinstance(data, dict):
             try:
-                root = data.get("FiliacaoParlamentar", data.get("ListaFiliacoesParlamentar", {}))
+                root = data.get(
+                    "FiliacaoParlamentar", data.get("ListaFiliacoesParlamentar", {})
+                )
                 parlamentar = root.get("Parlamentar")
                 if isinstance(parlamentar, dict):
                     root = parlamentar

@@ -67,7 +67,7 @@ class ClientePNCP(ClienteBase):
         self,
         data_inicial: str,
         data_final: str,
-        codigo_modalidade_contratacao: Optional[int] = None,
+        codigo_modalidade_contratacao: int,
         uf: Optional[str] = None,
         codigo_municipio_ibge: Optional[int] = None,
         cnpj: Optional[str] = None,
@@ -182,13 +182,24 @@ class ClientePNCP(ClienteBase):
         agregados: List[Dict[str, Any]] = []
         pagina = pagina_inicial
         paginas_coletadas = 0
+        total_paginas_api = None
 
         while True:
+
             if max_paginas is not None and paginas_coletadas >= max_paginas:
-                logger.info("[cliente_pncp.py] Max de páginas atingido: %s", max_paginas)
+                logger.info(
+                    "[cliente_pncp.py] Max de páginas solicitadas atingido: %s",
+                    max_paginas,
+                )
                 break
 
-            page_data, max_paginas = self.get_contratacoes_publicacao(
+            if total_paginas_api is not None and paginas_coletadas >= total_paginas_api:
+                logger.info(
+                    "[cliente_pncp.py] Max de páginas atingido: %s", total_paginas_api
+                )
+                break
+
+            page_data, total_paginas_api = self.get_contratacoes_publicacao(
                 data_inicial=data_inicial,
                 data_final=data_final,
                 codigo_modalidade_contratacao=codigo_modalidade_contratacao,
@@ -401,7 +412,7 @@ class ClientePNCP(ClienteBase):
         return agregados
 
     def get_itens_e_resultados(
-        self, lista_chaves: List[Tuple[str, int, str]]
+        self, lista_chaves: List[str]
     ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
         Recebe lista de numeroControlePNCP e retorna:

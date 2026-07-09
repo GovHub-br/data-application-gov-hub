@@ -48,4 +48,5 @@ def notas_de_credito_mir_dag() -> None:
 
     fetch_and_store_notas_de_credito()
 
+
 notas_de_credito_mir_dag()

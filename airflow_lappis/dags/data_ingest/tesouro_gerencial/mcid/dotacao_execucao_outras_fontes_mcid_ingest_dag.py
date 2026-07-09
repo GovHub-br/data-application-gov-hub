@@ -157,7 +157,6 @@ with DAG(
             postgres_conn_str = get_postgres_conn()
             db = ClientPostgresDB(postgres_conn_str)
 
-
             db.insert_data(
                 data,
                 "dotacao_execucao_outras_fontes_mcid",

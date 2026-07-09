@@ -66,6 +66,7 @@ def senadores_ingest_dag() -> None:
                 primary_key=["id"],
                 schema="senado_federal",
             )
+
     @task
     def fetch_and_store_filiacoes() -> None:
         api = ClienteSenadores()
@@ -115,7 +116,7 @@ def senadores_ingest_dag() -> None:
                         f"[senadores_ingest_dag.py] Filiação processada: "
                         f"{nome} -> {sigla_partido} ({ano_filiacao})"
                     )
-        
+
         logging.info(
             f"[senadores_ingest_dag.py] Total de {len(registros_filiacoes)} "
             f"registros de filiações coletados da API."
@@ -131,7 +132,7 @@ def senadores_ingest_dag() -> None:
             )
             if chave_unica not in registros_deduplicated:
                 registros_deduplicated[chave_unica] = registro
-        
+
         registros_filiacoes = list(registros_deduplicated.values())
         logging.info(
             f"[senadores_ingest_dag.py] Após deduplicação: {len(registros_filiacoes)} "
@@ -140,18 +141,24 @@ def senadores_ingest_dag() -> None:
 
         # 4. Inserção no banco
         if registros_filiacoes:
-            logging.info(f"Inserindo {len(registros_filiacoes)} registros de histórico partidário.")
+            logging.info(
+                f"Inserindo {len(registros_filiacoes)} registros de histórico partidário."
+            )
             db.insert_data(
                 registros_filiacoes,
-                "senadores_filiacoes", # Nome da nova tabela única
+                "senadores_filiacoes",  # Nome da nova tabela única
                 conflict_fields=["id", "sigla_partido", "dt_filiacao"],
-                primary_key=["id", "sigla_partido", "dt_filiacao"], # Chave composta para permitir múltiplos registros do mesmo ID
+                primary_key=[
+                    "id",
+                    "sigla_partido",
+                    "dt_filiacao",
+                ],  # Chave composta para permitir múltiplos registros do mesmo ID
                 schema="senado_federal",
             )
+
     fetch_and_store_senadores()
 
     fetch_and_store_filiacoes()
-
 
 
 senadores_ingest_dag()
