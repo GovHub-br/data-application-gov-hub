@@ -14,6 +14,7 @@ class ClienteSiape:
     """
 
     BEARER_ENDPOINT = (
+        "https://apigateway.conectagov.estaleiro.serpro.gov.br/oauth2/jwt-token/"
         "***REMOVED***"
     )
     SOAP_ENDPOINT = "https://apigateway.conectagov.estaleiro.serpro.gov.br/api-consulta-siape/v1/consulta-siape"

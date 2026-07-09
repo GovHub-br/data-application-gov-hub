@@ -13,6 +13,9 @@ models:
       - name: contrato_id
         description: >
           Identificador único do contrato.
+        tests:
+          - unique
+          - not_null  
       - name: categoria
         description: >
           Categoria do contrato ( Informática, Serviços, Mão de Obra).
@@ -22,6 +25,8 @@ models:
       - name: cnpj_cpf
         description: >
           CNPJ ou CPF do fornecedor, formatado para remover caracteres especiais como barras, pontos e hífens.
+        tests:
+          - not_null
       - name: info_complementar
         description: >
           Informação complementar construída a partir da unidade gestora, código de modalidade e número do contrato ou licitação.

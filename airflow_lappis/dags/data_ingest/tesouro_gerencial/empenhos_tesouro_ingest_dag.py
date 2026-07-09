@@ -30,6 +30,21 @@ COLUMN_MAPPING = {
     6: "doc_observacao",
     7: "natureza_despesa",
     8: "natureza_despesa_descricao",
+    9: "ne_ccor_favorecido",
+    10: "ne_ccor_favorecido_descricao",
+    11: "ne_ccor_ano_emissao",
+    12: "ptres",
+    13: "fonte_recursos_detalhada",
+    14: "fonte_recursos_detalhada_descricao",
+    15: "despesas_empenhadas",
+    16: "despesas_liquidadas",
+    17: "despesas_pagas",
+    18: "restos_a_pagar_inscritos",
+    19: "restos_a_pagar_pagos",
+}
+
+EMAIL_SUBJECT = "notas_de_empenhos_a_partir_de_2024"
+SKIPROWS = 9
     9: "natureza_despesa_detalhada",
     10: "natureza_despesa_detalhada_descricao",
     11: "ne_ccor_favorecido",

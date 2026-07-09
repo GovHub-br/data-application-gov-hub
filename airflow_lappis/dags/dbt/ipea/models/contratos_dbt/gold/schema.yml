@@ -16,6 +16,14 @@ models:
       - name: contrato_id
         description: >
           Identificador único do contrato.
+        tests:
+          - unique
+          - not_null
+      - name: fornecedor_cnpj_cpf
+        description: >
+          CNPJ ou CPF do fornecedor contratado, com formatação padronizada.
+        tests:
+          - not_null
       - name: fornecedor_cnpj_cpf
         description: >
           CNPJ ou CPF do fornecedor contratado, com formatação padronizada.
@@ -52,6 +60,13 @@ models:
       - name: vigencia_inicio
         description: >
           Data de início da vigência do contrato.
+        tests:
+          - not_null
+      - name: vigencia_fim
+        description: >
+          Data de término da vigência do contrato.
+        tests:
+          - not_null
       - name: vigencia_fim
         description: >
           Data de término da vigência do contrato.
@@ -85,12 +100,16 @@ models:
       - name: contrato_id
         description: >
           Identificador único do contrato.
+        tests:
+          - not_null
       - name: numero
         description: >
           Número do contrato no sistema ComprasGov.
       - name: fornecedor_cnpj_cpf_idgener
         description: >
           CNPJ, CPF ou identificador genérico do fornecedor do contrato.
+        tests:
+          - not_null
       - name: fornecedor_tipo
         description: >
           Tipo do fornecedor do contrato.
@@ -134,12 +153,17 @@ models:
       - name: contrato_id
         description: >
           Identificador único do contrato.
+        tests:
+          - unique
+          - not_null  
       - name: numero
         description: >
           Número do contrato no sistema ComprasGov.
       - name: fornecedor_cnpj_cpf_idgener
         description: >
           CNPJ, CPF ou identificador genérico do fornecedor do contrato.
+        tests:
+          - not_null
       - name: fornecedor_tipo
         description: >
           Tipo do fornecedor do contrato.

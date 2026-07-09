@@ -23,6 +23,7 @@ Obrigado por considerar contribuir com o **Gov Hub BR**! O GovHub BR é uma plat
 
 ## Código de Conduta
 
+Por favor, leia nosso [Código de Conduta](CODE_OF_CONDUCT.md). Ele está em vigor o tempo todo e esperamos que seja respeitado por todos que contribuem para este projeto. Comportamentos inadequados não serão tolerados.
 Esperamos que todas as pessoas contribuam com respeito, colaboração e responsabilidade. Comportamentos inadequados, ofensivos ou discriminatórios não serão tolerados.
 
 ---
@@ -173,6 +174,7 @@ git rebase upstream/main
 git push origin feat/integracao-siafi-despesas
 ```
 
+Em seguida, abra um Pull Request no GitHub apontando para a branch `main` do repositório principal. O modelo de PR está disponível em `.github/TEMPLATES/PULL_REQUEST_TEMPLATE.md` e será preenchido automaticamente ao abrir um PR.
 Em seguida, abra um Pull Request no GitHub apontando para a branch `main` do repositório principal. O modelo de PR está disponível em `.github/PULL_REQUEST_TEMPLATE.md` e será preenchido automaticamente ao abrir um PR.
 
 As regras obrigatórias de abertura, revisão, aprovação e merge estão documentadas no [Protocolo de Aprovação de Pull Requests](MERGE_REQUEST_PROTOCOL.md).
@@ -182,6 +184,7 @@ As regras obrigatórias de abertura, revisão, aprovação e merge estão docume
 - [ ] As alterações funcionam corretamente no ambiente local
 - [ ] Os testes passam (`make test`)
 - [ ] O lint não aponta erros (`make lint`)
+- [ ] A branch está atualizada com `upstream/main`
 - [ ] A branch está atualizada com `upstream/main` ou `origin/main`
 - [ ] O título segue o padrão Conventional Commits
 - [ ] A issue relacionada está referenciada (`Closes #<número>`)
@@ -230,6 +233,7 @@ O repositório usa domínios de revisão (`IPEA`, `MIR`, `MCid`, `MinC` e `OSS`)
 make test
 
 # Testes DBT por modelo específico
+dbt test --select modelo_gold_orcamento
 cd airflow_lappis/dags/dbt/<projeto>
 dbt test --select <nome_do_modelo>
 
@@ -295,4 +299,5 @@ make format    # Aplica formatação automática
   Feito com 💜 pela comunidade GovHub BR &nbsp;·&nbsp;
   <a href="https://github.com/GovHub-br/data-application-gov-hub/issues">Reportar problema</a> &nbsp;·&nbsp;
   <a href="https://gov-hub.io/govhub/">Documentação</a>
+</div>
 </div>
