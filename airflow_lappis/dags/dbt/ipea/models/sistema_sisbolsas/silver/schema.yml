@@ -1,6 +1,87 @@
 version: 2
 
 models:
+  - name: anexo_iii_relacao_pagamentos
+    description: >
+      Modelo silver do Anexo III (APES/IPEA) - Relação de Pagamentos, na
+      granularidade de 1 linha por despesa lançada (`sisbolsas_tb_lancamento_despesa`).
+      Consolida beneficiário, CPF, número SEI e ordem bancária do auxílio,
+      instrumento bancário, tipo/natureza/categoria da despesa, valores
+      (despesa, aprovado, glosado), anexos e histórico de observações. Os campos
+      que só existem na foto do comprovante ou no extrato bancário (favorecido,
+      forma de pagamento, conciliação de extrato) ficam nulos para preenchimento
+      manual.
+    meta:
+      tags:
+        - silver
+    columns:
+      - name: beneficiario_auxilio
+        description: Nome do beneficiário do auxílio (usuário do Sisbolsas).
+      - name: cpf
+        description: CPF do beneficiário, padronizado apenas com dígitos.
+      - name: numero_auxilio_sei
+        description: Número SEI do auxílio/projeto registrado na concessão do auxílio.
+      - name: instrumento_financeiro
+        description: Instrumento financeiro (banco, agência e conta) da conta ativa preferencial do beneficiário.
+      - name: seq
+        description: Sequencial da despesa dentro do auxílio (beneficiário/seleção/bolsa), ordenado por data do comprovante.
+      - name: situacao
+        description: Situação textual do lançamento da despesa derivada de `st_lancamento_despesa`.
+      - name: situacao_codigo
+        description: Código bruto da situação do lançamento da despesa.
+      - name: natureza
+        description: Natureza da despesa (C = Custeio, K = Capital), derivada de `tp_categoria`.
+      - name: codigo_categoria
+        description: Código curto da categoria da despesa (DIA, TRA, SPF, SPJ, MAT, BES).
+      - name: id_despesa
+        description: Identificador derivado da despesa no formato `NNN-Natureza-Categoria` (ex. 001-C-TRA).
+      - name: favorecido
+        description: Favorecido da despesa - não existe no Sisbolsas (foto do comprovante); nulo para preenchimento manual.
+      - name: cpf_cnpj_favorecido
+        description: CPF/CNPJ do favorecido - não existe no Sisbolsas (foto do comprovante); nulo para preenchimento manual.
+      - name: num_doc_fiscal
+        description: Número do documento fiscal/recibo/bilhete informado no lançamento.
+      - name: descricao_objeto
+        description: Descrição do objeto da despesa (título do comprovante, texto do lançamento ou tipo de despesa).
+      - name: data_despesa
+        description: Data da despesa (na ausência de data própria, usa a data do comprovante).
+      - name: data_documento
+        description: Data do documento (data do comprovante do lançamento).
+      - name: valor_documento
+        description: Valor do documento/despesa lançada.
+      - name: forma_pagamento
+        description: Forma de pagamento - não existe no Sisbolsas (extrato); nulo para preenchimento manual.
+      - name: correspondencia_extrato
+        description: Correspondência com o extrato - não existe no Sisbolsas; nulo para preenchimento manual.
+      - name: tipo_transacao
+        description: Tipo de transação (saque/crédito/débito) - não existe no Sisbolsas (extrato); nulo para preenchimento manual.
+      - name: data_lancamento_extrato
+        description: Data do lançamento no extrato - não existe no Sisbolsas; nulo para preenchimento manual.
+      - name: observacao_justificativa
+        description: Observações/justificativas do lançamento, concatenadas a partir do histórico.
+      - name: valor_aprovado
+        description: Valor aprovado do lançamento da despesa.
+      - name: valor_glossado
+        description: Valor glosado do lançamento da despesa.
+      - name: categoria_descricao
+        description: Descrição do tipo de despesa (texto original de `ds_tipo_despesa`).
+      - name: tipo_comprovante_cod
+        description: Código do tipo de comprovante do lançamento.
+      - name: data_ordem_bancaria_auxilio
+        description: Data da ordem bancária do crédito do auxílio (não é o lançamento da despesa).
+      - name: qtd_anexos
+        description: Quantidade de anexos vinculados ao lançamento.
+      - name: anexos_arquivos
+        description: Lista concatenada dos anexos (nome do arquivo e tipo) do lançamento.
+      - name: co_lancamento_despesa
+        description: Código do lançamento de despesa (chave do grão).
+      - name: co_usuario
+        description: Código do usuário/beneficiário.
+      - name: co_selecao
+        description: Código da seleção.
+      - name: nu_bolsa
+        description: Número da bolsa.
+
   - name: bolsistas
     description: >
       Modelo silver de bolsistas do Sisbolsas. Parte de `sisbolsas_tb_bolsista`

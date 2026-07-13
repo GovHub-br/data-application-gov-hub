@@ -97,6 +97,7 @@ sources:
   - name: sisbolsas
     schema: sisbolsas
     tables:
+      - name: tb_anexo
       - name: tb_area_formacao
       - name: tb_bolsa
       - name: tb_bolsa_coordenador
@@ -105,7 +106,9 @@ sources:
       - name: tb_chamada_publica
       - name: tb_chapubli_fontfina
       - name: tb_chapubli_unidade
+      - name: tb_concessao_auxilio
       - name: tb_coordenador
+      - name: tb_dado_bancario
       - name: tb_dado_formacao
       - name: tb_dado_pessoal
       - name: tb_dado_profissional
@@ -113,6 +116,10 @@ sources:
       - name: tb_folha_bolsista
       - name: tb_folha_pagamento
       - name: tb_fonte_financeira
+      - name: tb_hist_lanca_despesa
+      - name: tb_instituicao_financeira
+      - name: tb_lancadespe_anexo
+      - name: tb_lancamento_despesa
       - name: tb_modalidade
       - name: tb_nivel_escolaridade
       - name: tb_processo_seletivo
@@ -120,6 +127,8 @@ sources:
       - name: tb_selecao
       - name: tb_situacao_chamada
       - name: tb_situacao_concessao
+      - name: tb_tipo_anexo
+      - name: tb_tipo_despesa
       - name: tb_unidade
       - name: tb_usuario
 
