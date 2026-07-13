@@ -28,7 +28,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: write
   issues: write
 
 concurrency:
@@ -382,9 +382,10 @@ jobs:
                   --field body="${comment_body}" >/dev/null
                 comment_status="updated"
               else
-                gh pr comment "${pr_number}" \
-                  --repo "${owner_repo}" \
-                  --body-file "${comment_file}"
+                gh api \
+                  --method POST \
+                  "repos/${owner_repo}/issues/${pr_number}/comments" \
+                  --field body="${comment_body}" >/dev/null
                 comment_status="created"
               fi
             fi
