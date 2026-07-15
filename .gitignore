@@ -57,3 +57,10 @@ Thumbs.db
 # Airflow local files
 airflow.db
 webserver_config.py
+
+# Dados de pipeline (extracoes brutas, parquet, checkpoints) -- gerados
+# localmente por quem roda as DAGs, nao pertencem ao repositorio. Mantem a
+# estrutura de pastas via .gitkeep.
+data/**
+!data/**/
+!data/**/.gitkeep

@@ -1,16 +1,15 @@
-name: "minc"
+name: 'minc'
 
-version: "1.0.0"
+version: 1.0.0
 config-version: 2
 
-profile: "minc"
+profile: minc
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
-test-paths: ["tests"]
 seed-paths: ["seeds"]
+test-paths: ["tests"]
 macro-paths: ["macros"]
-snapshot-paths: ["snapshots"]
 
 clean-targets:
   - "target"
@@ -19,7 +18,13 @@ clean-targets:
 
 models:
   minc:
-    +database: analytics
     metadata:
       +materialized: incremental
       +schema: metadata
+    agentes_dbt:
+      +materialized: table
+      +schema: agentes
+      bronze:
+        +materialized: incremental
+      views:
+        +materialized: view

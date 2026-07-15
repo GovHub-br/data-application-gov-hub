@@ -1,0 +1,112 @@
+version: 2
+
+models:
+  - name: lpg_agentes_pf
+    description: >
+      Camada Bronze — dados brutos de pessoas físicas da LPG (Lei Paulo Gustavo).
+      Mapeia o CPF como identificador único e traz a coluna bruta de histórico
+      de acesso a recursos públicos de fomento à cultura.
+    config:
+      meta:
+        tags:
+          - bronze
+          - agentes
+          - pessoa_fisica
+          - lpg
+    columns:
+      - name: identificador_unico
+        description: CPF do proponente pessoa física, normalizado para lowercase.
+        tests:
+          - not_null
+      - name: historico_acesso_bruto
+        description: Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento.
+      - name: programa_fomento
+        description: Programa de fomento de origem — sempre 'LPG' neste modelo.
+
+  - name: lpg_agentes_pj
+    description: >
+      Camada Bronze — dados brutos de pessoas jurídicas da LPG.
+      Mapeia o CNPJ como identificador único e traz a coluna bruta de histórico
+      de acesso a recursos públicos de fomento à cultura.
+    config:
+      meta:
+        tags:
+          - bronze
+          - agentes
+          - pessoa_juridica
+          - lpg
+    columns:
+      - name: identificador_unico
+        description: CNPJ do proponente pessoa jurídica, normalizado para lowercase.
+        tests:
+          - not_null
+      - name: historico_acesso_bruto
+        description: Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento.
+      - name: programa_fomento
+        description: Programa de fomento de origem — sempre 'LPG' neste modelo.
+
+  - name: lpg_agentes_coletivos
+    description: >
+      Camada Bronze — dados brutos de proponentes coletivos da LPG.
+      Mapeia o CPF do representante do grupo/coletivo como identificador único
+      e traz a coluna bruta de histórico de acesso a recursos públicos de fomento.
+    config:
+      meta:
+        tags:
+          - bronze
+          - agentes
+          - coletivo
+          - lpg
+    columns:
+      - name: identificador_unico
+        description: CPF do representante do grupo/coletivo, normalizado para lowercase.
+        tests:
+          - not_null
+      - name: historico_acesso_bruto
+        description: Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento.
+      - name: programa_fomento
+        description: Programa de fomento de origem — sempre 'LPG' neste modelo.
+
+  - name: pnab_agentes_pf
+    description: >
+      Camada Bronze — dados brutos de pessoas físicas da PNAB (Política Nacional Aldir Blanc).
+      Mapeia o CPF como identificador único e traz a coluna bruta de histórico
+      de acesso a recursos públicos de fomento à cultura nos últimos 5 anos.
+    config:
+      meta:
+        tags:
+          - bronze
+          - agentes
+          - pessoa_fisica
+          - pnab
+    columns:
+      - name: identificador_unico
+        description: CPF do proponente pessoa física, normalizado para lowercase.
+        tests:
+          - not_null
+      - name: historico_acesso_bruto
+        description: Resposta bruta da PNAB sobre acesso anterior a recursos públicos de fomento.
+      - name: programa_fomento
+        description: Programa de fomento de origem — sempre 'PNAB' neste modelo.
+
+  - name: pnab_agentes_pj
+    description: >
+      Camada Bronze — dados brutos de organizações da PNAB.
+      Mapeia o CNPJ como identificador único e traz a coluna bruta de histórico
+      de acesso a recursos públicos de fomento à cultura anteriormente.
+    config:
+      meta:
+        tags:
+          - bronze
+          - agentes
+          - pessoa_juridica
+          - pnab
+    columns:
+      - name: identificador_unico
+        description: CNPJ da organização, normalizado para lowercase.
+        tests:
+          - not_null
+      - name: historico_acesso_bruto
+        description: Resposta bruta da PNAB sobre acesso anterior a recursos públicos de fomento.
+      - name: programa_fomento
+        description: Programa de fomento de origem — sempre 'PNAB' neste modelo.

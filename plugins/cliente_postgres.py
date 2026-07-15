@@ -155,7 +155,7 @@ class ClientPostgresDB:
                 for col in novas:
                     try:
                         cursor.execute(
-                            f'ALTER TABLE {schema}.{table_name} '
+                            f"ALTER TABLE {schema}.{table_name} "
                             f'ADD COLUMN "{col}" TEXT;'
                         )
                         logging.info(
@@ -166,14 +166,14 @@ class ClientPostgresDB:
                     except psycopg2.errors.DuplicateColumn:
                         conn.rollback()
                         logging.debug(
-                            f"[cliente_postgres.py] Coluna \"{col}\" "
+                            f'[cliente_postgres.py] Coluna "{col}" '
                             f"já existe em {schema}.{table_name} — ignorando"
                         )
                     except psycopg2.Error as err:
                         conn.rollback()
                         logging.warning(
                             f"[cliente_postgres.py] Falha ao adicionar coluna "
-                            f"\"{col}\" em {schema}.{table_name}: {err}"
+                            f'"{col}" em {schema}.{table_name}: {err}'
                         )
 
                 conn.commit()
@@ -207,9 +207,7 @@ class ClientPostgresDB:
             return
 
         # ── Normalização: todas as chaves para minúsculo ──
-        data_norm = [
-            {str(k).lower(): v for k, v in row.items()} for row in data
-        ]
+        data_norm = [{str(k).lower(): v for k, v in row.items()} for row in data]
 
         self.create_table_if_not_exists(
             data_norm[0], table_name, primary_key=primary_key, schema=schema
@@ -222,13 +220,11 @@ class ClientPostgresDB:
         self._evolve_schema(columns, table_name, schema=schema)
 
         cols_sql = ", ".join(f'"{c}"' for c in columns)
-        sql = f'INSERT INTO {schema}.{table_name} ({cols_sql}) VALUES %s'
+        sql = f"INSERT INTO {schema}.{table_name} ({cols_sql}) VALUES %s"
 
         if conflict_fields:
             conflict_str = ", ".join(conflict_fields)
-            update_str = ", ".join(
-                [f'"{col}" = EXCLUDED."{col}"' for col in columns]
-            )
+            update_str = ", ".join([f'"{col}" = EXCLUDED."{col}"' for col in columns])
             sql += f" ON CONFLICT ({conflict_str}) DO UPDATE SET {update_str}"
 
         with psycopg2.connect(self.conn_str) as conn:
@@ -315,7 +311,9 @@ class ClientPostgresDB:
                 id_programas = [row[0] for row in cursor.fetchall()]
                 return id_programas
 
-    def get_id_planos_acao(self, schema: str = "transfere_gov", table_name: str = "planos_acao") -> List[int]:
+    def get_id_planos_acao(
+        self, schema: str = "transfere_gov", table_name: str = "planos_acao"
+    ) -> List[int]:
         """Extrai todos os IDs de planos de ação da tabela de planos de ação."""
         query = f"SELECT id_plano_acao FROM {schema}.{table_name}"
 
@@ -326,7 +324,9 @@ class ClientPostgresDB:
                 return id_planos_acao
 
     def get_id_relatorios_gestao(
-        self, schema: str = "transferegov_fundo_a_fundo", table_name: str = "relatorios_gestao"
+        self,
+        schema: str = "transferegov_fundo_a_fundo",
+        table_name: str = "relatorios_gestao",
     ) -> List[int]:
         """Extrai todos os IDs de relatorios de gestao da tabela indicada."""
         query = f"SELECT id_relatorio_gestao FROM {schema}.{table_name}"
@@ -336,6 +336,25 @@ class ClientPostgresDB:
                 cursor.execute(query)
                 id_relatorios = [row[0] for row in cursor.fetchall()]
                 return id_relatorios
+
+    def get_id_lancamentos_financeiros(
+        self,
+        schema: str = "transferegov_fundo_a_fundo",
+        table_name: str = "raw_gestao_financeira_lancamentos",
+    ) -> List[int]:
+        """Extrai todos os IDs de lancamentos de gestao financeira da tabela indicada.
+
+        Usado para encadear a extracao de subtransacoes: cada lancamento ja
+        carregado no Postgres vira um alvo de busca no endpoint de
+        subtransacoes (mesmo padrao de ``get_id_planos_acao``).
+        """
+        query = f"SELECT id_lancamento_gestao_financeira FROM {schema}.{table_name}"
+
+        with psycopg2.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                id_lancamentos = [row[0] for row in cursor.fetchall()]
+                return id_lancamentos
 
     def drop_table_if_exists(self, table_name: str, schema: str = "raw") -> None:
         """Remove a tabela se ela existir."""
@@ -410,7 +429,6 @@ class ClientPostgresDB:
         flattened_data = self._flatten_data([data])[0]
         columns = list(flattened_data.keys())
         self._evolve_schema(columns, table_name, schema=schema)
-
 
     def get_nota_credito(self) -> List[Tuple[Any, ...]]:
         """Extrai o número da nota de crédito e o valor da tabela nota_credito.

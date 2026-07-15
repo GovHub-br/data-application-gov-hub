@@ -20,6 +20,11 @@ requests = "*"
 zeep = "*"
 imap-tools = "*"
 astronomer-cosmos = "1.14.2"
+aiohttp = "*"
+openpyxl = "*"
+pyarrow = "*"
+odfpy = "^1.4.1"
+python-calamine = "^0.6.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
