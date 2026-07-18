@@ -28,9 +28,16 @@ htmlcov/
 *.swp
 *.swo
 
-# Environment variables
+# Environment variables — ignora TODO .env real (com segredos), em qualquer pasta.
+# Exceções versionadas: os templates *.example e o local.env (já sanitizado
+# como template, sem segredos). NUNCA reescrever local.env com valores reais.
 .env
-.env.local
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+!local.env
 
 # Build directories
 build/
@@ -48,6 +55,9 @@ logs/
 # System files
 .DS_Store
 Thumbs.db
+
+# Claude Code — arquivos locais de gestão/sessão
+.claude/
 
 # VPN 
 /connect.sh

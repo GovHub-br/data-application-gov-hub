@@ -11,7 +11,10 @@ x-airflow-common: &airflow-common
       PYTHON_VERSION: ${PYTHON_VERSION:-3.11}
   user: "${AIRFLOW_UID:-50000}:0"
   env_file:
-    - ../.env
+    - path: ./.env
+      required: false
+    - path: ../.env
+      required: false
   volumes:
     - ./airflow/airflow.cfg:/opt/airflow/airflow.cfg
     - ./airflow/prune_stale_dags.py:/opt/airflow/prune_stale_dags.py:ro
@@ -62,6 +65,19 @@ x-airflow-environment: &airflow-common-env
   AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
   AIRFLOW_REPO_BASE: /opt/airflow
   AIRFLOW_PRUNE_STALE_DAGS: ${AIRFLOW_PRUNE_STALE_DAGS:-true}
+  # BSC / SERPRO (bbágil) — interpoladas do .env do project dir. Passadas aqui na
+  # `environment:` porque a diretiva `env_file` não injetou as vars neste setup;
+  # esta via (${...}) é a mesma que já funciona p/ FERNET_KEY/JWT_SECRET acima.
+  SCA_TOKEN_URL: ${SCA_TOKEN_URL:-}
+  SCA_CLIENT_ID: ${SCA_CLIENT_ID:-}
+  SCA_CLIENT_SECRET: ${SCA_CLIENT_SECRET:-}
+  BSC_BASE_URL: ${BSC_BASE_URL:-https://bsc.cultura.gov.br}
+  BSC_CPF_CONSULTA: ${BSC_CPF_CONSULTA:-}
+  BSC_USUARIO: ${BSC_USUARIO:-minc.automacao}
+  BSC_IP_ORIGEM: ${BSC_IP_ORIGEM:-127.0.0.1}
+  BSC_IP_USUARIO: ${BSC_IP_USUARIO:-127.0.0.1}
+  BSC_MAX_CONCURRENT_REQUESTS: ${BSC_MAX_CONCURRENT_REQUESTS:-5}
+  BSC_REQUEST_THROTTLE_SECONDS: ${BSC_REQUEST_THROTTLE_SECONDS:-1.05}
   # A ENV AIRFLOW_REPO_BASE É IMPORTANTE PARA SINCRONIZAR COM O SISTEMA DE PASTAS
   # DO AIRFLOW EM HOMOLOG E PROD, ELES POSSUEM UMA ESTRUTURA DE PASTAS DIFERENTE
   # USAR ESSA ENV NOS CÓDIGOS PARA NÃO HAVER CONFLITOS
@@ -191,11 +207,11 @@ services:
     volumes:
       - minio-data:/data
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "mc alias set local http://127.0.0.1:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD} >/dev/null && mc ready local",
-        ]
+      # A imagem do servidor minio NÃO inclui o binário `mc` (mc vive em minio/mc),
+      # então o healthcheck antigo dava `mc: command not found` (exit 127) e o
+      # container ficava eternamente unhealthy. curl existe na imagem e o endpoint
+      # /minio/health/live responde 200 quando o servidor está no ar.
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
       retries: 5

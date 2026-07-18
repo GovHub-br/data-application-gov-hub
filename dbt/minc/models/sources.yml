@@ -4,24 +4,43 @@ sources:
   - name: transferegov_fundo_a_fundo
     schema: transferegov_fundo_a_fundo
     tables:
-<<<<<<< Updated upstream
+      # Perfil LPG (autodeclaração raça/PCD) — base + variantes por edital
       - name: lpg_dados_pessoa_fisica
+      - name: lpg_dados_pessoa_fisica_audiovisual
+      - name: lpg_dados_pessoa_fisica_multicultur
       - name: lpg_dados_pessoa_juridica
+      - name: lpg_dados_pessoa_juridica_audiovisu
+      - name: lpg_dados_pessoa_juridica_multicult
       - name: lpg_dados_coletivos
+      - name: lpg_dados_grupo_coletivo
+      - name: lpg_dados_grupo_coletivo_audiovisua
+      - name: lpg_dados_grupo_coletivo_multicultu
+      # Perfil PNAB (raça/PCD + CPF/CNPJ real) — reaproveitado p/ meta 3
       - name: pnab_pessoas
       - name: pnab_organizacoes
+      # Contemplados (lado-valor)
       - name: lpg_contemplados
       - name: raw_pnab_lista_contemplados_geral
       - name: raw_pnab_lista_contemplados_pncv
-=======
+      # Abas de definição de edital PNAB (número do edital -> ano por anexo)
+      - name: raw_pnab_acoes_gerais
+      - name: raw_pnab_acoes_cultura_viva
+      # Editais (denominador / ano)
+      - name: lpg_editais
+      - name: lpg_dados_instrumentos
+      - name: lpg_dados_instrumentos_2
+      - name: lpg_dados_instrumentos_2_2
+      - name: lpg_dados_instrumentos_publicos
+      # Ingestão bbágil / rastreabilidade financeira (colega — meta bbágil)
       - name: raw_programas
       - name: raw_planos_acao
       - name: raw_planos_acao_dado_bancario
       - name: relatorios_gestao
       - name: anexos_relatorios
+      # Território IBGE CD2022 (setor->FCU->município->UF) p/ 4ª cota territorial
+      - name: territorio_fcu_setores
 
   - name: bsc_pnab
     schema: bsc_pnab
     tables:
       - name: fato_bbagil
->>>>>>> Stashed changes

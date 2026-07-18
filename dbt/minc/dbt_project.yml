@@ -28,3 +28,14 @@ models:
         +materialized: incremental
       views:
         +materialized: view
+    # Meta 3 — cotas/reservas (LPG + PNAB). Domínio próprio, schema minc_cotas,
+    # separado do agentes_dbt (meta 5 do colega). Bronze materializado como table
+    # porque filtra o lixo de parsing (fica ~20k linhas em vez de milhões).
+    cotas_dbt:
+      +schema: cotas
+      bronze:
+        +materialized: table
+      silver:
+        +materialized: view
+      gold:
+        +materialized: table

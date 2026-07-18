@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: perfil_agentes_normalizado
+    description: "Perfil unificado LPG+PNAB, 1 linha por documento, raça/PCD normalizados."
+    columns:
+      - name: identificador_unico
+        tests:
+          - unique
+          - not_null
+      - name: raca_normalizada
+        tests:
+          - accepted_values:
+              values: ['negra', 'indigena', 'branca', 'amarela', 'nao_declarada']
+  - name: identificadores_agentes_cotas
+    description: "Chaves distintas de agentes (para contagem secundária e unicidade)."
+    columns:
+      - name: identificador_unico
+        tests:
+          - unique
+          - not_null
+  - name: editais_unif
+    description: "Editais unificados com ano derivado (número/nome), validado ≤2026."
+  - name: edital_ano_por_anexo
+    description: "Ano do edital por anexo PNAB (abas de definição); só anexos ano-único."
+    columns:
+      - name: anexo_id
+        tests:
+          - unique
+          - not_null
+  - name: edital_ano_por_arquivo
+    description: "Ano do edital por anexo via nome do arquivo (fallback 3); só anexos ano-único."
+    columns:
+      - name: anexo_id
+        tests:
+          - unique
+          - not_null
+  - name: territorio_municipio
+    description: "Crosswalk IBGE CD2022 a nível de município (setor->FCU colapsado): flag em_concentracao_urbana + chave nome+uf p/ 4ª cota territorial LPG."
+    columns:
+      - name: cd_mun
+        tests:
+          - unique
+          - not_null
+  - name: contemplados_unif
+    description: "Contemplados unificados LPG+PNAB (núcleo do valor) + ano_final/origem_ano."
+    columns:
+      - name: origem
+        tests:
+          - accepted_values: {values: ['lpg', 'pnab']}
+      - name: origem_ano
+        tests:
+          - accepted_values: {values: ['nome_edital', 'anexo_edital', 'nome_arquivo', 'sem_ano']}

@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_agentes_pf
+    description: "Perfil LPG Pessoa Física (base + audiovisual + multicultural), lixo filtrado."
+  - name: stg_agentes_pj
+    description: "Perfil LPG Pessoa Jurídica (corpo diretivo)."
+  - name: stg_agentes_coletivos
+    description: "Perfil LPG Coletivos/Grupos (maioria do grupo)."
+  - name: stg_agentes_pnab_pf
+    description: "Perfil PNAB Pessoa Física (pnab_pessoas) — CPF real + raça/PCD/indígena/quilombola."
+  - name: stg_agentes_pnab_pj
+    description: "Perfil PNAB Organizações (pnab_organizacoes) — CNPJ real + raça/PCD do representante."
+  - name: stg_contemplados_lpg
+    description: "Contemplados LPG (valor pago), colunas duplicadas coalescidas."
+    columns:
+      - name: origem
+        tests:
+          - accepted_values: {values: ['lpg']}
+  - name: stg_contemplados_pnab
+    description: "Contemplados PNAB (geral + pncv). CNPJ casável; CPF anonimizado flagado."
+    columns:
+      - name: origem
+        tests:
+          - accepted_values: {values: ['pnab']}
+  - name: stg_editais
+    description: "Editais LPG (lpg_editais + instrumentos) — nome, número, valor total."
