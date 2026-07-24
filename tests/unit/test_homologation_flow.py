@@ -44,9 +44,10 @@ class TestLoadLandingFiles:
         assert returned_df.shape == df.shape
 
     def test_raises_when_no_files(self) -> None:
+        target_date = date(2024, 1, 1)
         with patch("homologation_flow.list_files", return_value=[]):
             with pytest.raises(ValueError, match="No Parquet files found"):
-                load_landing_files("src", "ent", date(2024, 1, 1))
+                load_landing_files("src", "ent", target_date)
 
     def test_prefix_uses_zero_padded_date(self) -> None:
         df = _sample_df()
