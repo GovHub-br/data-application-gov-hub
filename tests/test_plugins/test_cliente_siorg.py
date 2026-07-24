@@ -111,9 +111,7 @@ def test_get_estrutura_cargos_success(cliente_siorg: ClienteSiorg) -> None:
         "request",
         return_value=(HTTPStatus.OK, {"unidade": unidade}),
     ) as mock_request:
-        result = cliente_siorg.get_estrutura_organizacional_cargos(
-            codigo_unidade="42"
-        )
+        result = cliente_siorg.get_estrutura_organizacional_cargos(codigo_unidade="42")
 
     assert result == unidade
     mock_request.assert_called_once_with(
@@ -158,9 +156,7 @@ def test_get_estrutura_cargos_non_ok_status(cliente_siorg: ClienteSiorg) -> None
 
 
 def test_get_estrutura_cargos_non_dict_data(cliente_siorg: ClienteSiorg) -> None:
-    with patch.object(
-        cliente_siorg, "request", return_value=(HTTPStatus.OK, None)
-    ):
+    with patch.object(cliente_siorg, "request", return_value=(HTTPStatus.OK, None)):
         result = cliente_siorg.get_estrutura_organizacional_cargos("42")
 
     assert result is None

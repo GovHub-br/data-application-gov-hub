@@ -6,7 +6,8 @@ from cliente_base import ClienteBase
 
 class ClientePartidos(ClienteBase):
     """
-    Cliente para consumir a API de Dados Abertos da Câmara dos Deputados para pegar a logo dos partidos.
+    Cliente para consumir a API de Dados Abertos da Câmara dos Deputados
+    para pegar a logo dos partidos.
     """
 
     BASE_URL = "https://dadosabertos.camara.leg.br/api/v2"
@@ -19,7 +20,7 @@ class ClientePartidos(ClienteBase):
             f"{ClientePartidos.BASE_URL}"
         )
 
-    def get_partidos(self, **params: Any) -> list:
+    def get_partidos(self, **params: Any) -> list | None:
         """
         Obter lista de partidos
         """
@@ -50,7 +51,12 @@ class ClientePartidos(ClienteBase):
         pagina = 1
 
         while True:
-            params = {"pagina": pagina, "itens": 100, "ordem": "ASC", "ordenarPor": "sigla"}
+            params = {
+                "pagina": pagina,
+                "itens": 100,
+                "ordem": "ASC",
+                "ordenarPor": "sigla",
+            }
             partidos = self.get_partidos(**params)
 
             if not partidos:
@@ -65,7 +71,7 @@ class ClientePartidos(ClienteBase):
 
         return all_partidos
 
-    def get_partido_by_id(self, partido_id: int) -> dict:
+    def get_partido_by_id(self, partido_id: int) -> dict | None:
         """
         Obter detalhes de um partido específico pelo ID
         """
@@ -81,6 +87,7 @@ class ClientePartidos(ClienteBase):
             return partido
         else:
             logging.warning(
-                f"[cliente_partidos.py] Failed to fetch partido {partido_id} with status: {status}"
+                f"[cliente_partidos.py] Failed to fetch partido "
+                f"{partido_id} with status: {status}"
             )
             return None

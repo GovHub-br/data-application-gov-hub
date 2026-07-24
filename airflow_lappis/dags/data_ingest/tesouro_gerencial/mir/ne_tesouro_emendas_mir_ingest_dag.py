@@ -141,8 +141,8 @@ def _build_column_map(header_row: List[str]) -> Dict[str, int]:
 
 def parse_tesouro_emendas_csv(
     csv_data: str,
-    column_mapping: Optional[Dict[int, str]] = None,
-    skiprows: int = 0,
+    column_mapping: Optional[Dict[int, str]],
+    skiprows: int,
 ) -> pd.DataFrame:
     """Parser do relatorio do Tesouro Gerencial de empenhos de emendas.
 
@@ -159,8 +159,7 @@ def parse_tesouro_emendas_csv(
 
     lines = csv_data.splitlines()
     header_indices = [
-        i for i, line in enumerate(lines)
-        if line.lstrip().startswith(HEADER_MARKER)
+        i for i, line in enumerate(lines) if line.lstrip().startswith(HEADER_MARKER)
     ]
     if not header_indices:
         raise ValueError(
@@ -247,9 +246,7 @@ def reset_table_if_legacy_schema(db: ClientPostgresDB) -> None:
         TABLE_SCHEMA,
         TABLE_NAME,
     )
-    db.execute_non_query(
-        f"DROP TABLE IF EXISTS {TABLE_SCHEMA}.{TABLE_NAME} CASCADE;"
-    )
+    db.execute_non_query(f"DROP TABLE IF EXISTS {TABLE_SCHEMA}.{TABLE_NAME} CASCADE;")
 
 
 with DAG(
@@ -291,7 +288,7 @@ with DAG(
                     "Parametro 'data_referencia' invalido. Use o formato YYYY-MM-DD."
                 ) from exc
 
-        cliente_email.format_csv = parse_tesouro_emendas_csv
+        cliente_email.format_csv = parse_tesouro_emendas_csv  # type: ignore
 
         try:
             logging.info(

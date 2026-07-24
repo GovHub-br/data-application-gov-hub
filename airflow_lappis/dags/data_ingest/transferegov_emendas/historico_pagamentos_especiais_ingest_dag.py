@@ -29,7 +29,7 @@ def api_historico_pagamentos_especiais_dag() -> None:
         )
 
         api = ClienteTransfereGov()
-        postgres_conn_str = get_postgres_conn('postgres_mir')
+        postgres_conn_str = get_postgres_conn("postgres_mir")
         db = ClientPostgresDB(postgres_conn_str)
 
         # Busca todos os documentos hábeis especiais com paginação automática
@@ -43,8 +43,8 @@ def api_historico_pagamentos_especiais_dag() -> None:
             # Inserir/atualizar dados no banco
             logging.info(
                 f"[historico_pagamentos_especiais_ingest_dag.py] Inserindo "
-                f"{len(historico_data)} registros de histórico de pagamentos especiais no "
-                f"schema transfere_gov"
+                f"{len(historico_data)} registros de histórico "
+                "de pagamentos especiais no schema transfere_gov"
             )
             db.insert_data(
                 historico_data,

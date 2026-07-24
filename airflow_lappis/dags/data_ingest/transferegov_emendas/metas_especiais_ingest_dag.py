@@ -28,7 +28,7 @@ def api_metas_especiais_dag() -> None:
         )
 
         api = ClienteTransfereGov()
-        postgres_conn_str = get_postgres_conn('postgres_mir')
+        postgres_conn_str = get_postgres_conn("postgres_mir")
         db = ClientPostgresDB(postgres_conn_str)
 
         metas_data = api.get_all_metas_especiais()

@@ -25,7 +25,7 @@ COLUMN_MAPPING = {
     2: "acao_governo",
     3: "acao_governo_descricao",
     4: "nc",
-    5: "nc_transferencia", 
+    5: "nc_transferencia",
     6: "nc_fonte_recursos",
     7: "nc_fonte_recursos_descricao",
     8: "ptres",
@@ -49,9 +49,9 @@ COLUMN_MAPPING = {
 # Configurações dos emails
 EMAIL_CONFIGS = {
     "enviadas": {
-        "subject": "notas_credito_mir_ate_2025",
+        "subject": "notas_credito_enviadas_devolvidas_ate_2025",
         "column_mapping": COLUMN_MAPPING,
-        "skiprows": 6,
+        "skiprows": 3,
     },
     "recebidas": {
         "subject": "notas_credito_recebidas_ate_2025",
@@ -172,7 +172,7 @@ with DAG(
 
             data = combined_df.to_dict(orient="records")
 
-            postgres_conn_str = get_postgres_conn('postgres_mir')
+            postgres_conn_str = get_postgres_conn("postgres_mir")
             db = ClientPostgresDB(postgres_conn_str)
 
             db.insert_data(data, "nc_tesouro_pre_2026", schema="siafi")
@@ -186,7 +186,7 @@ with DAG(
         Task para remover duplicados da tabela 'siafi.pf_tesouro'.
         """
         try:
-            postgres_conn_str = get_postgres_conn('postgres_mir')
+            postgres_conn_str = get_postgres_conn("postgres_mir")
             db = ClientPostgresDB(postgres_conn_str)
             db.remove_duplicates("nc_tesouro_pre_2026", COLUMN_MAPPING, schema="siafi")
 

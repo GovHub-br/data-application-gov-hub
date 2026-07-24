@@ -1,7 +1,7 @@
 import logging
 import io
 import zipfile
-from typing import Optional, cast, List, Dict
+from typing import Optional, List, Dict
 import pandas as pd
 from pandas.errors import EmptyDataError
 from imap_tools import MailBox, AND
@@ -31,7 +31,7 @@ def format_csv(
 
 
 def extract_csv_from_zip(
-    zip_payload: bytes, column_mapping: dict, skiprows: int = 0
+    zip_payload: bytes, column_mapping: dict | None, skiprows: int = 0
 ) -> Optional[pd.DataFrame]:
     """Extrai e formata o primeiro arquivo CSV encontrado em um ZIP."""
     with zipfile.ZipFile(io.BytesIO(zip_payload)) as zip_file:
@@ -86,7 +86,7 @@ def fetch_email_with_zip(
                 if msg_subject.endswith(subject_suffix):
                     for attachment in msg.attachments:
                         if attachment.filename.lower().endswith(".zip"):
-                            zip_payloads.append(cast(bytes, attachment.payload))
+                            zip_payloads.append(attachment.payload)
         else:
             for msg in mailbox.fetch(
                 AND(date=query_date, from_=sender_email, subject=subject),
@@ -94,7 +94,7 @@ def fetch_email_with_zip(
             ):
                 for attachment in msg.attachments:
                     if attachment.filename.lower().endswith(".zip"):
-                        zip_payloads.append(cast(bytes, attachment.payload))
+                        zip_payloads.append(attachment.payload)
     return zip_payloads
 
 
@@ -112,7 +112,7 @@ def fetch_email_with_csv(
             for attachment in msg.attachments:
                 file_name = (attachment.filename or "").lower()
                 if file_name.endswith(".csv"):
-                    csv_payloads.append(cast(bytes, attachment.payload))
+                    csv_payloads.append(attachment.payload)
     return csv_payloads
 
 
@@ -143,7 +143,7 @@ def fetch_and_process_email(
     password: str,
     sender_email: str,
     subject: str,
-    column_mapping: dict,
+    column_mapping: dict | None,
     skiprows: int = 0,
     target_date: Optional[date] = None,
 ) -> Optional[str]:

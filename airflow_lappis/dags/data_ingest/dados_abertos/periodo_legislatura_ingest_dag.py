@@ -28,7 +28,7 @@ def periodo_legislacao_ingest_dag() -> None:
         api = ClienteSenadores()
         db = ClientPostgresDB(get_postgres_conn("postgres_mir"))
 
-        lista_legislaturas = api.get_periodo_legislacao() 
+        lista_legislaturas = api.get_periodo_legislacao()
 
         if not lista_legislaturas or not isinstance(lista_legislaturas, list):
             logging.error(f"Esperava uma lista, mas recebi: {type(lista_legislaturas)}")
@@ -51,15 +51,13 @@ def periodo_legislacao_ingest_dag() -> None:
         if registros_limpos:
             db.insert_data(
                 registros_limpos,
-                "legislaturas", 
+                "legislaturas",
                 conflict_fields=["id"],
                 primary_key=["id"],
                 schema="senado_federal",
             )
 
-        
     fetch_and_store_periodo_legislacao()
-
 
 
 periodo_legislacao_ingest_dag()

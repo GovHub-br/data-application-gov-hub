@@ -50,7 +50,7 @@ def build_email_ingest_dag(
         tags=tags or [],
     ) as dag:
 
-        def _process_emails(**context: Dict[str, Any]) -> Optional[str]:
+        def _process_emails(**context: Any) -> Optional[str]:
             creds = json.loads(Variable.get("email_credentials"))
             try:
                 logging.info("Iniciando o processamento dos emails...")
@@ -74,7 +74,7 @@ def build_email_ingest_dag(
                 logging.exception("Erro no processamento dos emails.")
                 raise
 
-        def _insert_to_db(**context: Dict[str, Any]) -> None:
+        def _insert_to_db(**context: Any) -> None:
             csv_data = context["ti"].xcom_pull(task_ids="process_emails")
             if not csv_data:
                 logging.warning("Nenhum dado para inserir no banco.")
@@ -87,7 +87,7 @@ def build_email_ingest_dag(
             db.insert_data(data, table_name, schema=schema)
             logging.info("Dados inseridos com sucesso no banco de dados.")
 
-        def _clean_duplicates(**context: Dict[str, Any]) -> None:
+        def _clean_duplicates(**context: Any) -> None:
             try:
                 db = ClientPostgresDB(get_postgres_conn(postgres_conn_key))
                 db.remove_duplicates(table_name, column_mapping, schema=schema)
