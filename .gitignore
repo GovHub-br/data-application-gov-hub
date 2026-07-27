@@ -6,7 +6,6 @@ ENV/
 # Poetry
 dist/
 **/*.pyc
-**/*.lock
 __pycache__/
 .poetry/
 requirements.generated.txt

@@ -221,7 +221,7 @@ class ClienteSiafi:
         )
 
         # URL para obter o token
-        url = "***REMOVED***"
+        url = "https://gateway.apiserpro.serpro.gov.br/token"
 
         # Parâmetros de dados
         data = {"grant_type": "client_credentials"}

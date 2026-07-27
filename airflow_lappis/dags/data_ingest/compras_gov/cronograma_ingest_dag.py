@@ -38,7 +38,7 @@ def api_cronogramas_dag() -> None:
                 f"[cronograma_ingest_dag.py] Fetching cronograma for contrato ID: "
                 f"{contrato_id}"
             )
-            cronograma = api.get_cronograma_by_contrato_id(contrato_id)
+            cronograma = api.get_cronograma_by_contrato_id(str(contrato_id))
             if cronograma:
                 # Adicionar dt_ingest a cada item do cronograma
                 for item in cronograma:

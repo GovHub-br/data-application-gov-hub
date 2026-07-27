@@ -52,4 +52,5 @@ def programacao_financeira_mir_dag() -> None:
 
     fetch_and_store_programacao_financeira()
 
+
 programacao_financeira_mir_dag()

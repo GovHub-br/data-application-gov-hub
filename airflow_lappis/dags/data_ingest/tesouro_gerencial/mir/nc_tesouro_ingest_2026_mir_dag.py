@@ -20,7 +20,7 @@ default_args = {
     "retry_delay": timedelta(minutes=5),
 }
 
-pd.read_csv = partial(pd.read_csv, sep='\t', on_bad_lines='skip')
+pd.read_csv = partial(pd.read_csv, sep="\t", on_bad_lines="skip")
 
 COLUMN_MAPPING_NC = {
     0: "emissao_dia",
@@ -53,7 +53,7 @@ COLUMN_MAPPING_NC = {
     27: "emissao_mes",
 }
 
-EMAIL_SUBJECT = "notas_credito_mir_apos_2026"
+EMAIL_SUBJECT = "notas_credito_enviadas_devolvidas_a_partir_2026"
 SKIPROWS = 3
 
 with DAG(
@@ -79,7 +79,7 @@ with DAG(
                 COLUMN_MAPPING_NC,
                 skiprows=SKIPROWS,
             )
-            
+
             if not csv_data:
                 logging.warning("Nenhum CSV extraído.")
                 return None
@@ -89,7 +89,7 @@ with DAG(
             logging.error("Erro no processamento: %s", str(e))
             raise
 
-    def insert_data_to_db(**context: Dict[str, Any]) -> None:
+    def insert_data_to_db(**context: Any) -> None:
         try:
             ti = context["ti"]
             csv_data = ti.xcom_pull(task_ids="process_emails")
@@ -97,9 +97,9 @@ with DAG(
             if not csv_data:
                 return
 
-            df = pd.read_csv(io.StringIO(csv_data), sep=',')
+            df = pd.read_csv(io.StringIO(csv_data), sep=",")
             data = df.to_dict(orient="records")
-            
+
             for record in data:
                 record["dt_ingest"] = datetime.now().isoformat()
 

@@ -36,7 +36,7 @@ def retry_on_exception(
             delay = initial_delay
 
             # Extrai informações para logging mais claro
-            method_name = func.__name__
+            method_name = getattr(func, "__name__", repr(func))
 
             for attempt in range(1, max_attempts + 1):
                 try:

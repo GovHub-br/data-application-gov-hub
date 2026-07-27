@@ -71,7 +71,7 @@ Esperamos que todas as pessoas contribuam com respeito, colaboração e responsa
 - [Docker](https://docs.docker.com/get-docker/) e [Docker Compose](https://docs.docker.com/compose/)
 - [Git](https://git-scm.com/)
 - Python = 3.11
-- [Poetry](https://python-poetry.org/docs/)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - Make
 - Acesso às credenciais dos sistemas estruturantes (quando necessário) — veja o [guia de credenciais](https://gov-hub.io/govhub/documentacao/tutoriais/sistemas-estruturantes/acesso-apis-siafi-siape/)
 
@@ -255,10 +255,10 @@ Consulte a documentação de [testes DBT](https://gov-hub.io/govhub/documentacao
 - Use sufixos ou prefixos que indiquem a camada (ex: `contratos_bronze`, `contratos_silver`).
 - Documente cada modelo e coluna no `schema.yml` correspondente.
 - Use [macros DBT](https://gov-hub.io/govhub/documentacao/tutoriais/dbt/macros/) para lógica reutilizável.
-- As regras de lint SQL estão definidas em `.sqlfluff` e `.sqlfluffignore` na raiz do projeto.
+- A formatação SQL é feita via `sqlfmt` (configurado em `pyproject.toml`).
 
 ```bash
-make lint      # Executa sqlfluff para SQL e ruff para Python
+make lint      # Executa sqlfmt (check), black, ruff e ty
 make format    # Aplica formatação automática
 ```
 

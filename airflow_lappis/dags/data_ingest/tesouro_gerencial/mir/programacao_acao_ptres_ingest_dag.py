@@ -42,14 +42,17 @@ COLUMN_MAPPING = {
 }
 
 # Assunto do email a ser processado
-EMAIL_SUBJECT = "programacao_acao_por_ptres_mir"
+EMAIL_SUBJECT = "programacao_acao_por_PTRES"
 SKIPROWS = 5
 
 # Configurações da DAG
 with DAG(
     dag_id="email_programacao_acao_por_PTRES_ingest",
     default_args=default_args,
-    description="Processa anexo consolidado de programações de ação por PTRES por email e insere no db",
+    description=(
+        "Processa anexo consolidado de programações de ação"
+        " por PTRES por email e insere no db"
+    ),
     schedule_interval=get_dynamic_schedule("programacao_acao_ptres_ingest_dag"),
     start_date=datetime(2023, 12, 1),
     catchup=False,
