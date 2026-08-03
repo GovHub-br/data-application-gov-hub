@@ -16,22 +16,36 @@ logging.basicConfig(
 
 
 def format_csv(
-    csv_data: str, column_mapping: Optional[Dict[int, str]], skiprows: int
+    csv_data: str,
+    column_mapping: Optional[Dict[int, str]],
+    skiprows: int,
+    delimiter: Optional[str] = None,
 ) -> pd.DataFrame:
     """Formata um arquivo CSV conforme mapeamento de colunas."""
+    read_csv_kwargs = {"sep": delimiter} if delimiter else {}
     if column_mapping:
-        df = pd.read_csv(io.StringIO(csv_data), skiprows=skiprows, header=None)
+        df = pd.read_csv(
+            io.StringIO(csv_data),
+            skiprows=skiprows,
+            header=None,
+            **read_csv_kwargs,
+        )
         column_names: List[str] = [
             column_mapping.get(i, f"col_{i}") for i in range(len(df.columns))
         ]
         df.columns = pd.Index(column_names)
     else:
-        df = pd.read_csv(io.StringIO(csv_data), skiprows=skiprows, header=0)
+        df = pd.read_csv(
+            io.StringIO(csv_data), skiprows=skiprows, header=0, **read_csv_kwargs
+        )
     return df
 
 
 def extract_csv_from_zip(
-    zip_payload: bytes, column_mapping: dict | None, skiprows: int = 0
+    zip_payload: bytes,
+    column_mapping: dict | None,
+    skiprows: int = 0,
+    delimiter: Optional[str] = None,
 ) -> Optional[pd.DataFrame]:
     """Extrai e formata o primeiro arquivo CSV encontrado em um ZIP."""
     with zipfile.ZipFile(io.BytesIO(zip_payload)) as zip_file:
@@ -49,7 +63,7 @@ def extract_csv_from_zip(
                     if not decoded_data.strip():
                         logging.warning("CSV vazio no anexo ZIP: %s", file_name)
                         continue
-                    return format_csv(decoded_data, column_mapping, skiprows)
+                    return format_csv(decoded_data, column_mapping, skiprows, delimiter)
                 except EmptyDataError:
                     logging.warning(
                         "CSV sem colunas apos skiprows=%s no arquivo: %s",
@@ -146,6 +160,7 @@ def fetch_and_process_email(
     column_mapping: dict | None,
     skiprows: int = 0,
     target_date: Optional[date] = None,
+    delimiter: Optional[str] = None,
 ) -> Optional[str]:
     """Busca e processa e-mails da data alvo (ou dia atual), extraindo CSVs."""
     try:
@@ -165,7 +180,9 @@ def fetch_and_process_email(
 
         dataframes: List[pd.DataFrame] = []
         for idx, zip_payload in enumerate(zip_payloads, start=1):
-            csv_data = extract_csv_from_zip(zip_payload, column_mapping, skiprows)
+            csv_data = extract_csv_from_zip(
+                zip_payload, column_mapping, skiprows, delimiter
+            )
             if csv_data is not None:
                 dataframes.append(csv_data)
             else:

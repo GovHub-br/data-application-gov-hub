@@ -1,5 +1,6 @@
 import logging
 import re
+import hashlib
 from contextlib import contextmanager
 from typing import Any, Dict, List, Optional, Tuple
 import psycopg2
@@ -23,7 +24,12 @@ class ClientPostgresDB:
     @staticmethod
     def _unique_index_name(table_name: str, columns: List[str]) -> str:
         raw = f"uq_{table_name}_{'_'.join(columns)}"
-        return re.sub(r"[^\w]", "_", raw)[:63]
+        sanitized = re.sub(r"[^\w]", "_", raw)
+        # PostgreSQL limita identificadores a 63 caracteres. O sufixo hash evita
+        # que chaves diferentes, com o mesmo prefixo longo, reutilizem o mesmo
+        # nome de índice após o truncamento.
+        digest = hashlib.sha1(sanitized.encode()).hexdigest()[:8]
+        return f"{sanitized[:54]}_{digest}"
 
     def _flatten_data(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         return list(

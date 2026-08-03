@@ -89,8 +89,9 @@ models:
 
   - name: nc_tesouro
     description: >
-      Esta tabela registra informações detalhadas sobre as Notas de Crédito emitidas no âmbito da execução orçamentária e financeira do governo federal. 
-      As Notas de Crédito representam autorizações para a realização de despesas, sendo fundamentais para o controle e acompanhamento da execução orçamentária.
+      Tabela bronze canônica de Notas de Crédito do SIAFI. Consolida com UNION ALL
+      o layout histórico de siafi.nc_tesouro e o layout vigente a partir de 2026
+      de siafi.nc_tesouro_pos_2026, preservando os campos usados pelos modelos TED.
     meta:
       tags:
         - bronze
@@ -119,9 +120,9 @@ models:
     - name: nc_evento
       description: >
         Código do evento contábil associado à Nota de Crédito, representando a natureza da transação.
-    - name: nc_evento_descricao
+    - name: nc_evento_descr
       description: >
-        Descrição do evento contábil vinculado à Nota de Crédito.
+        Descrição do evento contábil; a partir de 2026 recebe o tipo da NC.
     - name: ug_responsavel
       description: >
         Código da Unidade Gestora responsável pela emissão da Nota de Crédito.
@@ -158,6 +159,21 @@ models:
     - name: dt_ingest
       description: >
         Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    - name: descricao
+      description: >
+        Descrição da NC disponível somente no layout a partir de 2026.
+    - name: nc_item_detalhamento
+      description: >
+        Indicador de detalhamento do item da NC, disponível a partir de 2026.
+    - name: ro
+      description: >
+        Registro de operação da NC, disponível a partir de 2026.
+    - name: dc
+      description: >
+        Direção do movimento informada no novo relatório (por exemplo, ORIGEM ou DESTINO).
+    - name: tipo_nc
+      description: >
+        Tipo da Nota de Crédito no layout a partir de 2026. Não equivale ao código nc_evento histórico.
 
   - name: planos_acao
     description: >
