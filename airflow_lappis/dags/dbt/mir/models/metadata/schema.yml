@@ -12,6 +12,11 @@ models:
       tags:
         - metadata
         - governance
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns:
+            - schema_name
+            - table_name
     columns:
       - name: schema_name
         description: Nome do schema onde o modelo está localizado.
