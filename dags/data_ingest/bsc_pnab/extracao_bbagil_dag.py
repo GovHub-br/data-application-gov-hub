@@ -1,30 +1,40 @@
 import logging
 from datetime import datetime, timedelta
-from pathlib import Path
 from typing import Any
 
-import pandas as pd
 from airflow.models import Variable
 from airflow.sdk import dag, task
 
 import agencias_transferegov
 import config_bsc_pnab as settings
-import regras_negocio_bbagil as regras
 from agencias_bbagil import gerar_periodos_mensais
 from cliente_bsc import AsyncBscClient, BscRequestError, is_empty_extrato_response
 from cliente_postgres import ClientPostgresDB
-from execucao_assincrona_bsc import executar_lote
-from file_io_local import flatten_json_dir_to_dataframe, save_dataframe
+from execucao_assincrona_bsc import ResultadoItem, executar_lote
+from file_io_local import flatten_records
 from postgres_helpers import get_postgres_conn
 from schedule_loader import get_dynamic_schedule
 
 _SCHEMA_TRANSFEREGOV = "transferegov_fundo_a_fundo"
 _SCHEMA_BSC_PNAB = "bsc_pnab"
 
+# Persiste no Postgres a cada N itens processados, em vez de acumular tudo
+# em memoria e gravar so no final -- em listas de centenas de milhares de
+# itens (horas de execucao), sem isso qualquer interrupcao no meio perde o
+# trabalho inteiro e nao ha visibilidade de progresso ate o fim.
+TAMANHO_LOTE_PERSISTENCIA = 2000
+
 default_args = {
     "owner": "Caio Borges",
-    "retries": 3,
-    "retry_delay": timedelta(minutes=5),
+    # Alto de proposito: o BSC aplica um bloqueio temporario apos uso
+    # sustentado (~20-40min de chamadas continuas, independente do
+    # throttle), que leva alguns minutos pra esfriar. Com checkpoint em
+    # lote (TAMANHO_LOTE_PERSISTENCIA) cada retry e barato -- so refaz o
+    # que nao foi persistido desde o ultimo lote -- entao e seguro deixar
+    # tentar de novo por muitas horas sem supervisao, em vez de desistir
+    # depois de poucas tentativas.
+    "retries": 100,
+    "retry_delay": timedelta(minutes=10),
 }
 
 
@@ -42,15 +52,6 @@ def _json_nativo(registros: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ]
 
 
-def _caminho_extrato(ente: dict[str, Any], periodo: tuple[str, str]) -> Path:
-    ano_mes = periodo[0][:7]  # YYYY-MM
-    return (
-        settings.BBAGIL_EXTRATO_DIR
-        / f"plano_{ente['id_plano_acao']}"
-        / f"bbagil_extrato_{ano_mes}.json"
-    )
-
-
 def _marcar_extrato_sem_dados(exc: BscRequestError) -> dict[str, Any] | None:
     if is_empty_extrato_response(exc):
         return {"status": "sem_dados", "erro": exc.response_text}
@@ -59,9 +60,9 @@ def _marcar_extrato_sem_dados(exc: BscRequestError) -> dict[str, Any] | None:
 
 async def _chamar_extrato(client: AsyncBscClient, item: Any) -> Any:
     # A resposta do BSC traz agencia/conta/saldo/transactions, mas nao
-    # identifica o ente/plano de acao de origem -- injeta aqui para que
-    # flatten_json_dir_to_dataframe propague esses campos para cada
-    # transacao (usados nos filtros e no agrupamento do fato).
+    # identifica o ente/plano de acao/periodo de origem -- injeta aqui para
+    # que a linha de cada transacao na tabela raw carregue esses campos
+    # (usados no checkpoint e nos filtros/agrupamento do fato).
     ente, (periodo_inicial, periodo_final) = item
     resposta = await client.bbagil_extrato_orgao_controle(
         agencia=int(ente["agencia"]),
@@ -69,36 +70,91 @@ async def _chamar_extrato(client: AsyncBscClient, item: Any) -> Any:
         periodo_inicial=periodo_inicial,
         periodo_final=periodo_final,
     )
-    resposta[regras.COL_ENTE] = ente["id_plano_acao"]
+    resposta["id_plano_acao"] = ente["id_plano_acao"]
     resposta["id_programa"] = ente.get("id_programa")
     resposta["codigo_programa"] = ente.get("codigo_programa")
     resposta["nome_programa"] = ente.get("nome_programa")
+    resposta["periodo_inicial"] = periodo_inicial
+    resposta["periodo_final"] = periodo_final
+    return resposta
+
+
+async def _chamar_subtransacao(client: AsyncBscClient, item: dict[str, Any]) -> Any:
+    resposta = await client.bbagil_extrato_sub_lancamentos_orgao_controle(
+        agencia=str(item["agencia"]),
+        numero_conta=str(item["conta"]),
+        id_transaction=str(item["id"]),
+    )
+    # Mesma injecao do extrato: a resposta nao identifica o plano de acao/
+    # transacao-mae de origem, necessarios para o checkpoint e para a chave
+    # da tabela raw (o "id" da subtransacao e sequencial por transacao-mae,
+    # nao global).
+    resposta["id_plano_acao"] = item["id_plano_acao"]
+    resposta["id_transacao_pai"] = item["id"]
     return resposta
 
 
 def _carregar_entes_transferegov() -> list[dict[str, Any]]:
+    """Descobre agencia/conta de cada plano de acao, buscando na API do
+    Transferegov so o que ainda nao esta em
+    ``raw_planos_acao_dado_bancario`` -- essa tabela e uma linha por
+    ``id_plano_acao`` ja resolvido em execucoes anteriores, entao ela
+    funciona como cache: sem isso, toda execucao re-buscaria agencia/conta
+    de TODOS os planos de acao (uma chamada HTTP por plano, caro em volumes
+    grandes como o atual, ~18 mil planos)."""
     codigos_programas = Variable.get("transferegov_programas_ids", deserialize_json=True)
+    db = ClientPostgresDB(get_postgres_conn())
+
+    linhas_conhecidas = db.execute_query(
+        "SELECT id_plano_acao, agencia, conta, situacao_conta, id_programa, "
+        "codigo_programa, nome_programa FROM "
+        f"{_SCHEMA_TRANSFEREGOV}.raw_planos_acao_dado_bancario"
+    )
+    entes_conhecidos = [
+        {
+            "id_plano_acao": id_plano_acao,
+            "agencia": agencia,
+            "conta": conta,
+            "situacao_conta": situacao_conta,
+            "id_programa": id_programa,
+            "codigo_programa": codigo_programa,
+            "nome_programa": nome_programa,
+        }
+        for (
+            id_plano_acao,
+            agencia,
+            conta,
+            situacao_conta,
+            id_programa,
+            codigo_programa,
+            nome_programa,
+        ) in linhas_conhecidas
+    ]
+    ids_conhecidos = {str(ente["id_plano_acao"]) for ente in entes_conhecidos}
 
     logger = agencias_transferegov.configure_logger(
         log_dir=settings.TRANSFEREGOV_LOG_DIR, log_to_file=True
     )
-    contas = agencias_transferegov.get_contas_agencias_programas(
+    novos_brutos = agencias_transferegov.get_contas_agencias_programas(
         codigos_programas=codigos_programas,
         logger=logger,
+        ids_plano_acao_conhecidos=ids_conhecidos,
     )
-
-    registros = [
+    novos_validos = [
         registro
-        for registro in contas
+        for registro in novos_brutos
         if registro.get("agencia") is not None and registro.get("conta") is not None
     ]
-    entes = _json_nativo(registros)
+
+    entes = _json_nativo(entes_conhecidos + novos_validos)
 
     logging.info(
-        "[extracao_bbagil_dag] %d planos de acao com agencia/conta via "
-        "Transferegov (de %d totais retornados pela API)",
+        "[extracao_bbagil_dag] %d entes com agencia/conta (%d ja conhecidos no "
+        "Postgres + %d novos validos de %d planos novos retornados pela API)",
         len(entes),
-        len(contas),
+        len(entes_conhecidos),
+        len(novos_validos),
+        len(novos_brutos),
     )
     return entes
 
@@ -127,160 +183,209 @@ def _persistir_agencias_contas(entes: list[dict[str, Any]]) -> None:
     )
 
 
+def _combinacoes_extrato_pendentes(
+    db: ClientPostgresDB, entes: list[dict[str, Any]], periodos: list[tuple[str, str]]
+) -> list[Any]:
+    feitas = db.execute_query(
+        f"SELECT id_plano_acao, periodo_inicial, periodo_final FROM {_SCHEMA_BSC_PNAB}"
+        ".controle_extracao_bbagil_extrato WHERE status IN ('ok', 'sem_dados')"
+    )
+    feitas_set = {
+        (str(id_plano_acao), periodo_inicial, periodo_final)
+        for id_plano_acao, periodo_inicial, periodo_final in feitas
+    }
+
+    combinacoes = [(ente, periodo) for ente in entes for periodo in periodos]
+    return [
+        (ente, periodo)
+        for ente, periodo in combinacoes
+        if (str(ente["id_plano_acao"]), periodo[0], periodo[1]) not in feitas_set
+    ]
+
+
+def _persistir_resultados_extrato(
+    db: ClientPostgresDB, resultados: list[ResultadoItem]
+) -> dict[str, int]:
+    documentos_ok: list[dict[str, Any]] = []
+    linhas_controle: list[dict[str, Any]] = []
+    contagem = {"ok": 0, "sem_dados": 0, "erro": 0}
+
+    for resultado in resultados:
+        contagem[resultado.status] = contagem.get(resultado.status, 0) + 1
+        ente, (periodo_inicial, periodo_final) = resultado.item
+        linha_controle = {
+            "id_plano_acao": ente["id_plano_acao"],
+            "periodo_inicial": periodo_inicial,
+            "periodo_final": periodo_final,
+            "status": resultado.status,
+            "qtd_transacoes": 0,
+            "mensagem_erro": resultado.mensagem_erro,
+        }
+
+        if resultado.status == "ok":
+            documentos_ok.append(resultado.dados)
+            transacoes = resultado.dados.get("transactions") or []
+            linha_controle["qtd_transacoes"] = len(transacoes)
+
+        linhas_controle.append(linha_controle)
+
+    linhas_raw = flatten_records(documentos_ok, record_key="transactions")
+
+    if linhas_raw:
+        db.insert_data(
+            linhas_raw,
+            table_name="raw_bbagil_extrato_transacoes",
+            primary_key=["id_plano_acao", "id"],
+            conflict_fields=["id_plano_acao", "id"],
+            schema=_SCHEMA_BSC_PNAB,
+        )
+    if linhas_controle:
+        db.insert_data(
+            linhas_controle,
+            table_name="controle_extracao_bbagil_extrato",
+            primary_key=["id_plano_acao", "periodo_inicial", "periodo_final"],
+            conflict_fields=["id_plano_acao", "periodo_inicial", "periodo_final"],
+            schema=_SCHEMA_BSC_PNAB,
+        )
+
+    logging.info(
+        "[extracao_bbagil_dag] Extrato BB Agil persistido no Postgres: %s "
+        "(%d linhas raw)",
+        contagem,
+        len(linhas_raw),
+    )
+    return contagem
+
+
 def _extrair_extrato(agencias_periodos: dict[str, Any]) -> dict[str, int]:
     entes = agencias_periodos["entes"]
     periodos = [tuple(p) for p in agencias_periodos["periodos"]]
+    db = ClientPostgresDB(get_postgres_conn())
 
-    combinacoes = [(ente, periodo) for ente in entes for periodo in periodos]
-    pendentes = [item for item in combinacoes if not _caminho_extrato(*item).exists()]
+    pendentes = _combinacoes_extrato_pendentes(db, entes, periodos)
     logging.info(
         "[extracao_bbagil_dag] Extrato BB Agil: %d/%d combinacoes pendentes",
         len(pendentes),
-        len(combinacoes),
+        len(entes) * len(periodos),
     )
 
-    return executar_lote(
+    contagem_total = {"ok": 0, "sem_dados": 0, "erro": 0}
+
+    def _persistir_lote(resultados_lote: list[ResultadoItem]) -> None:
+        for status, qtd in _persistir_resultados_extrato(db, resultados_lote).items():
+            contagem_total[status] = contagem_total.get(status, 0) + qtd
+
+    executar_lote(
         itens_pendentes=pendentes,
         chamar_api=_chamar_extrato,
-        caminho_saida=lambda item: _caminho_extrato(*item),
         tratar_resposta_vazia=_marcar_extrato_sem_dados,
+        tamanho_lote=TAMANHO_LOTE_PERSISTENCIA,
+        ao_concluir_lote=_persistir_lote,
     )
+    return contagem_total
 
 
-def _consolidar_extrato() -> dict[str, str]:
-    df_bruto = flatten_json_dir_to_dataframe(
-        settings.BBAGIL_EXTRATO_DIR, record_key="transactions"
+def _subtransacoes_pendentes(db: ClientPostgresDB) -> list[dict[str, Any]]:
+    # Candidatos: transacoes ja persistidas no raw do extrato que tem
+    # subtransactionquantity > 0, com agencia/conta recuperados via join com
+    # a descoberta Transferegov (a resposta de subtransacao nao devolve
+    # agencia/conta no corpo).
+    candidatos = db.execute_query(
+        f"SELECT r.id_plano_acao, r.id, p.agencia, p.conta "
+        f"FROM {_SCHEMA_BSC_PNAB}.raw_bbagil_extrato_transacoes r "
+        f"JOIN {_SCHEMA_TRANSFEREGOV}.raw_planos_acao_dado_bancario p "
+        f"  ON r.id_plano_acao = p.id_plano_acao "
+        f"WHERE r.subtransactionquantity::int > 0"
     )
-    caminho_bruto = settings.BBAGIL_CONSOLIDADO_DIR / "bbagil_extrato_bruto.parquet"
-    save_dataframe(df_bruto, caminho_bruto)
-
-    df_filtrado = regras.pipeline_filtro_extrato(df_bruto)
-    caminho_filtrado = settings.BBAGIL_CONSOLIDADO_DIR / "bbagil_extrato_filtrado.parquet"
-    save_dataframe(df_filtrado, caminho_filtrado)
-
-    return {"bruto": str(caminho_bruto), "filtrado": str(caminho_filtrado)}
-
-
-def _caminho_subtransacao(linha: pd.Series) -> Path:
-    return (
-        settings.BBAGIL_SUBTRANSACOES_DIR
-        / f"plano_{linha[regras.COL_ENTE]}"
-        / f"bbagil_subtransacoes_{linha[regras.COL_ID_TRANSACTION]}.json"
+    feitas = db.execute_query(
+        f"SELECT id_plano_acao, id_transacao_pai FROM {_SCHEMA_BSC_PNAB}"
+        ".controle_extracao_bbagil_subtransacoes WHERE status IN ('ok', 'sem_dados')"
     )
+    feitas_set = {(str(id_plano_acao), str(id_pai)) for id_plano_acao, id_pai in feitas}
+
+    return [
+        {"id_plano_acao": id_plano_acao, "id": id_transacao, "agencia": agencia, "conta": conta}
+        for id_plano_acao, id_transacao, agencia, conta in candidatos
+        if (str(id_plano_acao), str(id_transacao)) not in feitas_set
+    ]
 
 
-async def _chamar_subtransacao(client: AsyncBscClient, item: pd.Series) -> Any:
-    resposta = await client.bbagil_extrato_sub_lancamentos_orgao_controle(
-        # O extrato bruto flatten guarda os campos de raiz da resposta do
-        # BSC como vieram (agencia, conta) -- nao "numero_conta".
-        agencia=str(item["agencia"]),
-        numero_conta=str(item["conta"]),
-        id_transaction=str(item[regras.COL_ID_TRANSACTION]),
-    )
-    # Mesma injecao do extrato: a resposta nao identifica o ente/plano de
-    # acao, que e necessario para o filtro/agrupamento por ente.
-    resposta[regras.COL_ENTE] = item[regras.COL_ENTE]
-    return resposta
+def _persistir_resultados_subtransacao(
+    db: ClientPostgresDB, resultados: list[ResultadoItem]
+) -> dict[str, int]:
+    documentos_ok: list[dict[str, Any]] = []
+    linhas_controle: list[dict[str, Any]] = []
+    contagem = {"ok": 0, "sem_dados": 0, "erro": 0}
 
+    for resultado in resultados:
+        contagem[resultado.status] = contagem.get(resultado.status, 0) + 1
+        item = resultado.item
+        linha_controle = {
+            "id_plano_acao": item["id_plano_acao"],
+            "id_transacao_pai": item["id"],
+            "status": resultado.status,
+            "qtd_subtransacoes": 0,
+            "mensagem_erro": resultado.mensagem_erro,
+        }
 
-def _extrair_subtransacoes(caminhos_extrato: dict[str, str]) -> dict[str, int]:
-    # Le do parquet BRUTO (pre-filtro): o filtro 2 do extrato descarta
-    # justamente as transacoes com subTransactionQuantity > 0 (elas sao
-    # representadas pelos sublancamentos, nao pelo registro-pai), entao o
-    # parquet filtrado nunca teria candidatos a subtransacao.
-    df_extrato_bruto = pd.read_parquet(caminhos_extrato["bruto"])
-    coluna_qtd = regras.COL_SUBTRANSACTION_QTD
-    if coluna_qtd in df_extrato_bruto.columns:
-        pendentes_transacoes = df_extrato_bruto[df_extrato_bruto[coluna_qtd] > 0]
-    else:
-        pendentes_transacoes = df_extrato_bruto.iloc[0:0]
+        if resultado.status == "ok":
+            documentos_ok.append(resultado.dados)
+            linha_controle["qtd_subtransacoes"] = len(
+                resultado.dados.get("subtransactions") or []
+            )
 
-    if not pendentes_transacoes.empty:
-        # A resposta do BSC nao devolve agencia/conta no corpo (apesar do
-        # que a doc antiga do endpoint sugeria) -- busca esses dois campos
-        # pelo id_plano_acao (== COL_ENTE) na tabela ja persistida pela
-        # descoberta Transferegov, em vez de depender do echo da API.
-        db = ClientPostgresDB(get_postgres_conn())
-        contas = db.execute_query(
-            "SELECT id_plano_acao, agencia, conta FROM "
-            "transferegov_fundo_a_fundo.raw_planos_acao_dado_bancario"
+        linhas_controle.append(linha_controle)
+
+    linhas_raw = flatten_records(documentos_ok, record_key="subtransactions")
+
+    if linhas_raw:
+        db.insert_data(
+            linhas_raw,
+            table_name="raw_bbagil_subtransacoes",
+            primary_key=["id_plano_acao", "id_transacao_pai", "id"],
+            conflict_fields=["id_plano_acao", "id_transacao_pai", "id"],
+            schema=_SCHEMA_BSC_PNAB,
         )
-        df_contas = pd.DataFrame(contas, columns=[regras.COL_ENTE, "agencia", "conta"])
-        pendentes_transacoes = pendentes_transacoes.copy()
-        tipo_ente_original = pendentes_transacoes[regras.COL_ENTE].dtype
-        pendentes_transacoes[regras.COL_ENTE] = pendentes_transacoes[
-            regras.COL_ENTE
-        ].astype(str)
-        df_contas[regras.COL_ENTE] = df_contas[regras.COL_ENTE].astype(str)
-        pendentes_transacoes = pendentes_transacoes.merge(
-            df_contas, on=regras.COL_ENTE, how="left"
+    if linhas_controle:
+        db.insert_data(
+            linhas_controle,
+            table_name="controle_extracao_bbagil_subtransacoes",
+            primary_key=["id_plano_acao", "id_transacao_pai"],
+            conflict_fields=["id_plano_acao", "id_transacao_pai"],
+            schema=_SCHEMA_BSC_PNAB,
         )
-        # Volta ao dtype original -- o merge exige string dos dois lados
-        # (Postgres guarda id_plano_acao como TEXT), mas o restante do
-        # pipeline (e o concat com o extrato em montar_fato_bbagil) espera
-        # o mesmo tipo numerico usado no resto do dataframe.
-        pendentes_transacoes[regras.COL_ENTE] = pendentes_transacoes[
-            regras.COL_ENTE
-        ].astype(tipo_ente_original)
 
-    itens = [linha for _, linha in pendentes_transacoes.iterrows()]
-    pendentes = [item for item in itens if not _caminho_subtransacao(item).exists()]
     logging.info(
-        "[extracao_bbagil_dag] Subtransacoes BB Agil: %d/%d pendentes",
-        len(pendentes),
-        len(itens),
+        "[extracao_bbagil_dag] Subtransacoes BB Agil persistidas no Postgres: "
+        "%s (%d linhas raw)",
+        contagem,
+        len(linhas_raw),
+    )
+    return contagem
+
+
+def _extrair_subtransacoes(_resumo_extrato: dict[str, int]) -> dict[str, int]:
+    db = ClientPostgresDB(get_postgres_conn())
+
+    pendentes = _subtransacoes_pendentes(db)
+    logging.info(
+        "[extracao_bbagil_dag] Subtransacoes BB Agil: %d pendentes", len(pendentes)
     )
 
-    return executar_lote(
+    contagem_total = {"ok": 0, "sem_dados": 0, "erro": 0}
+
+    def _persistir_lote(resultados_lote: list[ResultadoItem]) -> None:
+        contagem_lote = _persistir_resultados_subtransacao(db, resultados_lote)
+        for status, qtd in contagem_lote.items():
+            contagem_total[status] = contagem_total.get(status, 0) + qtd
+
+    executar_lote(
         itens_pendentes=pendentes,
         chamar_api=_chamar_subtransacao,
-        caminho_saida=_caminho_subtransacao,
+        tamanho_lote=TAMANHO_LOTE_PERSISTENCIA,
+        ao_concluir_lote=_persistir_lote,
     )
-
-
-def _consolidar_subtransacoes() -> str:
-    df_bruto = flatten_json_dir_to_dataframe(
-        settings.BBAGIL_SUBTRANSACOES_DIR, record_key="subtransactions"
-    )
-    df_filtrado = regras.pipeline_filtro_subtransacoes(df_bruto)
-    caminho = settings.BBAGIL_CONSOLIDADO_DIR / "bbagil_subtransacoes_filtrado.parquet"
-    save_dataframe(df_filtrado, caminho)
-    return str(caminho)
-
-
-def _construir_fato(caminhos_extrato: dict[str, str], caminho_subtransacoes: str) -> str:
-    df_extrato = pd.read_parquet(caminhos_extrato["filtrado"])
-    df_subtransacoes = pd.read_parquet(caminho_subtransacoes)
-    fato = regras.montar_fato_bbagil(df_extrato, df_subtransacoes)
-    return str(save_dataframe(fato, settings.FATO_BBAGIL_PATH))
-
-
-def _persistir_fato_bbagil(caminho_fato: str) -> None:
-    """Carrega o fato_bbagil.parquet no Postgres.
-
-    O parquet continua existindo como checkpoint/staging (grao final de um
-    pipeline com milhares de chamadas HTTP individuais ao BSC, caro demais
-    para reprocessar a cada retry) -- esta task so espelha o resultado ja
-    consolidado no banco, upsert por (ente_bbagil, documento_beneficiario_bbagil)
-    -- a mesma chave usada no groupby de ``montar_fato_bbagil`` -- para ficar
-    consultavel fora do filesystem do Airflow.
-    """
-    df_fato = pd.read_parquet(caminho_fato)
-    registros = _json_nativo(df_fato.to_dict("records"))
-
-    db = ClientPostgresDB(get_postgres_conn())
-    db.insert_data(
-        registros,
-        table_name="fato_bbagil",
-        primary_key=["ente_bbagil", "documento_beneficiario_bbagil"],
-        conflict_fields=["ente_bbagil", "documento_beneficiario_bbagil"],
-        schema=_SCHEMA_BSC_PNAB,
-    )
-    logging.info(
-        "[extracao_bbagil_dag] %d linhas do fato_bbagil persistidas em %s.fato_bbagil",
-        len(registros),
-        _SCHEMA_BSC_PNAB,
-    )
+    return contagem_total
 
 
 @dag(
@@ -288,57 +393,65 @@ def _persistir_fato_bbagil(caminho_fato: str) -> None:
     schedule=get_dynamic_schedule("extracao_bbagil_dag"),
     start_date=datetime(2026, 1, 1),
     catchup=False,
+    # DagRuns concorrentes desse DAG autenticam independentemente no SCA
+    # com o mesmo client_id/secret -- o SCA invalida o token anterior
+    # quando emite um novo pro mesmo client, entao 2+ runs em paralelo
+    # derrubam o token uma da outra e tomam 401/403 sem relacao com o
+    # throttle de requisicoes. So faz sentido 1 run ativa por vez.
+    max_active_runs=1,
     default_args=default_args,
     tags=["minc", "pnab", "bsc", "bbagil", "raw"],
 )
 def extracao_bbagil_dag() -> None:
-    """DAG de extracao e consolidacao financeira do BB Gestao Agil (BSC/SERPRO).
+    """DAG de extracao financeira do BB Gestao Agil (BSC/SERPRO).
 
-    Fluxo (Fases 1-2 do PNAB, adaptadas para TaskFlow):
+    Fluxo (Fase 1 do PNAB, adaptada para TaskFlow):
 
     1. ``extrair_agencias_transferegov`` -- descobre agencia/conta de cada
        plano de acao via API oficial do Transferegov
        (``programa`` -> ``plano_acao`` -> ``plano_acao_dado_bancario``, em
        ``agencias_transferegov.py``) e gera a lista de periodos mensais a
-       extrair. Substitui a planilha Excel legada, que falhava em silencio
-       quando o arquivo nao estava mapeado no ambiente.
+       extrair.
     1b. ``persistir_agencias_contas_transferegov`` -- salva a descoberta de
        agencia/conta em ``transferegov_fundo_a_fundo.raw_planos_acao_dado_bancario``
        (upsert por ``id_plano_acao``), em paralelo com o passo 2, para nao
        depender so do XCom (efemero) para auditar essa informacao.
     2. ``extrair_extrato_bbagil`` -- para cada plano de acao x periodo
-       pendente (checkpoint por arquivo, sem timestamp no nome), chama o
-       extrato via ``AsyncBscClient``. HTTP 400 "sem lancamentos" e
-       registrado como dado de negocio, nao erro.
-    3. ``consolidar_extrato_bbagil`` -- achata os JSONs brutos em Parquet
-       (mantendo uma copia bruta -- necessaria no passo 4, ja que o filtro 2
-       do extrato descarta justamente as transacoes com subtransacoes) e
-       aplica os 8 filtros de negocio (``pipeline_filtro_extrato``) numa
-       segunda copia, filtrada, que alimenta o fato.
-    4. ``extrair_subtransacoes_bbagil`` -- busca, a partir do parquet BRUTO,
-       os sublancamentos das transacoes com ``subTransactionQuantity`` > 0.
-    5. ``consolidar_subtransacoes_bbagil`` -- achata e aplica os 5 filtros
-       de negocio (``pipeline_filtro_subtransacoes``).
-    6. ``construir_fato_bbagil`` -- une extrato filtrado + subtransacoes
-       filtradas, agrupa por (ente, beneficiario) e aplica o limiar de R$375.
-    7. ``persistir_fato_bbagil_postgres`` -- carrega o fato final em
-       ``bsc_pnab.fato_bbagil`` (upsert por ente_bbagil + documento do
-       beneficiario). O parquet continua sendo o checkpoint/staging do
-       pipeline; esta task so espelha o resultado consolidado no banco.
+       pendente, chama o extrato via ``AsyncBscClient``. HTTP 400 "sem
+       lancamentos" e registrado como dado de negocio, nao erro. Toda
+       transacao retornada e persistida, uma linha por transacao, em
+       ``bsc_pnab.raw_bbagil_extrato_transacoes`` (upsert por
+       ``id_plano_acao``+``id``);
+       toda combinacao tentada (ok/sem_dados/erro) vira uma linha em
+       ``bsc_pnab.controle_extracao_bbagil_extrato``. A persistencia e feita
+       a cada ``TAMANHO_LOTE_PERSISTENCIA`` itens (nao tudo no final): em
+       listas de centenas de milhares de combinacoes/horas de execucao,
+       gravar so no fim faria qualquer interrupcao perder o trabalho
+       inteiro, sem visibilidade de progresso ate la. E essa tabela de
+       controle, nao um arquivo em disco, que decide o que ja foi extraido
+       (permite retomar sem reprocessar, e sem depender do filesystem de
+       quem roda a DAG).
+    3. ``extrair_subtransacoes_bbagil`` -- busca, via SQL direto em
+       ``raw_bbagil_extrato_transacoes`` (join com
+       ``raw_planos_acao_dado_bancario`` para agencia/conta), os
+       sublancamentos das transacoes com ``subtransactionquantity`` > 0.
+       Mesma logica de persistencia: raw em
+       ``bsc_pnab.raw_bbagil_subtransacoes`` (upsert por ``id_plano_acao`` +
+       ``id_transacao_pai`` + ``id`` -- o ``id`` da subtransacao e
+       sequencial por transacao-mae, nao um identificador global) e
+       controle em ``bsc_pnab.controle_extracao_bbagil_subtransacoes``.
 
-    Nota: como a API do Transferegov nao devolve o nome do ente/municipio
-    no dado bancario (so ``id_plano_acao``), o ``fato_bbagil`` identifica
-    cada ente por ``id_plano_acao`` -- nao por nome. Se for necessario um
-    nome legivel, ``agencias_transferegov.get_ids_plano_acao()`` ja busca
-    ``nome_ente_recebedor_plano_acao``/``uf_ente_recebedor_plano_acao``,
-    mas ``get_contas_agencias_programas()`` nao propaga esses campos para a
-    lista final.
+    Esta DAG so extrai e deposita o dado bruto no Postgres; nao gera mais
+    ``fato_bbagil`` nem nenhum arquivo local. Os filtros de negocio (o que
+    entrava no ``fato_bbagil``) e a agregacao final, que rodavam aqui em
+    pandas, foram removidos daqui -- a prioridade agora e completar a
+    extracao (as tabelas raw acima). A camada de transformacao (dbt ou
+    outra) sobre essas tabelas raw fica para depois, ainda nao
+    implementada.
 
     Toda a complexidade de HTTP/concorrencia/retry fica em ``cliente_bsc``
-    e ``execucao_assincrona_bsc``; toda a logica de negocio fica em
-    ``regras_negocio_bbagil``; a logica de cada passo fica nas funcoes
-    ``_extrair_*``/``_consolidar_*``/``_construir_fato`` no topo do modulo.
-    Esta DAG so orquestra.
+    e ``execucao_assincrona_bsc``; a logica de cada passo fica nas funcoes
+    ``_extrair_*``/``_persistir_*`` no topo do modulo. Esta DAG so orquestra.
     """
 
     @task
@@ -357,35 +470,13 @@ def extracao_bbagil_dag() -> None:
         return _extrair_extrato(agencias_periodos)
 
     @task
-    def consolidar_extrato_bbagil(_resumo_extracao: dict[str, int]) -> dict[str, str]:
-        return _consolidar_extrato()
-
-    @task
-    def extrair_subtransacoes_bbagil(caminhos_extrato: dict[str, str]) -> dict[str, int]:
-        return _extrair_subtransacoes(caminhos_extrato)
-
-    @task
-    def consolidar_subtransacoes_bbagil(_resumo_subtransacoes: dict[str, int]) -> str:
-        return _consolidar_subtransacoes()
-
-    @task
-    def construir_fato_bbagil(
-        caminhos_extrato: dict[str, str], caminho_subtransacoes: str
-    ) -> str:
-        return _construir_fato(caminhos_extrato, caminho_subtransacoes)
-
-    @task
-    def persistir_fato_bbagil_postgres(caminho_fato: str) -> None:
-        _persistir_fato_bbagil(caminho_fato)
+    def extrair_subtransacoes_bbagil(resumo_extrato: dict[str, int]) -> dict[str, int]:
+        return _extrair_subtransacoes(resumo_extrato)
 
     agencias_periodos = extrair_agencias_transferegov()
     persistir_agencias_contas_transferegov(agencias_periodos)
     resumo_extrato = extrair_extrato_bbagil(agencias_periodos)
-    caminhos_extrato = consolidar_extrato_bbagil(resumo_extrato)
-    resumo_subtransacoes = extrair_subtransacoes_bbagil(caminhos_extrato)
-    caminho_subtransacoes = consolidar_subtransacoes_bbagil(resumo_subtransacoes)
-    caminho_fato = construir_fato_bbagil(caminhos_extrato, caminho_subtransacoes)
-    persistir_fato_bbagil_postgres(caminho_fato)
+    extrair_subtransacoes_bbagil(resumo_extrato)
 
 
 extracao_bbagil_dag()

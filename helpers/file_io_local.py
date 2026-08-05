@@ -49,6 +49,35 @@ def save_dataframe(df: pd.DataFrame, path: Path) -> Path:
     return path
 
 
+def flatten_records(
+    documentos: list[dict[str, Any]], record_key: Optional[str] = None
+) -> list[dict[str, Any]]:
+    """Achata uma lista de respostas brutas (em memoria) em registros tabulares.
+
+    Se ``record_key`` for informado (ex.: "transactions", "subtransactions"),
+    cada documento deve conter uma lista nessa chave; os campos do nivel raiz
+    do documento (ex.: ente, agencia) sao propagados para cada registro da
+    lista. Caso contrario, cada documento vira um unico registro.
+
+    Extraida de ``flatten_json_dir_to_dataframe`` para poder achatar respostas
+    da API acumuladas em memoria (Postgres como destino) sem precisar
+    materializar cada uma como arquivo em disco primeiro.
+    """
+    registros: list[dict[str, Any]] = []
+
+    for data in documentos:
+        if record_key is None:
+            registros.append(data)
+            continue
+
+        itens = data.get(record_key, [])
+        campos_raiz = {k: v for k, v in data.items() if k != record_key}
+        for item in itens:
+            registros.append({**campos_raiz, **item})
+
+    return registros
+
+
 def flatten_json_dir_to_dataframe(
     dir_path: Path,
     record_key: Optional[str] = None,
@@ -65,20 +94,9 @@ def flatten_json_dir_to_dataframe(
         logger.warning("[file_io_local] Diretorio nao existe: %s", dir_path)
         return pd.DataFrame()
 
-    registros: list[dict[str, Any]] = []
     arquivos = sorted(dir_path.glob(pattern))
-
-    for arquivo in arquivos:
-        data = load_json_checkpoint(arquivo)
-
-        if record_key is None:
-            registros.append(data)
-            continue
-
-        itens = data.get(record_key, [])
-        campos_raiz = {k: v for k, v in data.items() if k != record_key}
-        for item in itens:
-            registros.append({**campos_raiz, **item})
+    documentos = [load_json_checkpoint(arquivo) for arquivo in arquivos]
+    registros = flatten_records(documentos, record_key=record_key)
 
     logger.info(
         "[file_io_local] %d arquivos lidos de %s -> %d registros",

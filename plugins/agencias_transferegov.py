@@ -343,6 +343,7 @@ def get_contas_agencias_programas(
     page_size: int = 1000,
     logger: logging.Logger | None = None,
     max_workers: int = 20,
+    ids_plano_acao_conhecidos: set[str] | None = None,
 ) -> list[dict]:
     """
     Retorna contas e agências dos planos de ação dos programas informados.
@@ -360,20 +361,31 @@ def get_contas_agencias_programas(
     3. Consulta a conta/agência de cada plano de ação (``get_agencia_conta``),
        em paralelo (``max_workers`` threads) -- programas grandes (5-6 mil
        planos) rodavam essa etapa em serie, um HTTP GET por plano.
+
+    ``ids_plano_acao_conhecidos``, se informado, pula o passo 3 para planos
+    de ação cujo ``id_plano_acao`` (como string) ja esteja no conjunto --
+    quem chama e responsavel por unir o resultado com os dados ja
+    conhecidos (esta funcao continua Python puro, sem ler nem escrever
+    Postgres). Sem isso, toda chamada re-busca agencia/conta de TODOS os
+    planos de acao, mesmo os ja conhecidos de execucoes anteriores -- caro
+    em volumes grandes (uma chamada HTTP por plano de acao).
     """
 
     logger = _get_logger(logger)
+    conhecidos = ids_plano_acao_conhecidos or set()
     logger.info(
         "Iniciando extração de contas e agências | programas=%s | page_size=%s | "
-        "max_workers=%s",
+        "max_workers=%s | ja_conhecidos=%s",
         len(codigos_programas),
         page_size,
         max_workers,
+        len(conhecidos),
     )
 
     registros = []
     total_contas_encontradas = 0
     total_planos_sem_conta = 0
+    total_pulados_conhecidos = 0
 
     for indice_programa, id_programa_alvo in enumerate(codigos_programas, start=1):
         logger.info(
@@ -400,18 +412,30 @@ def get_contas_agencias_programas(
         contas_encontradas_programa = 0
         planos_sem_conta_programa = 0
 
+        planos_acao_records = planos_acao.to_dict("records")
+        planos_novos = [
+            plano_acao
+            for plano_acao in planos_acao_records
+            if str(plano_acao["id_plano_acao"]) not in conhecidos
+        ]
+        pulados_programa = len(planos_acao_records) - len(planos_novos)
+        total_pulados_conhecidos += pulados_programa
+
         logger.info(
-            "Planos de ação encontrados | id_programa=%s | total_planos=%s",
+            "Planos de ação encontrados | id_programa=%s | total_planos=%s | "
+            "novos=%s | ja_conhecidos=%s",
             programa_api["id_programa"],
             total_planos,
+            len(planos_novos),
+            pulados_programa,
         )
-
-        planos_acao_records = planos_acao.to_dict("records")
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             future_para_plano = {
-                executor.submit(get_agencia_conta, plano_acao["id_plano_acao"]): plano_acao
-                for plano_acao in planos_acao_records
+                executor.submit(
+                    get_agencia_conta, plano_acao["id_plano_acao"]
+                ): plano_acao
+                for plano_acao in planos_novos
             }
 
             for future in as_completed(future_para_plano):
@@ -452,10 +476,12 @@ def get_contas_agencias_programas(
         )
 
     logger.info(
-        "Extração finalizada | linhas=%s | contas=%s | sem_conta=%s",
+        "Extração finalizada | linhas=%s | contas=%s | sem_conta=%s | "
+        "ja_conhecidos_pulados=%s",
         len(registros),
         total_contas_encontradas,
         total_planos_sem_conta,
+        total_pulados_conhecidos,
     )
 
     return registros

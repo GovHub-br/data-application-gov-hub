@@ -44,3 +44,13 @@ sources:
     schema: bsc_pnab
     tables:
       - name: fato_bbagil
+      - name: raw_bbagil_extrato_transacoes
+        description: >
+          Raw — uma linha por transacao do extrato bancario do BB Gestao
+          Agil (orgao de controle), persistida por ``extracao_bbagil_dag``
+          direto da resposta da API do BSC/SERPRO.
+      - name: raw_bbagil_subtransacoes
+        description: >
+          Raw — uma linha por sub-lancamento das transacoes com
+          ``subtransactionquantity`` > 0, persistida por
+          ``extracao_bbagil_dag``.
