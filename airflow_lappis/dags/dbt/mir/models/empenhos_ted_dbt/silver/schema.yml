@@ -346,6 +346,8 @@ models:
         description: "Data de emissão da NE no SIAFI"
       - name: ne_ccor
         description: "Chave completa da Nota de Empenho no SIAFI"
+        tests:
+          - not_null
       - name: ne_num_processo
         description: "Número do processo administrativo associado à NE, limpo de pontos, barras e hifens."
       - name: ne_info_complementar
@@ -413,6 +415,10 @@ models:
         description: "Número do TED no formato canônico 'numero_base/ano_oficial' (ex: '42/2024'). Nulo quando nenhum ano pôde ser determinado com numero_base curto (<= 2 dígitos)."
       - name: plano_acao
         description: "Identificador do Plano de Ação no TransfereGov (integer), obtido via ponte num_transf_n_plano_acao a partir do num_transf. Nulo para NEs sem correspondência."
+        tests:
+          - relationships:
+              to: ref('planos_acao_ted')
+              field: id_plano_acao
       - name: num_transf_pa
         description: "num_transf conforme registrado na ponte num_transf_n_plano_acao — usado para conferência cruzada com o num_transf extraído da NE."
     tests:

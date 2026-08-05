@@ -32,6 +32,8 @@ models:
       - name: ne_ccor
         description: >
           Número completo da nota de empenho (Chave natural principal).
+        tests:
+          - not_null
       - name: ne_num_processo
         description: >
           Número do processo administrativo, limpo de caracteres especiais (pontos, barras, hifens) via regex.
@@ -416,6 +418,9 @@ models:
     columns:
       - name: id_programa
         description: "Identificador único do Programa."
+        tests:
+          - unique
+          - not_null
       - name: tx_codigo_programa
         description: "Código do Programa."
       - name: aa_ano_programa
@@ -497,8 +502,16 @@ models:
     columns:
       - name: id_plano_acao
         description: "Identificador único do Plano de Ação."
+        tests:
+          - unique
+          - not_null
       - name: id_programa
         description: "Identificador do Programa associado."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('programas_ted')
+              field: id_programa
       - name: sigla_unidade_descentralizada
         description: "Sigla da unidade descentralizada."
       - name: unidade_descentralizada

@@ -133,6 +133,8 @@ models:
         description: "Data de emissão da NE no SIAFI."
       - name: ne_ccor
         description: "Chave completa da Nota de Empenho no SIAFI."
+        tests:
+          - not_null
       - name: ne_num_processo
         description: "Número do processo administrativo associado à NE, limpo de pontos, barras e hifens."
       - name: ne_info_complementar
@@ -180,6 +182,11 @@ models:
           Identificador do Plano de Ação no TransfereGov (integer), obtido via ponte
           num_transf_n_plano_acao a partir do num_transf. Nunca nulo nesta tabela gold —
           o filtro plano_acao is not null é a condição de entrada.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('planos_acao_ted')
+              field: id_plano_acao
       - name: dt_ingest
         description: "Timestamp de ingestão da NE no SIAFI (timestamptz, UTC-3)."
     tests:
