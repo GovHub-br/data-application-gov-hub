@@ -19,6 +19,9 @@ models:
       - name: id_programa
         description: >
           Identificador único do programa no TransfereGov.
+        tests:
+          - unique
+          - not_null
       - name: ano_programa
         description: >
           Ano de referência do programa.
@@ -55,24 +58,38 @@ models:
       - name: valor_necessidade_financeira_programa
         description: >
           Valor da necessidade financeira do programa.
+        tests:
+          - nao_negativo
       - name: valor_total_disponibilizado_programa
         description: >
           Valor total disponibilizado para o programa.
+        tests:
+          - nao_negativo
       - name: valor_impedido_programa
         description: >
           Valor impedido do programa.
+        tests:
+          - nao_negativo
       - name: valor_a_disponibilizar_programa
         description: >
           Valor ainda a ser disponibilizado para o programa.
+        tests:
+          - nao_negativo
       - name: valor_documentos_habeis_gerados_programa
         description: >
           Valor dos documentos hábeis gerados para o programa.
+        tests:
+          - nao_negativo
       - name: valor_obs_geradas_programa
         description: >
           Valor das ordens bancárias geradas para o programa.
+        tests:
+          - nao_negativo
       - name: valor_disponibilidade_atual_programa
         description: >
           Valor da disponibilidade financeira atual do programa.
+        tests:
+          - nao_negativo
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
@@ -148,6 +165,9 @@ models:
       - name: id_plano_acao
         description: >
           Identificador único do Plano de Ação (PA).
+        tests:
+          - unique
+          - not_null
       - name: codigo_plano_acao
         description: >
           Código do Programa concatenado com o ID do Plano de Ação.
@@ -222,9 +242,13 @@ models:
       - name: valor_custeio_plano_acao
         description: >
           Valor Consolidado de Custeio das Emendas Parlamentares do Plano de Ação.
+        tests:
+          - nao_negativo
       - name: valor_investimento_plano_acao
         description: >
           Valor Consolidado de Investimento das Emendas Parlamentares do Plano de Ação.
+        tests:
+          - nao_negativo
       - name: id_programa
         description: >
           Identificador único do Programa associado ao Plano de Ação.
@@ -283,6 +307,9 @@ models:
       - name: id_empenho
         description: >
           Identificador único da Nota de Empenho (NE).
+        tests:
+          - unique
+          - not_null
       - name: id_minuta_empenho
         description: >
           Número da Minuta gerado para Nota de Empenho, utiliza o Número Interno e Ano de Emissão.
@@ -359,6 +386,8 @@ models:
       - name: valor_empenho
         description: >
           Valor total da Nota de Empenho, formatado como numérico.
+        tests:
+          - nao_negativo
       - name: id_plano_acao
         description: >
           Identificador único do Plano de Ação (PA) relacionado ao empenho.
@@ -425,6 +454,9 @@ models:
       - name: id_op_ob
         description: >
           Identificador único da Operação de Ordem Bancária.
+        tests:
+          - unique
+          - not_null
       - name: data_emissao_op
         description: >
           Data da emissão da Ordem de Pagamento.
@@ -515,6 +547,9 @@ models:
       - name: id_historico_op_ob
         description: >
           Identificador único do registro de histórico da ordem de pagamento/bancária.
+        tests:
+          - unique
+          - not_null
       - name: data_hora_historico_op
         description: >
           Data e hora da inserção ou atualização do registro, conforme hora do sistema.
@@ -561,6 +596,9 @@ models:
       - name: id_plano_trabalho
         description: >
           Identificador único do Planejamento.
+        tests:
+          - unique
+          - not_null
       - name: situacao_plano_trabalho
         description: >
           Identificador da situação do Planejamento.
@@ -630,6 +668,9 @@ models:
       - name: id_dh
         description: >
           Identificador único do Documento Hábil (DH).
+        tests:
+          - unique
+          - not_null
       - name: id_empenho
         description: >
           Identificador único da Nota de Empenho (NE) vinculada ao documento hábil.
@@ -691,9 +732,13 @@ models:
         description: >
           Valor do Documento Hábil. Se a Disponibilidade Financeira for menor que o valor do Empenho,
           mais de um Documento Hábil pode ser criado.
+        tests:
+          - nao_negativo
       - name: valor_rateio_dh
         description: >
           Valor do Rateio.
+        tests:
+          - nao_negativo
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
@@ -757,6 +802,9 @@ models:
     columns:
       - name: id_relatorio_gestao
         description: "Identificador Único do Relatorio de Gestão."
+        tests:
+          - unique
+          - not_null
       - name: situacao_relatorio_gestao
         description: "Situação do Relatório de Gestão"
       - name: parecer_relatorio_gestao
@@ -784,14 +832,21 @@ models:
     columns:
       - name: id_relatorio_gestao_novo
         description: "Identificador único do registro do novo relatório de gestão."
+        tests:
+          - unique
+          - not_null
       - name: data_e_hora_relatorio_gestao_novo
         description: "Timestamp do momento do registro ou última atualização do relatório."
       - name: tipo_relatorio_gestao_novo
         description: "Classificação do tipo de relatório enviado pelo executor."
       - name: valor_executado_relatorio_gestao_novo
         description: "Montante financeiro total que já foi executado e declarado."
+        tests:
+          - nao_negativo
       - name: valor_pendente_relatorio_gestao_novo
         description: "Montante financeiro que ainda aguarda execução ou comprovação."
+        tests:
+          - nao_negativo
       - name: situacao_relatorio_gestao_novo
         description: "Status atual do relatório (ex: Em preenchimento, Enviado, Homologado)."
       - name: id_plano_acao
@@ -834,6 +889,9 @@ models:
         description: "Identificador único do Plano de Ação da Proposta."
       - name: id_executor
         description: "Identificador Único do Executor do Planejamento."
+        tests:
+          - unique
+          - not_null
       - name: cnpj_executor
         description: "CNPJ do ente ou entidade executora."
       - name: nome_executor
@@ -842,8 +900,12 @@ models:
         description: "Texto detalhado informando o Objeto da Execução."
       - name: valor_custeio_executor
         description: "Valor de Custeio do objeto a ser atendido pelo executor."
+        tests:
+          - nao_negativo
       - name: valor_investimento_executor
         description: "Valor de Investimento do objeto a ser atendido pelo executor."
+        tests:
+          - nao_negativo
       - name: ind_recursos_gerenciados_conta_especifica_executor
         description: "Indica se os recursos serão gerenciados por conta específica do executor."
       - name: codigo_banco_executor
@@ -910,6 +972,9 @@ models:
         description: "Identificador Único do Executor do Planejamento."
       - name: id_meta
         description: "Identificação Única da Meta do Executor."
+        tests:
+          - unique
+          - not_null
       - name: sequencial_meta
         description: "Sequencial numérico usado para ordenação das metas."
       - name: nome_meta
@@ -920,24 +985,44 @@ models:
         description: "Unidade de medida da meta."
       - name: qt_uniade_meta
         description: "Valor de custeio de Emenda Especial."
+        tests:
+          - nao_negativo
       - name: valor_custeio_emenda_especial_meta
         description: "Valor de Investimento de Emenda Especial."
+        tests:
+          - nao_negativo
       - name: valor_investimento_emenda_especial_meta
         description: "Valor de Custeio de Recursos Proprios."
+        tests:
+          - nao_negativo
       - name: valor_custeio_recursos_proprios_meta
         description: "Valor de Investimento de Recursos Proprios."
+        tests:
+          - nao_negativo
       - name: valor_investimento_recursos_proprios_meta
         description: "Valor de investimento aportado como recursos próprios."
+        tests:
+          - nao_negativo
       - name: valor_custeio_rendimento_meta
         description: "Valor de Custeio de Rendimentos."
+        tests:
+          - nao_negativo
       - name: valor_investimento_rendimento_meta
         description: "Valor de investimento originado de rendimentos."
+        tests:
+          - nao_negativo
       - name: valor_custeio_doacao_meta
         description: "Valor de custeio proveniente de doações."
+        tests:
+          - nao_negativo
       - name: valor_investimento_doacao_meta
         description: "Valor de investimento proveniente de doações."
+        tests:
+          - nao_negativo
       - name: qt_meses_meta
         description: "Quantidade de meses prevista para a execução da meta."
+        tests:
+          - nao_negativo
       - name: dt_ingest
         description: "Data e hora (UTC-3 Brasília) da ingestão dos dados para a camada bronze."
 
