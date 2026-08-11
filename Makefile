@@ -65,7 +65,7 @@ dev:
 	@echo "Aguardando Airflow/DB ficarem prontos..."
 	@docker compose exec -T $(AIRFLOW_SERVICE) sh -c 'for i in $$(seq 1 30); do airflow db init >/dev/null 2>&1 && exit 0; sleep 2; done; echo "Airflow DB não ficou pronto a tempo para inicializar."; exit 1'
 	@docker compose exec -T $(AIRFLOW_SERVICE) airflow variables set airflow_orgao '$(AIRFLOW_LOCAL_ORGAO)'
-	@docker compose exec -T $(AIRFLOW_SERVICE) airflow variables set airflow_variables '{"ipea":{"codigos_ug":[113601,113602]},"unb":{"codigos_ug":[154040]},"ibama":{"codigos_ug":[440001,440048,440050]},"mgi":{"codigos_ug":[201082]}}'
+	@docker compose exec -T $(AIRFLOW_SERVICE) airflow variables set airflow_variables '{"ipea":{"codigos_ug":[113601,113602]},"unb":{"codigos_ug":[154040]},"ibama":{"codigos_ug":[440001,440048,440050]},"mgi":{"codigos_ug":[201082]},"mir":{"codigos_ug":[230002,810008]}}'
 	@docker compose exec -T $(AIRFLOW_SERVICE) airflow variables set dynamic_schedules '{"empenhos_tesouro_ingest_dag":{"type":"cron","value":"0 13 * * 1-6"},"nc_tesouro_ingest_dag":{"type":"cron","value":"0 13 * * 1-6"},"pf_tesouro_ingest_dag":{"type":"cron","value":"0 13 * * 1-6"},"visao_orcamentaria_ingest":{"type":"cron","value":"0 13 * * 1-6"}}'
 	@docker compose exec -T $(AIRFLOW_SERVICE) sh -c "printf '%s\n' '{\"postgres_default\":{\"conn_type\":\"postgres\",\"host\":\"$(AIRFLOW_LOCAL_DB_HOST)\",\"schema\":\"$(AIRFLOW_LOCAL_DB_NAME)\",\"login\":\"$(AIRFLOW_LOCAL_DB_USER)\",\"password\":\"$(AIRFLOW_LOCAL_DB_PASSWORD)\",\"port\":$(AIRFLOW_LOCAL_DB_PORT)}}' > /tmp/airflow-connections.json && airflow connections import --overwrite /tmp/airflow-connections.json && rm -f /tmp/airflow-connections.json"
 	@echo "Ambiente local do Airflow configurado com sucesso."
