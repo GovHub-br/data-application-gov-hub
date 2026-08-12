@@ -9,7 +9,8 @@ with base as (
         cep,
         "cidade/uf"                                                 as cidade,
         nome_programa
-    from {{ source('transferegov_fundo_a_fundo', 'pnab_organizacoes') }}
+    from {{ source('relatorio_gestao', 'planilha_dados_pnab_ciclo_1') }}
+    where tabela_origem = 'pnab_organizacoes'
 )
 select
     {{ normaliza_documento('documento') }} as identificador_unico,

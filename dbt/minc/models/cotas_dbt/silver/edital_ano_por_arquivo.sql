@@ -13,19 +13,14 @@
 -- isso entra depois de nome_edital e anexo_edital no coalesce do contemplados_unif.
 with fontes as (
     select
-        substring(id_anexo from 'anexo_([0-9]+)') as anexo_id,
+        id_anexo as anexo_id,
         nome_arquivo
-    from {{ source('transferegov_fundo_a_fundo', 'lpg_contemplados') }}
+    from {{ source('relatorio_gestao', 'planilha_contemplados_lpg') }}
     union all
     select
-        substring(id_anexo from 'anexo_([0-9]+)'),
+        id_anexo,
         nome_arquivo
-    from {{ source('transferegov_fundo_a_fundo', 'raw_pnab_lista_contemplados_geral') }}
-    union all
-    select
-        substring(id_anexo from 'anexo_([0-9]+)'),
-        nome_arquivo
-    from {{ source('transferegov_fundo_a_fundo', 'raw_pnab_lista_contemplados_pncv') }}
+    from {{ source('relatorio_gestao', 'planilha_contemplados_pnab_ciclo_1') }}
 ),
 anos as (
     select

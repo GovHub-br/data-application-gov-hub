@@ -1,8 +1,9 @@
 -- Contemplados PNAB (lado-valor): geral + pncv. Colunas via coalesce_por_nome.
 -- Chave = CNPJ real (casável) ou CPF anonimizado (flag, não casável).
 -- anexo_id: liga ao ano-do-edital-por-anexo (abas de definição do mesmo arquivo).
-{% set geral = source('transferegov_fundo_a_fundo', 'raw_pnab_lista_contemplados_geral') %}
-{% set pncv = source('transferegov_fundo_a_fundo', 'raw_pnab_lista_contemplados_pncv') %}
+-- As duas listas viraram fatias da mesma tabela, separadas por tabela_origem.
+{% set geral = source('relatorio_gestao', 'planilha_contemplados_pnab_ciclo_1') %}
+{% set pncv = geral %}
 with base as (
     select
         id_anexo,
@@ -13,6 +14,7 @@ with base as (
         nome_arquivo,
         nome_programa
     from {{ geral }}
+    where tabela_origem = 'raw_pnab_lista_contemplados_geral'
     union all
     select
         id_anexo,
@@ -23,10 +25,11 @@ with base as (
         nome_arquivo,
         nome_programa
     from {{ pncv }}
+    where tabela_origem = 'raw_pnab_lista_contemplados_pncv'
 ),
 norm as (
     select
-        substring(id_anexo from 'anexo_([0-9]+)') as anexo_id,
+        id_anexo as anexo_id,
         {{ normaliza_documento('cnpj_raw') }} as cnpj_norm,
         {{ normaliza_documento('cpf_anon') }} as cpf_norm,
         cpf_anon, valor_raw, nome_edital, nome_arquivo, nome_programa

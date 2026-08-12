@@ -7,8 +7,9 @@ SELECT
     LOWER(TRIM("nº do cpf")) AS identificador_unico,
     LOWER(TRIM("já acessou recursos públicos do fomento à cultura nos últim")) AS historico_acesso_bruto,
     'PNAB' AS programa_fomento
-FROM {{ source('transferegov_fundo_a_fundo', 'pnab_pessoas') }}
-WHERE "nº do cpf" IS NOT NULL
+FROM {{ source('relatorio_gestao', 'planilha_dados_pnab_ciclo_1') }}
+WHERE tabela_origem = 'pnab_pessoas'
+  AND "nº do cpf" IS NOT NULL
   AND LOWER(TRIM("nº do cpf")) NOT IN ('', 'nan', 'none')
 
 {% if is_incremental() %}

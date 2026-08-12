@@ -19,7 +19,6 @@ from extracao_planilhas import (
     resolver_tabela_planilha,
 )
 from postgres_helpers import get_postgres_conn
-from views_compatibilidade import criar_views_compatibilidade
 
 # Politicas com tabela de planilha definida no documento (secao 7.3). Um
 # anexo de programa fora desta lista -- PNAB Ciclo 2, por exemplo -- nao tem
@@ -709,19 +708,9 @@ def extracao_anexos_dag() -> None:
 
         return contagem
 
-    @task(trigger_rule=TriggerRule.ALL_DONE)
-    def publicar_views_compatibilidade() -> int:
-        """(Re)cria as views com os nomes antigos de tabela, que os modelos
-        dbt existentes ainda consomem.
-
-        Fica aqui, no fim da cadeia do TransfereGov, porque a essa altura
-        todas as tabelas novas já existem. Ver ``views_compatibilidade``.
-        """
-        return criar_views_compatibilidade(ClientPostgresDB(get_postgres_conn()))
-
     lotes = listar_anexos_pendentes()
     resultados = baixar_e_extrair.expand(lote_de_arquivos=lotes)
-    fechar_pipeline(resultados) >> publicar_views_compatibilidade()
+    fechar_pipeline(resultados)
 
 
 extracao_anexos_dag()

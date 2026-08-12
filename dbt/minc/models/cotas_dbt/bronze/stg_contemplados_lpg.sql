@@ -1,9 +1,9 @@
 -- Contemplados LPG (lado-valor). Colunas duplicadas por schema-drift resolvidas
 -- via coalesce_por_nome (lê nomes reais, imune a espaço/trailing).
-{% set src = source('transferegov_fundo_a_fundo', 'lpg_contemplados') %}
+{% set src = source('relatorio_gestao', 'planilha_contemplados_lpg') %}
 with base as (
     select
-        substring(id_anexo from 'anexo_([0-9]+)')                                   as anexo_id,
+        id_anexo                                                                    as anexo_id,
         {{ coalesce_por_nome(src, ['cpf ou cnpj', 'cnpj']) }}                        as doc_raw,
         {{ coalesce_por_nome(src, ['valor pago']) }}                                as valor_raw,
         {{ coalesce_por_nome(src, ['nome do edital']) }}                            as nome_edital,
