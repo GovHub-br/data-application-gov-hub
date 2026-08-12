@@ -97,6 +97,83 @@ class ClienteTransfereGov(ClienteBase):
         )
         return all_planos
 
+    def _get_paginado(
+        self,
+        endpoint_base: str,
+        contexto: str,
+        limit: int = DEFAULT_PAGE_LIMIT,
+    ) -> list | None:
+        """Percorre um endpoint PostgREST com limit/offset ate acabar.
+
+        A API limita cada resposta a 1000 registros (secao 8 da
+        especificacao), entao qualquer consulta sem paginacao trunca em
+        silencio. ``endpoint_base`` ja vem com os filtros ``eq.`` aplicados;
+        ``contexto`` e so o texto usado nos logs.
+        """
+        if limit <= 0:
+            raise ValueError("limit must be greater than 0")
+
+        registros: list = []
+        offset = 0
+
+        while True:
+            separador = "&" if "?" in endpoint_base else "?"
+            endpoint = f"{endpoint_base}{separador}limit={limit}&offset={offset}"
+
+            status, data = self.request(
+                http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER
+            )
+
+            if status != http.HTTPStatus.OK or not isinstance(data, list):
+                logging.warning(
+                    f"[cliente_transferegov.py] Failed to fetch {contexto} at "
+                    f"offset {offset}. Status: {status}"
+                )
+                return None
+
+            if not data:
+                break
+
+            registros.extend(data)
+
+            if len(data) < limit:
+                break
+
+            offset += limit
+
+        return registros
+
+    def get_metas_by_plano_acao(
+        self, id_plano_acao: int, limit: int = DEFAULT_PAGE_LIMIT
+    ) -> list | None:
+        """
+        Obtem todas as metas vinculadas a um plano de acao
+        (``/plano_acao_meta``, secao 7.1 da especificacao).
+        """
+        return self._get_paginado(
+            f"/plano_acao_meta?id_plano_acao=eq.{id_plano_acao}",
+            f"metas for plano_acao {id_plano_acao}",
+            limit=limit,
+        )
+
+    def get_dados_bancarios_by_plano_acao(
+        self, id_plano_acao: int, limit: int = DEFAULT_PAGE_LIMIT
+    ) -> list | None:
+        """
+        Obtem **todas** as contas bancarias vinculadas a um plano de acao
+        (``/plano_acao_dado_bancario``, secao 7.1).
+
+        Devolve todos os registros com todas as colunas de propósito: a
+        granularidade da tabela e uma linha por conta, e escolher uma so
+        conta e regra de consumo (qual conta consultar no BB Agil), nao de
+        ingestao.
+        """
+        return self._get_paginado(
+            f"/plano_acao_dado_bancario?id_plano_acao=eq.{id_plano_acao}",
+            f"dados bancarios for plano_acao {id_plano_acao}",
+            limit=limit,
+        )
+
     def get_relatorios_by_plano_acao(
         self, id_plano_acao: int, limit: int = DEFAULT_PAGE_LIMIT
     ) -> list | None:

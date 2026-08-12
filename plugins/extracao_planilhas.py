@@ -12,6 +12,8 @@ from typing import Any, Optional, Union
 
 import pandas as pd
 
+import schemas_minc as schemas
+
 class TimeoutLeituraError(Exception):
     """Exceção customizada para planilhas que demoram muito para serem lidas."""
     pass
@@ -57,6 +59,53 @@ ABA_PARA_TABELA: dict[str, str] = {
     "pessoas": "pnab_pessoas",
     "organizacoes": "pnab_organizacoes",
 }
+
+# ────────────────────────────────────────────────────────────────
+# Roteamento das tabelas de origem → as 6 tabelas de planilha do
+# documento (secao 7.3)
+# ────────────────────────────────────────────────────────────────
+# Ate aqui cada aba/template virava uma tabela propria no banco, e o nome
+# da tabela LPG saia do nome da aba do Excel (``_sanitizar_nome_tabela_lpg``)
+# -- ou seja, um layout novo criava uma tabela nova. O documento define seis
+# tabelas fixas, tres por politica; ``tabela_origem`` continua gravado em
+# cada linha para nao perder de onde ela veio.
+TABELA_ORIGEM_PARA_DESTINO: dict[str, str] = {
+    # LPG
+    "lpg_editais": schemas.TABELA_PLANILHA_EDITAIS_LPG,
+    "lpg_contemplados": schemas.TABELA_PLANILHA_CONTEMPLADOS_LPG,
+    # PNAB Ciclo 1
+    "raw_pnab_lista_contemplados_geral": schemas.TABELA_PLANILHA_CONTEMPLADOS_PNAB,
+    "raw_pnab_lista_contemplados_pncv": schemas.TABELA_PLANILHA_CONTEMPLADOS_PNAB,
+    "raw_pnab_acoes_gerais": schemas.TABELA_PLANILHA_EDITAIS_PNAB,
+    "raw_pnab_acoes_cultura_viva": schemas.TABELA_PLANILHA_EDITAIS_PNAB,
+    "raw_pnab_informacoes": schemas.TABELA_PLANILHA_DADOS_PNAB,
+    "raw_pnab_operacionalizacao": schemas.TABELA_PLANILHA_DADOS_PNAB,
+    "pnab_pessoas": schemas.TABELA_PLANILHA_DADOS_PNAB,
+    "pnab_organizacoes": schemas.TABELA_PLANILHA_DADOS_PNAB,
+}
+
+# As abas do template "Dados Basicos" da LPG viram tabelas com nome derivado
+# da aba (lpg_dados_pessoa_fisica, lpg_dados_instrumentos_2_2, ...), entao o
+# conjunto e aberto -- o prefixo e o que identifica a categoria.
+_PREFIXO_DADOS_LPG = "lpg_dados_"
+
+
+def resolver_tabela_planilha(nome_tabela_origem: str) -> str | None:
+    """Mapeia o nome de tabela produzido pela extracao para uma das seis
+    tabelas de ``relatorio_gestao``.
+
+    Devolve ``None`` quando a origem nao se encaixa em nenhuma categoria --
+    quem chama registra e pula, em vez de criar tabela nova no banco.
+    """
+    destino = TABELA_ORIGEM_PARA_DESTINO.get(nome_tabela_origem)
+    if destino:
+        return destino
+
+    if nome_tabela_origem and nome_tabela_origem.startswith(_PREFIXO_DADOS_LPG):
+        return schemas.TABELA_PLANILHA_DADOS_LPG
+
+    return None
+
 
 # Abas de proponentes da PNAB
 _ABAS_PROPONENTES_PNAB = {"pessoas", "organizacoes"}
@@ -634,6 +683,7 @@ def extrair_pnab(
 
                 resultados.append({
                     "nome_tabela_destino": tabela_destino,
+                    "aba": aba,
                     "dataframe": df,
                 })
                 del df
@@ -697,6 +747,7 @@ def extrair_pnab(
                 df_out.insert(0, "id_anexo", id_anexo)
                 resultados.append({
                     "nome_tabela_destino": tabela_destino,
+                    "aba": aba,
                     "dataframe": df_out,
                 })
                 continue
@@ -749,6 +800,7 @@ def extrair_pnab(
 
                 resultados.append({
                     "nome_tabela_destino": tabela_destino,
+                    "aba": aba,
                     "dataframe": df_y,
                 })
 
@@ -848,6 +900,7 @@ def extrair_lpg(
             if df_editais is not None and not df_editais.empty:
                 resultados.append({
                     "nome_tabela_destino": "lpg_editais",
+                    "aba": aba_editais_orig,
                     "dataframe": df_editais,
                 })
 
@@ -887,6 +940,7 @@ def extrair_lpg(
             if df_cont is not None and not df_cont.empty:
                 resultados.append({
                     "nome_tabela_destino": "lpg_contemplados",
+                    "aba": aba_contemplados_orig,
                     "dataframe": df_cont,
                 })
 
@@ -944,6 +998,7 @@ def extrair_lpg(
 
             resultados.append({
                 "nome_tabela_destino": nome_tabela,
+                "aba": aba,
                 "dataframe": df,
             })
 

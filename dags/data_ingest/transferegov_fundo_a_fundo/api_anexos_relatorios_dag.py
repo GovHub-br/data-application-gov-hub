@@ -5,6 +5,7 @@ from typing import Any
 from airflow.sdk import dag, task
 from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator
 
+import schemas_minc as schemas
 from cliente_postgres import ClientPostgresDB
 from cliente_transferegov_fundo_a_fundo import ClienteTransfereGovBackend
 from postgres_helpers import get_postgres_conn
@@ -33,7 +34,8 @@ def api_anexos_relatorios_dag() -> None:
 
         db = ClientPostgresDB(get_postgres_conn())
         ids_relatorios = db.get_id_relatorios_gestao(
-            schema="transferegov_fundo_a_fundo", table_name="relatorios_gestao"
+            schema=schemas.SCHEMA_TRANSFEREGOV,
+            table_name=schemas.TABELA_RELATORIO_GESTAO,
         )
 
         if not ids_relatorios:
@@ -84,10 +86,10 @@ def api_anexos_relatorios_dag() -> None:
         db = ClientPostgresDB(get_postgres_conn())
         db.insert_data(
             anexos_data,
-            table_name="anexos_relatorios",
+            table_name=schemas.TABELA_ANEXO_RELATORIO,
             primary_key=["id"],
             conflict_fields=["id"],
-            schema="transferegov_fundo_a_fundo",
+            schema=schemas.SCHEMA_TRANSFEREGOV,
         )
 
         logging.info(

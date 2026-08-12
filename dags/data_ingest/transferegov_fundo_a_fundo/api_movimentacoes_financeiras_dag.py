@@ -7,6 +7,7 @@ from airflow.sdk import dag, task
 from airflow.sdk import Variable
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
+import schemas_minc as schemas
 from cliente_postgres import ClientPostgresDB
 from cliente_transferegov_fundo_a_fundo import ClienteTransfereGov
 from postgres_helpers import get_postgres_conn
@@ -20,7 +21,10 @@ default_args = {
 }
 
 _S3_BUCKET = "gestao-financeira-fundo-a-fundo"
-_SCHEMA = "transferegov_fundo_a_fundo"
+# Endpoints de gestao financeira do Transferegov. O documento nao preve
+# essas duas tabelas, mas elas sao do mesmo dominio -- ficam no schema
+# transferegov para o banco nao ganhar um quarto schema.
+_SCHEMA = schemas.SCHEMA_TRANSFEREGOV
 
 
 def _get_s3_hook() -> S3Hook:

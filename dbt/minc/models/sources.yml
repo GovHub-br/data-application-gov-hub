@@ -1,8 +1,13 @@
 version: 2
 
 sources:
+  # O nome da source continua `transferegov_fundo_a_fundo` para os ~20 modelos
+  # existentes não precisarem mudar; o schema é o do documento (`transferegov`).
+  # As tabelas listadas com nome antigo são views de compatibilidade criadas
+  # pela ingestão (plugins/views_compatibilidade.py) sobre as tabelas novas —
+  # transição até os modelos serem repontados.
   - name: transferegov_fundo_a_fundo
-    schema: transferegov_fundo_a_fundo
+    schema: transferegov
     tables:
       # Perfil LPG (autodeclaração raça/PCD) — base + variantes por edital
       - name: lpg_dados_pessoa_fisica
@@ -41,7 +46,7 @@ sources:
       - name: territorio_fcu_setores
 
   - name: bsc_pnab
-    schema: bsc_pnab
+    schema: bbagil
     tables:
       - name: fato_bbagil
       - name: raw_bbagil_extrato_transacoes

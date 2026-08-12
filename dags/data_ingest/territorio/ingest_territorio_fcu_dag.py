@@ -16,10 +16,13 @@ from pathlib import Path
 
 from airflow.sdk import dag, task
 
+import schemas_minc as schemas
 from cliente_postgres import ClientPostgresDB
 from postgres_helpers import get_postgres_conn
 
-_SCHEMA = "transferegov_fundo_a_fundo"
+# Tabela auxiliar (crosswalk IBGE), fora do modelo do documento. Fica em
+# transferegov para nao criar um schema so para ela.
+_SCHEMA = schemas.SCHEMA_TRANSFEREGOV
 _TABLE = "territorio_fcu_setores"
 _CSV_PATH = Path("/opt/airflow/data/external/territorio/fcu_setores_2022.csv")
 

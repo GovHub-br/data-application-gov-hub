@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 import psycopg2
@@ -116,7 +117,8 @@ class ClientPostgresDB:
         columns: List[str],
         table_name: str,
         schema: str = "raw",
-    ) -> None:
+        limite_colunas: Optional[int] = None,
+    ) -> set:
         """Adiciona colunas novas à tabela que ainda não existem no banco.
 
         Consulta ``information_schema.columns`` para descobrir as colunas
@@ -135,6 +137,18 @@ class ClientPostgresDB:
             Nome da tabela destino.
         schema : str
             Schema do banco (default: ``"raw"``).
+        limite_colunas : Optional[int]
+            Teto de colunas da tabela. Ao ser atingido, as colunas novas
+            deixam de ser criadas e são devolvidas ao chamador em vez de
+            adicionadas. Serve para tabelas que consolidam planilhas de
+            milhares de entes, onde cada layout novo traz cabeçalhos
+            inéditos e o crescimento é ilimitado — o Postgres para de aceitar
+            colunas em 1600 e o INSERT passa a falhar para todo mundo.
+
+        Returns
+        -------
+        set
+            Colunas que **não** foram criadas por causa do limite.
         """
         with psycopg2.connect(self.conn_str) as conn:
             with conn.cursor() as cursor:
@@ -150,7 +164,22 @@ class ClientPostgresDB:
 
                 novas = [c for c in columns if c not in existing]
                 if not novas:
-                    return
+                    return set()
+
+                if limite_colunas is not None:
+                    vagas = max(0, limite_colunas - len(existing))
+                    excedentes = set(novas[vagas:])
+                    novas = novas[:vagas]
+
+                    if excedentes:
+                        logging.warning(
+                            f"[cliente_postgres.py] {schema}.{table_name} atingiu "
+                            f"o limite de {limite_colunas} colunas — "
+                            f"{len(excedentes)} colunas novas serão gravadas em "
+                            f"payload_origem"
+                        )
+                else:
+                    excedentes = set()
 
                 for col in novas:
                     try:
@@ -177,6 +206,7 @@ class ClientPostgresDB:
                         )
 
                 conn.commit()
+                return excedentes
 
     def insert_data(
         self,
@@ -185,6 +215,7 @@ class ClientPostgresDB:
         conflict_fields: Optional[List[str]] = None,
         primary_key: Optional[List[str]] = None,
         schema: str = "raw",
+        limite_colunas: Optional[int] = None,
     ) -> None:
         """Insert data into database table.
 
@@ -199,6 +230,10 @@ class ClientPostgresDB:
             conflict_fields: List of column names for conflict resolution
             primary_key: List of primary key column names
             schema: Database schema name
+            limite_colunas: Teto de colunas da tabela. As colunas que não
+                couberem vão para ``payload_origem`` (JSON) em vez de virarem
+                coluna — ver ``_evolve_schema``. Sem valor, o comportamento é
+                o de sempre: toda chave vira coluna.
         """
         if not data:
             logging.warning(
@@ -215,9 +250,19 @@ class ClientPostgresDB:
 
         flattened_data = self._flatten_data(data_norm)
         columns = list(flattened_data[0].keys())
-        values = [tuple(item.values()) for item in flattened_data]
 
-        self._evolve_schema(columns, table_name, schema=schema)
+        excedentes = self._evolve_schema(
+            columns, table_name, schema=schema, limite_colunas=limite_colunas
+        )
+        if excedentes:
+            flattened_data = self._mover_para_payload_origem(flattened_data, excedentes)
+            columns = list(flattened_data[0].keys())
+            # payload_origem só passa a existir quando alguma coluna transborda
+            # — sem este segundo passo (agora sem limite, para a própria coluna
+            # não ser barrada), o INSERT quebraria com UndefinedColumn.
+            self._evolve_schema(["payload_origem"], table_name, schema=schema)
+
+        values = [tuple(item.values()) for item in flattened_data]
 
         cols_sql = ", ".join(f'"{c}"' for c in columns)
         sql = f"INSERT INTO {schema}.{table_name} ({cols_sql}) VALUES %s"
@@ -245,31 +290,80 @@ class ClientPostgresDB:
                         f"Failed to insert data into {schema}.{table_name}"
                     ) from err
 
+    @staticmethod
+    def _mover_para_payload_origem(
+        linhas: List[Dict[str, Any]], excedentes: set
+    ) -> List[Dict[str, Any]]:
+        """Tira das linhas as colunas que não couberam na tabela e guarda o
+        conteúdo delas em ``payload_origem`` (JSON serializado).
+
+        Nenhum dado da origem é descartado: a coluna deixa de existir como
+        coluna, mas o par nome/valor continua consultável via
+        ``payload_origem``.
+        """
+        movidas: List[Dict[str, Any]] = []
+
+        for linha in linhas:
+            extras = {
+                coluna: valor for coluna, valor in linha.items() if coluna in excedentes
+            }
+            nova = {
+                coluna: valor
+                for coluna, valor in linha.items()
+                if coluna not in excedentes
+            }
+            payload_atual = nova.get("payload_origem")
+            if payload_atual:
+                extras = {**json.loads(payload_atual), **extras}
+            nova["payload_origem"] = json.dumps(extras, ensure_ascii=False, default=str)
+            movidas.append(nova)
+
+        return movidas
+
     def insert_data_por_tabela(
         self,
         data: List[Dict[str, Any]],
         table_name: str,
         schema: str = "raw",
+        conflict_fields: Optional[List[str]] = None,
+        primary_key: Optional[List[str]] = None,
+        limite_colunas: Optional[int] = None,
     ) -> None:
         """Insere dados em tabela destino determinada dinamicamente.
 
-        Wrapper de conveniência sobre ``insert_data`` para o fluxo PNAB
-        onde cada sub-tabela pode ir para uma tabela diferente
-        (ex: ``raw_pnab_informacoes``, ``raw_pnab_acoes_gerais``, etc.).
+        Wrapper de conveniência sobre ``insert_data`` para o fluxo de
+        planilhas, onde a tabela destino sai do roteamento por aba/template
+        (``extracao_planilhas.resolver_tabela_planilha``).
 
         Args:
             data: Lista de dicionários a inserir.
-            table_name: Nome da tabela destino (determinado pelo
-                roteamento de abas em ``extrair_pnab``).
+            table_name: Nome da tabela destino.
             schema: Schema do banco (default: ``"raw"``).
+            conflict_fields: Chave natural para o UPSERT — sem ela, cada
+                execução duplicaria as linhas da planilha inteira.
+            primary_key: Chave primária a criar junto com a tabela.
+            limite_colunas: Ver ``insert_data``.
         """
         self.insert_data(
             data,
             table_name=table_name,
-            conflict_fields=None,
-            primary_key=None,
+            conflict_fields=conflict_fields,
+            primary_key=primary_key,
             schema=schema,
+            limite_colunas=limite_colunas,
         )
+
+    def execute_statement(self, statement: str) -> None:
+        """Executa um comando que não retorna linhas (DDL, UPDATE, DELETE).
+
+        ``execute_query`` sempre chama ``fetchall`` e por isso quebra em
+        comandos sem resultado.
+        """
+        logging.info(f"[cliente_postgres.py] Executing statement: {statement}")
+        with psycopg2.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(statement)
+                conn.commit()
 
     def execute_query(self, query: str) -> List[Tuple[Any, ...]]:
         """Execute a query and return the results.

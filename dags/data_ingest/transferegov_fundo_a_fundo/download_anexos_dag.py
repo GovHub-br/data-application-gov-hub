@@ -11,7 +11,15 @@ from airflow.sdk import TriggerRule
 from datetime import datetime, timedelta
 
 
+import schemas_minc as schemas
+
 URL_BASE_RG = "https://fundos.transferegov.sistema.gov.br/maisbrasil-transferencia-backend/api/public/anexos/rg/"
+
+_TABELA_ANEXOS = f"{schemas.SCHEMA_TRANSFEREGOV}.{schemas.TABELA_ANEXO_RELATORIO}"
+# id_programa e TEXT na tabela (toda coluna nasce TEXT na camada raw), entao
+# a comparacao vai com os ids entre aspas.
+_IDS_LPG_SQL = ", ".join(f"'{i}'" for i in schemas.IDS_PROGRAMA_LPG)
+_IDS_PNAB_SQL = ", ".join(f"'{i}'" for i in schemas.IDS_PROGRAMA_PNAB_CICLO_1)
 
 default_args = {
     "owner": "Wallyson Souza",
@@ -40,26 +48,26 @@ def download_anexos_dag():
         pg_hook = PostgresHook(postgres_conn_id="postgres_default")
 
         # 1. Garante que a coluna caminho_minio existe na tabela do banco
-        alter_table_query = """
-        ALTER TABLE transferegov_fundo_a_fundo.anexos_relatorios
+        alter_table_query = f"""
+        ALTER TABLE {_TABELA_ANEXOS}
         ADD COLUMN IF NOT EXISTS caminho_minio VARCHAR(500);
         """
         pg_hook.run(alter_table_query)
         logging.info("Garantida a existência da coluna 'caminho_minio' na tabela.")
 
         # 2. Busca os arquivos Excel/ODS não baixados e descobre o bucket via id_programa
-        query = """
+        query = f"""
         SELECT
             ar.id,
             CASE
-                WHEN pa.id_programa IN ('46', '47') THEN 'anexos-lpg'
-                WHEN pa.id_programa IN ('60', '61', '62') THEN 'anexos-pnab'
+                WHEN pa.id_programa IN ({_IDS_LPG_SQL}) THEN 'anexos-lpg'
+                WHEN pa.id_programa IN ({_IDS_PNAB_SQL}) THEN 'anexos-pnab'
                 ELSE 'anexos-outros'
             END AS bucket_name
-        FROM transferegov_fundo_a_fundo.anexos_relatorios ar
-        JOIN transferegov_fundo_a_fundo.relatorios_gestao rg
+        FROM {_TABELA_ANEXOS} ar
+        JOIN {schemas.SCHEMA_TRANSFEREGOV}.{schemas.TABELA_RELATORIO_GESTAO} rg
             ON ar.id_relatorio_gestao = rg.id_relatorio_gestao
-        JOIN transferegov_fundo_a_fundo.raw_planos_acao pa
+        JOIN {schemas.SCHEMA_TRANSFEREGOV}.{schemas.TABELA_PLANO_ACAO} pa
             ON rg.id_plano_acao = pa.id_plano_acao
         WHERE (ar.nome ILIKE '%.xls' OR ar.nome ILIKE '%.xlsx' OR ar.nome ILIKE '%.ods')
           AND ar.caminho_minio IS NULL
@@ -132,8 +140,8 @@ def download_anexos_dag():
         path_minio = f"{bucket_name}/{chave_s3}"
 
         # Atualiza o banco de dados com o caminho do arquivo
-        update_query = """
-        UPDATE transferegov_fundo_a_fundo.anexos_relatorios
+        update_query = f"""
+        UPDATE {_TABELA_ANEXOS}
         SET caminho_minio = %s
         WHERE id = %s
         """
