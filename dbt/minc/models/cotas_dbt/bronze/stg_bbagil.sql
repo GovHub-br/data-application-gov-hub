@@ -20,6 +20,6 @@ select
     documento_beneficiario_bbagil                                        as documento_raw,
     (documento_beneficiario_bbagil like '%*%')                           as chave_anonimizada,
     {{ parse_valor('valor_transacao_total_bbagil') }}                    as valor_pago_num
-from {{ source('bsc_pnab', 'fato_bbagil') }}
+from {{ source('bbagil', 'fato_bbagil') }}
 where {{ normaliza_documento('documento_beneficiario_bbagil') }} is not null
    or {{ parse_valor('valor_transacao_total_bbagil') }} is not null

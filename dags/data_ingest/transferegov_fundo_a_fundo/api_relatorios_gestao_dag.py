@@ -5,6 +5,7 @@ from typing import Any
 from airflow.sdk import dag, task
 from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator
 
+import schemas_minc as schemas
 from cliente_postgres import ClientPostgresDB
 from cliente_transferegov_fundo_a_fundo import ClienteTransfereGov
 from postgres_helpers import get_postgres_conn
@@ -32,7 +33,9 @@ def api_relatorios_gestao_dag() -> None:
         logging.info("[api_relatorios_gestao_dag.py] Iniciando extração de relatórios de gestão")
 
         db = ClientPostgresDB(get_postgres_conn())
-        ids_planos = db.get_id_planos_acao(schema="transferegov_fundo_a_fundo", table_name="raw_planos_acao")
+        ids_planos = db.get_id_planos_acao(
+            schema=schemas.SCHEMA_TRANSFEREGOV, table_name=schemas.TABELA_PLANO_ACAO
+        )
 
         if not ids_planos:
             raise ValueError("[api_relatorios_gestao_dag.py] Nenhum plano de ação encontrado")
@@ -85,10 +88,10 @@ def api_relatorios_gestao_dag() -> None:
         db = ClientPostgresDB(get_postgres_conn())
         db.insert_data(
             relatorios_data,
-            table_name="relatorios_gestao",
+            table_name=schemas.TABELA_RELATORIO_GESTAO,
             primary_key=["id_relatorio_gestao"],
             conflict_fields=["id_relatorio_gestao"],
-            schema="transferegov_fundo_a_fundo",
+            schema=schemas.SCHEMA_TRANSFEREGOV,
         )
 
         logging.info(

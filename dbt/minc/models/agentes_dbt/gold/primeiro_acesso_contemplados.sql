@@ -28,8 +28,8 @@
 {% set cpf_cnpj_cols_query %}
     SELECT column_name
     FROM information_schema.columns
-    WHERE table_schema = '{{ source('transferegov_fundo_a_fundo', 'lpg_contemplados').schema }}'
-      AND table_name = '{{ source('transferegov_fundo_a_fundo', 'lpg_contemplados').identifier }}'
+    WHERE table_schema = '{{ source('relatorio_gestao', 'planilha_contemplados_lpg').schema }}'
+      AND table_name = '{{ source('relatorio_gestao', 'planilha_contemplados_lpg').identifier }}'
       AND column_name ILIKE '%cpf%cnpj%'
     ORDER BY column_name
 {% endset %}
@@ -45,7 +45,7 @@ WITH contemplados_lpg_raw AS (
             {% endif %}
             {% endfor %}
         ) AS cpf_cnpj_bruto
-    FROM {{ source('transferegov_fundo_a_fundo', 'lpg_contemplados') }}
+    FROM {{ source('relatorio_gestao', 'planilha_contemplados_lpg') }}
 ),
 
 contemplados_lpg AS (
@@ -63,8 +63,9 @@ contemplados_pnab_pncv AS (
     SELECT DISTINCT
         REGEXP_REPLACE(TRIM(cpf), '[^0-9]', '', 'g') AS id_normalizado,
         'PNAB' AS programa_fomento
-    FROM {{ source('transferegov_fundo_a_fundo', 'raw_pnab_lista_contemplados_pncv') }}
-    WHERE cpf IS NOT NULL
+    FROM {{ source('relatorio_gestao', 'planilha_contemplados_pnab_ciclo_1') }}
+    WHERE tabela_origem = 'raw_pnab_lista_contemplados_pncv'
+      AND cpf IS NOT NULL
       AND LOWER(TRIM(cpf)) NOT IN ('nan', '', 'cpf')
       AND LENGTH(REGEXP_REPLACE(TRIM(cpf), '[^0-9]', '', 'g')) = 11
 ),
@@ -75,8 +76,9 @@ contemplados_pnab_geral_pj AS (
     SELECT DISTINCT
         REGEXP_REPLACE(TRIM(cnpj), '[^0-9]', '', 'g') AS id_normalizado,
         'PNAB' AS programa_fomento
-    FROM {{ source('transferegov_fundo_a_fundo', 'raw_pnab_lista_contemplados_geral') }}
-    WHERE cnpj IS NOT NULL
+    FROM {{ source('relatorio_gestao', 'planilha_contemplados_pnab_ciclo_1') }}
+    WHERE tabela_origem = 'raw_pnab_lista_contemplados_geral'
+      AND cnpj IS NOT NULL
       AND LOWER(TRIM(cnpj)) NOT IN ('nan', '', 'cnpj')
       AND LENGTH(REGEXP_REPLACE(TRIM(cnpj), '[^0-9]', '', 'g')) = 14
 ),

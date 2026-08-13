@@ -1,18 +1,22 @@
 -- Ano do edital por ANEXO (PNAB): das abas de definição de edital, que trazem
 -- o campo "número do edital" (mais completo que o nome no contemplado).
 -- Só mantém anexos com ano ÚNICO (consistente) — descarta anexo multi-ano (ambíguo).
-{% set ag  = source('transferegov_fundo_a_fundo', 'raw_pnab_acoes_gerais') %}
-{% set acv = source('transferegov_fundo_a_fundo', 'raw_pnab_acoes_cultura_viva') %}
+-- As duas abas de definição de edital viraram fatias da mesma tabela,
+-- separadas por tabela_origem. id_anexo agora é o id do anexo direto — antes
+-- era o nome do arquivo ("anexo_123_..."), de onde o id precisava ser extraído.
+{% set editais = source('relatorio_gestao', 'planilha_editais_pnab_ciclo_1') %}
 with fontes as (
     select
-        substring(id_anexo from 'anexo_([0-9]+)')                                      as anexo_id,
-        {{ coalesce_por_nome(ag, ['número do edital', 'número e título do edital']) }}  as num_edital
-    from {{ ag }}
+        id_anexo                                                                            as anexo_id,
+        {{ coalesce_por_nome(editais, ['número do edital', 'número e título do edital']) }}  as num_edital
+    from {{ editais }}
+    where tabela_origem = 'raw_pnab_acoes_gerais'
     union all
     select
-        substring(id_anexo from 'anexo_([0-9]+)'),
-        {{ coalesce_por_nome(acv, ['número e título do edital', 'número do edital']) }}
-    from {{ acv }}
+        id_anexo,
+        {{ coalesce_por_nome(editais, ['número e título do edital', 'número do edital']) }}
+    from {{ editais }}
+    where tabela_origem = 'raw_pnab_acoes_cultura_viva'
 ),
 anos as (
     select anexo_id, {{ ano_edital('num_edital') }} as ano

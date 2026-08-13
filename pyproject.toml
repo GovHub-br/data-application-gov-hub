@@ -118,6 +118,11 @@ disable_error_code = ["arg-type", "attr-defined"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+# Mesmos diretórios que o Makefile exporta em PYTHONPATH. O Airflow importa
+# plugins/ e helpers/ como módulos de topo (sem pacote), então um teste que
+# importa `territorio_ibge` só resolve com esses caminhos no sys.path — no CI,
+# que chama `pytest` direto, o export do Makefile não existe.
+pythonpath = ["plugins", "helpers", "dags"]
 
 [tool.sqlfmt]
 line_length = 90

@@ -14,7 +14,7 @@ with setores as (
         nm_uf,
         cd_fcu,
         nm_fcu
-    from {{ source('transferegov_fundo_a_fundo', 'territorio_fcu_setores') }}
+    from {{ source('transferegov', 'territorio_fcu_setores') }}
 ),
 por_municipio as (
     select

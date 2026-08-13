@@ -1,50 +1,44 @@
 import gc
-import inspect
+import hashlib
 import io
 import logging
-import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
 from airflow.sdk import dag, task
-from airflow.sdk import Variable
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.sdk import TriggerRule
 
+import schemas_minc as schemas
 from cliente_postgres import ClientPostgresDB
-from extracao_planilhas import extrair_tabela_raw, extrair_pnab, extrair_lpg, TimeoutLeituraError
+from extracao_planilhas import (
+    TimeoutLeituraError,
+    extrair_lpg,
+    extrair_pnab,
+    resolver_tabela_planilha,
+)
 from postgres_helpers import get_postgres_conn
 
-_PROGRAMAS = [
-    {
-        "nome_programa": "LPG",
-        "id_programa": [46, 47],
-        "regex_header": r"edita(?:is|l)",
-        "regex_flags": "IGNORECASE",
-        "col_header_idx": 1,
-        "col_categoria_idx": 0,
-        "min_len_categoria": 6,
-        "bucket": "anexos-lpg",
-        "prefix": "",
-        "schema": "transferegov_fundo_a_fundo",
-        "table": None,  # LPG usa roteamento por template — tabela definida dinamicamente
-    },
-    {
-        "nome_programa": "PNAB",
-        "id_programa": [60, 61, 62],
-        "regex_header": r"contemplad|contratad|acompanhament|plan|sheet|dados|tabela|resumo|relat[oó]rio",
-        "regex_flags": "IGNORECASE",
-        "col_header_idx": 1,
-        "col_categoria_idx": 0,
-        "min_len_categoria": 6,
-        "bucket": "anexos-pnab",
-        "prefix": "",
-        "schema": "transferegov_fundo_a_fundo",
-        "table": None,  # PNAB usa roteamento por aba — tabela definida dinamicamente
-    },
-]
+# Politicas com tabela de planilha definida no documento (secao 7.3). Um
+# anexo de programa fora desta lista -- PNAB Ciclo 2, por exemplo -- nao tem
+# tabela destino e por isso e pulado, em vez de criar tabela nova.
+_PROGRAMA_POR_POLITICA = {
+    "LPG": schemas.IDS_PROGRAMA_LPG,
+    "PNAB": schemas.IDS_PROGRAMA_PNAB_CICLO_1,
+}
+
+_URL_ANEXO_RG = (
+    "https://fundos.transferegov.sistema.gov.br/"
+    "maisbrasil-transferencia-backend/api/public/anexos/rg/"
+)
+
+# Teto de colunas das tabelas de planilha. Elas consolidam planilhas de
+# milhares de entes, cada uma com seus proprios cabecalhos: sem teto, o
+# numero de colunas cresce sem limite ate o Postgres recusar em 1600 e
+# quebrar a carga para todo mundo. Passando daqui, coluna nova vai para
+# payload_origem -- nada se perde, mas a tabela para de crescer.
+_LIMITE_COLUNAS_PLANILHA = 1200
 
 _S3_CONN_ID = "minio_default"
 
@@ -56,6 +50,20 @@ default_args = {
 
 _CHUNK_SIZE = 50
 _MAX_FILE_BYTES = 10 * 1024 * 1024  # 10 MB — limite para evitar OOM no Worker
+
+
+def _hash_registro(id_anexo: str, indice_subtabela: int, linha_origem: int) -> str:
+    """Chave determinística de uma linha de planilha (seção 9.1).
+
+    Um mesmo anexo pode render várias subtabelas da mesma aba (a PNAB quebra
+    uma aba em blocos por tipo de edital), então aba + linha não bastam para
+    identificar o registro — o índice da subtabela desempata. Como a extração
+    é determinística, reprocessar o anexo gera os mesmos hashes e o UPSERT
+    atualiza em vez de duplicar.
+    """
+    return hashlib.md5(
+        f"{id_anexo}|{indice_subtabela}|{linha_origem}".encode()
+    ).hexdigest()
 
 
 @dag(
@@ -72,10 +80,13 @@ def extracao_anexos_dag() -> None:
 
     Fluxo:
 
-    1. ``listar_arquivos_s3`` — descobre todos os arquivos de planilha nos
-       buckets do MinIO, enriquece cada entrada com os parâmetros do
-       programa (regex, bucket, tabela destino) e fatia a lista em blocos
-       (chunks) de 50 arquivos. Retorna ``list[list[dict]]``.
+    1. ``listar_anexos_pendentes`` — monta a lista a partir do **Postgres**,
+       não do MinIO: o join ``anexos_relatorios → relatorios_gestao →
+       plano_acao_minc`` traz, junto do caminho do arquivo, as chaves que a
+       seção 7.3 exige em cada linha de planilha (``id_relatorio_gestao``,
+       ``id_plano_acao``, ``id_programa``, ``cod_ibge``). Varrer as keys do
+       MinIO daria o arquivo, mas não diria de que plano de ação ele é.
+       A lista sai fatiada em blocos (chunks) de 50 arquivos.
        NOTA: .ods é intencionalmente excluído — a engine odf causa OOM.
     2. ``baixar_e_extrair`` — para CADA lote (via ``.expand()``), itera
        sobre os arquivos do lote. Para cada arquivo, baixa do MinIO para
@@ -89,10 +100,9 @@ def extracao_anexos_dag() -> None:
     """
 
     @task
-    def listar_arquivos_s3() -> list[list[dict[str, Any]]]:
-        """Lista arquivos de planilha em cada bucket do MinIO, enriquece
-        cada entrada com os parâmetros de extração do programa e fatia
-        a lista em blocos (chunks) de 50 arquivos.
+    def listar_anexos_pendentes() -> list[list[dict[str, Any]]]:
+        """Monta a lista de anexos a processar a partir do Postgres e a fatia
+        em blocos (chunks) de 50 arquivos.
 
         Retorna ``list[list[dict]]`` para que o Dynamic Task Mapping crie
         uma task por *lote* ao invés de uma task por *arquivo*, reduzindo
@@ -101,107 +111,103 @@ def extracao_anexos_dag() -> None:
         NOTA: extensão .ods é excluída propositalmente — a engine odf
         carrega o DOM XML inteiro em memória e causa OOM Kills.
         """
-        ids_validos = set(
-            Variable.get(
-                "transferegov_programas_ids",
-                default=[46, 47, 60, 61, 62],
-                deserialize_json=True,
-            )
+        db = ClientPostgresDB(get_postgres_conn())
+        linhas = db.execute_query(
+            "SELECT anexo.id, anexo.nome, anexo.caminho_minio, "
+            "       anexo.id_relatorio_gestao, plano.id_plano_acao, "
+            "       plano.id_programa, plano.cod_ibge "
+            f"FROM {schemas.SCHEMA_TRANSFEREGOV}."
+            f"{schemas.TABELA_ANEXO_RELATORIO} anexo "
+            f"JOIN {schemas.SCHEMA_TRANSFEREGOV}."
+            f"{schemas.TABELA_RELATORIO_GESTAO} relatorio "
+            "  ON anexo.id_relatorio_gestao = relatorio.id_relatorio_gestao "
+            f"JOIN {schemas.SCHEMA_TRANSFEREGOV}.{schemas.TABELA_PLANO_ACAO} plano "
+            "  ON relatorio.id_plano_acao = plano.id_plano_acao "
+            "WHERE anexo.caminho_minio IS NOT NULL"
         )
 
-        hook = S3Hook(aws_conn_id=_S3_CONN_ID)
+        # .ods removido intencionalmente — engine odf causa OOM
+        extensoes_validas = {".xlsx", ".xls", ".xlsm", ".xlsb"}
         arquivos_meta: list[dict[str, Any]] = []
+        sem_politica = 0
+        extensao_ignorada = 0
 
-        for prog in _PROGRAMAS:
-            ids_prog = prog.get("id_programa", [])
-            if isinstance(ids_prog, int):
-                ids_prog = [ids_prog]
-            if ids_prog and not any(i in ids_validos for i in ids_prog):
-                logging.info(
-                    "[extracao_anexos_dag.py] Programa %s (IDs %s) "
-                    "nao esta em transferegov_programas_ids — pulando",
-                    prog["nome_programa"],
-                    ids_prog,
-                )
-                continue
-
-            nome = prog["nome_programa"]
-            bucket = prog["bucket"]
-            prefix = prog.get("prefix", "")
-
-            logging.info(
-                "[extracao_anexos_dag.py] Listando arquivos para programa %s "
-                "no bucket s3://%s/%s",
-                nome,
-                bucket,
-                prefix,
-            )
-
+        for (
+            id_anexo,
+            nome_arquivo,
+            caminho_minio,
+            id_relatorio_gestao,
+            id_plano_acao,
+            id_programa,
+            cod_ibge,
+        ) in linhas:
+            # id_programa vem como TEXT do banco (toda coluna nasce TEXT na
+            # camada raw) e pode faltar em plano mal cadastrado na origem —
+            # nesse caso o anexo é da validação 12.8 (anexo sem programa
+            # identificado) e não tem como ser roteado.
             try:
-                keys = hook.list_keys(
-                    bucket_name=bucket,
-                    prefix=prefix,
-                )
-            except Exception as exc:
-                logging.warning(
-                    "[extracao_anexos_dag.py] Erro ao listar bucket %s: %s — pulando",
-                    bucket,
-                    exc,
-                )
-                continue
+                id_programa_int = int(id_programa)
+            except (TypeError, ValueError):
+                id_programa_int = None
 
-            if not keys:
-                logging.warning(
-                    "[extracao_anexos_dag.py] Nenhum arquivo encontrado no "
-                    "bucket %s para o programa %s",
-                    bucket,
-                    nome,
-                )
-                continue
-
-            # .ods removido intencionalmente — engine odf causa OOM
-            extensoes_validas = {".xlsx", ".xls", ".xlsm", ".xlsb"}
-
-            for key in keys:
-                ext = Path(key).suffix.lower()
-                if ext not in extensoes_validas:
-                    if ext == ".ods":
-                        logging.info(
-                            "[extracao_anexos_dag.py] Arquivo .ods "
-                            "ignorado (OOM risk): s3://%s/%s",
-                            bucket,
-                            key,
-                        )
-                    continue
-                if Path(key).name.startswith("~$"):
-                    continue
-
-                arquivos_meta.append({
-                    "key": key,
-                    "bucket": bucket,
-                    "nome_programa": nome,
-                    "regex_header": prog["regex_header"],
-                    "regex_flags": prog.get("regex_flags", "IGNORECASE"),
-                    "col_header_idx": prog.get("col_header_idx", 1),
-                    "col_categoria_idx": prog.get("col_categoria_idx", 0),
-                    "min_len_categoria": prog.get("min_len_categoria", 6),
-                    "schema": prog["schema"],
-                    "table": prog["table"],
-                })
-
-            logging.info(
-                "[extracao_anexos_dag.py] Programa %s: %d arquivos encontrados",
-                nome,
-                sum(
-                    1
-                    for a in arquivos_meta
-                    if a["nome_programa"] == nome
+            nome_politica = next(
+                (
+                    politica
+                    for politica, ids in _PROGRAMA_POR_POLITICA.items()
+                    if id_programa_int in ids
                 ),
+                None,
             )
+            if nome_politica is None:
+                # O anexo tem plano de ação, mas o programa dele não tem
+                # tabela de planilha definida no documento (PNAB Ciclo 2, por
+                # exemplo) — ou nem programa identificado tem.
+                sem_politica += 1
+                continue
+
+            # caminho_minio e "<bucket>/<key>", gravado por download_anexos_dag
+            bucket, _, key = str(caminho_minio).partition("/")
+            if not key:
+                logging.warning(
+                    "[extracao_anexos_dag.py] caminho_minio inválido no anexo "
+                    "%s: %r — pulando",
+                    id_anexo,
+                    caminho_minio,
+                )
+                continue
+
+            if Path(key).suffix.lower() not in extensoes_validas:
+                extensao_ignorada += 1
+                continue
+            if Path(key).name.startswith("~$"):
+                continue
+
+            arquivos_meta.append({
+                "key": key,
+                "bucket": bucket,
+                "nome_programa": nome_politica,
+                "id_anexo": str(id_anexo),
+                "id_relatorio_gestao": id_relatorio_gestao,
+                "id_plano_acao": id_plano_acao,
+                "id_programa": id_programa,
+                "cod_ibge": cod_ibge,
+                "nome_arquivo_origem": nome_arquivo,
+                "url_origem": f"{_URL_ANEXO_RG}{id_anexo}",
+            })
+
+        logging.info(
+            "[extracao_anexos_dag.py] %d anexos com arquivo baixado: %d a "
+            "processar, %d de programas sem tabela de planilha, %d com "
+            "extensão ignorada (.ods/.pdf/etc)",
+            len(linhas),
+            len(arquivos_meta),
+            sem_politica,
+            extensao_ignorada,
+        )
 
         if not arquivos_meta:
             logging.warning(
-                "[extracao_anexos_dag.py] Nenhum arquivo encontrado em nenhum programa"
+                "[extracao_anexos_dag.py] Nenhum anexo pendente de extração"
             )
             return []
 
@@ -227,10 +233,13 @@ def extracao_anexos_dag() -> None:
     ) -> dict[str, Any]:
         """Processa um único arquivo: download S3 → extração → INSERT.
 
-        O roteamento é explícito por programa:
+        O roteamento é explícito por política:
         - PNAB → extrair_pnab (roteamento por aba)
         - LPG → extrair_lpg (roteamento por template)
-        - else → extrair_tabela_raw (fallback genérico via regex)
+
+        Cada subtabela extraída cai numa das seis tabelas de
+        ``relatorio_gestao`` (``resolver_tabela_planilha``), com as chaves e
+        os metadados de origem que a seção 7.3 exige.
 
         Retorna metadados leves (sem dados_json) para o resumo do lote.
         Nunca levanta exceção — erros são capturados e devolvidos no dict.
@@ -238,8 +247,6 @@ def extracao_anexos_dag() -> None:
         nome_programa = file_meta["nome_programa"]
         bucket = file_meta["bucket"]
         key = file_meta["key"]
-        schema = file_meta["schema"]
-        table = file_meta["table"]
         file_name = Path(key).name
 
         # ── Checagem de tamanho + download em chamada S3 única ──
@@ -311,12 +318,17 @@ def extracao_anexos_dag() -> None:
                 "erro": repr(exc),
             }
 
+        # hash_arquivo (secao 7.3): identifica o anexo pelo conteudo, o que
+        # permite detectar o mesmo arquivo reenviado ou alterado (validacao
+        # 12.9). Calculado aqui porque os bytes ja estao em memoria.
+        hash_arquivo = hashlib.md5(file_content).hexdigest()
+
         buffer = io.BytesIO(file_content)
         # Libera referência ao conteúdo bruto logo após criar o buffer
         del file_content
 
         try:
-            id_anexo = Path(key).stem  # nome do arquivo sem extensão
+            id_anexo = file_meta["id_anexo"]
 
             # ── Roteamento explícito por programa ──
             if nome_programa == "PNAB":
@@ -346,99 +358,32 @@ def extracao_anexos_dag() -> None:
                 )
 
             else:
-                # ── Fallback genérico: regex âncora + tabela única ──
-                flags = 0
-                for flag_name in file_meta.get("regex_flags", "IGNORECASE").split("|"):
-                    flag_val = getattr(re, flag_name.strip(), None)
-                    if flag_val is not None:
-                        flags |= flag_val
+                # Nao ha outro caso: a listagem so devolve anexos de
+                # programas de LPG ou PNAB Ciclo 1.
+                raise ValueError(f"Política sem extrator: {nome_programa}")
 
-                regex_header = re.compile(file_meta["regex_header"], flags)
-
-                logging.info(
-                    "[extracao_anexos_dag.py] Extraindo '%s' "
-                    "(fallback regex=%s, tabela=%s)",
-                    file_name,
-                    file_meta["regex_header"],
-                    table,
-                )
-
-                _fn_params = inspect.signature(extrair_tabela_raw).parameters
-                _extra_kwargs = (
-                    {"file_name": file_name} if "file_name" in _fn_params else {}
-                )
-                resultados_fallback = extrair_tabela_raw(
-                    file_path=buffer,
-                    regex_header=regex_header,
-                    col_header_idx=file_meta.get("col_header_idx", 1),
-                    col_categoria_idx=file_meta.get("col_categoria_idx", 0),
-                    min_len_categoria=file_meta.get("min_len_categoria", 6),
-                    **_extra_kwargs,
-                )
-
-                # Converte formato do fallback para o formato padrao
-                resultados = []
-                for res_fb in resultados_fallback:
-                    df_fb = res_fb["dados"]
-                    df_fb = df_fb.loc[:, ~df_fb.columns.duplicated()]
-
-                    # --- Data Cleaning ---
-                    colunas_antes = len(df_fb.columns)
-                    linhas_antes = len(df_fb)
-
-                    df_fb = df_fb.dropna(axis=1, how="all")
-                    df_fb = df_fb.dropna(how="all")
-
-                    _col_meta_fb = {"tipo_edital"}
-                    col_dados_fb = [c for c in df_fb.columns if c not in _col_meta_fb]
-                    if col_dados_fb:
-                        thresh_fb = max(1, int(len(col_dados_fb) * 0.3))
-                        df_fb = df_fb.dropna(subset=col_dados_fb, thresh=thresh_fb)
-
-                    df_fb = df_fb.reset_index(drop=True)
-
-                    linhas_removidas = linhas_antes - len(df_fb)
-                    colunas_removidas = colunas_antes - len(df_fb.columns)
-                    if linhas_removidas or colunas_removidas:
-                        logging.info(
-                            "[extracao_anexos_dag.py] Limpeza '%s' aba '%s': "
-                            "removidas %d/%d linhas, %d/%d colunas",
-                            file_name,
-                            res_fb["aba"],
-                            linhas_removidas,
-                            linhas_antes,
-                            colunas_removidas,
-                            colunas_antes,
-                        )
-
-                    if df_fb.empty:
-                        logging.warning(
-                            "Aba %s descartada por estar vazia após limpeza.",
-                            res_fb["aba"],
-                        )
-                        continue
-
-                    df_fb["nome_arquivo"] = res_fb["nome_arquivo"]
-                    df_fb["aba"] = res_fb["aba"]
-                    df_fb["tipo_edital"] = res_fb.get("tipo_edital")
-                    df_fb["nome_programa"] = nome_programa
-                    df_fb["dt_ingest"] = datetime.now().isoformat()
-
-                    resultados.append({
-                        "nome_tabela_destino": table,
-                        "dataframe": df_fb,
-                    })
-
-            # ── Inserção comum para PNAB, LPG e fallback ──
+            # ── Inserção comum para PNAB e LPG ──
             n_subtabelas = len(resultados)
             total_linhas = 0
 
-            for res in resultados:
+            for indice_subtabela, res in enumerate(resultados):
                 # ── try-except por subtabela: INSERT falho não
                 # quebra as demais subtabelas do mesmo arquivo ──
                 try:
                     df = res["dataframe"]
-                    tabela_destino = res["nome_tabela_destino"]
+                    tabela_origem = res["nome_tabela_destino"]
+                    tabela_destino = resolver_tabela_planilha(tabela_origem)
+
+                    if tabela_destino is None:
+                        logging.warning(
+                            "[extracao_anexos_dag.py] %s '%s': subtabela '%s' "
+                            "sem tabela destino no modelo — descartada",
+                            nome_programa,
+                            file_name,
+                            tabela_origem,
+                        )
+                        continue
+
                     df = df.loc[:, ~df.columns.duplicated()]
 
                     # --- Data Cleaning ---
@@ -481,26 +426,55 @@ def extracao_anexos_dag() -> None:
                         )
                         continue
 
+                    # ── Colunas obrigatórias da seção 7.3 ──
+                    # linha_origem é a posição da linha dentro da subtabela
+                    # extraída, não a linha física do Excel: o parsing corta
+                    # cabeçalhos, linhas de instrução e vazios antes daqui.
+                    # Junto de id_anexo e do índice da subtabela, identifica
+                    # o registro de forma estável entre execuções.
+                    df["linha_origem"] = range(1, len(df) + 1)
+                    df["hash_registro"] = [
+                        _hash_registro(id_anexo, indice_subtabela, linha)
+                        for linha in df["linha_origem"]
+                    ]
+                    df["id_anexo"] = id_anexo
+                    df["id_relatorio_gestao"] = file_meta["id_relatorio_gestao"]
+                    df["id_plano_acao"] = file_meta["id_plano_acao"]
+                    df["id_programa"] = file_meta["id_programa"]
+                    df["cod_ibge"] = file_meta["cod_ibge"]
+                    df["url_origem"] = file_meta["url_origem"]
+                    df["nome_arquivo_origem"] = file_meta["nome_arquivo_origem"]
+                    df["hash_arquivo"] = hash_arquivo
+                    df["aba_origem"] = res.get("aba")
+                    df["tabela_origem"] = tabela_origem
+                    df["indice_subtabela"] = indice_subtabela
                     df["nome_arquivo"] = file_name
                     df["nome_programa"] = nome_programa
-                    df["dt_ingest"] = datetime.now().isoformat()
+                    df["dt_extracao"] = datetime.now().isoformat()
+                    df["dt_ingest"] = df["dt_extracao"]
 
                     linhas = df.to_dict(orient="records")
 
                     logging.info(
-                        "[extracao_anexos_dag.py] %s '%s' → %s: "
+                        "[extracao_anexos_dag.py] %s '%s' → %s (origem %s): "
                         "inserindo %d registros em %s.%s",
                         nome_programa,
                         file_name,
                         tabela_destino,
+                        tabela_origem,
                         len(df),
-                        schema,
+                        schemas.SCHEMA_RELATORIO_GESTAO,
                         tabela_destino,
                     )
                     db.insert_data_por_tabela(
                         linhas,
                         table_name=tabela_destino,
-                        schema=schema,
+                        schema=schemas.SCHEMA_RELATORIO_GESTAO,
+                        # Chave natural da seção 9.1: reprocessar o mesmo
+                        # anexo atualiza as linhas em vez de duplicá-las.
+                        primary_key=["hash_registro"],
+                        conflict_fields=["hash_registro"],
+                        limite_colunas=_LIMITE_COLUNAS_PLANILHA,
                     )
                     total_linhas += len(linhas)
                 except Exception as exc_sub:
@@ -734,7 +708,7 @@ def extracao_anexos_dag() -> None:
 
         return contagem
 
-    lotes = listar_arquivos_s3()
+    lotes = listar_anexos_pendentes()
     resultados = baixar_e_extrair.expand(lote_de_arquivos=lotes)
     fechar_pipeline(resultados)
 

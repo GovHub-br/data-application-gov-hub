@@ -6,10 +6,12 @@ from airflow.sdk import dag, task
 from airflow.sdk import Variable
 from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator
 
+import schemas_minc as schemas
 from cliente_postgres import ClientPostgresDB
 from cliente_transferegov_fundo_a_fundo import ClienteTransfereGov
 from postgres_helpers import get_postgres_conn
 from schedule_loader import get_dynamic_schedule
+from territorio_ibge import derivar_territorio
 
 
 default_args = {
@@ -34,7 +36,7 @@ def api_planos_acao_dag() -> None:
 
         ids_alvo = Variable.get(
             "transferegov_programas_ids",
-            default=[46, 47],
+            default=schemas.PROGRAMAS_IDS_PADRAO,
             deserialize_json=True,
         )
 
@@ -50,6 +52,10 @@ def api_planos_acao_dag() -> None:
 
             if planos:
                 for plano in planos:
+                    # Campos territoriais da secao 7.1. Sem isso o plano
+                    # ESTADUAL fica gravado com o codigo IBGE do municipio da
+                    # capital, que e o que a validacao 12.7 proibe.
+                    plano.update(derivar_territorio(plano))
                     plano["dt_ingest"] = datetime.now().isoformat()
 
                 planos_data.extend(planos)
@@ -80,10 +86,10 @@ def api_planos_acao_dag() -> None:
         db = ClientPostgresDB(get_postgres_conn())
         db.insert_data(
             planos_data,
-            table_name="raw_planos_acao",
+            table_name=schemas.TABELA_PLANO_ACAO,
             primary_key=["id_plano_acao"],
             conflict_fields=["id_plano_acao"],
-            schema="transferegov_fundo_a_fundo",
+            schema=schemas.SCHEMA_TRANSFEREGOV,
         )
 
         logging.info(
@@ -97,7 +103,23 @@ def api_planos_acao_dag() -> None:
         wait_for_completion=False,
     )
 
-    load_planos_to_postgres(fetch_planos_acao()) >> trigger_relatorios
+    # Metas e dados bancarios sao os dois ramos que dependem so do plano de
+    # acao (passos 3A e 3B da secao 6) — disparados em paralelo com os
+    # relatorios de gestao, que seguem o proprio ramo (passo 6).
+    trigger_metas = TriggerDagRunOperator(
+        task_id="trigger_metas",
+        trigger_dag_id="api_plano_acao_meta_dag",
+        wait_for_completion=False,
+    )
+
+    trigger_dado_bancario = TriggerDagRunOperator(
+        task_id="trigger_dado_bancario",
+        trigger_dag_id="api_plano_acao_dado_bancario_dag",
+        wait_for_completion=False,
+    )
+
+    carga = load_planos_to_postgres(fetch_planos_acao())
+    carga >> [trigger_relatorios, trigger_metas, trigger_dado_bancario]
 
 
 api_planos_acao_dag()

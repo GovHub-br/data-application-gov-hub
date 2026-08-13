@@ -15,7 +15,7 @@ with planos as (
         nome_municipio_ente_recebedor_plano_acao        as municipio,
         uf_ente_recebedor_plano_acao                    as uf,
         data_inicio_vigencia_plano_acao                 as dt_inicio_vigencia
-    from {{ source('transferegov_fundo_a_fundo', 'raw_planos_acao') }}
+    from {{ source('transferegov', 'plano_acao_minc') }}
 ),
 com_ano as (
     select
