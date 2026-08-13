@@ -1,0 +1,84 @@
+# Avisa quando uma issue é fechada deixando uma branch vinculada que nunca virou
+# PR mergeado.
+#
+# Este workflow NUNCA apaga nada. Branch órfã pode ser trabalho abandonado de
+# propósito, mas também pode ser trabalho pronto que ninguém abriu PR — e não dá
+# para distinguir os dois automaticamente. Então ele comenta e deixa a decisão
+# com quem sabe.
+name: Aviso de branch órfã
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  avisar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conferir se sobrou branch sem PR mergeado
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const number = context.payload.issue.number;
+
+            const r = await github.graphql(`
+              query($owner:String!, $repo:String!, $number:Int!) {
+                repository(owner:$owner, name:$repo) {
+                  issue(number:$number) {
+                    linkedBranches(first: 10) { nodes { ref { name } } }
+                    closedByPullRequestsReferences(first: 10, includeClosedPrs: true) {
+                      nodes { number state merged }
+                    }
+                  }
+                }
+              }`, { owner, repo, number });
+
+            const issue = r.repository.issue;
+            const branches = issue.linkedBranches.nodes.map(b => b.ref.name);
+
+            if (branches.length === 0) {
+              core.info(`Issue #${number} fechada sem branch vinculada. Nada a avisar.`);
+              return;
+            }
+
+            const prs = issue.closedByPullRequestsReferences.nodes;
+            const mergeados = prs.filter(p => p.merged);
+
+            if (mergeados.length > 0) {
+              core.info(`Issue #${number} tem PR mergeado (#${mergeados.map(p => p.number).join(', #')}). Fluxo normal.`);
+              return;
+            }
+
+            // Chegou aqui: existe branch, e nenhum PR dela foi mergeado.
+            const abertos = prs.filter(p => p.state === 'OPEN');
+            const linhas = [
+              `Esta issue foi fechada, mas ${branches.length === 1 ? 'a branch abaixo continua' : 'as branches abaixo continuam'} no repositório sem PR mergeado:`,
+              '',
+              ...branches.map(b => `- \`${b}\``),
+              '',
+            ];
+
+            if (abertos.length > 0) {
+              linhas.push(
+                `Há PR aberto vinculado: ${abertos.map(p => '#' + p.number).join(', ')}. Se o trabalho valeu, mergeie antes de deixar a issue fechada.`,
+                '',
+              );
+            }
+
+            linhas.push(
+              'Nada foi apagado. Se o trabalho não vale mais, apague a branch à mão:',
+              '',
+              '```bash',
+              ...branches.map(b => `git push origin --delete ${b}`),
+              '```',
+            );
+
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: number, body: linhas.join('\n'),
+            });
+            core.info(`Avisado sobre ${branches.length} branch(es) órfã(s) na issue #${number}.`);

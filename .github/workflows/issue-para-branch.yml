@@ -1,0 +1,124 @@
+# Cria a branch quando alguém marca a issue com a label "Código".
+#
+# A label é aplicada à mão de propósito: se o formulário a aplicasse sozinho,
+# toda issue registrada criaria uma branch na hora, inclusive as que ninguém vai
+# tocar por meses. Manual, ela separa "registrei" de "vou começar agora".
+#
+# Usa a mutação createLinkedBranch da API GraphQL — e não um `git push` de ref —
+# porque é ela que faz a branch aparecer dentro da issue, no painel Development.
+name: Issue vira branch
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: issue-branch-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  criar-branch:
+    # O nome da label é contrato: esta string é comparada byte a byte com o que
+    # existe no repositório. Renomear a label lá sem mudar aqui quebra em silêncio.
+    if: github.event.label.name == 'Código'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Criar branch vinculada à issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue = context.payload.issue;
+
+            // Tipo da branch, derivado das labels. Segue os tipos de Conventional
+            // Commits, como manda o protocolo do data-application-gov-hub.
+            const labels = issue.labels.map(l => l.name);
+            const porLabel = {
+              'bug': 'fix',
+              'documentation': 'docs',
+              'Ingestão': 'feat',
+              'DBT': 'feat',
+              'Discovery': 'docs',
+              'Infra': 'chore',
+            };
+            // bug ganha precedência: uma correção de DAG é `fix`, não `feat`.
+            const tipo = labels.includes('bug') ? 'fix'
+              : (labels.map(l => porLabel[l]).find(Boolean) || 'feat');
+
+            // Descrição curta: tira o prefixo "[Ingestão] " do título, remove
+            // acento e pontuação, e fica nas cinco primeiras palavras.
+            const descricao = issue.title
+              .replace(/^\s*\[[^\]]*\]\s*/, '')
+              .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-+|-+$/g, '')
+              .split('-').filter(Boolean).slice(0, 5).join('-');
+
+            const nome = `${issue.number}-${tipo}-${descricao}`;
+
+            // Se já existe branch vinculada, não faz nada. O gatilho é o evento de
+            // rotular, que pode se repetir se alguém tirar e recolocar a label.
+            const jaExiste = await github.graphql(`
+              query($owner:String!, $repo:String!, $number:Int!) {
+                repository(owner:$owner, name:$repo) {
+                  id
+                  issue(number:$number) {
+                    id
+                    linkedBranches(first: 10) { nodes { ref { name } } }
+                  }
+                }
+              }`, { owner, repo, number: issue.number });
+
+            const existentes = jaExiste.repository.issue.linkedBranches.nodes;
+            if (existentes.length > 0) {
+              core.info(`Issue #${issue.number} já tem branch vinculada: ${existentes.map(b => b.ref.name).join(', ')}. Nada a fazer.`);
+              return;
+            }
+
+            // oid da main — é o commit de onde a branch nasce.
+            const { data: mainRef } = await github.rest.git.getRef({
+              owner, repo, ref: 'heads/main',
+            });
+
+            try {
+              const r = await github.graphql(`
+                mutation($issueId:ID!, $oid:GitObjectID!, $name:String!, $repositoryId:ID!) {
+                  createLinkedBranch(input:{
+                    issueId:$issueId, oid:$oid, name:$name, repositoryId:$repositoryId
+                  }) {
+                    linkedBranch { ref { name } }
+                  }
+                }`, {
+                  issueId: jaExiste.repository.issue.id,
+                  oid: mainRef.object.sha,
+                  name: nome,
+                  repositoryId: jaExiste.repository.id,
+                });
+
+              const criada = r.createLinkedBranch.linkedBranch.ref.name;
+              core.info(`Branch criada: ${criada}`);
+
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: [
+                  `Branch criada e vinculada a esta issue: \`${criada}\``,
+                  '',
+                  '```bash',
+                  `git fetch origin && git checkout ${criada}`,
+                  '```',
+                  '',
+                  'Ao abrir o PR, mantenha o `Closes #' + issue.number + '` que o template já traz — é ele que fecha esta issue no merge.',
+                ].join('\n'),
+              });
+            } catch (erro) {
+              core.warning(`Não foi possível criar a branch: ${erro.message}`);
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: `Não consegui criar a branch \`${nome}\` automaticamente: ${erro.message}\n\nCrie à mão seguindo a convenção do repositório:\n\n\`\`\`bash\ngit checkout -b ${nome} origin/main\n\`\`\``,
+              });
+            }
