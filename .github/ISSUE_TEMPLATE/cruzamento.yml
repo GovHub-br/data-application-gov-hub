@@ -1,0 +1,100 @@
+name: Cruzamento entre bases
+description: Juntar duas ou mais bases, tabelas ou fontes por uma chave
+title: "[Cruzamento] "
+labels: ["DBT"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cruzamento é trabalho de dbt, e por isso recebe a mesma label. Tem formulário
+        próprio porque as perguntas que evitam erro aqui são outras: chave,
+        granularidade das duas pontas, e o que fazer com quem não casa.
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: Por que estas bases precisam ser cruzadas? O que a junção passa a responder?
+    validations:
+      required: true
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: Qual o resultado esperado do cruzamento.
+    validations:
+      required: true
+
+  - type: textarea
+    id: base1
+    attributes:
+      label: Base 1
+      value: |
+        - Nome:
+        - Localização (schema.tabela ou modelo dbt):
+        - Chave:
+        - Granularidade (o que uma linha representa):
+    validations:
+      required: true
+
+  - type: textarea
+    id: base2
+    attributes:
+      label: Base 2
+      value: |
+        - Nome:
+        - Localização (schema.tabela ou modelo dbt):
+        - Chave:
+        - Granularidade (o que uma linha representa):
+    validations:
+      required: true
+
+  - type: textarea
+    id: bases_extras
+    attributes:
+      label: Outras bases
+      description: Se houver mais de duas, descreva aqui no mesmo formato.
+
+  - type: dropdown
+    id: join
+    attributes:
+      label: Tipo de join
+      options:
+        - inner — só o que casa dos dois lados
+        - left — mantém tudo da Base 1
+        - full — mantém tudo dos dois lados
+        - A definir na análise
+    validations:
+      required: true
+
+  - type: textarea
+    id: regras
+    attributes:
+      label: Tratamento de duplicidade e de quem não casa
+      description: O que fazer quando a chave repete, e o que fazer com o registro sem correspondência. Ignorar esta pergunta é a causa mais comum de número errado no fim.
+      value: |
+        - Chave repetida na Base 1:
+        - Chave repetida na Base 2:
+        - Registro sem correspondência:
+        - Perda aceitável: (quanto, e por quê)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: aceite
+    attributes:
+      label: Critérios de aceite
+      options:
+        - label: A granularidade das duas bases foi validada antes do join
+        - label: As chaves foram validadas (unicidade, formato, nulos)
+        - label: A perda de registros foi medida e está dentro do aceitável
+        - label: As duplicidades foram tratadas conforme a regra acima
+        - label: O total final foi conferido contra as duas origens
+        - label: As regras foram documentadas no modelo
+
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: Observações
+      description: Queries de conferência, contagens conhecidas, exemplos de registro que não casa.

@@ -1,0 +1,117 @@
+name: Ingestão / DAG
+description: Criar, ajustar ou corrigir a extração e a carga de uma fonte de dados
+title: "[Ingestão] "
+labels: ["Ingestão"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use este formulário para qualquer trabalho entre a origem e o datalake:
+        cliente de API novo, DAG nova, correção de extração ou mudança de carga.
+        Transformação depois da carga é **Modelo dbt**.
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: Por que estes dados precisam ser ingeridos? Que pergunta eles passam a responder?
+    validations:
+      required: true
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: O que a DAG deve executar, do começo ao fim.
+    validations:
+      required: true
+
+  - type: textarea
+    id: fonte
+    attributes:
+      label: Fonte dos dados
+      value: |
+        - Sistema/fonte:
+        - Localização (URL, endpoint, caminho):
+        - Status do acesso: (liberado / pendente / não sei)
+        - Documentação:
+        - Frequência de atualização na origem:
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tipo_fonte
+    attributes:
+      label: Tipo da fonte
+      options:
+        - API REST / JSON
+        - API PostgREST
+        - SOAP / XML
+        - Planilha (xlsx, ods)
+        - CSV / arquivo texto
+        - Banco de dados
+        - Outro
+    validations:
+      required: true
+
+  - type: textarea
+    id: dados
+    attributes:
+      label: Dados necessários
+      description: Quais entidades, endpoints ou abas. Se for tudo, diga "tudo".
+      placeholder: |
+        - programas
+        - planos de ação
+        - anexos dos relatórios de gestão
+
+  - type: textarea
+    id: destino
+    attributes:
+      label: Destino dos dados
+      value: |
+        - Banco/schema:
+        - Tabela:
+        - Camada: (raw / bronze)
+        - Ambiente:
+    validations:
+      required: true
+
+  - type: dropdown
+    id: estrategia
+    attributes:
+      label: Estratégia de carga
+      options:
+        - Carga completa
+        - Incremental
+        - Particionada
+        - Sob demanda
+        - A definir na implementação
+    validations:
+      required: true
+
+  - type: textarea
+    id: periodicidade
+    attributes:
+      label: Periodicidade
+      value: |
+        - Frequência: (única / diária / semanal / mensal / sob demanda)
+        - Horário:
+        - Depende de qual outra DAG:
+
+  - type: checkboxes
+    id: aceite
+    attributes:
+      label: Critérios de aceite
+      options:
+        - label: A DAG executa sem erro
+        - label: Os dados chegam ao destino esperado
+        - label: A execução pode ser repetida sem duplicar registros
+        - label: O volume extraído foi conferido contra a origem
+        - label: A periodicidade está correta
+        - label: A fonte e suas limitações foram documentadas
+
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: Observações
+      description: Links, prints, logs, exemplos de payload ou limitações conhecidas da origem.

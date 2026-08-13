@@ -1,0 +1,9 @@
+# A caixa de texto em branco fica desligada de propósito: é ela que faz a issue
+# nascer sem tipo, sem label e sem os campos que evitam ida e volta. Se nenhum
+# formulário servir, use o "Demanda geral".
+blank_issues_enabled: false
+
+contact_links:
+  - name: Como este repositório funciona
+    url: https://github.com/GovHub-br/data-application-minc/blob/main/CLAUDE.md
+    about: Mapa das pastas, convenções de branch e commit, e onde ficam as skills.
