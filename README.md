@@ -51,21 +51,31 @@ Compose e arquivos de suporte para o ambiente local.
 ```text
 .
 ├── dags/                 # DAGs carregadas pelo Airflow
-│   ├── data_ingest/
-│   ├── dashboards/
-│   └── dbt/              # DAGs Cosmos que executam os projetos dbt
-├── dbt/                  # Projetos dbt fora do parser de DAGs
-│   ├── ipea/
-│   └── mir/
-├── helpers/              # Utilitários importados pelas DAGs
-├── plugins/              # Clientes e extensões usados pelo Airflow
-├── templates/            # Templates Jinja/XML usados pelos clientes
+│   ├── data_ingest/      # uma pasta por fonte, um arquivo por endpoint
+│   └── dbt/              # DAG Cosmos que executa o projeto dbt
+├── dbt/minc/             # projeto dbt, fora do parser de DAGs
+│   └── models/
+│       ├── cotas_dbt/    # Meta 3 — diversidade, cotas e territórios
+│       ├── agentes_dbt/  # Meta 5 — perfil e primeiro acesso
+│       └── metadata/
+├── helpers/              # utilitários importados pelas DAGs
+├── plugins/              # clientes de API e extensões usados pelo Airflow
 ├── infra/                # Docker, compose, Airflow config e init de banco
+├── docs/adr/             # decisões de arquitetura registradas
 ├── tests/
+├── .github/              # formulários de issue, template de PR e workflows
+├── .claude/skills/       # skills versionadas — chegam a quem clona
+├── CLAUDE.md             # mapa do repositório e convenções
 ├── Makefile
 ├── pyproject.toml
 └── requirements.txt
 ```
+
+Como o trabalho flui aqui — issue por formulário, branch a partir da label,
+template de PR — está em [`.github/README.md`](.github/README.md). As skills
+disponíveis, em [`.claude/skills/README.md`](.claude/skills/README.md). O mapa
+detalhado das pastas e as convenções de branch e commit, em
+[`CLAUDE.md`](CLAUDE.md).
 
 ## Setup
 
