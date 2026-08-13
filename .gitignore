@@ -56,8 +56,10 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Claude Code — arquivos locais de gestão/sessão
-.claude/
+# Claude Code — só o que é pessoal fica de fora. As skills e o settings.json
+# são versionados de propósito: é assim que a equipe recebe tudo ao clonar.
+.claude/settings.local.json
+.claude/*.local.json
 
 # VPN 
 /connect.sh

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(make lint)",
+      "Bash(make lint-ci)",
+      "Bash(make test)",
+      "Bash(make format)",
+      "Bash(make compose-config)",
+      "Bash(make logs-airflow)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git fetch:*)",
+      "Bash(git branch:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh label list:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker inspect:*)",
+      "Bash(docker top:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./infra/.env)",
+      "Read(./infra/env/.env)",
+      "Read(./infra/docker/.env)",
+      "Read(./**/*.p12)",
+      "Read(./**/*.ovpn)"
+    ],
+    "ask": []
+  }
+}
