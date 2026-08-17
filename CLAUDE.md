@@ -21,6 +21,8 @@ sobe tudo local. Dependências via Poetry.
 | `plugins/` | clientes de API (`cliente_*.py`), autenticação e regras de negócio | Sim |
 | `helpers/` | utilidades importadas pelas DAGs — Postgres, retry, requisição segura | Sim |
 | `infra/` | Docker, Compose, configuração do Airflow e do Superset | Sim |
+| `docs-pages/` | o site de documentação publicado no GitHub Pages | Sim — mas só o `src/dominios.yml`. Ver abaixo |
+| `docs/adr/` | registro das decisões de arquitetura | Sim, uma por decisão que custou discussão |
 | `data/` | extrações brutas geradas por quem roda as DAGs | **Não.** Ignorada pelo git, só a estrutura de pastas é versionada |
 | `tests/` | pytest | Sim |
 
@@ -34,6 +36,9 @@ make test            # pytest
 make up              # sobe postgres, airflow e airflow-mcp
 make down            # derruba
 make logs-airflow    # últimas 200 linhas do Airflow
+
+make docs-collect    # relê o repositório e atualiza o acervo do site (usa rede)
+make docs-serve      # constrói e serve o site em localhost:8000 (offline)
 ```
 
 `make lint-ci` é o alvo que a CI roda, e cobre só SQL. A CI **não reprova** o PR
@@ -57,6 +62,22 @@ recebe a label `Código`.
 
 **Issue.** Sempre por formulário — os seis tipos estão em `.github/ISSUE_TEMPLATE/`.
 A caixa em branco está desligada de propósito.
+
+## Site de documentação
+
+O site publicado em [`docs-pages/`](docs-pages/) lê os fatos do próprio
+repositório a cada coleta — modelos dbt, DAGs, clientes, entregas. **O único
+arquivo que se edita à mão é [`docs-pages/src/dominios.yml`](docs-pages/src/dominios.yml)**,
+onde mora a narrativa: o que cada conjunto de dados significa e o que é preciso
+saber antes de citar seus números.
+
+Se um **número** está errado no site, a correção é no coletor, nunca no texto.
+Se uma **explicação** está errada, é no `dominios.yml`.
+
+A publicação é automática; a coleta **não**. Quem altera um modelo ou uma DAG
+roda `make docs-collect` e commita o acervo no mesmo pull request — senão o site
+continua descrevendo o estado anterior, sem nenhum sinal de que está velho. O
+detalhe está em [`docs-pages/README.md`](docs-pages/README.md).
 
 ## Skills
 

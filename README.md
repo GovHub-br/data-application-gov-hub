@@ -61,6 +61,7 @@ Compose e arquivos de suporte para o ambiente local.
 ├── helpers/              # utilitários importados pelas DAGs
 ├── plugins/              # clientes de API e extensões usados pelo Airflow
 ├── infra/                # Docker, compose, Airflow config e init de banco
+├── docs-pages/           # site de documentação dos dados, publicado no Pages
 ├── docs/adr/             # decisões de arquitetura registradas
 ├── tests/
 ├── .github/              # formulários de issue, template de PR e workflows
@@ -76,6 +77,19 @@ template de PR — está em [`.github/README.md`](.github/README.md). As skills
 disponíveis, em [`.claude/skills/README.md`](.claude/skills/README.md). O mapa
 detalhado das pastas e as convenções de branch e commit, em
 [`CLAUDE.md`](CLAUDE.md).
+
+## Documentação dos dados
+
+O que cada conjunto de dados significa, de onde vem e o que é preciso saber antes
+de citar seus números fica no site em [`docs-pages/`](docs-pages/), com uma visão
+por público — quem decide, quem constrói e quem chega agora.
+
+```bash
+make docs-serve      # constrói e serve em localhost:8000
+```
+
+O site lê os fatos do repositório a cada coleta; só a narrativa é escrita à mão.
+Ver [`docs-pages/README.md`](docs-pages/README.md).
 
 ## Setup
 
