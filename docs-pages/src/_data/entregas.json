@@ -1,0 +1,233 @@
+{
+  "entregas": [
+    {
+      "sha": "1af818d",
+      "autor": "Caio Melo Borges",
+      "data": "2026-08-05",
+      "assunto": "refactor: migra extração BB Ágil de JSON local para Postgres raw (#17)",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "migra extração BB Ágil de JSON local para Postgres raw (#17)"
+    },
+    {
+      "sha": "71e162f",
+      "autor": "Aninha",
+      "data": "2026-07-17",
+      "assunto": "feat: domínio cotas_dbt (Meta 3) (#16)",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "domínio cotas_dbt (Meta 3) (#16)"
+    },
+    {
+      "sha": "b26aa77",
+      "autor": "Wallyson Souza",
+      "data": "2026-04-06",
+      "assunto": "feat(sgac): adiciona ingestao de projetos via anexo CSV de email (#140)",
+      "tipo": "feat",
+      "escopo": "sgac",
+      "texto": "adiciona ingestao de projetos via anexo CSV de email (#140)"
+    },
+    {
+      "sha": "f4e5fe5",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-04-06",
+      "assunto": "feat: parametrização data recebimento email dags mir (#139)",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "parametrização data recebimento email dags mir (#139)"
+    },
+    {
+      "sha": "4021d4c",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-03-13",
+      "assunto": "fix: refs pastas mir inesistentes (#100)",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "refs pastas mir inesistentes (#100)"
+    },
+    {
+      "sha": "d5ff594",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-03-02",
+      "assunto": "feat: dag extração finalidade paginada (#68)",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "dag extração finalidade paginada (#68)"
+    },
+    {
+      "sha": "b2f7c63",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-03-02",
+      "assunto": "feat(metadata): nova tabela de metadados (dt-transform) (#62)",
+      "tipo": "feat",
+      "escopo": "metadata",
+      "texto": "nova tabela de metadados (dt-transform) (#62)"
+    },
+    {
+      "sha": "bdc0e30",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-02-04",
+      "assunto": "feat(dag): extração paginada para  eficiêcia (#61)",
+      "tipo": "feat",
+      "escopo": "dag",
+      "texto": "extração paginada para  eficiêcia (#61)"
+    },
+    {
+      "sha": "31d605d",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-01-26",
+      "assunto": "feat(metas): dag de extração metas_especiais (#60)",
+      "tipo": "feat",
+      "escopo": "metas",
+      "texto": "dag de extração metas_especiais (#60)"
+    },
+    {
+      "sha": "3c51ea4",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-01-26",
+      "assunto": "feat(dag): extração documentos hábeis transferegov (#57)",
+      "tipo": "feat",
+      "escopo": "dag",
+      "texto": "extração documentos hábeis transferegov (#57)"
+    },
+    {
+      "sha": "2ad3492",
+      "autor": "Tiago Bittencourt",
+      "data": "2025-12-12",
+      "assunto": "feat(schedule): retorno default, evita dag break (#56)",
+      "tipo": "feat",
+      "escopo": "schedule",
+      "texto": "retorno default, evita dag break (#56)"
+    },
+    {
+      "sha": "2ae554d",
+      "autor": "joao",
+      "data": "2025-05-22",
+      "assunto": "feat: adicionando siape",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "adicionando siape"
+    },
+    {
+      "sha": "5d07400",
+      "autor": "davi-aguiar-vieira",
+      "data": "2025-05-12",
+      "assunto": "fix(drop): ajusta dag de drop",
+      "tipo": "fix",
+      "escopo": "drop",
+      "texto": "ajusta dag de drop"
+    },
+    {
+      "sha": "55a9d4d",
+      "autor": "pedro.rossi1",
+      "data": "2025-05-05",
+      "assunto": "fix: compose: adicionando env local de exemplo",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "compose: adicionando env local de exemplo"
+    },
+    {
+      "sha": "c64d790",
+      "autor": "Joyce",
+      "data": "2025-04-02",
+      "assunto": "fix(dag): corrige variavel restante",
+      "tipo": "fix",
+      "escopo": "dag",
+      "texto": "corrige variavel restante"
+    }
+  ],
+  "pull_requests": [
+    {
+      "numero": 20,
+      "titulo": "refactor: conforma schemas e tabelas à especificação do banco do MinC",
+      "autor": "CaioMelo25",
+      "data": "2026-08-13",
+      "linhas": 2126
+    },
+    {
+      "numero": 17,
+      "titulo": "refactor: migra extração BB Ágil de JSON local para Postgres raw",
+      "autor": "CaioMelo25",
+      "data": "2026-08-05",
+      "linhas": 968
+    },
+    {
+      "numero": 16,
+      "titulo": "feat: domínio cotas_dbt (Meta 3)",
+      "autor": "ananunesv",
+      "data": "2026-07-18",
+      "linhas": 1600
+    },
+    {
+      "numero": 15,
+      "titulo": "Feature/dbt data quality",
+      "autor": "devwallyson",
+      "data": "2026-07-15",
+      "linhas": 6757
+    },
+    {
+      "numero": 13,
+      "titulo": "Refactor/architecture",
+      "autor": "Arthrok",
+      "data": "2026-06-18",
+      "linhas": 17470
+    },
+    {
+      "numero": 9,
+      "titulo": "Feat/ingestao fundo a fundo",
+      "autor": "CaioMelo25",
+      "data": "2026-06-09",
+      "linhas": 2318
+    },
+    {
+      "numero": 1,
+      "titulo": "Feat/ingestao fundo a fundo",
+      "autor": "CaioMelo25",
+      "data": "2026-04-15",
+      "linhas": 601
+    }
+  ],
+  "por_mes": {
+    "2025-04": 1,
+    "2025-05": 3,
+    "2025-12": 1,
+    "2026-01": 2,
+    "2026-02": 1,
+    "2026-03": 3,
+    "2026-04": 2,
+    "2026-07": 1,
+    "2026-08": 1
+  },
+  "autores": {
+    "Arthur Melo": 43,
+    "João Henrique Egewarth": 29,
+    "Joyce Dionizio": 27,
+    "Davi de Aguiar Vieira": 23,
+    "Tiago Bittencourt": 20,
+    "Mateus Henrique Queiroz Magalhães Sousa": 16,
+    "VictorSzk": 12,
+    "Mateus de Castro": 11,
+    "Matheus Dias Maciel": 9,
+    "joao": 5,
+    "MatDias97": 4,
+    "Caio Melo Borges": 2,
+    "Wallyson Souza": 2,
+    "Carla Rocha": 2,
+    "João Freitas": 2,
+    "davi-aguiar-vieira": 2,
+    "Luiza Maluf": 1,
+    "Aninha": 1,
+    "LuizaMaluf": 1,
+    "Leonardo Bonetti": 1,
+    "pedro.rossi1": 1,
+    "Joyce": 1,
+    "arthrok": 1
+  },
+  "totais": {
+    "commits": 216,
+    "entregas": 15,
+    "pull_requests": 7,
+    "primeiro_commit": "2024-12-12",
+    "ultimo_commit": "2026-08-13"
+  }
+}

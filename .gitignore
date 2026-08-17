@@ -61,6 +61,11 @@ Thumbs.db
 .claude/settings.local.json
 .claude/*.local.json
 
+# Site de documentação — a saída do build e o virtualenv são gerados. O acervo
+# em docs-pages/src/_data/ É versionado: sem ele o CI não reproduz o site.
+docs-pages/site/
+docs-pages/.venv/
+
 # VPN 
 /connect.sh
 *.ovpn

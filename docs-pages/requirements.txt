@@ -1,0 +1,4 @@
+# Dependências do site de documentação. Só duas, de propósito: o build precisa
+# rodar em qualquer máquina e no CI, sem Airflow, sem dbt e sem Poetry.
+jinja2>=3.1
+PyYAML>=6.0

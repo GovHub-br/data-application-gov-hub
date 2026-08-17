@@ -1,0 +1,76 @@
+{% extends "base.html.j2" %}
+{% block conteudo %}
+
+<section class="hero hero-menor">
+  <div class="container">
+    <p class="eyebrow">Para quem acompanha</p>
+    <h1>O que já dá para responder</h1>
+    <p class="hero-texto">
+      Esta página é para quem precisa usar os dados sem construí-los — gestão,
+      pesquisa, comunicação. Ela diz o que existe, o que cada coisa responde e o
+      que ainda não dá para afirmar.
+    </p>
+  </div>
+</section>
+
+<section class="secao">
+  <div class="container">
+    <h2>As perguntas cobertas hoje</h2>
+    {% for d in dominios %}
+    {% if d.perguntas %}
+    <article class="bloco-perguntas">
+      <h3>
+        <a href="dominio-{{ d.slug }}.html">{{ d.rotulo }}</a>
+        {% if d.meta is defined %}<span class="tag">Meta {{ d.meta }}</span>{% endif %}
+      </h3>
+      <ul class="perguntas">
+        {% for p in d.perguntas %}
+        <li>{{ p }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+    {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="secao secao-alt">
+  <div class="container">
+    <h2>O que é preciso saber antes de citar um número</h2>
+    <p class="secao-intro">
+      Cada conjunto tem limites conhecidos. Citar um número sem eles é como
+      citar uma pesquisa sem a margem de erro.
+    </p>
+    {% for d in dominios %}
+    {% if d.armadilhas is defined %}
+    <div class="aviso">
+      <p class="aviso-tag">{{ d.rotulo }}</p>
+      <p>{{ d.armadilhas }}</p>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="secao">
+  <div class="container">
+    <h2>Quanto da documentação está escrita</h2>
+    <p class="secao-intro">
+      Uma tabela sem descrição existe, funciona e produz número — mas ninguém
+      de fora sabe o que ela significa. Esta é a medida honesta de quanto do
+      trabalho está explicado.
+    </p>
+    <div class="barra-caixa">
+      <div class="barra" role="img"
+           aria-label="{{ metricas.cobertura_descricao }} por cento das tabelas têm descrição">
+        <div class="barra-preenchida" style="width: {{ metricas.cobertura_descricao }}%"></div>
+      </div>
+      <p class="barra-rotulo">
+        <strong>{{ metricas.com_descricao }} de {{ metricas.modelos }}</strong>
+        tabelas descritas — {{ metricas.cobertura_descricao }}%
+      </p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

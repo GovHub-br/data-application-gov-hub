@@ -1,0 +1,1017 @@
+{
+  "modelos": [
+    {
+      "nome": "lpg_agentes_coletivos",
+      "dominio": "agentes",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/agentes_dbt/bronze/lpg_agentes_coletivos.sql",
+      "descricao": "Camada Bronze — dados brutos de proponentes coletivos da LPG. Mapeia o CPF do representante do grupo/coletivo como identificador único e traz a coluna bruta de histórico de acesso a recursos públicos de fomento.",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": "CPF do representante do grupo/coletivo, normalizado para lowercase."
+        },
+        {
+          "nome": "historico_acesso_bruto",
+          "descricao": "Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento."
+        },
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de fomento de origem — sempre 'LPG' neste modelo."
+        }
+      ],
+      "colunas_descritas": 3,
+      "testes": 1,
+      "materializacao": "incremental",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_lpg"
+      ],
+      "linhas_sql": 18
+    },
+    {
+      "nome": "lpg_agentes_pf",
+      "dominio": "agentes",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/agentes_dbt/bronze/lpg_agentes_pf.sql",
+      "descricao": "Camada Bronze — dados brutos de pessoas físicas da LPG (Lei Paulo Gustavo). Mapeia o CPF como identificador único e traz a coluna bruta de histórico de acesso a recursos públicos de fomento à cultura.",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": "CPF do proponente pessoa física, normalizado para lowercase."
+        },
+        {
+          "nome": "historico_acesso_bruto",
+          "descricao": "Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento."
+        },
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de fomento de origem — sempre 'LPG' neste modelo."
+        }
+      ],
+      "colunas_descritas": 3,
+      "testes": 1,
+      "materializacao": "incremental",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_lpg"
+      ],
+      "linhas_sql": 19
+    },
+    {
+      "nome": "lpg_agentes_pj",
+      "dominio": "agentes",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/agentes_dbt/bronze/lpg_agentes_pj.sql",
+      "descricao": "Camada Bronze — dados brutos de pessoas jurídicas da LPG. Mapeia o CNPJ como identificador único e traz a coluna bruta de histórico de acesso a recursos públicos de fomento à cultura.",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": "CNPJ do proponente pessoa jurídica, normalizado para lowercase."
+        },
+        {
+          "nome": "historico_acesso_bruto",
+          "descricao": "Resposta bruta da LPG sobre acesso anterior a recursos públicos de fomento."
+        },
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de fomento de origem — sempre 'LPG' neste modelo."
+        }
+      ],
+      "colunas_descritas": 3,
+      "testes": 1,
+      "materializacao": "incremental",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_lpg"
+      ],
+      "linhas_sql": 20
+    },
+    {
+      "nome": "pnab_agentes_pf",
+      "dominio": "agentes",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/agentes_dbt/bronze/pnab_agentes_pf.sql",
+      "descricao": "Camada Bronze — dados brutos de pessoas físicas da PNAB (Política Nacional Aldir Blanc). Mapeia o CPF como identificador único e traz a coluna bruta de histórico de acesso a recursos públicos de fomento à cultura nos últimos 5 anos.",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": "CPF do proponente pessoa física, normalizado para lowercase."
+        },
+        {
+          "nome": "historico_acesso_bruto",
+          "descricao": "Resposta bruta da PNAB sobre acesso anterior a recursos públicos de fomento."
+        },
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de fomento de origem — sempre 'PNAB' neste modelo."
+        }
+      ],
+      "colunas_descritas": 3,
+      "testes": 1,
+      "materializacao": "incremental",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_pnab_ciclo_1"
+      ],
+      "linhas_sql": 20
+    },
+    {
+      "nome": "pnab_agentes_pj",
+      "dominio": "agentes",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/agentes_dbt/bronze/pnab_agentes_pj.sql",
+      "descricao": "Camada Bronze — dados brutos de organizações da PNAB. Mapeia o CNPJ como identificador único e traz a coluna bruta de histórico de acesso a recursos públicos de fomento à cultura anteriormente.",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": "CNPJ da organização, normalizado para lowercase."
+        },
+        {
+          "nome": "historico_acesso_bruto",
+          "descricao": "Resposta bruta da PNAB sobre acesso anterior a recursos públicos de fomento."
+        },
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de fomento de origem — sempre 'PNAB' neste modelo."
+        }
+      ],
+      "colunas_descritas": 3,
+      "testes": 1,
+      "materializacao": "incremental",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_pnab_ciclo_1"
+      ],
+      "linhas_sql": 18
+    },
+    {
+      "nome": "perfil_acesso_fomento",
+      "dominio": "agentes",
+      "camada": "gold",
+      "caminho": "dbt/minc/models/agentes_dbt/gold/perfil_acesso_fomento.sql",
+      "descricao": "Camada Gold — Meta 5 (Mapeamento de agentes culturais acessando fomento pela primeira vez). Classifica cada proponente por programa com a coluna perfil_acesso_fomento. Respostas confirmadas ('Sim'/'Não') são mantidas; respostas nulas ou omitidas recebem inferência cronológica via ROW_NUMBER() particionado por CPF/CNPJ e ordenado por programa_fomento (proxy temporal: LPG precede PNAB). Um proponente com sequencia_fomento > 1 acessou mais de um programa, evidenciando veterania.",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": "CPF ou CNPJ do proponente (já normalizado em minúsculas e sem espaços)."
+        },
+        {
+          "nome": "tipo_proponente",
+          "descricao": "Classificação do proponente — 'Pessoa Física', 'Pessoa Jurídica', 'Coletivo' ou 'Organização'."
+        },
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de fomento de origem — 'LPG' ou 'PNAB'."
+        },
+        {
+          "nome": "historico_acesso_limpo",
+          "descricao": "Resposta bruta normalizada (lowercase, sem pontuação). NULL quando omitida ou inválida."
+        },
+        {
+          "nome": "sequencia_fomento",
+          "descricao": "Ordem de acesso do proponente dentro de seu histórico, particionado por identificador_unico e ordenado por programa_fomento (proxy temporal). sequencia_fomento = 1 indica o primeiro registro; > 1 indica veterano."
+        },
+        {
+          "nome": "perfil_acesso_fomento",
+          "descricao": "Classificação final para a Meta 5: 'Confirmado - Primeira Vez' | 'Confirmado - Veterano' | 'Inferido - Primeira Vez (Estreante na base)' | 'Inferido - Veterano (Possui histórico)' | 'Não sabe/Não informou'."
+        }
+      ],
+      "colunas_descritas": 6,
+      "testes": 6,
+      "materializacao": "table",
+      "depende_de": [
+        "identificadores_agentes"
+      ],
+      "sources": [],
+      "linhas_sql": 85
+    },
+    {
+      "nome": "perfil_agentes_completo",
+      "dominio": "agentes",
+      "camada": "gold",
+      "caminho": "dbt/minc/models/agentes_dbt/gold/perfil_agentes_completo.sql",
+      "descricao": "Camada Gold — Master Data de proponentes (Meta 5). Grain: 1 linha por identificador_unico (CPF/CNPJ). Consolida perfil_acesso_fomento eliminando duplicatas entre programas: proponentes presentes em mais de um programa têm veterania confirmada por presença multi-programa, sobrepondo a resposta declarada. Serve como base para dois consumos:\n  - Relatório consolidado (sem inferência): filtrar WHERE status_origem = 'Confirmado'\n  - Visão analítica (com inferência): consumir todos os registros",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": "CPF ou CNPJ do proponente (normalizado). Chave única do modelo."
+        },
+        {
+          "nome": "tipo_proponente",
+          "descricao": "Classificação do proponente — 'Pessoa Física', 'Pessoa Jurídica', 'Coletivo' ou 'Organização'."
+        },
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de origem do primeiro registro do proponente (proxy temporal: LPG precede PNAB). Reflete o contexto da análise inicial do perfil."
+        },
+        {
+          "nome": "historico_acesso_bruto",
+          "descricao": "Resposta original do proponente sobre acesso anterior a recursos públicos (dado cru, sem normalização), alinhado ao primeiro programa de ingresso."
+        },
+        {
+          "nome": "status_origem",
+          "descricao": "Flag de qualidade: 'Confirmado' — proponente respondeu explicitamente sim/não; 'Inferido' — classificação derivada da sequência de programas ou presença multi-programa; 'Não Informado' — dado ausente ou inválido."
+        },
+        {
+          "nome": "perfil_classificacao",
+          "descricao": "Classificação final consolidada (1 linha por proponente): 'Primeira Vez' — confirmado pelo proponente; 'Veterano' — confirmado pelo proponente ou por presença em >1 programa com resposta vet.; 'Veterano (Multi-Programa)' — veterania inferida pela presença em múltiplos programas; 'Provável Primeira Vez' — inferido por ser estreante na base; 'Provável Veterano' — inferido por sequência histórica; 'Indeterminado' — dado insuficiente para classificação."
+        }
+      ],
+      "colunas_descritas": 6,
+      "testes": 8,
+      "materializacao": "table",
+      "depende_de": [
+        "identificadores_agentes",
+        "perfil_acesso_fomento"
+      ],
+      "sources": [],
+      "linhas_sql": 98
+    },
+    {
+      "nome": "primeiro_acesso_contemplados",
+      "dominio": "agentes",
+      "camada": "gold",
+      "caminho": "dbt/minc/models/agentes_dbt/gold/primeiro_acesso_contemplados.sql",
+      "descricao": "Camada Gold — Meta 5 com flag de contemplação. Mesma estrutura de primeiro_acesso_resumo com duas dimensões adicionais: se o proponente foi contemplado em edital e a discriminação entre dados confirmados (resposta declarada no formulário) vs. inferidos (derivados por sequência ou presença multi-programa). Grain: 1 linha por (programa_fomento × categoria_primeiro_acesso × contemplado).\nCobertura de contemplados:\n  - LPG: CPF e CNPJ completos via lpg_contemplados — cobertura total.\n  - PNAB PNCV: CPF real via raw_pnab_lista_contemplados_pncv — cobertura PF.\n  - PNAB Geral: apenas CNPJ via raw_pnab_lista_contemplados_geral — CPF\n    anonimizado (***XXXXXX**), PF da lista geral fora do PNCV não é rastreável.",
+      "colunas": [
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de fomento — 'LPG' ou 'PNAB'."
+        },
+        {
+          "nome": "categoria_primeiro_acesso",
+          "descricao": "Categoria de acesso derivada do perfil_acesso_fomento: 'Sim' (Primeira Vez), 'Não' (Veterano) ou 'Não sabe/Não informou'."
+        },
+        {
+          "nome": "contemplado",
+          "descricao": "Flag de contemplação em edital público — 'sim' se o identificador aparece em alguma lista de contemplados do respectivo programa, 'não' caso contrário."
+        },
+        {
+          "nome": "total_proponentes",
+          "descricao": "Contagem distinta de proponentes no cruzamento programa × categoria × contemplado."
+        },
+        {
+          "nome": "total_campo_preenchido",
+          "descricao": "Proponentes onde a categoria foi determinada por resposta declarada no formulário (status_dado = 'Confirmado'). Exclui inferências."
+        },
+        {
+          "nome": "total_inferido",
+          "descricao": "Proponentes onde a categoria foi inferida por sequência de programas ou presença multi-programa (status_dado = 'Inferido')."
+        },
+        {
+          "nome": "percentual",
+          "descricao": "Percentual da linha sobre o total de proponentes do mesmo programa_fomento e status de contemplação. Cada combinação (programa × contemplado) soma 100% independentemente."
+        }
+      ],
+      "colunas_descritas": 7,
+      "testes": 10,
+      "materializacao": "table",
+      "depende_de": [
+        "perfil_acesso_fomento"
+      ],
+      "sources": [
+        "relatorio_gestao.planilha_contemplados_lpg",
+        "relatorio_gestao.planilha_contemplados_pnab_ciclo_1"
+      ],
+      "linhas_sql": 167
+    },
+    {
+      "nome": "primeiro_acesso_resumo",
+      "dominio": "agentes",
+      "camada": "gold",
+      "caminho": "dbt/minc/models/agentes_dbt/gold/primeiro_acesso_resumo.sql",
+      "descricao": "Camada Gold — resumo agregado da Meta 5 (Indicador de Primeiro Acesso). Conta proponentes distintos por programa de fomento e categoria de acesso anterior a recursos públicos. Calcula o percentual de cada categoria sobre o total do respectivo programa (cada programa soma 100%).",
+      "colunas": [
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de fomento — 'LPG' ou 'PNAB'."
+        },
+        {
+          "nome": "categoria_primeiro_acesso",
+          "descricao": "Categoria padronizada da resposta sobre acesso anterior a recursos de fomento — 'Sim', 'Não' ou 'Não sabe/Não informou'."
+        },
+        {
+          "nome": "total_proponentes",
+          "descricao": "Contagem distinta de proponentes na categoria dentro do programa."
+        },
+        {
+          "nome": "percentual",
+          "descricao": "Percentual da categoria sobre o total de proponentes do mesmo programa (cada programa soma 100% independentemente)."
+        }
+      ],
+      "colunas_descritas": 4,
+      "testes": 6,
+      "materializacao": "table",
+      "depende_de": [
+        "perfil_agentes_historico"
+      ],
+      "sources": [],
+      "linhas_sql": 26
+    },
+    {
+      "nome": "perfil_agentes_historico",
+      "dominio": "agentes",
+      "camada": "silver",
+      "caminho": "dbt/minc/models/agentes_dbt/silver/perfil_agentes_historico.sql",
+      "descricao": "Camada Silver — perfil dos agentes com higienização da coluna de histórico de acesso a recursos públicos. Remove valores nulos, 'nan' e caracteres inválidos (ponto, ponto-e-vírgula). Classifica as respostas em três categorias padronizadas: 'Sim', 'Não' e 'Não sabe/Não informou'. Propaga a coluna programa_fomento para rastreabilidade por programa.",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": "Identificador único do proponente (CPF, CNPJ ou CPF do representante)."
+        },
+        {
+          "nome": "tipo_proponente",
+          "descricao": "Tipo do proponente — 'Pessoa Física', 'Pessoa Jurídica', 'Coletivo' ou 'Organização'."
+        },
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de fomento de origem — 'LPG' ou 'PNAB'."
+        },
+        {
+          "nome": "historico_acesso_limpo",
+          "descricao": "Texto limpo da resposta bruta sobre acesso anterior a recursos de fomento."
+        },
+        {
+          "nome": "categoria_primeiro_acesso",
+          "descricao": "Categoria padronizada da resposta: 'Sim', 'Não' ou 'Não sabe/Não informou'."
+        }
+      ],
+      "colunas_descritas": 5,
+      "testes": 4,
+      "materializacao": "table",
+      "depende_de": [
+        "identificadores_agentes"
+      ],
+      "sources": [],
+      "linhas_sql": 59
+    },
+    {
+      "nome": "identificadores_agentes",
+      "dominio": "agentes",
+      "camada": "views",
+      "caminho": "dbt/minc/models/agentes_dbt/views/identificadores_agentes.sql",
+      "descricao": "Camada Views — consolidação dos cinco modelos bronze (3 LPG + 2 PNAB) em um único dataset via UNION ALL. Padroniza identificador_unico e adiciona as colunas literais programa_fomento e tipo_proponente para rastrear a origem de cada registro.",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": "Identificador único do proponente (CPF, CNPJ ou CPF do representante)."
+        },
+        {
+          "nome": "historico_acesso_bruto",
+          "descricao": "Resposta bruta sobre acesso anterior a recursos de fomento."
+        },
+        {
+          "nome": "programa_fomento",
+          "descricao": "Programa de fomento de origem — 'LPG' ou 'PNAB'."
+        },
+        {
+          "nome": "tipo_proponente",
+          "descricao": "Tipo do proponente — 'Pessoa Física', 'Pessoa Jurídica', 'Coletivo' ou 'Organização'."
+        }
+      ],
+      "colunas_descritas": 4,
+      "testes": 1,
+      "materializacao": "view",
+      "depende_de": [
+        "lpg_agentes_coletivos",
+        "lpg_agentes_pf",
+        "lpg_agentes_pj",
+        "pnab_agentes_pf",
+        "pnab_agentes_pj"
+      ],
+      "sources": [],
+      "linhas_sql": 45
+    },
+    {
+      "nome": "stg_agentes_coletivos",
+      "dominio": "cotas",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/cotas_dbt/bronze/stg_agentes_coletivos.sql",
+      "descricao": "Perfil LPG Coletivos/Grupos (maioria do grupo).",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_lpg"
+      ],
+      "linhas_sql": 37
+    },
+    {
+      "nome": "stg_agentes_pf",
+      "dominio": "cotas",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/cotas_dbt/bronze/stg_agentes_pf.sql",
+      "descricao": "Perfil LPG Pessoa Física (base + audiovisual + multicultural), lixo filtrado.",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_lpg"
+      ],
+      "linhas_sql": 37
+    },
+    {
+      "nome": "stg_agentes_pj",
+      "dominio": "cotas",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/cotas_dbt/bronze/stg_agentes_pj.sql",
+      "descricao": "Perfil LPG Pessoa Jurídica (corpo diretivo).",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_lpg"
+      ],
+      "linhas_sql": 36
+    },
+    {
+      "nome": "stg_agentes_pnab_pf",
+      "dominio": "cotas",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/cotas_dbt/bronze/stg_agentes_pnab_pf.sql",
+      "descricao": "Perfil PNAB Pessoa Física (pnab_pessoas) — CPF real + raça/PCD/indígena/quilombola.",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_pnab_ciclo_1"
+      ],
+      "linhas_sql": 31
+    },
+    {
+      "nome": "stg_agentes_pnab_pj",
+      "dominio": "cotas",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/cotas_dbt/bronze/stg_agentes_pnab_pj.sql",
+      "descricao": "Perfil PNAB Organizações (pnab_organizacoes) — CNPJ real + raça/PCD do representante.",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_pnab_ciclo_1"
+      ],
+      "linhas_sql": 30
+    },
+    {
+      "nome": "stg_bbagil",
+      "dominio": "cotas",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/cotas_dbt/bronze/stg_bbagil.sql",
+      "descricao": "",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "bbagil.fato_bbagil"
+      ],
+      "linhas_sql": 26
+    },
+    {
+      "nome": "stg_contemplados_lpg",
+      "dominio": "cotas",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/cotas_dbt/bronze/stg_contemplados_lpg.sql",
+      "descricao": "Contemplados LPG (valor pago), colunas duplicadas coalescidas.",
+      "colunas": [
+        {
+          "nome": "origem",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 1,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_contemplados_lpg"
+      ],
+      "linhas_sql": 34
+    },
+    {
+      "nome": "stg_contemplados_pnab",
+      "dominio": "cotas",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/cotas_dbt/bronze/stg_contemplados_pnab.sql",
+      "descricao": "Contemplados PNAB (geral + pncv). CNPJ casável; CPF anonimizado flagado.",
+      "colunas": [
+        {
+          "nome": "origem",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 1,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_contemplados_pnab_ciclo_1"
+      ],
+      "linhas_sql": 56
+    },
+    {
+      "nome": "stg_editais",
+      "dominio": "cotas",
+      "camada": "bronze",
+      "caminho": "dbt/minc/models/cotas_dbt/bronze/stg_editais.sql",
+      "descricao": "Editais LPG (lpg_editais + instrumentos) — nome, número, valor total.",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_dados_lpg",
+        "relatorio_gestao.planilha_editais_lpg"
+      ],
+      "linhas_sql": 39
+    },
+    {
+      "nome": "cobertura_pagamentos",
+      "dominio": "cotas",
+      "camada": "gold",
+      "caminho": "dbt/minc/models/cotas_dbt/gold/cobertura_pagamentos.sql",
+      "descricao": "Cobertura por ano — teto de confiabilidade das cotas (valor casado + temporal).",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [
+        "fct_pagamentos_elegiveis"
+      ],
+      "sources": [],
+      "linhas_sql": 24
+    },
+    {
+      "nome": "comparativo_recebido_vs_pago",
+      "dominio": "cotas",
+      "camada": "gold",
+      "caminho": "dbt/minc/models/cotas_dbt/gold/comparativo_recebido_vs_pago.sql",
+      "descricao": "",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [
+        "fct_pagamentos_bbagil",
+        "fct_pagamentos_elegiveis"
+      ],
+      "sources": [],
+      "linhas_sql": 34
+    },
+    {
+      "nome": "distribuicao_cotas_lpg",
+      "dominio": "cotas",
+      "camada": "gold",
+      "caminho": "dbt/minc/models/cotas_dbt/gold/distribuicao_cotas_lpg.sql",
+      "descricao": "Cotas SOMENTE LPG (valor ponderado): negra 25%, indígena 10%, PCD 5%, território vulnerabilizado 20%; veredito vs meta.",
+      "colunas": [
+        {
+          "nome": "grupo",
+          "descricao": ""
+        },
+        {
+          "nome": "status_sobre_com_perfil",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 2,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [],
+      "linhas_sql": 5
+    },
+    {
+      "nome": "distribuicao_cotas_pnab",
+      "dominio": "cotas",
+      "camada": "gold",
+      "caminho": "dbt/minc/models/cotas_dbt/gold/distribuicao_cotas_pnab.sql",
+      "descricao": "Cotas SOMENTE PNAB (valor ponderado): negra 25%, indígena 10%, PCD 5% (sem território); veredito vs meta.",
+      "colunas": [
+        {
+          "nome": "grupo",
+          "descricao": ""
+        },
+        {
+          "nome": "status_sobre_com_perfil",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 2,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [],
+      "linhas_sql": 11
+    },
+    {
+      "nome": "fct_pagamentos_bbagil",
+      "dominio": "cotas",
+      "camada": "gold",
+      "caminho": "dbt/minc/models/cotas_dbt/gold/fct_pagamentos_bbagil.sql",
+      "descricao": "",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [
+        "bbagil_ente_ano",
+        "perfil_agentes_normalizado",
+        "stg_bbagil"
+      ],
+      "sources": [],
+      "linhas_sql": 42
+    },
+    {
+      "nome": "fct_pagamentos_elegiveis",
+      "dominio": "cotas",
+      "camada": "gold",
+      "caminho": "dbt/minc/models/cotas_dbt/gold/fct_pagamentos_elegiveis.sql",
+      "descricao": "1 linha por pagamento (payment-first). Flags de cota + tem_perfil + ano_final + anexo_id.",
+      "colunas": [
+        {
+          "nome": "origem_ano",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 1,
+      "materializacao": "",
+      "depende_de": [
+        "contemplados_unif",
+        "perfil_agentes_normalizado",
+        "territorio_municipio"
+      ],
+      "sources": [],
+      "linhas_sql": 48
+    },
+    {
+      "nome": "bbagil_ente_ano",
+      "dominio": "cotas",
+      "camada": "silver",
+      "caminho": "dbt/minc/models/cotas_dbt/silver/bbagil_ente_ano.sql",
+      "descricao": "",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "transferegov.plano_acao_minc"
+      ],
+      "linhas_sql": 44
+    },
+    {
+      "nome": "contemplados_unif",
+      "dominio": "cotas",
+      "camada": "silver",
+      "caminho": "dbt/minc/models/cotas_dbt/silver/contemplados_unif.sql",
+      "descricao": "Contemplados unificados LPG+PNAB (núcleo do valor) + ano_final/origem_ano.",
+      "colunas": [
+        {
+          "nome": "origem",
+          "descricao": ""
+        },
+        {
+          "nome": "origem_ano",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 2,
+      "materializacao": "",
+      "depende_de": [
+        "edital_ano_por_anexo",
+        "edital_ano_por_arquivo",
+        "stg_contemplados_lpg",
+        "stg_contemplados_pnab"
+      ],
+      "sources": [],
+      "linhas_sql": 65
+    },
+    {
+      "nome": "diag_valores_cortados",
+      "dominio": "cotas",
+      "camada": "silver",
+      "caminho": "dbt/minc/models/cotas_dbt/silver/diag_valores_cortados.sql",
+      "descricao": "",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [
+        "stg_contemplados_lpg",
+        "stg_contemplados_pnab"
+      ],
+      "sources": [],
+      "linhas_sql": 21
+    },
+    {
+      "nome": "editais_unif",
+      "dominio": "cotas",
+      "camada": "silver",
+      "caminho": "dbt/minc/models/cotas_dbt/silver/editais_unif.sql",
+      "descricao": "Editais unificados com ano derivado (número/nome), validado ≤2026.",
+      "colunas": [],
+      "colunas_descritas": 0,
+      "testes": 0,
+      "materializacao": "",
+      "depende_de": [
+        "stg_editais"
+      ],
+      "sources": [],
+      "linhas_sql": 10
+    },
+    {
+      "nome": "edital_ano_por_anexo",
+      "dominio": "cotas",
+      "camada": "silver",
+      "caminho": "dbt/minc/models/cotas_dbt/silver/edital_ano_por_anexo.sql",
+      "descricao": "Ano do edital por anexo PNAB (abas de definição); só anexos ano-único.",
+      "colunas": [
+        {
+          "nome": "anexo_id",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 2,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_editais_pnab_ciclo_1"
+      ],
+      "linhas_sql": 32
+    },
+    {
+      "nome": "edital_ano_por_arquivo",
+      "dominio": "cotas",
+      "camada": "silver",
+      "caminho": "dbt/minc/models/cotas_dbt/silver/edital_ano_por_arquivo.sql",
+      "descricao": "Ano do edital por anexo via nome do arquivo (fallback 3); só anexos ano-único.",
+      "colunas": [
+        {
+          "nome": "anexo_id",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 2,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "relatorio_gestao.planilha_contemplados_lpg",
+        "relatorio_gestao.planilha_contemplados_pnab_ciclo_1"
+      ],
+      "linhas_sql": 45
+    },
+    {
+      "nome": "identificadores_agentes_cotas",
+      "dominio": "cotas",
+      "camada": "silver",
+      "caminho": "dbt/minc/models/cotas_dbt/silver/identificadores_agentes_cotas.sql",
+      "descricao": "Chaves distintas de agentes (para contagem secundária e unicidade).",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 2,
+      "materializacao": "",
+      "depende_de": [
+        "perfil_agentes_normalizado"
+      ],
+      "sources": [],
+      "linhas_sql": 7
+    },
+    {
+      "nome": "perfil_agentes_normalizado",
+      "dominio": "cotas",
+      "camada": "silver",
+      "caminho": "dbt/minc/models/cotas_dbt/silver/perfil_agentes_normalizado.sql",
+      "descricao": "Perfil unificado LPG+PNAB, 1 linha por documento, raça/PCD normalizados.",
+      "colunas": [
+        {
+          "nome": "identificador_unico",
+          "descricao": ""
+        },
+        {
+          "nome": "raca_normalizada",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 3,
+      "materializacao": "",
+      "depende_de": [
+        "stg_agentes_coletivos",
+        "stg_agentes_pf",
+        "stg_agentes_pj",
+        "stg_agentes_pnab_pf",
+        "stg_agentes_pnab_pj"
+      ],
+      "sources": [],
+      "linhas_sql": 65
+    },
+    {
+      "nome": "territorio_municipio",
+      "dominio": "cotas",
+      "camada": "silver",
+      "caminho": "dbt/minc/models/cotas_dbt/silver/territorio_municipio.sql",
+      "descricao": "Crosswalk IBGE CD2022 a nível de município (setor->FCU colapsado): flag em_concentracao_urbana + chave nome+uf p/ 4ª cota territorial LPG.",
+      "colunas": [
+        {
+          "nome": "cd_mun",
+          "descricao": ""
+        }
+      ],
+      "colunas_descritas": 0,
+      "testes": 2,
+      "materializacao": "",
+      "depende_de": [],
+      "sources": [
+        "transferegov.territorio_fcu_setores"
+      ],
+      "linhas_sql": 55
+    },
+    {
+      "nome": "models_metadata",
+      "dominio": "metadata",
+      "camada": "outros",
+      "caminho": "dbt/minc/models/metadata/models_metadata.sql",
+      "descricao": "Tabela central de metadados que armazena informações sobre todos os modelos dbt executados. Cada linha representa um modelo único, identificado pela combinação de schema e table_name. A tabela é atualizada de forma incremental, mantendo histórico das execuções.",
+      "colunas": [
+        {
+          "nome": "schema_name",
+          "descricao": "Nome do schema onde o modelo está localizado."
+        },
+        {
+          "nome": "table_name",
+          "descricao": "Nome da tabela/modelo."
+        },
+        {
+          "nome": "database_name",
+          "descricao": "Nome do banco de dados onde o modelo está materializado."
+        },
+        {
+          "nome": "materialization",
+          "descricao": "Tipo de materialização do modelo (table, view, incremental, etc)."
+        },
+        {
+          "nome": "description",
+          "descricao": "Descrição do modelo extraída do schema.yml."
+        },
+        {
+          "nome": "dt_transform",
+          "descricao": "Data e hora em que o modelo foi transformado/executado pela última vez. Corresponde ao momento em que a execução do dbt foi iniciada (run_started_at). Timezone: America/Sao_Paulo (UTC-3)."
+        },
+        {
+          "nome": "run_id",
+          "descricao": "Identificador único da execução do dbt (invocation_id). Permite rastrear qual execução gerou a transformação."
+        }
+      ],
+      "colunas_descritas": 7,
+      "testes": 3,
+      "materializacao": "incremental",
+      "depende_de": [],
+      "sources": [],
+      "linhas_sql": 68
+    }
+  ],
+  "dominios": {
+    "agentes": {
+      "modelos": 11,
+      "testes": 40,
+      "camadas": {
+        "bronze": 5,
+        "gold": 4,
+        "silver": 1,
+        "views": 1
+      }
+    },
+    "cotas": {
+      "modelos": 24,
+      "testes": 20,
+      "camadas": {
+        "bronze": 9,
+        "gold": 6,
+        "silver": 9
+      }
+    },
+    "metadata": {
+      "modelos": 1,
+      "testes": 3,
+      "camadas": {
+        "outros": 1
+      }
+    }
+  },
+  "sources": [
+    {
+      "nome": "transferegov",
+      "schema": "transferegov",
+      "descricao": "",
+      "tabelas": [
+        {
+          "nome": "programa_minc",
+          "descricao": ""
+        },
+        {
+          "nome": "plano_acao_minc",
+          "descricao": ""
+        },
+        {
+          "nome": "plano_acao_meta_minc",
+          "descricao": ""
+        },
+        {
+          "nome": "plano_acao_dado_bancario_minc",
+          "descricao": ""
+        },
+        {
+          "nome": "relatorios_gestao",
+          "descricao": ""
+        },
+        {
+          "nome": "anexos_relatorios",
+          "descricao": ""
+        },
+        {
+          "nome": "territorio_fcu_setores",
+          "descricao": ""
+        }
+      ]
+    },
+    {
+      "nome": "relatorio_gestao",
+      "schema": "relatorio_gestao",
+      "descricao": "",
+      "tabelas": [
+        {
+          "nome": "planilha_contemplados_lpg",
+          "descricao": ""
+        },
+        {
+          "nome": "planilha_editais_lpg",
+          "descricao": ""
+        },
+        {
+          "nome": "planilha_dados_lpg",
+          "descricao": ""
+        },
+        {
+          "nome": "planilha_contemplados_pnab_ciclo_1",
+          "descricao": ""
+        },
+        {
+          "nome": "planilha_editais_pnab_ciclo_1",
+          "descricao": ""
+        },
+        {
+          "nome": "planilha_dados_pnab_ciclo_1",
+          "descricao": ""
+        }
+      ]
+    },
+    {
+      "nome": "bbagil",
+      "schema": "bbagil",
+      "descricao": "",
+      "tabelas": [
+        {
+          "nome": "fato_bbagil",
+          "descricao": ""
+        },
+        {
+          "nome": "extrato_bbagil",
+          "descricao": "Uma linha por transacao do extrato bancario do BB Gestao Agil (orgao de controle), persistida por ``extracao_bbagil_dag`` direto da resposta da API do BSC/SERPRO."
+        },
+        {
+          "nome": "subtransacao_bbagil",
+          "descricao": "Uma linha por sub-lancamento das transacoes com ``subtransactionquantity`` > 0, persistida por ``extracao_bbagil_dag``."
+        }
+      ]
+    }
+  ],
+  "totais": {
+    "modelos": 36,
+    "testes": 63,
+    "com_descricao": 31,
+    "sources": 16
+  }
+}

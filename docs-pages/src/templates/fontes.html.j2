@@ -1,0 +1,83 @@
+{% extends "base.html.j2" %}
+{% block conteudo %}
+
+<section class="hero hero-menor">
+  <div class="container">
+    <p class="eyebrow">De onde vêm os dados</p>
+    <h1>As fontes de origem</h1>
+    <p class="hero-texto">
+      Nenhum dado aqui é produzido pela equipe. Tudo vem de sistemas de governo,
+      e conhecer a origem é parte de entender o limite do que os números dizem.
+    </p>
+  </div>
+</section>
+
+<section class="secao">
+  <div class="container">
+    <h2>Sistemas de origem</h2>
+    <div class="cards">
+      {% for src in sources %}
+      <article class="card card-estatico">
+        <h3>{{ src.nome }}</h3>
+        <p class="card-sub">
+          {{ src.descricao if src.descricao else "Sistema de origem dos dados brutos." }}
+        </p>
+        <p class="card-num">{{ src.tabelas | length }} tabelas de origem</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="secao secao-alt">
+  <div class="container">
+    <h2>Tabelas de origem</h2>
+    <p class="secao-intro">
+      É o dado como chega, antes de qualquer tratamento. Nada aqui é corrigido:
+      o que vier torto da origem entra torto e é resolvido depois, onde a
+      correção fica registrada.
+    </p>
+    <div class="tabela-rolagem">
+      <table>
+        <thead><tr><th>Sistema</th><th>Tabela</th><th>O que contém</th></tr></thead>
+        <tbody>
+          {% for src in sources %}
+          {% for t in src.tabelas %}
+          <tr>
+            <td>{{ src.nome }}</td>
+            <td><code>{{ t.nome }}</code></td>
+            <td>{{ t.descricao if t.descricao else "—" }}</td>
+          </tr>
+          {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="secao">
+  <div class="container">
+    <h2>Clientes de API</h2>
+    <p class="secao-intro">
+      O código que conversa com cada sistema. Um por origem, isolado do resto —
+      quando a API de um sistema muda, só o cliente dele precisa mudar.
+    </p>
+    <div class="tabela-rolagem">
+      <table>
+        <thead><tr><th>Sistema</th><th>Classe</th><th>O que faz</th></tr></thead>
+        <tbody>
+          {% for c in clientes %}
+          <tr>
+            <td>{{ c.sistema }}</td>
+            <td><code>{{ c.nome }}</code></td>
+            <td>{{ c.descricao if c.descricao else "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
