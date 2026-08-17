@@ -26,6 +26,10 @@
    * ativo e em pouco mais. Se ele aparecer em tudo, deixa de significar algo. */
   --roxo:       #6d28d9;
   --roxo-claro: #f1ebff;
+  /* Véu da abertura: o roxo do Gov Hub entra como tinta de fundo no topo e
+   * desmancha no papel antes do conteúdo começar. É cor de marca, não bloco —
+   * se ele competir com o texto, subiu forte demais. */
+  --veu:        #f0e9fb;
   --ocre:       #97590c;
   --ocre-claro: #faf2e6;
   --verde:      #1f6844;
@@ -74,7 +78,7 @@ a:focus-visible { outline: 2px solid var(--roxo); outline-offset: 3px; }
 
 /* ---------- topo ---------- */
 
-.topo { background: var(--papel); border-bottom: 1px solid var(--regua-tinta); }
+.topo { background: var(--veu); border-bottom: 1px solid var(--regua-tinta); }
 .topo-linha {
   display: flex; flex-wrap: wrap; align-items: flex-end;
   justify-content: space-between; gap: var(--esp-4);
@@ -116,8 +120,16 @@ a:focus-visible { outline: 2px solid var(--roxo); outline-offset: 3px; }
 
 /* ---------- abertura ---------- */
 
-.hero { background: var(--papel); padding: var(--esp-6) 0 var(--esp-5); }
-.hero-menor { padding: var(--esp-5) 0 var(--esp-4); }
+/* O véu do topo continua no hero e desmancha antes do conteúdo. Termina em
+ * `--papel` para não deixar emenda visível com a primeira seção. */
+.hero {
+  background: linear-gradient(172deg, var(--veu) 0%, #f7f4fb 38%, var(--papel) 100%);
+  padding: var(--esp-6) 0 var(--esp-5);
+}
+.hero-menor {
+  padding: var(--esp-5) 0 var(--esp-4);
+  background: linear-gradient(172deg, var(--veu) 0%, var(--papel) 100%);
+}
 
 .eyebrow {
   font-family: var(--mono); font-size: .7rem; letter-spacing: .18em;
