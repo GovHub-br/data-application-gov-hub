@@ -71,7 +71,7 @@ Esperamos que todas as pessoas contribuam com respeito, colaboração e responsa
 - [Docker](https://docs.docker.com/get-docker/) e [Docker Compose](https://docs.docker.com/compose/)
 - [Git](https://git-scm.com/)
 - Python = 3.11
-- [Poetry](https://python-poetry.org/docs/)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - Make
 - Acesso às credenciais dos sistemas estruturantes (quando necessário) — veja o [guia de credenciais](https://gov-hub.io/govhub/documentacao/tutoriais/sistemas-estruturantes/acesso-apis-siafi-siape/)
 
@@ -215,6 +215,8 @@ Toda solicitação de mudança ou sugestão deve ser registrada como issue.
 
 Consulte o [Protocolo de Aprovação de Pull Requests](MERGE_REQUEST_PROTOCOL.md) para os critérios obrigatórios de revisão, aprovação e merge.
 
+O repositório usa domínios de revisão (`IPEA`, `MIR`, `MCid`, `MinC` e `OSS`) e a workflow `Request team review` para solicitar revisões conforme as labels `team:*` aplicadas manualmente no PR. PRs originados na disciplina GCES devem usar a label `team:gces`, que solicita revisão do time `OSS`.
+
 **Para quem submete o PR:** responda a todos os comentários de revisão, implemente as mudanças em novos commits e aguarde nova aprovação antes do merge.
 
 **Para quem faz o review:** seja construtivo e específico, explique o *porquê* das sugestões, diferencie bloqueadores de sugestões opcionais, e verifique qualidade dos modelos DBT, linhagem de dados, testes e impacto em pipelines existentes. O merge é responsabilidade dos mantenedores.
@@ -253,10 +255,10 @@ Consulte a documentação de [testes DBT](https://gov-hub.io/govhub/documentacao
 - Use sufixos ou prefixos que indiquem a camada (ex: `contratos_bronze`, `contratos_silver`).
 - Documente cada modelo e coluna no `schema.yml` correspondente.
 - Use [macros DBT](https://gov-hub.io/govhub/documentacao/tutoriais/dbt/macros/) para lógica reutilizável.
-- As regras de lint SQL estão definidas em `.sqlfluff` e `.sqlfluffignore` na raiz do projeto.
+- A formatação SQL é feita via `sqlfmt` (configurado em `pyproject.toml`).
 
 ```bash
-make lint      # Executa sqlfluff para SQL e ruff para Python
+make lint      # Executa sqlfmt (check), black, ruff e ty
 make format    # Aplica formatação automática
 ```
 

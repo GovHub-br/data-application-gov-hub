@@ -31,7 +31,7 @@ def api_programas_dag() -> None:
 
         total_processed = 0
         for id_programa in id_programas:
-            programas_data = api.get_programa_by_id_programa(id_programa)
+            programas_data = api.get_programa_by_id_programa(str(id_programa))
             if programas_data and len(programas_data) > 0:
                 programa = programas_data[0]
                 programa["dt_ingest"] = datetime.now().isoformat()

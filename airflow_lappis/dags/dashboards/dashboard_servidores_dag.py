@@ -162,7 +162,7 @@ def dashboard_servidores_dag() -> None:
 
     # Definir dependências entre tasks usando XCom
     dashboard_data = generate_dashboard_json()
-    publish_to_github(dashboard_data)
+    publish_to_github(dashboard_data)  # ty: ignore[invalid-argument-type]
 
 
 dag_instance = dashboard_servidores_dag()

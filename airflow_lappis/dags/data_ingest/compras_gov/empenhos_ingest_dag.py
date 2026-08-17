@@ -47,7 +47,7 @@ def api_empenhos_dag() -> None:
                     f"{contrato_id} into PostgreSQL"
                 )
                 db.insert_data(
-                    empenhos,
+                    empenhos,  # type: ignore
                     "empenhos",
                     conflict_fields=["id", "contrato_id"],
                     primary_key=["id", "contrato_id"],

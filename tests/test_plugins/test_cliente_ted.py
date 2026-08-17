@@ -1,6 +1,6 @@
 import http
 from http import HTTPStatus
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -18,9 +18,7 @@ def test_init_sets_base_url() -> None:
         cliente = ClienteTed()
 
     assert cliente.base_url == ClienteTed.BASE_URL
-    mock_client.assert_called_once_with(
-        base_url=ClienteTed.BASE_URL, headers=None
-    )
+    mock_client.assert_called_once_with(base_url=ClienteTed.BASE_URL, headers=None)
 
 
 # ---------------------------------------------------------------------------
@@ -44,9 +42,7 @@ def test_get_ted_by_programa_beneficiario_success(cliente_ted: ClienteTed) -> No
 def test_get_ted_by_programa_beneficiario_non_ok_status(
     cliente_ted: ClienteTed,
 ) -> None:
-    with patch.object(
-        cliente_ted, "request", return_value=(HTTPStatus.NOT_FOUND, [])
-    ):
+    with patch.object(cliente_ted, "request", return_value=(HTTPStatus.NOT_FOUND, [])):
         result = cliente_ted.get_ted_by_programa_beneficiario("123")
 
     assert result is None
@@ -136,9 +132,7 @@ def test_get_programas_by_sigla_success(cliente_ted: ClienteTed) -> None:
 
 
 def test_get_programas_by_sigla_failure(cliente_ted: ClienteTed) -> None:
-    with patch.object(
-        cliente_ted, "request", return_value=(HTTPStatus.FORBIDDEN, [])
-    ):
+    with patch.object(cliente_ted, "request", return_value=(HTTPStatus.FORBIDDEN, [])):
         result = cliente_ted.get_programas_by_sigla_unidade_descentralizadora("MEC")
 
     assert result is None
@@ -243,9 +237,7 @@ def test_get_todos_programas_failure(cliente_ted: ClienteTed) -> None:
 
 
 def test_get_todos_programas_non_list_data(cliente_ted: ClienteTed) -> None:
-    with patch.object(
-        cliente_ted, "request", return_value=(HTTPStatus.OK, {"x": 1})
-    ):
+    with patch.object(cliente_ted, "request", return_value=(HTTPStatus.OK, {"x": 1})):
         result = cliente_ted.get_todos_programas()
 
     assert result is None
@@ -256,9 +248,7 @@ def test_get_todos_programas_non_list_data(cliente_ted: ClienteTed) -> None:
 # ---------------------------------------------------------------------------
 def test_get_all_programas_single_partial_page(cliente_ted: ClienteTed) -> None:
     page = [{"id": 1}, {"id": 2}]
-    with patch.object(
-        cliente_ted, "get_todos_programas", return_value=page
-    ) as mock_get:
+    with patch.object(cliente_ted, "get_todos_programas", return_value=page) as mock_get:
         result = cliente_ted.get_all_programas(limit=10)
 
     assert result == page
@@ -296,9 +286,7 @@ def test_get_all_programas_stops_on_empty_page(cliente_ted: ClienteTed) -> None:
 
 
 def test_get_all_programas_first_page_none(cliente_ted: ClienteTed) -> None:
-    with patch.object(
-        cliente_ted, "get_todos_programas", return_value=None
-    ) as mock_get:
+    with patch.object(cliente_ted, "get_todos_programas", return_value=None) as mock_get:
         result = cliente_ted.get_all_programas()
 
     assert result == []

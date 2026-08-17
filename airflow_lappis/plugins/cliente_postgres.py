@@ -1,8 +1,10 @@
 import logging
 import re
+import hashlib
 from contextlib import contextmanager
 from typing import Any, Dict, List, Optional, Tuple
 import psycopg2
+import psycopg2.errors
 import psycopg2.extras
 from pandas import json_normalize
 import pandas as pd
@@ -22,7 +24,12 @@ class ClientPostgresDB:
     @staticmethod
     def _unique_index_name(table_name: str, columns: List[str]) -> str:
         raw = f"uq_{table_name}_{'_'.join(columns)}"
-        return re.sub(r"[^\w]", "_", raw)[:63]
+        sanitized = re.sub(r"[^\w]", "_", raw)
+        # PostgreSQL limita identificadores a 63 caracteres. O sufixo hash evita
+        # que chaves diferentes, com o mesmo prefixo longo, reutilizem o mesmo
+        # nome de índice após o truncamento.
+        digest = hashlib.sha1(sanitized.encode()).hexdigest()[:8]
+        return f"{sanitized[:54]}_{digest}"
 
     def _flatten_data(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         return list(
@@ -130,9 +137,7 @@ class ClientPostgresDB:
         )
         self.alter_table(column_probe, table_name, schema=schema, conn=conn)
         if conflict_fields:
-            self.ensure_unique_constraint(
-                schema, table_name, conflict_fields, conn=conn
-            )
+            self.ensure_unique_constraint(schema, table_name, conflict_fields, conn=conn)
 
         values = [tuple(item.get(col) for col in columns) for item in flattened_data]
 
@@ -150,9 +155,12 @@ class ClientPostgresDB:
                     logging.info(
                         f"[cliente_postgres.py] Inserted data into {schema}.{table_name}"
                     )
-                except psycopg2.errors.UndefinedColumn as err:
+                except (
+                    psycopg2.errors.UndefinedColumn  # ty: ignore[unresolved-attribute]
+                ) as err:
                     logging.warning(
-                        f"[cliente_postgres.py] Missing column detected in {schema}.{table_name}: "
+                        f"[cliente_postgres.py] Missing column in "
+                        f"{schema}.{table_name}: "
                         f"{err}. Tentando alterar tabela e reinserir."
                     )
                     connection.rollback()
@@ -162,7 +170,8 @@ class ClientPostgresDB:
                     )
                     psycopg2.extras.execute_values(cursor, sql, values)
                     logging.info(
-                        f"[cliente_postgres.py] Inserted data into {schema}.{table_name} after alter"
+                        f"[cliente_postgres.py] Inserted data into "
+                        f"{schema}.{table_name} after alter"
                     )
                 except psycopg2.Error as err:
                     logging.error(
@@ -253,14 +262,12 @@ class ClientPostgresDB:
 
         def _execute(connection):
             with connection.cursor() as cursor:
-                cursor.execute(
-                    f"""
+                cursor.execute(f"""
                     SELECT column_name
                     FROM information_schema.columns
                     WHERE table_schema = '{schema}'
                     AND table_name = '{table_name}'
-                """
-                )
+                """)
                 existing_columns = [row[0] for row in cursor.fetchall()]
 
                 for column in columns:

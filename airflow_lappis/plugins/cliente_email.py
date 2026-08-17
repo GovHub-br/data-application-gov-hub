@@ -1,7 +1,7 @@
 import logging
 import io
 import zipfile
-from typing import Optional, cast, List, Dict
+from typing import Optional, List, Dict
 import pandas as pd
 from pandas.errors import EmptyDataError
 from imap_tools import MailBox, AND
@@ -16,22 +16,36 @@ logging.basicConfig(
 
 
 def format_csv(
-    csv_data: str, column_mapping: Optional[Dict[int, str]], skiprows: int
+    csv_data: str,
+    column_mapping: Optional[Dict[int, str]],
+    skiprows: int,
+    delimiter: Optional[str] = None,
 ) -> pd.DataFrame:
     """Formata um arquivo CSV conforme mapeamento de colunas."""
+    read_csv_kwargs = {"sep": delimiter} if delimiter else {}
     if column_mapping:
-        df = pd.read_csv(io.StringIO(csv_data), skiprows=skiprows, header=None)
+        df = pd.read_csv(
+            io.StringIO(csv_data),
+            skiprows=skiprows,
+            header=None,
+            **read_csv_kwargs,
+        )
         column_names: List[str] = [
             column_mapping.get(i, f"col_{i}") for i in range(len(df.columns))
         ]
         df.columns = pd.Index(column_names)
     else:
-        df = pd.read_csv(io.StringIO(csv_data), skiprows=skiprows, header=0)
+        df = pd.read_csv(
+            io.StringIO(csv_data), skiprows=skiprows, header=0, **read_csv_kwargs
+        )
     return df
 
 
 def extract_csv_from_zip(
-    zip_payload: bytes, column_mapping: dict, skiprows: int = 0
+    zip_payload: bytes,
+    column_mapping: dict | None,
+    skiprows: int = 0,
+    delimiter: Optional[str] = None,
 ) -> Optional[pd.DataFrame]:
     """Extrai e formata o primeiro arquivo CSV encontrado em um ZIP."""
     with zipfile.ZipFile(io.BytesIO(zip_payload)) as zip_file:
@@ -49,7 +63,7 @@ def extract_csv_from_zip(
                     if not decoded_data.strip():
                         logging.warning("CSV vazio no anexo ZIP: %s", file_name)
                         continue
-                    return format_csv(decoded_data, column_mapping, skiprows)
+                    return format_csv(decoded_data, column_mapping, skiprows, delimiter)
                 except EmptyDataError:
                     logging.warning(
                         "CSV sem colunas apos skiprows=%s no arquivo: %s",
@@ -86,7 +100,7 @@ def fetch_email_with_zip(
                 if msg_subject.endswith(subject_suffix):
                     for attachment in msg.attachments:
                         if attachment.filename.lower().endswith(".zip"):
-                            zip_payloads.append(cast(bytes, attachment.payload))
+                            zip_payloads.append(attachment.payload)
         else:
             for msg in mailbox.fetch(
                 AND(date=query_date, from_=sender_email, subject=subject),
@@ -94,7 +108,7 @@ def fetch_email_with_zip(
             ):
                 for attachment in msg.attachments:
                     if attachment.filename.lower().endswith(".zip"):
-                        zip_payloads.append(cast(bytes, attachment.payload))
+                        zip_payloads.append(attachment.payload)
     return zip_payloads
 
 
@@ -112,7 +126,7 @@ def fetch_email_with_csv(
             for attachment in msg.attachments:
                 file_name = (attachment.filename or "").lower()
                 if file_name.endswith(".csv"):
-                    csv_payloads.append(cast(bytes, attachment.payload))
+                    csv_payloads.append(attachment.payload)
     return csv_payloads
 
 
@@ -143,9 +157,10 @@ def fetch_and_process_email(
     password: str,
     sender_email: str,
     subject: str,
-    column_mapping: dict,
+    column_mapping: dict | None,
     skiprows: int = 0,
     target_date: Optional[date] = None,
+    delimiter: Optional[str] = None,
 ) -> Optional[str]:
     """Busca e processa e-mails da data alvo (ou dia atual), extraindo CSVs."""
     try:
@@ -165,7 +180,9 @@ def fetch_and_process_email(
 
         dataframes: List[pd.DataFrame] = []
         for idx, zip_payload in enumerate(zip_payloads, start=1):
-            csv_data = extract_csv_from_zip(zip_payload, column_mapping, skiprows)
+            csv_data = extract_csv_from_zip(
+                zip_payload, column_mapping, skiprows, delimiter
+            )
             if csv_data is not None:
                 dataframes.append(csv_data)
             else:

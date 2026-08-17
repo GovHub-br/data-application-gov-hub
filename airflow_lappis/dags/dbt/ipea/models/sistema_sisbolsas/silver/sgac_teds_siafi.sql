@@ -22,6 +22,40 @@ with
           and regexp_replace(coalesce(numero_siafi, ''), '[^0-9]', '', 'g') <> ''
     ),
 
+    resumo_programa_plano_acao as (
+        select
+            plano_acao,
+            max(programa) as programa,
+            max(nome_institucional_programa) as nome_institucional_programa,
+            max(percentual_conclusao) as percentual_vigencia,
+            max(sigla_unidade_descentralizadora_programa)
+                as sigla_unidade_descentralizadora,
+            max(sigla_unidade_responsavel_acompanhamento)
+                as sigla_unidade_responsavel_acompanhamento
+        from {{ ref("resumo_programa_plano_acao_") }}
+        group by plano_acao
+    ),
+
+    empenhos_por_plano_acao as (
+        select
+            plano_acao,
+            string_agg(distinct ne, ' | ' order by ne) as numeros_empenho,
+            count(distinct ne) as quantidade_empenhos
+        from {{ ref("empenhos_plano_acao") }}
+        where nullif(trim(coalesce(ne, '')), '') is not null
+        group by plano_acao
+    ),
+
+    ncs_por_plano_acao as (
+        select
+            plano_acao,
+            string_agg(distinct nc, ' | ' order by nc) as numeros_nc,
+            count(distinct nc) as quantidade_ncs
+        from {{ ref("nc_plano_acao") }}
+        where nullif(trim(coalesce(nc, '')), '') is not null
+        group by plano_acao
+    ),
+
     transfere_gov_teds as (
         select distinct
             coalesce(r.plano_acao, p.id_plano_acao) as plano_acao,
@@ -29,6 +63,11 @@ with
             p.sq_instrumento,
             p.sigla_unidade_descentralizada,
             p.unidade_descentralizada,
+            rp.sigla_unidade_descentralizadora,
+            rp.sigla_unidade_responsavel_acompanhamento,
+            rp.programa,
+            rp.nome_institucional_programa,
+            rp.percentual_vigencia,
             p.dt_inicio_vigencia,
             p.dt_fim_vigencia,
             p.tx_situacao_plano_acao,
@@ -45,11 +84,21 @@ with
             r.financeiro_recebido,
             r.financeiro_devolvido,
             r.financeiro_cancelado,
+            epa.numeros_empenho,
+            epa.quantidade_empenhos,
+            npa.numeros_nc,
+            npa.quantidade_ncs,
             regexp_replace(coalesce(r.num_transf, ''), '[^0-9]', '', 'g')
             as transf_norm
         from {{ ref("ted_resumo_orcamentario") }} as r
         full join {{ ref("planos_acao") }} as p
             on p.id_plano_acao = r.plano_acao
+        left join resumo_programa_plano_acao as rp
+            on rp.plano_acao = coalesce(r.plano_acao, p.id_plano_acao)
+        left join empenhos_por_plano_acao as epa
+            on epa.plano_acao = coalesce(r.plano_acao, p.id_plano_acao)
+        left join ncs_por_plano_acao as npa
+            on npa.plano_acao = coalesce(r.plano_acao, p.id_plano_acao)
     ),
 
     matches as (
@@ -69,6 +118,11 @@ with
             t.sq_instrumento,
             t.sigla_unidade_descentralizada,
             t.unidade_descentralizada,
+            t.sigla_unidade_descentralizadora,
+            t.sigla_unidade_responsavel_acompanhamento,
+            t.programa,
+            t.nome_institucional_programa,
+            t.percentual_vigencia,
             t.dt_inicio_vigencia,
             t.dt_fim_vigencia,
             t.tx_situacao_plano_acao,
@@ -85,6 +139,10 @@ with
             t.financeiro_recebido,
             t.financeiro_devolvido,
             t.financeiro_cancelado,
+            t.numeros_empenho,
+            t.quantidade_empenhos,
+            t.numeros_nc,
+            t.quantidade_ncs,
             'numero_siafi' as chave_match,
             'SGAC.numero_siafi -> SIAFI.num_transf' as caminho_match
         from sgac_teds as s
@@ -109,6 +167,11 @@ select
     sq_instrumento,
     sigla_unidade_descentralizada,
     unidade_descentralizada,
+    sigla_unidade_descentralizadora,
+    sigla_unidade_responsavel_acompanhamento,
+    programa,
+    nome_institucional_programa,
+    percentual_vigencia,
     dt_inicio_vigencia,
     dt_fim_vigencia,
     tx_situacao_plano_acao,
@@ -125,6 +188,10 @@ select
     financeiro_recebido,
     financeiro_devolvido,
     financeiro_cancelado,
+    numeros_empenho,
+    quantidade_empenhos,
+    numeros_nc,
+    quantidade_ncs,
     chave_match,
     caminho_match
 from matches

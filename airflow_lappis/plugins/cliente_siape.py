@@ -14,7 +14,7 @@ class ClienteSiape:
     """
 
     BEARER_ENDPOINT = (
-        "***REMOVED***"
+        "https://apigateway.conectagov.estaleiro.serpro.gov.br/oauth2/jwt-token/"
     )
     SOAP_ENDPOINT = "https://apigateway.conectagov.estaleiro.serpro.gov.br/api-consulta-siape/v1/consulta-siape"
 
@@ -32,6 +32,7 @@ class ClienteSiape:
         if not all([self.oauth_user, self.oauth_password, self.cpf_usuario]):
             raise ValueError("Variáveis de ambiente do SIAPE estão incompletas")
 
+        assert self.oauth_user and self.oauth_password and self.cpf_usuario
         token = self._get_token(self.oauth_user, self.oauth_password)
         self.headers = self._get_headers(token, self.cpf_usuario)
         base_path = os.environ["AIRFLOW_REPO_BASE"]
@@ -110,13 +111,13 @@ class ClienteSiape:
         response_text: str = response.text
         return response_text
 
-    def call(self, template_name: str, context: Dict[str, str]) -> str:
+    def call(self, template_name: str, context: Dict[str, Any]) -> str:
         """
         Execute a SOAP request using a Jinja2 template and parameters.
 
         Args:
             template_name (str): Jinja2 template file name.
-            context (Dict[str, str]): Parameters for rendering the XML.
+            context (Dict[str, Any]): Parameters for rendering the XML.
 
         Returns:
             str: The raw XML response.
