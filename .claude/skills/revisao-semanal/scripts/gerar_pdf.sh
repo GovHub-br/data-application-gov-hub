@@ -3,9 +3,10 @@
 #
 #   ./gerar_pdf.sh <relatorio.md> [saida.pdf]
 #
-# A conversão em si é a da skill accountability-report — este script não
-# reimplementa nada, só a chama com a capa certa e instala o `marked` na
-# primeira execução.
+# A divisão de trabalho: o tema é daqui (build_html.mjs, identidade do GovHub),
+# o passo HTML→PDF é da accountability-report, que não tem estilo nenhum e por
+# isso pode ser compartilhado. O `marked` é instalado uma vez, no diretório
+# daquela skill, e serve as duas.
 #
 # No macOS a conversão sai pelo weasyprint, e é de propósito: o Chrome existe,
 # mas o binário se chama "Google Chrome" (com espaço), fora do PATH, e não
@@ -20,9 +21,9 @@ MD="${1:?Uso: gerar_pdf.sh <relatorio.md> [saida.pdf]}"
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONVERSOR="$(cd "$AQUI/../.." && pwd)/accountability-report/scripts"
 
-if [ ! -f "$CONVERSOR/build_report.mjs" ] || [ ! -f "$CONVERSOR/html_to_pdf.sh" ]; then
+if [ ! -f "$CONVERSOR/html_to_pdf.sh" ]; then
   echo "ERRO: a skill accountability-report não está em .claude/skills/." >&2
-  echo "A revisão semanal usa os conversores dela para gerar HTML e PDF." >&2
+  echo "A revisão semanal usa o html_to_pdf.sh dela para gerar o PDF." >&2
   echo "Procurado em: $CONVERSOR" >&2
   exit 2
 fi
@@ -31,7 +32,7 @@ BASE="${MD%.md}"
 HTML="$BASE.html"
 PDF="${2:-$BASE.pdf}"
 
-# Capa: "Revisão Semanal · <período>", com o período lido do próprio título.
+# Kicker da faixa: "Revisão Semanal · <período>", lido do próprio título.
 PERIODO="$(sed -n 's/^#[[:space:]]*Revisão da semana[[:space:]]*—[[:space:]]*\(.*\)$/\1/p' "$MD" | head -1)"
 TAG="Revisão Semanal"
 [ -n "$PERIODO" ] && TAG="Revisão Semanal · $PERIODO"
@@ -45,7 +46,7 @@ if [ ! -d "$CONVERSOR/node_modules/marked" ]; then
     || { echo "ERRO: falha ao instalar 'marked'. Há npm e rede?" >&2; exit 3; }
 fi
 
-node "$CONVERSOR/build_report.mjs" "$MD" "$HTML" "$TAG"
+node "$AQUI/build_html.mjs" "$MD" "$HTML" "$TAG"
 
 bash "$CONVERSOR/html_to_pdf.sh" "$HTML" "$PDF"
 

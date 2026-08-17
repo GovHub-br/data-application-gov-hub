@@ -14,7 +14,7 @@ casa com a `description` do `SKILL.md`. Para forçar, cite: *"use a skill
 | Skill | O que faz |
 |---|---|
 | [`govhub-pipeline-guide-minc`](govhub-pipeline-guide-minc/) | Caminho completo de uma fonte nova: cliente de API, DAG, modelos dbt de bronze a gold, testes. Tem também "onde mexer por sintoma" e a tabela de erros comuns |
-| [`revisao-semanal`](revisao-semanal/) | Revisão da semana — commits na main e nas outras branches, PRs, issues fechadas e abertas — dizendo o que foi feito e o que não andou, em Markdown, HTML e PDF (usa o conversor da `accountability-report`) |
+| [`revisao-semanal`](revisao-semanal/) | Revisão do que foi entregue no período — commits na main, PRs mergeados, issues fechadas e as branches que receberam commit — em Markdown, HTML e PDF (usa o conversor da `accountability-report`) |
 | [`abrir-pr`](abrir-pr/) | Escreve o PR no formato do `PULL_REQUEST_TEMPLATE.md`, a partir dos commits da branch |
 | [`to-issues-minc`](to-issues-minc/) | Escreve issues no formato dos seis formulários, já com a label certa |
 
