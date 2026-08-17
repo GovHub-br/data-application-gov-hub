@@ -26,11 +26,15 @@ RELEVANTES = {"feat", "fix", "refactor", "perf"}
 
 
 def _commits() -> list[dict[str, Any]]:
+    # `--no-merges`, e não `--first-parent`. Os pull requests deste repositório
+    # entram por merge commit, cujo assunto é "Merge pull request #N from ..." —
+    # com `--first-parent` o coletor via só essas linhas e enxergava 17 entregas
+    # onde existem 181. O trabalho de verdade está nos commits de dentro.
     bruto = run(
         [
             "git",
             "log",
-            "--first-parent",
+            "--no-merges",
             "origin/main",
             "--pretty=format:%h\x1f%an\x1f%ad\x1f%s",
             "--date=short",
