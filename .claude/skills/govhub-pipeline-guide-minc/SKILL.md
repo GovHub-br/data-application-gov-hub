@@ -207,7 +207,7 @@ que é a seção que o revisor não consegue tirar do diff.
 | DAG não aparece no Airflow | Erro de import. `make logs-airflow` mostra o traceback |
 | `ModuleNotFoundError` num import de `plugins/` | O `PYTHONPATH` sai do Makefile — rode pelos alvos `make`, não com `python` direto |
 | Segunda execução da DAG duplicou linha | Carga sem chave/upsert. Conserte a carga, não apague no dbt |
-| `make format` falha no commit | Erros de lint pré-existentes no Python. Veja a armadilha em [`commit-smart`](../commit-smart/SKILL.md) |
+| `make lint` falha no `git push` | O `pre-push` roda `make lint`, que hoje acusa 55 erros pré-existentes no Python. Confira se algum é seu antes de contornar |
 
 ## Regras
 

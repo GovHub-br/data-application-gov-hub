@@ -34,16 +34,14 @@ Escopo, pela pasta afetada:
 | `infra/`, `.github/workflows/` | `infra`, `ci` |
 | `.github/ISSUE_TEMPLATE/`, `.claude/` | omita o escopo |
 
-**Armadilha do hook.** O `pre-commit` deste repositório roda `make format`, que
-hoje falha em erros de lint pré-existentes no código Python — e, antes de falhar,
-reformata arquivos que você não tocou. Se o commit for barrado:
+**Não há hook de pre-commit.** A formatação não roda sozinha ao commitar — se o
+seu commit toca Python ou SQL, rode `make format` antes, e confira no
+`git status` que ele não reformatou arquivo fora do seu escopo (ele age no
+repositório inteiro). Reverta o que não é seu com `git restore <caminhos>` antes
+de dar `git add`: arquivo reformatado por tabela polui o diff e esconde a sua
+mudança na revisão.
 
-1. Confira o `git status` e reverta o que o hook mexeu fora do seu escopo
-   (`git restore <caminhos>`), senão eles entram no seu commit.
-2. Só então use `git commit --no-verify`.
-
-Nunca inclua no commit os arquivos que o hook reformatou por conta própria: eles
-poluem o diff e escondem a sua mudança na revisão.
+O `pre-push` continua ativo e roda `make lint` e `make test`.
 
 ## Workflow
 
