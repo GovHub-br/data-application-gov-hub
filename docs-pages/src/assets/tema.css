@@ -9,27 +9,32 @@
  */
 
 :root {
-  /* Fundo e tinta — neutro levemente quente, tinta fria e profunda */
-  --papel:    #fcfbf9;
-  --papel-2:  #f6f4f1;
+  /* Fundo e tinta.
+   *
+   * O papel puxa levemente para o violeta — mesma família do roxo da marca. É o
+   * que faz o véu do topo se dissolver nele em vez de virar cinza sujo no meio
+   * do caminho: degradê entre temperaturas opostas não resolve, empoça. */
+  --papel:    #fbfafc;
+  --papel-2:  #f4f2f7;
   --branco:   #ffffff;
-  --tinta:    #16141c;
-  --corpo:    #3c3846;
-  --apoio:    #6f6a7a;
+  --tinta:    #16141f;
+  --corpo:    #3d3849;
+  --apoio:    #6f6a7d;
 
   /* Réguas — o elemento estrutural do site */
-  --regua:      #e5e2dd;
-  --regua-forte:#c8c3bc;
-  --regua-tinta:#16141c;
+  --regua:      #e6e3ec;
+  --regua-forte:#c7c2d2;
+  --regua-tinta:#d6d1e0;
 
   /* Marca. O roxo é assinatura, não preenchimento: entra em número, em estado
    * ativo e em pouco mais. Se ele aparecer em tudo, deixa de significar algo. */
   --roxo:       #6d28d9;
   --roxo-claro: #f1ebff;
-  /* Véu da abertura: o roxo do Gov Hub entra como tinta de fundo no topo e
-   * desmancha no papel antes do conteúdo começar. É cor de marca, não bloco —
-   * se ele competir com o texto, subiu forte demais. */
-  --veu:        #f0e9fb;
+  /* Véu da abertura: um degradê só, aplicado no `body`, correndo do alto da
+   * página até se dissolver no papel. Fica no body de propósito — cabeçalho e
+   * hero ficam transparentes por cima dele, e assim não existe emenda entre os
+   * dois. Faixa colorida com borda é adesivo; campo contínuo é fundo. */
+  --veu:        #ece3fa;
   --ocre:       #97590c;
   --ocre-claro: #faf2e6;
   --verde:      #1f6844;
@@ -60,7 +65,12 @@ body {
   font-size: 17px;
   line-height: 1.62;
   color: var(--corpo);
-  background: var(--papel);
+  /* O véu vive aqui, e não no cabeçalho nem no hero: um campo contínuo do topo
+   * da página até dissolver no papel, sem nenhuma emenda no meio. */
+  background:
+    linear-gradient(180deg, var(--veu) 0, #f5f1fb 38%, var(--papel) 100%)
+      no-repeat top / 100% 460px,
+    var(--papel);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -78,7 +88,9 @@ a:focus-visible { outline: 2px solid var(--roxo); outline-offset: 3px; }
 
 /* ---------- topo ---------- */
 
-.topo { background: var(--veu); border-bottom: 1px solid var(--regua-tinta); }
+/* Transparente: quem pinta é o body. A régua é fina e da mesma família do
+ * fundo — a preta cortava o campo de cor em dois. */
+.topo { background: transparent; border-bottom: 1px solid var(--regua-tinta); }
 .topo-linha {
   display: flex; flex-wrap: wrap; align-items: flex-end;
   justify-content: space-between; gap: var(--esp-4);
@@ -120,16 +132,9 @@ a:focus-visible { outline: 2px solid var(--roxo); outline-offset: 3px; }
 
 /* ---------- abertura ---------- */
 
-/* O véu do topo continua no hero e desmancha antes do conteúdo. Termina em
- * `--papel` para não deixar emenda visível com a primeira seção. */
-.hero {
-  background: linear-gradient(172deg, var(--veu) 0%, #f7f4fb 38%, var(--papel) 100%);
-  padding: var(--esp-6) 0 var(--esp-5);
-}
-.hero-menor {
-  padding: var(--esp-5) 0 var(--esp-4);
-  background: linear-gradient(172deg, var(--veu) 0%, var(--papel) 100%);
-}
+/* Transparente: o degradê do body atravessa por baixo. */
+.hero { background: transparent; padding: var(--esp-6) 0 var(--esp-5); }
+.hero-menor { background: transparent; padding: var(--esp-5) 0 var(--esp-4); }
 
 .eyebrow {
   font-family: var(--mono); font-size: .7rem; letter-spacing: .18em;
@@ -155,9 +160,12 @@ h3 { font-size: 1.05rem; color: var(--tinta); margin: 0 0 var(--esp-2); font-wei
 
 /* ---------- seções ---------- */
 
+/* A primeira seção depois do hero fecha o campo de cor com a régua mais firme
+ * do site: é ali que a abertura termina e o conteúdo começa. */
 .secao { padding: var(--esp-5) 0; border-top: 1px solid var(--regua); }
 .secao-alt { background: var(--papel-2); }
-.faixa { padding: var(--esp-5) 0; border-top: 1px solid var(--regua-tinta); }
+.faixa { padding: var(--esp-5) 0; border-top: 1px solid var(--regua-forte); }
+.hero + .faixa, .hero + .secao { border-top-color: var(--regua-forte); }
 .secao-intro { color: var(--apoio); margin: 0 0 var(--esp-4); font-size: .97rem; }
 p { margin: 0 0 var(--esp-3); }
 .prosa { white-space: pre-line; }
