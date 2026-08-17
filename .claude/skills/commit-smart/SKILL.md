@@ -92,12 +92,13 @@ Determine the commit type from the changes:
 | Formatting, whitespace, semicolons only | `style` |
 | Performance improvements | `perf` |
 
-Determine the scope from the primary directory or module affected:
-- `src/api/` -> `api`
-- `src/components/auth/` -> `auth`
-- `tests/` -> `tests`
-- Root config files -> omit scope
-- Multiple unrelated areas -> omit scope
+Determine the scope from the primary directory or module affected. **Use the
+table in "Neste repositório", above** — ela lista as pastas que existem aqui. As
+duas regras gerais que valem sempre:
+
+- Arquivo de configuração na raiz → omita o escopo
+- Áreas sem relação entre si no mesmo commit → omita o escopo, ou separe em dois
+  commits, que quase sempre é o certo
 
 ### Step 4: Check for user overrides
 
