@@ -61,16 +61,19 @@ READMEs answer questions your audience will have. Different audiences need diffe
 
 After drafting, ask: **"Anything else to highlight or include that I might have missed?"**
 
-## Project Types
+## Project Type
 
-| Type | Audience | Key Sections | Template |
-|------|----------|--------------|----------|
-| **Open Source** | Contributors, users worldwide | Install, Usage, Contributing, License | `templates/oss.md` |
-| **Personal** | Future you, portfolio viewers | What it does, Tech stack, Learnings | `templates/personal.md` |
-| **Internal** | Teammates, new hires | Setup, Architecture, Runbooks | `templates/internal.md` |
-| **Config** | Future you (confused) | What's here, Why, How to extend, Gotchas | `templates/xdg-config.md` |
+Este repositório é **interno**: o público é a equipe e quem entra nela, mesmo o
+repositório sendo público no GitHub. Ninguém instala isto como biblioteca.
 
-**Ask the user** if unclear. Don't assume OSS defaults for everything.
+| Audience | Key Sections | Template |
+|----------|--------------|----------|
+| Colegas de equipe, quem está chegando | Setup, arquitetura, runbooks | `templates/internal.md` |
+
+A cópia original desta skill trazia templates para projeto open source, README
+pessoal e pasta de configuração XDG, além de três ensaios externos sobre README.
+Foram retirados por não terem uso aqui — se algum dia precisar, estão na versão
+de origem, no [GovHub-skills](https://github.com/GovHub-br/GovHub-skills).
 
 ## Essential Sections (All Types)
 
@@ -84,4 +87,3 @@ Every README needs at minimum:
 
 - `section-checklist.md` - Which sections to include by project type
 - `style-guide.md` - Common README mistakes and prose guidance
-- `using-references.md` - Guide to deeper reference materials
