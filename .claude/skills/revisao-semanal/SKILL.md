@@ -3,11 +3,12 @@ name: revisao-semanal
 description: >-
   Gera a revisão semanal do repositório a partir dos commits da semana na main e
   nas outras branches, dos pull requests, e das issues fechadas e abertas —
-  dizendo o que foi feito e o que não andou. Use sempre que o usuário pedir
-  "revisão da semana", "relatório semanal", "o que foi feito essa semana", "como
-  está o andamento", "resumo da semana", "o que travou", ou quiser preparar o
-  acompanhamento das metas para a coordenação. Também quando pedir o mesmo para
-  outro período ("últimas duas semanas", "desde o dia X").
+  dizendo o que foi feito e o que não andou, com saída em Markdown, HTML e PDF
+  A4. Use sempre que o usuário pedir "revisão da semana", "relatório semanal",
+  "o que foi feito essa semana", "como está o andamento", "resumo da semana",
+  "o que travou", "pdf da revisão", ou quiser preparar o acompanhamento das
+  metas para a coordenação. Também quando pedir o mesmo para outro período
+  ("últimas duas semanas", "desde o dia X").
 allowed-tools: Bash, Read, Grep, Glob
 ---
 
@@ -88,6 +89,11 @@ inventado que este relatório não pode ter.
 
 ## Passo 5 — Escrever
 
+Escreva em `relatorios/revisao-semanal-<inicio>_a_<fim>.md`, com as datas em
+`AAAA-MM-DD`. A pasta `relatorios/` é ignorada pelo git de propósito: revisão
+semanal é insumo de acompanhamento, não artefato do projeto, e o histórico não
+deve encher delas.
+
 Estrutura fixa, nesta ordem:
 
 ```markdown
@@ -117,6 +123,33 @@ issues abertas. Nada aqui pode ter saído da sua cabeça.>
 o texto é interpretação.*
 ```
 
+## Passo 6 — Gerar o PDF
+
+```bash
+./.claude/skills/revisao-semanal/scripts/gerar_pdf.sh relatorios/revisao-semanal-<inicio>_a_<fim>.md
+```
+
+Sai um `.html` e um `.pdf` A4 ao lado do `.md`, com a capa "Revisão Semanal ·
+\<período\>" preenchida a partir do título do relatório — por isso o `#` da
+primeira linha precisa seguir o formato `# Revisão da semana — <início> a <fim>`.
+
+A conversão é a da skill `accountability-report`, que vive em
+`.claude/skills/accountability-report/scripts/`. Esta skill não tem conversor
+próprio de propósito: dois geradores de PDF no mesmo repositório divergem. Se
+aquela pasta sumir, o script para com erro explicando isso, em vez de gerar um
+PDF diferente do resto.
+
+Na primeira execução o script instala o `marked` dentro da pasta do conversor —
+demora alguns segundos e não toca no `pyproject.toml` do projeto.
+
+O PDF sai pelo **weasyprint**. Se ele faltar, `pipx install weasyprint`. O
+`html_to_pdf.sh` prefere Chrome quando o acha no PATH, o que funciona no Linux;
+no macOS o Chrome não é alcançável por symlink (aborta) e trava quando chamado
+pelo caminho do bundle, então lá o caminho bom é o weasyprint mesmo.
+
+Confira que o PDF existe antes de entregar — `file <arquivo>.pdf` deve dizer
+"PDF document".
+
 ## O limite do que dá para afirmar
 
 Sobre "o que não foi feito", você só pode dizer o que é observável:
@@ -132,13 +165,19 @@ importar, escreva a versão observável e deixe o julgamento para quem lê.
 
 ## Onde publicar
 
-Por padrão, entregue o relatório na conversa. Se o usuário pedir para publicar,
-comente numa issue de acompanhamento em vez de criar arquivo commitado — o
-histórico do repositório não deve encher de relatório semanal:
+Entregue o texto na conversa e aponte o caminho dos três arquivos. Os arquivos
+ficam em `relatorios/`, fora do controle de versão.
+
+Se o usuário pedir para publicar, comente numa issue de acompanhamento — nunca
+commite o relatório:
 
 ```bash
-gh issue comment <numero-da-issue-de-acompanhamento> --body-file <arquivo>
+gh issue comment <numero-da-issue-de-acompanhamento> --body-file relatorios/<arquivo>.md
 ```
+
+O PDF serve para quem recebe a revisão fora do GitHub — coordenação, reunião de
+acompanhamento. Para anexar num comentário de issue é preciso subir pela
+interface do GitHub; o `gh` não anexa arquivo.
 
 ## Antes de considerar pronto
 
@@ -148,3 +187,5 @@ gh issue comment <numero-da-issue-de-acompanhamento> --body-file <arquivo>
 - [ ] Nenhuma frase afirma intenção que só o rastro não sustenta
 - [ ] Se faltam as labels `meta-*`, isso está registrado no fim
 - [ ] A seção "merece atenção" tem só o que exige decisão — ou diz "nada"
+- [ ] O `.md` está em `relatorios/`, e não na raiz do repositório
+- [ ] O PDF foi gerado e `file` confirma que é um PDF de verdade

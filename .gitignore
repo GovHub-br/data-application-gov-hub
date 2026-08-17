@@ -81,3 +81,11 @@ webserver_config.py
 data/**
 !data/**/
 !data/**/.gitkeep
+# Revisoes semanais (md/html/pdf) -- geradas pela skill revisao-semanal. Sao
+# insumo de acompanhamento, nao artefato do projeto: o historico do repo nao
+# deve encher de relatorio semanal. Para divulgar, comente numa issue.
+relatorios/
+
+# Dependencia do conversor de Markdown->HTML das skills (accountability-report
+# e revisao-semanal). Instalada sob demanda na primeira geracao de PDF.
+node_modules/
