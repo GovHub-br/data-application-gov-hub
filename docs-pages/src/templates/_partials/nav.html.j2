@@ -1,17 +1,21 @@
 <header class="topo">
   <div class="container topo-linha">
     <a class="marca" href="index.html">
-      <span class="marca-nome">Gov Hub BR</span>
-      <span class="marca-sub">Dados do MinC</span>
+      <span class="marca-ponto" aria-hidden="true"></span>
+      <span class="marca-texto">
+        Gov Hub BR
+        <small class="marca-escopo">MinC</small>
+      </span>
     </a>
-    <nav aria-label="Seções">
-      <ul class="nav">
-        {% for arquivo, _, rotulo in paginas %}
-        <li>
-          <a href="{{ arquivo }}"{% if arquivo == pagina_atual %} aria-current="page"{% endif %}>{{ rotulo }}</a>
-        </li>
-        {% endfor %}
-      </ul>
+
+    <nav class="abas" aria-label="Escolha a visão">
+      <span class="abas-legenda" aria-hidden="true">Visões</span>
+      {% for p in paginas %}
+      <a class="aba" href="{{ p.arquivo }}"{% if p.arquivo == pagina_atual %} aria-current="page"{% endif %}>
+        <span class="aba-rotulo">{{ p.rotulo }}</span>
+        <span class="aba-publico">{{ p.publico }}</span>
+      </a>
+      {% endfor %}
     </nav>
   </div>
 </header>

@@ -85,17 +85,49 @@ a:focus-visible, .card:focus-visible {
   justify-content: space-between; gap: var(--esp-3);
   padding-top: var(--esp-2); padding-bottom: var(--esp-2);
 }
-.marca { text-decoration: none; display: flex; flex-direction: column; }
-.marca-nome { font-weight: 700; color: var(--titulo); font-size: 1.05rem; letter-spacing: -.01em; }
-.marca-sub { font-size: .8rem; color: var(--apoio); }
 
-.nav { list-style: none; display: flex; flex-wrap: wrap; gap: var(--esp-3); margin: 0; padding: 0; }
-.nav a {
-  text-decoration: none; color: var(--corpo); font-size: .93rem;
-  padding-bottom: 2px; border-bottom: 2px solid transparent;
+.marca { text-decoration: none; display: flex; align-items: center; gap: var(--esp-2); }
+.marca-ponto {
+  width: 11px; height: 11px; border-radius: 50%; flex: none;
+  background: linear-gradient(135deg, var(--roxo), var(--laranja));
 }
-.nav a:hover { color: var(--roxo-escuro); }
-.nav a[aria-current="page"] { color: var(--roxo-escuro); border-bottom-color: var(--roxo); font-weight: 600; }
+.marca-texto { font-weight: 700; color: var(--titulo); font-size: 1.02rem; letter-spacing: -.01em; }
+.marca-escopo {
+  font-weight: 500; color: var(--apoio); font-size: .78rem; margin-left: 5px;
+  letter-spacing: .04em;
+}
+
+/* Abas por público. O rótulo sozinho não distingue — é o público embaixo que
+ * diz a quem a página serve, e é por isso que ele não é decoração. */
+.abas { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--esp-1); }
+
+.abas-legenda {
+  align-self: center; font-family: var(--mono); font-size: .68rem;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--apoio);
+  padding-right: var(--esp-3); margin-right: var(--esp-1);
+  border-right: 1px solid var(--traco);
+}
+
+.aba {
+  display: flex; flex-direction: column; gap: 1px;
+  text-decoration: none; padding: var(--esp-1) var(--esp-2);
+  border-radius: 8px; transition: background .15s, color .15s;
+}
+.aba-rotulo { font-size: .95rem; font-weight: 650; color: var(--titulo); line-height: 1.25; }
+.aba-publico { font-size: .78rem; color: var(--apoio); line-height: 1.25; }
+
+.aba:hover { background: var(--faixa); }
+.aba:hover .aba-rotulo { color: var(--roxo-escuro); }
+
+.aba[aria-current="page"] { background: var(--roxo); }
+.aba[aria-current="page"] .aba-rotulo { color: #fff; }
+.aba[aria-current="page"] .aba-publico { color: #ded1ff; }
+
+@media (max-width: 720px) {
+  .abas-legenda { display: none; }
+  .aba { padding: var(--esp-1); }
+  .aba-publico { display: none; }
+}
 
 /* ---------- hero ---------- */
 

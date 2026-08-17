@@ -23,11 +23,33 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from tooling import dados, linhagem
 from tooling.common import ASSETS_DIR, SITE_DIR, TEMPLATES_DIR, log
 
+# Cada página declara para quem ela é. O rótulo sozinho não diz — "Visão
+# técnica" e "Vitrine" só ficam distinguíveis com o público ao lado.
 PAGINAS = [
-    ("index.html", "index.html.j2", "Visão geral"),
-    ("gestao.html", "gestao.html.j2", "Para quem acompanha"),
-    ("tecnico.html", "tecnico.html.j2", "Para quem constrói"),
-    ("fontes.html", "fontes.html.j2", "De onde vêm os dados"),
+    {
+        "arquivo": "index.html",
+        "template": "index.html.j2",
+        "rotulo": "Visão geral",
+        "publico": "por onde começar",
+    },
+    {
+        "arquivo": "gestao.html",
+        "template": "gestao.html.j2",
+        "rotulo": "Visão de gestão",
+        "publico": "para quem decide",
+    },
+    {
+        "arquivo": "tecnico.html",
+        "template": "tecnico.html.j2",
+        "rotulo": "Visão técnica",
+        "publico": "para quem constrói",
+    },
+    {
+        "arquivo": "fontes.html",
+        "template": "fontes.html.j2",
+        "rotulo": "Fontes de dados",
+        "publico": "de onde tudo vem",
+    },
 ]
 
 RE_HREF = re.compile(r'href="(?!https?:|#|mailto:)([^"#]+)')
@@ -74,9 +96,9 @@ def main() -> int:
     }
 
     renderizadas: dict[str, str] = {}
-    for arquivo, template, titulo in PAGINAS:
-        renderizadas[arquivo] = env.get_template(template).render(
-            **base, pagina_atual=arquivo, titulo=titulo
+    for pagina in PAGINAS:
+        renderizadas[pagina["arquivo"]] = env.get_template(pagina["template"]).render(
+            **base, pagina_atual=pagina["arquivo"], titulo=pagina["rotulo"]
         )
 
     for dominio in contexto["dominios"]:
