@@ -14,7 +14,6 @@ from cliente_postgres import ClientPostgresDB
 from postgres_helpers import get_postgres_conn
 from schedule_loader import get_dynamic_schedule
 
-
 default_args = {
     "owner": "Mateus",
     "depends_on_past": False,
