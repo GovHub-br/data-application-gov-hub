@@ -28,21 +28,53 @@ models:
       +schema: contratos
       bronze:
         +materialized: incremental
+        +grants:
+          select: []
+      silver:
+        +grants:
+          select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
+      gold:
+        +grants:
+          select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
       views:
         +materialized: view
     pessoas_dbt:
       +materialized: table
       +schema: pessoas
+      bronze:
+        +grants:
+          select: []
+      silver:
+        +grants:
+          select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
+      gold:
+        +grants:
+          select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
       views:
         +materialized: view
     ted_dbt:
       +materialized: table
       +schema: ted
+      bronze:
+        +grants:
+          select: []
+      silver:
+        +grants:
+          select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
+      gold:
+        +grants:
+          select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
       views:
         +materialized: view
     orcamento_dbt:
       +materialized: table
       +schema: orcamento
+      bronze:
+        +grants:
+          select: []
+      silver:
+        +grants:
+          select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
       views:
         +materialized: view
     sistema_sisbolsas:
@@ -50,6 +82,14 @@ models:
       +schema: sistema_sisbolsas
       bronze:
         +materialized: table
+        +grants:
+          select: []
+      silver:
+        +grants:
+          select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
+      gold:
+        +grants:
+          select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
     # siape_dbt: 
     #   +materialized: table 
     #   +schema: siape 
@@ -59,3 +99,4 @@ models:
 
 on-run-start:
   - '{{create_udfs()}}'
+  - '{{conceder_usage_dinamico()}}'
