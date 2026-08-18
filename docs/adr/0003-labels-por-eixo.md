@@ -58,7 +58,7 @@ se já existe branch vinculada antes de criar.
 
 **O nome de `Código` virou contrato.** Renomear a label pela interface do GitHub
 sem mudar o `if` do workflow quebra a automação em silêncio — sem erro, sem
-execução falhada, sem aviso. Está documentado em `.github/README.md` e no
+execução falhada, sem aviso. Está documentado em `.github/GUIA.md` e no
 cabeçalho do próprio workflow.
 
 **Quatro labels ainda faltam**, e duas funcionalidades ficam pela metade até lá:

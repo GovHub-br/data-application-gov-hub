@@ -73,8 +73,8 @@ Compose e arquivos de suporte para o ambiente local.
 ```
 
 Como o trabalho flui aqui — issue por formulário, branch a partir da label,
-template de PR — está em [`.github/README.md`](.github/README.md). As skills
-disponíveis, em [`.claude/skills/README.md`](.claude/skills/README.md). O mapa
+template de PR — está em [`.github/GUIA.md`](.github/GUIA.md). As skills
+disponíveis, em [`.claude/skills/GUIA.md`](.claude/skills/GUIA.md). O mapa
 detalhado das pastas e as convenções de branch e commit, em
 [`CLAUDE.md`](CLAUDE.md).
 
@@ -89,7 +89,7 @@ make docs-serve      # constrói e serve em localhost:8000
 ```
 
 O site lê os fatos do repositório a cada coleta; só a narrativa é escrita à mão.
-Ver [`docs-pages/README.md`](docs-pages/README.md).
+Ver [`docs-pages/GUIA.md`](docs-pages/GUIA.md).
 
 ## Setup
 

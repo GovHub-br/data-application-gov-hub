@@ -341,7 +341,7 @@ OrderShipped { orderId, trackingNumber, timestamp }
 ```
 docs/
 ├── adr/
-│   ├── README.md           # Index and guidelines
+│   ├── GUIA.md             # Index and guidelines
 │   ├── template.md         # Team's ADR template
 │   ├── 0001-use-postgresql.md
 │   ├── 0002-caching-strategy.md
@@ -349,7 +349,7 @@ docs/
 │   └── 0020-deprecate-mongodb.md      # Supersedes 0003
 ```
 
-### ADR Index (README.md)
+### ADR Index (GUIA.md)
 
 ```markdown
 # Architecture Decision Records
@@ -397,7 +397,7 @@ adr new "Use PostgreSQL as Primary Database"
 adr new -s 3 "Deprecate MongoDB in Favor of PostgreSQL"
 
 # Generate table of contents
-adr generate toc > docs/adr/README.md
+adr generate toc > docs/adr/GUIA.md
 
 # Link related ADRs
 adr link 2 "Complements" 1 "Is complemented by"

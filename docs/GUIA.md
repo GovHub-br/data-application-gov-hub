@@ -23,4 +23,4 @@ que está no ar hoje no endereço do projeto. Ela **sai do ar** no momento em qu
 GitHub Pages for trocado do modo "branch" para o modo "GitHub Actions", que é o
 que a publicação automática de `docs-pages/` exige. Ver
 [ADR 0004](adr/0004-revisao-semanal-apura-antes-de-narrar.md) e o
-[README do docs-pages](../docs-pages/README.md).
+[guia do docs-pages](../docs-pages/GUIA.md).

@@ -77,13 +77,13 @@ Se uma **explicação** está errada, é no `dominios.yml`.
 A publicação é automática; a coleta **não**. Quem altera um modelo ou uma DAG
 roda `make docs-collect` e commita o acervo no mesmo pull request — senão o site
 continua descrevendo o estado anterior, sem nenhum sinal de que está velho. O
-detalhe está em [`docs-pages/README.md`](docs-pages/README.md).
+detalhe está em [`docs-pages/GUIA.md`](docs-pages/GUIA.md).
 
 ## Skills
 
 As skills deste repositório ficam em [`.claude/skills/`](.claude/skills/) e são
 versionadas: quem clona recebe todas, sem instalar nada. O inventário e o que cada
-uma faz está em [`.claude/skills/README.md`](.claude/skills/README.md).
+uma faz está em [`.claude/skills/GUIA.md`](.claude/skills/GUIA.md).
 
 Para criar uma skill nova, o critério é: **se o conhecimento dela sobrevive a um
 `git mv` neste repositório, ele pertence ao

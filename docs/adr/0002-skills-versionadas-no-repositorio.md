@@ -62,7 +62,7 @@ mais que alguém vai errar, e o ganho não compensou o atrito de instalação.
 Correção feita no GovHub-skills **não chega sozinha aqui**. Atualizar é recopiar
 a pasta, trocar o commit no bloco de procedência e reaplicar as adaptações locais
 — a `commit-smart` tem uma seção "Neste repositório" que a cópia crua apaga. O
-procedimento está em `.claude/skills/README.md`.
+procedimento está em `.claude/skills/GUIA.md`.
 
 A `accountability-report` vinha com `scripts/node_modules/` empacotado no
 original. Foi copiada sem essa pasta, mantendo o `package.json`, para não trazer

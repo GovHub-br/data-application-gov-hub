@@ -6,7 +6,7 @@ clonar — sem instalar nada, sem registrar marketplace, sem rodar comando.
 | Arquivo | O que é | Versionado? |
 |---|---|---|
 | `settings.json` | permissões que valem para toda a equipe | **Sim** |
-| `skills/` | as dez skills do repositório — ver [`skills/README.md`](skills/README.md) | **Sim** |
+| `skills/` | as dez skills do repositório — ver [`skills/GUIA.md`](skills/GUIA.md) | **Sim** |
 | `settings.local.json` | suas preferências pessoais | Não, está no `.gitignore` |
 
 ## O `settings.json`
