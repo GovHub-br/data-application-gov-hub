@@ -1,0 +1,246 @@
+version: 2
+sources:
+  - name: bronze_controledeacesso
+    schema: bronze
+    description: >
+      Infraestrutura de controle de acesso aos sistemas do MinC — usuários, sistemas e permissões.
+      Não é dado de negócio do SALIC. Camada bronze (dados brutos do SALIC, réplica do sistema
+      de origem via Airflow, sem tratamento). Descrições e tiers gerados automaticamente a partir
+      do dicionário de dados original do SALIC (export SchemaSpy) cruzado com o levantamento
+      estatístico do bronze — ver dbt/minc/docs/salic/ para o catálogo completo (YAML semântico,
+      dicionário e catálogo em DOCX/HTML).
+    tables:
+      - name: controledeacesso__dtproperties
+        description: >
+          Tabela responsável por guardar propriedades internas de objetos do banco (tabela padrão
+          do SQL Server).
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - controledeacesso
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: id
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: objectid
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: property
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(64).
+            data_type: text
+            tests:
+              - not_null
+          - name: value
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: uvalue
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: lvalue
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): image(2147483647).
+            data_type: text
+          - name: version
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: controledeacesso__sgcacesso
+        description: >
+          Tabela responsável por armazenar os dados de acesso dos usuários, incluindo identificação,
+          CPF, senha, e situação do cadastro.
+        config:
+          tags:
+            - bronze
+            - salic
+            - controledeacesso
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idusuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+          - name: cpf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(11).
+            data_type: text
+            tests:
+              - not_null
+          - name: nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: dtnascimento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: email
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: senha
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(15).
+            data_type: text
+          - name: dtcadastro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: situacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: dtsituacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+      - name: controledeacesso__sgcsistema
+        description: >
+          Tabela responsável por registrar os sistemas disponíveis no ambiente e suas respectivas
+          descrições.
+        config:
+          tags:
+            - bronze
+            - salic
+            - controledeacesso
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idsistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: nomesistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: descricaosistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+      - name: controledeacesso__sgcusuarioxsistema
+        description: >
+          Tabela responsável por controlar quais usuários têm permissão para acessar cada sistema.
+        config:
+          tags:
+            - bronze
+            - salic
+            - controledeacesso
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idusuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idsistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+      - name: controledeacesso__sysdiagrams
+        description: >
+          [Não documentado no dicionário de dados original do SALIC — tabela presente apenas
+          no bronze, sem descrição confirmada.]
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - controledeacesso
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: name
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): sysname(256).
+            data_type: text
+          - name: principal_id
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: diagram_id
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: version
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: definition
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varbinary(2147483647).
+            data_type: text

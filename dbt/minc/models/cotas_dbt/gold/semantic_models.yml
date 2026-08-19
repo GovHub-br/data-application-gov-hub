@@ -1,0 +1,85 @@
+semantic_models:
+  - name: fct_pagamentos_elegiveis
+    model: ref('fct_pagamentos_elegiveis')
+    primary_entity: pagamento
+    description: >
+      Fato de pagamentos elegíveis às cotas de ações afirmativas (LPG + PNAB).
+      Grão: 1 linha por pagamento (payment-first) — todo pagamento é preservado,
+      inclusive os sem perfil demográfico casado (tem_perfil=false) e os sem ano
+      de edital derivado. É o denominador oficial das cotas no estado atual do
+      projeto. ATENÇÃO: para o PNAB este denominador mede valor RECEBIDO pelos
+      entes (repasse), não o valor PAGO a pessoas — ver ressalva do Diagnóstico 4
+      em distribuicao_cotas_pnab.
+    defaults:
+      agg_time_dimension: ano_edital
+    entities:
+      # `foreign`, não `primary`: um mesmo agente recebe vários pagamentos.
+      # Casa com a entidade `primary` de mesmo nome em perfil_agentes_normalizado.
+      - name: agente_documento
+        type: foreign
+        expr: identificador_unico
+    dimensions:
+      - name: ano_edital
+        type: time
+        type_params:
+          time_granularity: year
+        # ano_final é TEXT ('AAAA') ou NULL — o MetricFlow exige um tipo de data
+        # real na dimensão de tempo, daí o cast explícito.
+        expr: "cast(ano_final || '-01-01' as date)"
+        description: >
+          Ano do edital do pagamento, derivado em cascata (nome do edital →
+          número do edital por anexo → nome do arquivo). NULL quando nenhuma das
+          três fontes resolveu o ano ('sem_ano' no relatório de cobertura).
+      - name: programa_fomento
+        type: categorical
+        expr: nome_programa
+        description: "Programa de fomento do pagamento — 'LPG' ou 'PNAB'."
+      - name: origem_registro
+        type: categorical
+        expr: origem
+        description: "Base de origem do pagamento — 'lpg' ou 'pnab'."
+      - name: origem_ano
+        type: categorical
+        description: >
+          Qual camada da cascata datou o pagamento — 'nome_edital',
+          'anexo_edital', 'nome_arquivo' ou 'sem_ano'. Indicador de confiança da
+          datação: 'nome_arquivo' é o fallback menos preciso.
+      - name: tem_perfil
+        type: categorical
+        description: >
+          Se o pagamento casou com um perfil demográfico. Pagamento sem perfil
+          entra no denominador mas nunca no numerador de nenhuma cota — por isso
+          as cotas também são reportadas sobre o total-com-perfil.
+      - name: chave_anonimizada
+        type: categorical
+        description: >
+          Se o documento do contemplado veio mascarado na origem (CPF
+          anonimizado). Documento mascarado não é casável com perfil.
+      - name: flag_negra
+        type: categorical
+        description: "Se o agente do pagamento é de raça/cor negra (preta ou parda). Meta legal da cota: 25%."
+      - name: flag_indigena
+        type: categorical
+        description: "Se o agente do pagamento é indígena. Meta legal da cota: 10%."
+      - name: flag_pcd
+        type: categorical
+        description: "Se o agente do pagamento é pessoa com deficiência. Meta legal da cota: 5%."
+      - name: flag_territorio_vulneravel
+        type: categorical
+        description: >
+          Se o município do agente é território vulnerabilizado (periférico, via
+          crosswalk IBGE FCU). Meta legal da cota: 20%, SOMENTE LPG. NULL quando
+          o agente não tem cidade informada (majoritariamente PNAB).
+    measures:
+      - name: valor_pago
+        agg: sum
+        expr: valor_pago_num
+        description: >
+          Soma dos valores pagos, em R$. Valores acima do teto de R$10M viram
+          NULL na origem (macro parse_valor) e não entram nesta soma.
+      - name: qtd_agentes_distintos
+        agg: count_distinct
+        expr: identificador_unico
+        description: >
+          Quantidade de agentes distintos (por documento normalizado).
+          count_distinct, nunca count(*): há vários pagamentos por agente.

@@ -1,0 +1,2698 @@
+version: 2
+sources:
+  - name: bronze_agentes
+    schema: bronze
+    description: >
+      Registro de identidade de agentes (pessoas físicas e jurídicas), compartilhado com outros
+      domínios do MinC além do SALIC (ex.: LPG, PNAB). Camada bronze (dados brutos do SALIC,
+      réplica do sistema de origem via Airflow, sem tratamento). Descrições e tiers gerados
+      automaticamente a partir do dicionário de dados original do SALIC (export SchemaSpy) cruzado
+      com o levantamento estatístico do bronze — ver dbt/minc/docs/salic/ para o catálogo completo
+      (YAML semântico, dicionário e catálogo em DOCX/HTML).
+    tables:
+      - name: agentes__agentes
+        description: >
+          Tabela responsável por armazenar dados principais do agente, incluindo identificação,
+          tipo de pessoa, datas e status cadastral.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idagente
+            description: >
+              Identificador sequêncial  de cada pessoa. Tipo original (SQL Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: cnpjcpf
+            description: >
+              Armazena o número identificado de pessoa juridica (CNPJ) ou pessoa física (CPF),
+              dependendo do cadastro escolhido. Tipo original (SQL Server): varchar(14).
+            data_type: text
+          - name: cnpjcpfsuperior
+            description: >
+              Armazena o CPF ou CNPJ da pessoa que é superior, em cargo ou a nível de dependência.
+              Tipo original (SQL Server): varchar(14).
+            data_type: text
+          - name: tipopessoa
+            description: >
+              Identifica o tipo de pessoa que está cadastrada. 0 - Pessoa  Fisica ou 1- Pessoa
+              Juridica Tipo original (SQL Server): bit(1).
+            data_type: text
+          - name: dtcadastro
+            description: >
+              Data de cadastro da pessoa. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: dtatualizacao
+            description: >
+              Data de atualização do resitro da pessoa Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: dtvalidade
+            description: >
+              Data de validade do registro da pessoa. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: status
+            description: >
+              Status do registro da pessoa, 0 - para ativo e 1 - para inativo Tipo original
+              (SQL Server): tinyint(1).
+            data_type: text
+          - name: usuario
+            description: >
+              Numero do usuario resposável pelo cadatro do registro no sistema. Tipo original
+              (SQL Server): int(4).
+            data_type: text
+      - name: agentes__bancos
+        description: >
+          Tabela utilizada para armazenar códigos bancários, CNPJ e descrições de bancos.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(3).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: cnpj
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: sufixo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: dv
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+      - name: agentes__checklistdocumentos
+        description: >
+          Tabela utilizada para registrar a apresentação de documentos obrigatórios por agente
+          e por sistema.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idchecklistdocumentos
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idsistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: iddocumento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: apresentou
+            description: >
+              0.Não;1.Sim Tipo original (SQL Server): bit(1).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__checklistdocumentossistemas
+        description: >
+          Tabela responsável por relacionar documentos do checklist aos sistemas vinculados.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idchecklistdocumentossistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idchecklistdocumento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: idsistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__ddd
+        description: >
+          Tabela que armazena códigos DDD associados aos estados.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idddd
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: iduf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(3).
+            data_type: text
+      - name: agentes__documentos
+        description: >
+          Tabela responsável por registrar documentos de identificação apresentados pelos agentes.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: iddocumentos
+            description: >
+              idenficador sequêncial de cada documento. Tipo original (SQL Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idagente
+            description: >
+              Identificador sequêncial  de cada pessoa. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: tipodocumento
+            description: >
+              Indica o tipo de documento cadastrado de cada pessoa Tipo original (SQL Server):
+              int(4).
+            data_type: text
+          - name: numero
+            description: >
+              Número físico identificador de cada documento Tipo original (SQL Server): varchar(20).
+            data_type: text
+          - name: dtemissao
+            description: >
+              Data de emissão do documento. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: orgaoexpedidor
+            description: >
+              Orgão em que foi expedido o documento. Tipo original (SQL Server): varchar(20).
+            data_type: text
+          - name: complemento
+            description: >
+              Complemento descritivo para cada documento Tipo original (SQL Server): varchar(20).
+            data_type: text
+          - name: usuario
+            description: >
+              Usuário do sistema que estáefetuando o cadastro. Tipo original (SQL Server): int(4).
+            data_type: text
+      - name: agentes__dtproperties
+        description: >
+          Tabela técnica do SQL Server usada para armazenar propriedades internas de objetos;
+          não utilizada funcionalmente pelo sistema.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: id
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: objectid
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: property
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(64).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: value
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: uvalue
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: lvalue
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): image(2147483647).
+            data_type: text
+          - name: version
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__enderecointernacional
+        description: >
+          Tabela utilizada para armazenar endereços internacionais de agentes.
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idenderecointernacional
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: idpais
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: logradouro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: estado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: cidade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: cep
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: telefones
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(50).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__endereconacional
+        description: >
+          Tabela responsável por armazenar endereços nacionais completos dos agentes.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idendereco
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: tipoendereco
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: tipologradouro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: logradouro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: numero
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(15).
+            data_type: text
+          - name: bairro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: complemento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: cidade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(6).
+            data_type: text
+          - name: uf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: cep
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: municipio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: ufdescricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(50).
+            data_type: text
+          - name: status
+            description: >
+              Correspondência: 0.Não;1.Sim Tipo original (SQL Server): bit(1).
+            data_type: text
+          - name: divulgar
+            description: >
+              0.Não;1.Sim Tipo original (SQL Server): bit(1).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__historicoagente
+        description: >
+          Tabela que registra alterações ou eventos relevantes no histórico do agente.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: historico
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(8000).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__internet
+        description: >
+          Tabela referente às informações de sites, páginas ou contatos digitais do agente.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idinternet
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: tipointernet
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: status
+            description: >
+              Endereço para correspondência: 0.Não; 1.Sim Tipo original (SQL Server): bit(1).
+            data_type: text
+          - name: divulgar
+            description: >
+              0.Não;1.Sim Tipo original (SQL Server): bit(1).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__mesoregiao
+        description: >
+          Tabela que armazena os códigos e nomes das mesorregiões.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idmeso
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+      - name: agentes__microregiao
+        description: >
+          Tabela que armazena os códigos e nomes das microrregiões.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idmicro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(5).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+      - name: agentes__municipios
+        description: >
+          Tabela responsável por armazenar os municípios com seus códigos IBGE, mesorregião
+          e microrregião.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idmunicipioibge
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(6).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idufibge
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: idmeso
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(4).
+            data_type: text
+          - name: idmicro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(5).
+            data_type: text
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+      - name: agentes__natureza
+        description: >
+          Tabela que identifica a natureza jurídica e administrativa dos agentes.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idnatureza
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: direito
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: esfera
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: poder
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: administracao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__nomes
+        description: >
+          Tabela responsável por armazenar nomes, razão social ou nomes alternativos do agente.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idnome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: tiponome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(150).
+            data_type: text
+          - name: status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): bit(1).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__pais
+        description: >
+          Tabela que armazena países, siglas e continentes.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idpais
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: sigla
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(10).
+            data_type: text
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: continente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+      - name: agentes__perfil
+        description: >
+          Tabela responsável por registrar perfis e características atribuídas ao agente.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idperfil
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: perfil
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: caracteristica
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__populacaomunicipio
+        description: >
+          Tabela utilizada para armazenar dados populacionais dos municípios.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idmunicipio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(6).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idmunicipio7
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(7).
+            data_type: text
+          - name: populacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__prefeituras
+        description: >
+          Tabela que armazena dados cadastrais e de endereço das prefeituras municipais.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: cnpj
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(14).
+            data_type: text
+          - name: municipio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: endereço
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: número
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: complemento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: bairro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: cep
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: uf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(50).
+            data_type: text
+          - name: site
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: enderecosite
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: telefone
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+      - name: agentes__prefeiturasreceita
+        description: >
+          Tabela responsável por armazenar dados de CNPJ e UF das prefeituras para integração
+          com receitas federais.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: municipio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: uf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: cnpj
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(14).
+            data_type: text
+      - name: agentes__ramais
+        description: >
+          Tabela que armazena informações de ramais associados aos telefones de agentes.
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idramais
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idtelefone
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: numero
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(4).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__sistema
+        description: >
+          Tabela de sistemas cadastrados, com descrição e responsável.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idsistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__sysdiagrams
+        description: >
+          Tabela responsável por armazenar diagramas de modelos do SQL Server Management Studio.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: name
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): sysname(256).
+            data_type: text
+          - name: principal_id
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: diagram_id
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: version
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: definition
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varbinary(2147483647).
+            data_type: text
+      - name: agentes__tbagentefisico
+        description: >
+          Tabela responsável por armazenar informações pessoais do agente físico, como sexo,
+          nascimento e dados familiares.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idagente
+            description: >
+              Número sequêncial identificador de pessoa. Tipo original (SQL Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: stsexo
+            description: >
+              Indica o status da pessoa. M - Masculino e F - Feminino Tipo original (SQL Server):
+              char(1).
+            data_type: text
+            tests:
+              - accepted_values:
+                  arguments:
+                    values:
+                      - F
+                      - M
+          - name: stestadocivil
+            description: >
+              Indica o status do estado civil da pessoa. SOLTEIRO(A) CASADO(A) SEPARADO(A) JUDICIALMENTE
+              DIVORCIADO(A) VIÚVO(A) OUTROS Tipo original (SQL Server): char(2).
+            data_type: text
+            tests:
+              - accepted_values:
+                  arguments:
+                    values:
+                      - OU
+                      - VI
+                      - DI
+                      - CA
+                      - SJ
+                      - SO
+          - name: stnecessidadeespecial
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+            tests:
+              - accepted_values:
+                  arguments:
+                    values:
+                      - N
+                      - S
+          - name: nmmae
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(100).
+            data_type: text
+          - name: nmpai
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(100).
+            data_type: text
+          - name: dtnascimento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): datetime(16,3).
+            data_type: text
+          - name: stcorraca
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: nridentificadorprocessual
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(17).
+            data_type: text
+      - name: agentes__tbagentesxverificacao
+        description: >
+          Tabela responsável por registrar documentos de verificação, mandatos e vínculos formais
+          do agente.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idagentexverificacao
+            description: >
+              Identifica o mandato de um agente que esta vinculado ao MinC. Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idverificacao
+            description: >
+              Chave com a tabela AGENTES.dbo.Verificacao onde é relacionado o subtipo do documento
+              da tabela Tipo a qual lista o supertipo do documento. Tipo original (SQL Server):
+              int(4).
+            data_type: text
+          - name: dsnumerodocumento
+            description: >
+              Conjunto de Números e letras que identificam o documento que ampara o mandato
+              do dirigente. O atributo dsNumeroDocumento se refere ao documento que ampara o
+              mandato, e não sobre o mandato, pois o mandato em si não tem identificação Tipo
+              original (SQL Server): varchar(12).
+            data_type: text
+          - name: dtiniciomandato
+            description: >
+              Data que inicia o mandato do dirigente. Tipo original (SQL Server): date(6).
+            data_type: text
+          - name: dtfimmandato
+            description: >
+              Data do término do mandato do dirigente. Tipo original (SQL Server): date(6).
+            data_type: text
+          - name: stmandato
+            description: >
+              Indica o status do mandato, se for igual a: 0 => Cancelado; 1 => Não cancelado.
+              Tipo original (SQL Server): bit(1).
+            data_type: text
+          - name: iddirigente
+            description: >
+              chave com AGENTES.dbo.Agentes que é o dirigente propriamente dito. Tipo original
+              (SQL Server): int(4).
+            data_type: text
+          - name: idempresa
+            description: >
+              chave com AGENTES.dbo.Agentes que é a empresa na qual o dirigente excerce o mandato.
+              Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: idarquivo
+            description: >
+              chave com a tabela BDCORPORATIVO.scCorp.tbArquivo, pois nessa tabela há o conteúdo
+              do documento que ampara a mandato do dirigente. Na tabela tbArquivoImagem será
+              anexado o documento digitalizado. Tipo original (SQL Server): int(4).
+            data_type: text
+      - name: agentes__tbagentexpais
+        description: >
+          Tabela que relaciona agentes aos países, com datas de chegada e naturalização.
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idpais
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: dtchegada
+            description: >
+              Data da chegada do estrageiro no páis. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: dtnaturalizacao
+            description: >
+              Data em que o estrangeiro foi naturalizado brasiliero. Tipo original (SQL Server):
+              datetime(16,3).
+            data_type: text
+      - name: agentes__tbausencia
+        description: >
+          Tabela que armazena registros de ausência do agente, justificativas e impactos.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idausencia
+            description: >
+              Identificador da ausência do parecerista. Tipo original (SQL Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idtipoausencia
+            description: >
+              Identificador do tipo de Ausência, faz referencia com a tabela tbTipoAusencia.
+              Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: idagente
+            description: >
+              Identificador do agente ausente, faz referência com a tabela Agentes. Tipo original
+              (SQL Server): int(4).
+            data_type: text
+          - name: dtinicioausencia
+            description: >
+              Data de inicio da ausência. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: dtfimausencia
+            description: >
+              Data final da ausência devendo apresentar-se no dia seguinte. Tipo original (SQL
+              Server): datetime(16,3).
+            data_type: text
+          - name: iddocumento
+            description: >
+              Identificador do documento comprovando o tipo da ausência. Caso a ausência por
+              doença deve ser anexado o atestado médico. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: dsjustificativaausencia
+            description: >
+              Descrição com a justificativa da ausência. Caso seja alteração de férias, informa
+              que o motivo que as férias foram alteradas. Tipo original (SQL Server): varchar(300).
+            data_type: text
+          - name: stimpacto
+            description: >
+              Status de impacto, informa se ausência do parecerista  irá causar impacto para
+              o projeto que esta sendo emitido o parecer, com as opções:0 - Sim;1 - Não. Tipo
+              original (SQL Server): char(1).
+            data_type: text
+          - name: siausencia
+            description: >
+              Situação da ausência, para as férias seguem as opções:0 - pedido;1 - De Acordo;2
+              - Alterado;3 - Cancelado;4 - Negado. Tipo original (SQL Server): char(1).
+            data_type: text
+          - name: idalteracao
+            description: >
+              Identificador da alteração, caso as férias sejam alteradas, o identificador indica
+              de forma hierárquica a anterior ou a que está abaixo desta, faz referência com
+              a tabela tbAusencia. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: dtcadastroausencia
+            description: >
+              Data do cadastro da ausência. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+      - name: agentes__tbcomprovantepagamento
+        description: >
+          Tabela responsável por armazenar comprovantes de pagamento associados ao agente ou
+          operações relacionadas.
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idcomprovantepagamento
+            description: >
+              Identificador dos comprovantes de pagamento feito ao parecerista. Tipo original
+              (SQL Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: iddocumento
+            description: >
+              Identificador do documento que comprova o pagamento ao parecerista, controle de
+              integridade referencial via aplicação, faz referência com a tabela tbDocumento,
+              do banco BDCORPORATIVO. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: nrordempagamento
+            description: >
+              Numero de ordem de pagamento encaminhado ao banco para pagamento ao parecerista,
+              composto com o seguinte formato: Ano+operação+sequencial do documento. Tipo original
+              (SQL Server): char(12).
+            data_type: text
+          - name: dtpagamento
+            description: >
+              Data de pagamento ao parecerista. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+      - name: agentes__tbcredenciamentoparecerista
+        description: >
+          Tabela que registra o credenciamento do parecerista por área, segmento e situação.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idcredenciamentoparecerista
+            description: >
+              Identificador do credenciamento do parecerista. Tipo original (SQL Server): int
+              identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idcodigoarea
+            description: >
+              Identificador do código de área, controle de integridade via aplicação com a tabela
+              area, do banco SAC. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: idcodigosegmento
+            description: >
+              Identificador do código de segmento, controle de integridade via aplicação com
+              a tabela segmento, do banco SAC. Tipo original (SQL Server): char(2).
+            data_type: text
+          - name: sicredenciamento
+            description: >
+              Situação de credenciamento, indicando se o credenciamento foi aceito pelo coordenador,
+              segue as opções: 0 - Aguardando Aprovação;1 - Aceito;2 - Não Aceito Tipo original
+              (SQL Server): char(1).
+            data_type: text
+          - name: idagente
+            description: >
+              Identificador do agente, indica o agente que está se credenciando, faz referência
+              com a tabela Agentes. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: qtponto
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: idverificacao
+            description: >
+              Ilustra o nível do parecerista credenciado, por área e segmento cultural. Os níveis
+              são Nivel I, Nivel II e Nível III. Tipo original (SQL Server): int(4).
+            data_type: text
+      - name: agentes__tbdistrito
+        description: >
+          Tabela que armazena os distritos vinculados aos municípios IBGE.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idmunicipioibge
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(6).
+            data_type: text
+            tests:
+              - not_null
+          - name: iddistrito
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: nmdistrito
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+      - name: agentes__tbempresajuridica
+        description: >
+          Tabela responsável por armazenar dados cadastrais completos de empresas jurídicas
+          vinculadas aos agentes.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: nrcnpj
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(14).
+            data_type: text
+            tests:
+              - not_null
+          - name: tpestabelecimento
+            description: >
+              Matriz; 2. Filial Tipo original (SQL Server): char(1).
+            data_type: text
+          - name: nmempresarial
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(150).
+            data_type: text
+          - name: nmfantasia
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(150).
+            data_type: text
+          - name: cdsituacaocadastral
+            description: >
+              1: Nula, 2: Ativa, 3: Suspensa, 4: Inapta, 8: Baixada Tipo original (SQL Server):
+              char(1).
+            data_type: text
+          - name: dtsituacaocadastral
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): date(6).
+            data_type: text
+          - name: cdnaturezajuridica
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(4).
+            data_type: text
+          - name: dtabertura
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): date(6).
+            data_type: text
+          - name: cdmunicipiojurisdicao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(7).
+            data_type: text
+          - name: eecorreioeletronico
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(50).
+            data_type: text
+          - name: vlcapitalsocial
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): money(21,4).
+            data_type: text
+          - name: cdporteempresa
+            description: >
+              01: MicroEmpresa-ME, 03: Empresas de pequeno porte EPP, 05: Demais empresas Tipo
+              original (SQL Server): char(2).
+            data_type: text
+          - name: sioptantesimples
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(3).
+            data_type: text
+          - name: sioptantemei
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(3).
+            data_type: text
+      - name: agentes__tbempresajuridicacnae
+        description: >
+          Tabela que armazena os CNAEs principais e secundários das empresas jurídicas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idempresajuridicacnae
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: nrcnpj
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(14).
+            data_type: text
+          - name: tpcnae
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: cdcnae
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(7).
+            data_type: text
+          - name: stestado
+            description: >
+              Inativo; 1. Ativo Tipo original (SQL Server): bit(1).
+            data_type: text
+          - name: dscnae
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(300).
+            data_type: text
+      - name: agentes__tbempresajuridicacnae_bkp2408
+        description: >
+          Tabela de backup de CNAE de empresa jurídica (versão 2408).
+
+
+          Observações do levantamento automatizado: [heurística] nome contém o termo 'bkp',
+          indicativo de backup/versão/teste. [observado] tabela sem nenhuma linha no bronze
+          hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idempresajuridicacnae
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+          - name: nrcnpj
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(14).
+            data_type: text
+          - name: tpcnae
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: cdcnae
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(7).
+            data_type: text
+          - name: stestado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): bit(1).
+            data_type: text
+      - name: agentes__tbempresajuridicasocios
+        description: >
+          Tabela responsável por armazenar sócios de empresas jurídicas, incluindo qualificações
+          e datas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idempresajuridicasocios
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: nrcnpj
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(14).
+            data_type: text
+          - name: tpsocio
+            description: >
+              1.Pessoa Jurídica; 2.Pessoa Física; 3.Sócio Estrangeiro Tipo original (SQL Server):
+              char(1).
+            data_type: text
+          - name: nrcnpjcpfsocio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(14).
+            data_type: text
+          - name: nmsocio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(150).
+            data_type: text
+          - name: dtinclusaosociedade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): date(6).
+            data_type: text
+          - name: cdqualificacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(2).
+            data_type: text
+      - name: agentes__tbescolaridade
+        description: >
+          Tabela que registra a formação educacional do agente, cursos, instituição e documentos
+          comprobatórios.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idescolaridade
+            description: >
+              Identificador da Escolaridade. Tipo original (SQL Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idagente
+            description: >
+              Identificador do Agente, indica de quem pertence a escolaridade registrada, faz
+              referência com a tabela Agentes. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: idtipoescolaridade
+            description: >
+              Identificador do tipo de escolaridade registrada, faz referência com a tabela
+              tbTipoEscolaridade. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: iddocumento
+            description: >
+              Identificador do documento, indica o diploma registrado para a escolaridade registrada,
+              controle de integridade referencial via aplicação com a tabela tbDocumento, do
+              banco BDCORPORATIVO. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: nmcurso
+            description: >
+              Nome do curso. Tipo original (SQL Server): varchar(20).
+            data_type: text
+          - name: nminstituicao
+            description: >
+              Nome da instituição de ensino onde o curso foi realizado. Tipo original (SQL Server):
+              varchar(20).
+            data_type: text
+          - name: dtiniciocurso
+            description: >
+              Data de inicio do curso. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: dtfimcurso
+            description: >
+              Data fim do curso. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: idpais
+            description: >
+              identificador do país onde o curso foi realizado, faz referência com a tabela
+              pais. Tipo original (SQL Server): int(4).
+            data_type: text
+      - name: agentes__tbinformacaoprofissional
+        description: >
+          Tabela responsável por registrar experiências profissionais e vínculos do agente.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idinformacaoprofissional
+            description: >
+              Identificador da informação profissional. Tipo original (SQL Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idagente
+            description: >
+              Identificador do Agente, faz referência com a tabela Agentes, do banco Agentes.
+              Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: nmprofissao
+            description: >
+              Nome da profissão do agente. Tipo original (SQL Server): varchar(80).
+            data_type: text
+          - name: nmcargo
+            description: >
+              Nome do cargo do agente. Tipo original (SQL Server): varchar(50).
+            data_type: text
+          - name: dsendereco
+            description: >
+              Descrição do Endereço da empresa ou órgao por onde o agente já trabalhou. Tipo
+              original (SQL Server): varchar(200).
+            data_type: text
+          - name: dtiniciovinculo
+            description: >
+              Data de início de ocupação do cargo. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: dtfimvinculo
+            description: >
+              Data final de ocupação do cargo. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: iddocumento
+            description: >
+              Identificador do documento que comprova a experiência proficional, como cópia
+              de carteira de trabalho, controle de integridade referencial via aplicação, com
+              a tabela tbDocumento do banco BDCORPORATIVO. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: siinformacao
+            description: >
+              Situação da informação profissional, indicando se o coordenador aprovou a informação
+              profissional do Agente.0 - Aguardando Aprovação;1 - Sim;2 - Não. Tipo original
+              (SQL Server): char(1).
+            data_type: text
+      - name: agentes__tbnaturezajuridica
+        description: >
+          Tabela que armazena os códigos e descrições de naturezas jurídicas utilizadas no sistema.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: cdnaturezajuridica
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: tpentidade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: dsnaturezajuridica
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(150).
+            data_type: text
+      - name: agentes__tbnecessiadeespecial
+        description: >
+          Tabela que registra necessidades especiais declaradas pelo agente.
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idagente
+            description: >
+              Número sequêncial identificador de pessoa. Tipo original (SQL Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idnecessidadeespecial
+            description: >
+              Sequêncial idenficador de cada necessidade especial. Tipo original (SQL Server):
+              int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: nmnecessidadeespecial
+            description: >
+              Nome necessidade especial Tipo original (SQL Server): varchar(100).
+            data_type: text
+      - name: agentes__tbpagamentoparecerista
+        description: >
+          Tabela responsável por registrar pagamentos realizados a pareceristas vinculados ao
+          agente.
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idpagamentoparecerista
+            description: >
+              Identificador único do pagamento do Parecerista, representa o pagamento encaminhado
+              para cada parecerista. Tipo original (SQL Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idproduto
+            description: >
+              Identificador do produto, indicando que o pagamento ao parecerista é referente
+              ao produto indicado, controle de integridade referencial realizado via aplicação,
+              faz referência com a tabela produto do banco Sac. Tipo original (SQL Server):
+              int(4).
+            data_type: text
+          - name: vlpagamento
+            description: >
+              Valor do pagamento feito ao parecerista. Tipo original (SQL Server): numeric(12,2).
+            data_type: text
+          - name: sipagamento
+            description: >
+              Situação do pagamento, com as opções a seguir: 0 - Aguardando Aprovação;1 - Aprovado;2
+              - Agendado;3 - Não Pago;4 - Pago. Tipo original (SQL Server): char(1).
+            data_type: text
+          - name: idagente
+            description: >
+              Identifcador do agente parecerista, faz referência com a tabela Agentes do banco
+              Agentes. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: idcomprovantepagamento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__tbportifolio
+        description: >
+          Tabela que armazena portfólios/documentos que comprovam atuação do agente.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idportifolio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: iddocumento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: dtportifolio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): datetime(16,3).
+            data_type: text
+          - name: siportifolio
+            description: >
+              Situação do portifolio, informando qual fase de homologação que esta se encontra,
+              com as opções a seguir: 0 - Pendente de Validação; 1 - Aceita; 2 - Rejeitada.
+              Tipo original (SQL Server): char(1).
+            data_type: text
+          - name: idsolicitante
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: dsjustificativa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(2147483647).
+            data_type: text
+      - name: agentes__tbprocuracao
+        description: >
+          Tabela responsável por registrar procurações emitidas pelo agente, documentos e justificativas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idprocuracao
+            description: >
+              Identificador da procuração registrada. Tipo original (SQL Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idagente
+            description: >
+              Identificador do procurador Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: iddocumento
+            description: >
+              Identificador do documento, identificando o local físico de registro da proposta,
+              controle de integridade referencial via aplicação com a tabela tbDocumento do
+              banco BDCORPORATIVO. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: dtprocuracao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): datetime(16,3).
+            data_type: text
+          - name: siprocuracao
+            description: >
+              Situação da procuração, informando qual fase de homologação que esta se encontra,
+              com as opções a seguir: 0 - Pendente de Validação; 1 - Aceita; 2 - Rejeitada.
+              Tipo original (SQL Server): char(1).
+            data_type: text
+          - name: dsjustificativa
+            description: >
+              Descrição de justificativa da procuração. Tipo original (SQL Server): varchar(300).
+            data_type: text
+          - name: dsobservacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(300).
+            data_type: text
+          - name: idsolicitante
+            description: >
+              Identificador do usuário que cadastrou a procuração. Tipo original (SQL Server):
+              int(4).
+            data_type: text
+      - name: agentes__tbprocuradorprojeto
+        description: >
+          Tabela responsável por registrar os procuradores vinculados a um projeto, incluindo
+          datas de vínculo e desvínculo.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idprocuradorprojeto
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idprocuracao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: idpronac
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: dtvinculacao
+            description: >
+              Data da vinculação da procuração ao projeto Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: dtdesvinculacao
+            description: >
+              Data da desvinculação da procuração ao projeto Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: siestado
+            description: >
+              Indica se a situação do vinculo das propostas com responsável e proponente com
+              as opções a seguir:0 - Solicitar vinculo; 1 - Rejeitar vinculo;2 - Vinculado;3
+              - Desvinculado. Tipo original (SQL Server): char(1).
+            data_type: text
+      - name: agentes__tbqualificacaosocio
+        description: >
+          Tabela que armazena os tipos de qualificação dos sócios utilizados no cadastro de
+          empresas jurídicas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: cdqualificacaosocio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: dsqualificacaosocio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(150).
+            data_type: text
+      - name: agentes__tbsubdistrito
+        description: >
+          Tabela que armazena subdistritos ligados aos distritos e municípios IBGE.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idmunicipioibge
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(6).
+            data_type: text
+            tests:
+              - not_null
+          - name: iddistrito
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: cdsubdistritoibge
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: nmsubdistrito
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+      - name: agentes__tbtipoausencia
+        description: >
+          Tabela responsável por armazenar os tipos de ausência possíveis para agentes.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idtipoausencia
+            description: >
+              Identificador do tipo de ausência. Tipo original (SQL Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: nmausencia
+            description: >
+              Nome da ausência registrada. Tipo original (SQL Server): varchar(20).
+            data_type: text
+      - name: agentes__tbtipoescolaridade
+        description: >
+          Tabela que armazena os tipos de escolaridade disponíveis para classificação do agente.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idtipoescolaridade
+            description: >
+              Identificador do tipo de escolaridade. Tipo original (SQL Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: nmescolaridade
+            description: >
+              Nome da escolaridade. Tipo original (SQL Server): varchar(20).
+            data_type: text
+      - name: agentes__tbtitulacaoconselheiro
+        description: >
+          Tabela responsável por registrar a titulação, área e segmento dos conselheiros vinculados
+          ao agente.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: cdarea
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: cdsegmento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(4).
+            data_type: text
+          - name: sttitular
+            description: >
+              0.Suplente; 1.Titular Tipo original (SQL Server): bit(1).
+            data_type: text
+          - name: stconselheiro
+            description: >
+              A.Ativo; I.Inativo Tipo original (SQL Server): char(1).
+            data_type: text
+            tests:
+              - accepted_values:
+                  arguments:
+                    values:
+                      - I
+                      - A
+      - name: agentes__tbvinculo
+        description: >
+          Tabela que registra vínculos entre agente proponente e o sistema, incluindo datas
+          e responsável.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idvinculo
+            description: >
+              Identificação de associação do Agente Responsável, determina o responsável que
+              irá administrar os projetos. controle de integridade referencial via aplicação
+              com a tabela sgcAcesso do Banco Controle de Acesso. Tipo original (SQL Server):
+              int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idagenteproponente
+            description: >
+              Identificação de associação do Agente Proponente. Tipo original (SQL Server):
+              int(4).
+            data_type: text
+          - name: dtvinculo
+            description: >
+              Data do vinculo. Tipo original (SQL Server): datetime(16,3).
+            data_type: text
+          - name: sivinculo
+            description: >
+              Situação do vinculo: 0 - Inativo 1 - Ativo Tipo original (SQL Server): char(1).
+            data_type: text
+          - name: idusuarioresponsavel
+            description: >
+              Identificação de associação do Agente Responsável, determina o responsável que
+              irá administrar os projetos. controle de integridade referencial via aplicação
+              com a tabela sgcAcesso do Banco Controle de Acesso. Tipo original (SQL Server):
+              int(4).
+            data_type: text
+      - name: agentes__tbvinculoproposta
+        description: >
+          Tabela responsável por vincular propostas a vínculos de agentes, controlando o status
+          do vínculo.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idvinculoproposta
+            description: >
+              Identificador do vinculo da proposta/projeto ao responsável. Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idvinculo
+            description: >
+              Identificador do vinculo, identificado o proponente e responsável pelas propostas/projetos,
+              faz referência com a tabela tbVinculo. Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: idpreprojeto
+            description: >
+              Identificador das propostas vinculadas ao responsável, controle de integridade
+              referencial via aplicação com a tabela PreProjeto do Banco Sac. Tipo original
+              (SQL Server): int(4).
+            data_type: text
+          - name: sivinculoproposta
+            description: >
+              Indica se a situação do vinculo das propostas com responsável e proponente com
+              as opções a seguir: 0 - Solicitar vinculo; 1 - Rejeitar vinculo; 2 - Vinculado;
+              3 - Desvinculado. Tipo original (SQL Server): char(1).
+            data_type: text
+      - name: agentes__tcu
+        description: >
+          Tabela com informações municipais integradas ao TCU, incluindo população e códigos.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: uf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: codigo_uf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): float(8).
+            data_type: text
+          - name: codigo_munic
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: municipio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: populacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): float(8).
+            data_type: text
+      - name: agentes__telefones
+        description: >
+          Tabela responsável por armazenar telefones dos agentes, incluindo tipo, DDD e divulgação.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idtelefone
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: tipotelefone
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: uf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: ddd
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: numero
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(12).
+            data_type: text
+          - name: divulgar
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): bit(1).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__tipo
+        description: >
+          Tabela auxiliar para tipos diversos associados a agentes.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idtipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+      - name: agentes__uf
+        description: >
+          Tabela que armazena Unidades Federativas, siglas, regiões e descrições.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: iduf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: sigla
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(2).
+            data_type: text
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: regiao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+      - name: agentes__verificacao
+        description: >
+          Tabela destinada a registrar tipos de verificação e sua associação ao sistema.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idverificacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: idtipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: sistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: agentes__vinculacao
+        description: >
+          Tabela que armazena vínculos entre agentes, como responsável e vinculado.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idvinculacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: idvinculado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: idvinculoprincipal
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: sicadastromanual
+            description: >
+              Tipo de cadastro: 0 - Barramento Receita Federal 1 - Cadastro Manual Tipo original
+              (SQL Server): char(1).
+            data_type: text
+      - name: agentes__visao
+        description: >
+          Tabela que registra visões atribuídas ao agente e sua situação de ativação.
+        config:
+          tags:
+            - bronze
+            - salic
+            - agentes
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: idvisao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: idagente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: visao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: stativo
+            description: >
+              Situação da visão do agente: A - Ativo I - Inativo Tipo original (SQL Server):
+              char(1).
+            data_type: text
+            tests:
+              - accepted_values:
+                  arguments:
+                    values:
+                      - I
+                      - A

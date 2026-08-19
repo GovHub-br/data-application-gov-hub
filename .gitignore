@@ -74,3 +74,11 @@ webserver_config.py
 data/**
 !data/**/
 !data/**/.gitkeep
+
+# Cache intermediário do pipeline de documentação do SALIC (dictionary.json,
+# profile/*.json) -- reprocessável a partir do banco e do dicionário original,
+# pode conter amostras de dado; só os artefatos finais (yaml/docx) são versionados.
+scripts/salic_docs/output/
+
+*.docx
+*.html

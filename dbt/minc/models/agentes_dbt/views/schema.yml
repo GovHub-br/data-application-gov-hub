@@ -6,10 +6,12 @@ models:
       Camada Views — consolidação dos cinco modelos bronze (3 LPG + 2 PNAB)
       em um único dataset via UNION ALL. Padroniza identificador_unico e adiciona
       as colunas literais programa_fomento e tipo_proponente para rastrear
-      a origem de cada registro.
+      a origem de cada registro. Base de onde partem perfil_agentes_historico
+      e perfil_acesso_fomento.
     config:
+      tags: [views, agentes, identificadores]
       meta:
-        tags: [views, agentes, identificadores]
+        status: Active
     columns:
       - name: identificador_unico
         description: Identificador único do proponente (CPF, CNPJ ou CPF do representante).
@@ -19,7 +21,8 @@ models:
         description: Programa de fomento de origem — 'LPG' ou 'PNAB'.
         tests:
           - accepted_values:
-              values: ['LPG', 'PNAB']
+              arguments:
+                values: ['LPG', 'PNAB']
       - name: tipo_proponente
         description: >
           Tipo do proponente — 'Pessoa Física', 'Pessoa Jurídica',

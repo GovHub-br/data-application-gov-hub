@@ -2,30 +2,149 @@ version: 2
 
 models:
   - name: fct_pagamentos_elegiveis
-    description: "1 linha por pagamento (payment-first). Flags de cota + tem_perfil + ano_final + anexo_id."
+    description: >
+      1 linha por pagamento (payment-first) — base do denominador das cotas.
+      Parte de contemplados_unif com LEFT JOIN para perfil_agentes_normalizado
+      e territorio_municipio, preservando todos os pagamentos (inclusive
+      órfãos sem perfil casado, marcados por tem_perfil=false, e pagamentos
+      sem ano derivado, 'sem_ano'). Carrega flag_negra, flag_indigena, flag_pcd
+      e, exclusivo da LPG, flag_territorio_vulneravel: true quando o município
+      do agente casa (por nome + UF normalizados) com o crosswalk IBGE de
+      zonas periféricas (territorio_municipio); NULL quando o agente não tem
+      cidade informada (majoritariamente PNAB). O casamento por nome cobre
+      cerca de 47,5% dos agentes com perfil — grafias divergentes ainda não
+      refinadas. Meta da cota territorial: 20% (ver distribuicao_cotas_lpg).
+    config:
+      tags: [gold, cotas]
+      meta:
+        status: Active
     columns:
       - name: origem_ano
         tests:
-          - accepted_values: {values: ['nome_edital', 'anexo_edital', 'nome_arquivo', 'sem_ano']}
+          - accepted_values:
+              arguments:
+                values: ['nome_edital', 'anexo_edital', 'nome_arquivo', 'sem_ano']
+      - name: identificador_unico
+        description: >
+          Documento normalizado do agente (só dígitos). É a entidade `foreign`
+          agente_documento do semantic model; NULL quando o documento veio
+          mascarado na origem.
+        tests:
+          # Integridade da entidade de junção do MetricFlow: todo pagamento que
+          # se declara casado com perfil (tem_perfil) precisa mesmo existir na
+          # dimensão. O `where` é obrigatório — o fato preserva órfãos de
+          # propósito (payment-first), então o teste sem filtro falharia por
+          # design, não por defeito.
+          - relationships:
+              arguments:
+                to: ref('perfil_agentes_normalizado')
+                field: identificador_unico
+              config:
+                where: "tem_perfil"
   # fct_pagamentos_bbagil e comparativo_recebido_vs_pago estão enabled=false
-  # (aguardam a extração bbágil gerar bsc_pnab.fato_bbagil) — reativar aqui depois.
+  # (aguardam a extração bbágil gerar bsc_pnab.fato_bbagil) — já documentados
+  # abaixo com status: Disabled; reativar (enabled=true nos .sql) depois.
   - name: cobertura_pagamentos
-    description: "Cobertura por ano — teto de confiabilidade das cotas (valor casado + temporal)."
+    description: >
+      Cobertura por ano — teto de confiabilidade das cotas; leitura recomendada
+      antes de consultar as tabelas de distribuição de cotas. Por ano
+      (ano_final, com 'sem_ano' quando não há ano derivado), reporta
+      quantidade de pagamentos, pessoas distintas (documentos, já excluindo
+      mascarados), pessoas com perfil casado, valor total e valor com perfil,
+      e três percentuais (0–100): cobertura_pessoas_pct (pessoas com perfil
+      sobre o total de pessoas), cobertura_valor_pct (valor com perfil sobre
+      valor total) e cobertura_temporal_pct (valor com ano derivado sobre
+      valor total).
+    config:
+      tags: [gold, cotas]
+      meta:
+        status: Active
   - name: distribuicao_cotas_lpg
-    description: "Cotas SOMENTE LPG (valor ponderado): negra 25%, indígena 10%, PCD 5%, território vulnerabilizado 20%; veredito vs meta."
+    description: >
+      Cotas SOMENTE LPG, via macro compartilhada distribuicao_cotas (mesma
+      lógica de distribuicao_cotas_pnab, sem duplicar SQL). Valor ponderado
+      (não por contagem de agentes) por ano, para 4 grupos com meta legal
+      mínima: negra 25%, indígena 10%, PCD 5%, território vulnerabilizado
+      (periférico) 20% — só a LPG tem a cota territorial, pois depende de
+      flag_territorio_vulneravel (exige cidade/UF do agente). Reporta o
+      percentual do grupo sobre o valor total do ano E sobre o valor
+      total-com-perfil, além do veredito ('alcancada'/'descumprida') comparando
+      o percentual sobre valor-com-perfil contra a meta.
+    config:
+      tags: [gold, cotas]
+      meta:
+        status: Active
     columns:
       - name: grupo
         tests:
-          - accepted_values: {values: ['negra', 'indigena', 'pcd', 'territorio_vulneravel']}
+          - accepted_values:
+              arguments:
+                values: ['negra', 'indigena', 'pcd', 'territorio_vulneravel']
       - name: status_sobre_com_perfil
         tests:
-          - accepted_values: {values: ['alcancada', 'descumprida']}
+          - accepted_values:
+              arguments:
+                values: ['alcancada', 'descumprida']
   - name: distribuicao_cotas_pnab
-    description: "Cotas SOMENTE PNAB (valor ponderado): negra 25%, indígena 10%, PCD 5% (sem território); veredito vs meta."
+    description: >
+      Cotas SOMENTE PNAB, via macro compartilhada distribuicao_cotas. 3 grupos
+      com meta legal mínima (negra 25%, indígena 10%, PCD 5%), sem a cota
+      territorial — flag_territorio_vulneravel exige cidade/UF do agente, que
+      o lado-valor do PNAB (listas/bbágil) não traz. Ressalva (Diagnóstico 4):
+      enquanto o lado-valor do PNAB vier das listas de contemplados, o
+      denominador mede o valor RECEBIDO pelos entes (repasse, ~R$2,7bi), não o
+      valor efetivamente PAGO a pessoas (~R$447mi). Quando fct_pagamentos_bbagil
+      estiver ativo, este modelo deve passar a ler o valor pago real.
+    config:
+      tags: [gold, cotas]
+      meta:
+        status: Active
     columns:
       - name: grupo
         tests:
-          - accepted_values: {values: ['negra', 'indigena', 'pcd']}
+          - accepted_values:
+              arguments:
+                values: ['negra', 'indigena', 'pcd']
       - name: status_sobre_com_perfil
         tests:
-          - accepted_values: {values: ['alcancada', 'descumprida']}
+          - accepted_values:
+              arguments:
+                values: ['alcancada', 'descumprida']
+  - name: fct_pagamentos_bbagil
+    description: >
+      [MODELO DESABILITADO — config(enabled=false)] Desabilitado junto com
+      stg_bbagil/bbagil_ente_ano, até a extração bbágil rodar. Reativar
+      (enabled=true) junto.
+
+      Fato de pagamentos via extrato bancário (valor PAGO ao beneficiário
+      final) cruzado com o perfil de raça/PCD. Espelha fct_pagamentos_elegiveis
+      (payment-first, LEFT JOIN, preserva órfãos sem perfil), mas usa o bbágil
+      como lado-valor — o denominador correto para as cotas (pago a pessoas,
+      não repasse a entes). Projetado para rodar em PARALELO a
+      fct_pagamentos_elegiveis, não substituí-lo ainda; comparativo_recebido_vs_pago
+      confronta os dois. A decisão de trocar o denominador oficial das cotas
+      para este modelo é do lab (ver plano_integracao_meta3).
+    config:
+      tags: [gold, cotas]
+      meta:
+        status: Disabled
+  - name: comparativo_recebido_vs_pago
+    description: >
+      [MODELO DESABILITADO — config(enabled=false)] Desabilitado junto com
+      stg_bbagil, pois depende de fct_pagamentos_bbagil. Reativar
+      (enabled=true) junto.
+
+      Valida o "Diagnóstico 4": confronta os dois lados-valor.
+      fct_pagamentos_elegiveis (listas de contemplados) mede o valor RECEBIDO
+      pelos entes (esperado ~R$2,7bi, ≈ painel oficial "recebido");
+      fct_pagamentos_bbagil (extrato bancário) mede o valor PAGO ao
+      beneficiário final (esperado ~R$447mi, ≈ painel oficial "gasto"). Se o
+      bbágil bater com o "gasto" do painel, ele passa a ser o denominador
+      correto para as cotas. Enquanto a extração bbágil estiver parcial
+      (amostra de 1 programa/ano), o total do bbágil será menor que o real —
+      este modelo serve para acompanhar a convergência à medida que a
+      extração avança.
+    config:
+      tags: [gold, cotas]
+      meta:
+        status: Disabled

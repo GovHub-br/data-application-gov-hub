@@ -11,10 +11,11 @@ models:
         - Relatório consolidado (sem inferência): filtrar WHERE status_origem = 'Confirmado'
         - Visão analítica (com inferência): consumir todos os registros
     config:
+      tags: [gold, agentes, master_data, meta5, deduplicado]
       meta:
+        status: Active
         meta_objetivo: 'Meta 5 — Master Data de Proponentes'
         origem_dados: 'perfil_acesso_fomento e identificadores_agentes'
-        tags: [gold, agentes, master_data, meta5, deduplicado]
     columns:
       - name: identificador_unico
         description: CPF ou CNPJ do proponente (normalizado). Chave única do modelo.
@@ -45,7 +46,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Confirmado', 'Inferido', 'Não Informado']
+              arguments:
+                values: ['Confirmado', 'Inferido', 'Não Informado']
       - name: perfil_classificacao
         description: >
           Classificação final consolidada (1 linha por proponente):
@@ -58,28 +60,31 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values:
-                - 'Primeira Vez'
-                - 'Veterano'
-                - 'Veterano (Multi-Programa)'
-                - 'Provável Primeira Vez'
-                - 'Provável Veterano'
-                - 'Indeterminado'
+              arguments:
+                values:
+                  - 'Primeira Vez'
+                  - 'Veterano'
+                  - 'Veterano (Multi-Programa)'
+                  - 'Provável Primeira Vez'
+                  - 'Provável Veterano'
+                  - 'Indeterminado'
 
   - name: perfil_acesso_fomento
     description: >
       Camada Gold — Meta 5 (Mapeamento de agentes culturais acessando fomento
-      pela primeira vez). Classifica cada proponente por programa com a coluna
-      perfil_acesso_fomento. Respostas confirmadas ('Sim'/'Não') são mantidas;
-      respostas nulas ou omitidas recebem inferência cronológica via ROW_NUMBER()
-      particionado por CPF/CNPJ e ordenado por programa_fomento (proxy temporal:
-      LPG precede PNAB). Um proponente com sequencia_fomento > 1 acessou mais
-      de um programa, evidenciando veterania.
+      pela primeira vez), construída sobre identificadores_agentes. Classifica cada
+      proponente por programa com a coluna perfil_acesso_fomento. Respostas
+      confirmadas ('Sim'/'Não') são mantidas; respostas nulas ou omitidas recebem
+      inferência cronológica via ROW_NUMBER() particionado por CPF/CNPJ e ordenado
+      por programa_fomento (proxy temporal: LPG precede PNAB alfabeticamente, o que
+      reflete a ordem real de ingresso na base). Um proponente com
+      sequencia_fomento > 1 acessou mais de um programa, evidenciando veterania.
     config:
+      tags: [gold, agentes, primeiro_acesso, meta5, inferencia]
       meta:
+        status: Active
         meta_objetivo: 'Meta 5 — Inferência de Primeiro Acesso'
         origem_dados: 'LPG e PNAB (via identificadores_agentes)'
-        tags: [gold, agentes, primeiro_acesso, meta5, inferencia]
     columns:
       - name: identificador_unico
         description: CPF ou CNPJ do proponente (já normalizado em minúsculas e sem espaços).
@@ -112,20 +117,24 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values:
-                - 'Confirmado - Primeira Vez'
-                - 'Confirmado - Veterano'
-                - 'Inferido - Primeira Vez (Estreante na base)'
-                - 'Inferido - Veterano (Possui histórico)'
-                - 'Não sabe/Não informou'
+              arguments:
+                values:
+                  - 'Confirmado - Primeira Vez'
+                  - 'Confirmado - Veterano'
+                  - 'Inferido - Primeira Vez (Estreante na base)'
+                  - 'Inferido - Veterano (Possui histórico)'
+                  - 'Não sabe/Não informou'
 
   - name: primeiro_acesso_contemplados
     description: >
-      Camada Gold — Meta 5 com flag de contemplação. Mesma estrutura de
-      primeiro_acesso_resumo com duas dimensões adicionais: se o proponente
-      foi contemplado em edital e a discriminação entre dados confirmados
-      (resposta declarada no formulário) vs. inferidos (derivados por sequência
-      ou presença multi-programa). Grain: 1 linha por
+      Camada Gold — Meta 5 com flag de contemplação. Estrutura de saída semelhante
+      à de primeiro_acesso_resumo (mesmo par programa × categoria de acesso), mas
+      construída a partir de perfil_acesso_fomento (não de perfil_agentes_historico),
+      pois depende da coluna status_dado (Confirmado/Inferido) exposta apenas
+      naquele modelo. Adiciona duas dimensões: se o proponente foi contemplado em
+      edital e a discriminação entre dados confirmados (resposta declarada no
+      formulário) vs. inferidos (derivados por sequência ou presença
+      multi-programa). Grain: 1 linha por
       (programa_fomento × categoria_primeiro_acesso × contemplado).
 
       Cobertura de contemplados:
@@ -133,18 +142,36 @@ models:
         - PNAB PNCV: CPF real via raw_pnab_lista_contemplados_pncv — cobertura PF.
         - PNAB Geral: apenas CNPJ via raw_pnab_lista_contemplados_geral — CPF
           anonimizado (***XXXXXX**), PF da lista geral fora do PNCV não é rastreável.
+
+      Ressalvas de qualidade do JOIN de contemplação:
+        - CPF mascarado da LPG: a base de proponentes (lpg_agentes_pf/coletivos)
+          traz o CPF anonimizado no formato "***.NNN.NNN-**" (só os 6 dígitos
+          centrais visíveis), enquanto lpg_contemplados traz o CPF completo. Um
+          match exato nunca ocorre nesses casos, o que geraria falso-negativo
+          sistemático de 'contemplado'. Por isso o modelo faz, adicionalmente, um
+          match parcial pelo "miolo" do CPF (os mesmos 6 dígitos centrais expostos
+          pela máscara) — esse match parcial tem risco de colisão entre CPFs
+          distintos com miolo igual.
+        - Colunas "fantasma" em lpg_contemplados: a ingestão dinâmica de planilhas
+          não normaliza espaços/caracteres invisíveis (ex.: NBSP) nos cabeçalhos, então
+          "CPF ou CNPJ" de arquivos diferentes pode virar colunas distintas no Postgres,
+          cada uma com parte dos dados. A coluna de CPF/CNPJ é por isso resolvida
+          dinamicamente via information_schema (qualquer coluna cujo nome contenha
+          "cpf" e "cnpj"), e não por um nome fixo.
     config:
+      tags: [gold, agentes, meta5, contemplados, primeiro_acesso]
       meta:
+        status: Active
         meta_objetivo: 'Meta 5 — Primeiro Acesso com Contemplação'
         origem_dados: 'perfil_acesso_fomento + lpg_contemplados + pnab_contemplados'
-        tags: [gold, agentes, meta5, contemplados, primeiro_acesso]
     columns:
       - name: programa_fomento
         description: Programa de fomento — 'LPG' ou 'PNAB'.
         tests:
           - not_null
           - accepted_values:
-              values: ['LPG', 'PNAB']
+              arguments:
+                values: ['LPG', 'PNAB']
       - name: categoria_primeiro_acesso
         description: >
           Categoria de acesso derivada do perfil_acesso_fomento:
@@ -152,7 +179,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Sim', 'Não', 'Não sabe/Não informou']
+              arguments:
+                values: ['Sim', 'Não', 'Não sabe/Não informou']
       - name: contemplado
         description: >
           Flag de contemplação em edital público — 'sim' se o identificador
@@ -161,7 +189,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['sim', 'não']
+              arguments:
+                values: ['sim', 'não']
       - name: total_proponentes
         description: Contagem distinta de proponentes no cruzamento programa × categoria × contemplado.
         tests:
@@ -188,22 +217,25 @@ models:
 
   - name: primeiro_acesso_resumo
     description: >
-      Camada Gold — resumo agregado da Meta 5 (Indicador de Primeiro Acesso).
-      Conta proponentes distintos por programa de fomento e categoria de acesso
-      anterior a recursos públicos. Calcula o percentual de cada categoria
-      sobre o total do respectivo programa (cada programa soma 100%).
+      Camada Gold — resumo agregado da Meta 5 (Indicador de Primeiro Acesso),
+      construído sobre perfil_agentes_historico. Conta proponentes distintos por
+      programa de fomento e categoria de acesso anterior a recursos públicos.
+      Calcula o percentual de cada categoria sobre o total do respectivo programa
+      (cada programa soma 100%).
     config:
+      tags: [gold, agentes, primeiro_acesso, meta5]
       meta:
+        status: Active
         meta_objetivo: 'Meta 5 — Indicador de Primeiro Acesso'
         origem_dados: 'LPG e PNAB'
-        tags: [gold, agentes, primeiro_acesso, meta5]
     columns:
       - name: programa_fomento
         description: Programa de fomento — 'LPG' ou 'PNAB'.
         tests:
           - not_null
           - accepted_values:
-              values: ['LPG', 'PNAB']
+              arguments:
+                values: ['LPG', 'PNAB']
       - name: categoria_primeiro_acesso
         description: >
           Categoria padronizada da resposta sobre acesso anterior a recursos
@@ -211,7 +243,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Sim', 'Não', 'Não sabe/Não informou']
+              arguments:
+                values: ['Sim', 'Não', 'Não sabe/Não informou']
       - name: total_proponentes
         description: Contagem distinta de proponentes na categoria dentro do programa.
         tests:

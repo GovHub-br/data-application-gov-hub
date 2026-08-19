@@ -143,7 +143,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y install openvpn iputils-ping
-          pip install dbt-core dbt-postgres
+          # Versões fixadas iguais às de requirements.txt / pyproject.toml.
+          # Sem o pin, o pip instala a mais recente (hoje 1.12.x), que muda a
+          # especificação do dbt Semantic Layer (semantic_models/metrics) e
+          # divergiria da versão usada pelo Airflow em produção.
+          pip install "dbt-core>=1.10,<1.11" "dbt-postgres==1.10.0"
 
       - name: Conectar VPN
         env:

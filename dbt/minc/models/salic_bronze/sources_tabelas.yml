@@ -1,0 +1,3231 @@
+version: 2
+sources:
+  - name: bronze_tabelas
+    schema: bronze
+    description: >
+      Cadastro auxiliar do SALIC: pessoas, endereços, órgãos e domínios de apoio (categorias,
+      localidades) usados pelo núcleo SAC. Camada bronze (dados brutos do SALIC, réplica do
+      sistema de origem via Airflow, sem tratamento). Descrições e tiers gerados automaticamente
+      a partir do dicionário de dados original do SALIC (export SchemaSpy) cruzado com o levantamento
+      estatístico do bronze — ver dbt/minc/docs/salic/ para o catálogo completo (YAML semântico,
+      dicionário e catálogo em DOCX/HTML).
+    tables:
+      - name: tabelas__autorizados
+        description: >
+          Tabela responsável por registrar permissões, operações e códigos autorizados no sistema.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: aut_identificacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(11).
+            data_type: text
+            tests:
+              - not_null
+          - name: aut_procedure
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(30).
+            data_type: text
+            tests:
+              - not_null
+          - name: aut_operacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+            tests:
+              - not_null
+          - name: aut_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: aut_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__avisos
+        description: >
+          Tabela responsável por armazenar avisos, textos informativos e seus períodos de vigência.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: avi_destino
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: avi_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: avi_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: avi_data_inicio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: avi_data_limite
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: avi_texto
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): text(2147483647).
+            data_type: text
+      - name: tabelas__bairros
+        description: >
+          Tabela responsável por cadastrar bairros e sua vinculação com localidades.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: bai_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: bai_localidade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: bai_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: bai_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__cadastro
+        description: >
+          Tabela responsável por registrar dados cadastrais básicos de usuários e contatos.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(80).
+            data_type: text
+          - name: lotacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: telefone
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+          - name: email
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(71).
+            data_type: text
+      - name: tabelas__categorias_pessoa
+        description: >
+          Tabela responsável por classificar tipos de pessoas e seus órgãos responsáveis.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: ctp_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: ctp_descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: ctp_orgao_gerente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: ctp_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__cdpe
+        description: >
+          Tabela responsável por armazenar campos auxiliares utilizados em processos internos.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: campo2
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: campo3
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(22).
+            data_type: text
+          - name: campo4
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: campo5
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: campo6
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+      - name: tabelas__dtproperties
+        description: >
+          Tabela responsável por propriedades internas de objetos do SQL Server (uso técnico).
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: id
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: objectid
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: property
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(64).
+            data_type: text
+            tests:
+              - not_null
+          - name: value
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: uvalue
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): nvarchar(510).
+            data_type: text
+          - name: lvalue
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): image(2147483647).
+            data_type: text
+          - name: version
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: tabelas__ect_bairros
+        description: >
+          Tabela responsável por armazenar dados estruturados de bairros segundo padrões da
+          ECT.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: ectb_estruturado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+          - name: ectb_hash
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: ectb_abreviado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(30).
+            data_type: text
+          - name: ectb_cod_bairro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+      - name: tabelas__ect_localidades
+        description: >
+          Tabela responsável por registrar localidades e classificações de acordo com a ECT.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: ectl_uf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(2).
+            data_type: text
+          - name: ectl_hash
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: ectl_local
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: ectl_tipo_local
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: ectl_estruturado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+      - name: tabelas__ect_recusados
+        description: >
+          Tabela responsável por armazenar endereços recusados segundo regras postais da ECT.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: ectr_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: ectr_uf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(2).
+            data_type: text
+          - name: ectr_cep5
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(5).
+            data_type: text
+          - name: ectr_cep8
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(8).
+            data_type: text
+          - name: ectr_local
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: ectr_tipo_local
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: ectr_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: ectr_bairro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(30).
+            data_type: text
+          - name: ectr_bairro_final
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(30).
+            data_type: text
+          - name: ectr_tipo_lograd
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(10).
+            data_type: text
+      - name: tabelas__emails
+        description: >
+          Tabela responsável por cadastrar contas de e-mail, domínios, alias e informações de
+          uso.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: eml_id
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: eml_conta
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(30).
+            data_type: text
+          - name: eml_email
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(30).
+            data_type: text
+          - name: eml_dominio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(40).
+            data_type: text
+          - name: eml_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: eml_cpf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(11).
+            data_type: text
+          - name: eml_orgao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: eml_aliases
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: eml_utilizacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(250).
+            data_type: text
+          - name: eml_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+      - name: tabelas__estacoes
+        description: >
+          Tabela responsável por registrar estações, dispositivos e seus períodos de uso.
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: est_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+          - name: est_macaddress
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+          - name: est_sistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: est_inicio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: est_final
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: est_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+      - name: tabelas__eventos
+        description: >
+          Tabela responsável por registrar logs de eventos, operações e resultados no sistema.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: eve_datahora
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): datetime(16,3).
+            data_type: text
+          - name: eve_usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(11).
+            data_type: text
+          - name: eve_operacao
+            description: >
+              – SP: spRegistraEvento – eve_operacao = 1005 = VALIDA – eve_operacao = 1002 =
+              DESATIVA Tipo original (SQL Server): int(4).
+            data_type: text
+          - name: eve_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: eve_parametros
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(256).
+            data_type: text
+          - name: eve_resultado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: eve_texto
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(256).
+            data_type: text
+      - name: tabelas__funcoes
+        description: >
+          Tabela responsável por cadastrar funções e seus status de utilização.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: fun_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: fun_descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(40).
+            data_type: text
+          - name: fun_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__grupos
+        description: >
+          Tabela responsável por agrupar usuários/sistemas e definir perfis de acesso.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: gru_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: gru_sistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: gru_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: gru_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__grupos_ares
+        description: >
+          Tabela responsável por agrupar perfis de acesso específicos do sistema ARES.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: gru_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: gru_sistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: gru_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: gru_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__grupos_minc11
+        description: >
+          Tabela responsável por agrupar perfis e acessos específicos do sistema MinC11.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: gru_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: gru_sistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: gru_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: gru_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__gruposxservicos
+        description: >
+          Tabela responsável por vincular grupos aos serviços disponíveis.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: gxs_grupo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: gxs_servico
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: tabelas__headers
+        description: >
+          Tabela responsável por armazenar cabeçalhos e metadados de documentos ou registros.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: hdr_identificacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: hdr_numero
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: hdr_texto
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: hdr_data
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: hdr_flag
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: hdr_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+      - name: tabelas__indice_palavras
+        description: >
+          Tabela responsável por indexação de palavras para busca e localização de termos.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: ipl_palavra
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: ipl_posicao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: ipl_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: ipl_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+      - name: tabelas__localidades
+        description: >
+          Tabela responsável por registrar localidades, tipos e informações de CEP.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: loc_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: loc_estruturado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+          - name: loc_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: loc_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: loc_sigla
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(8).
+            data_type: text
+          - name: loc_cep
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(8).
+            data_type: text
+          - name: loc_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__logonnt
+        description: >
+          Tabela responsável por armazenar informações de logons Windows/NT.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: name
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(50).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): bigint(8).
+            data_type: text
+          - name: data
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): datetime(16,3).
+            data_type: text
+      - name: tabelas__logradouros
+        description: >
+          Tabela responsável por cadastrar logradouros, limites, CEPs e bairros relacionados.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: log_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: log_localidade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: log_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: log_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: log_limites
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: log_bairro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: log_bairro_final
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: log_cep
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(8).
+            data_type: text
+          - name: log_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__mei_grupos_intranet
+        description: >
+          Tabela responsável por agrupar permissões de grupos na intranet.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: gri_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: gri_grupo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(250).
+            data_type: text
+      - name: tabelas__mei_gruposxservicos_intranet
+        description: >
+          Tabela responsável por vincular grupos da intranet aos serviços disponíveis.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: gxs_grupo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: gxs_servico
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: tabelas__mei_servicos_intranet
+        description: >
+          Tabela responsável por cadastrar serviços da intranet e suas propriedades visuais/funcionais.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: srv_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: srv_titulo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(250).
+            data_type: text
+          - name: srv_link
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(500).
+            data_type: text
+          - name: srv_janela
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(50).
+            data_type: text
+          - name: srv_ordem
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+          - name: srv_seguranca
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+          - name: srv_ativo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: srv_corfonte
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(7).
+            data_type: text
+          - name: srv_corfundo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(7).
+            data_type: text
+          - name: srv_temsub
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+      - name: tabelas__mei_usuariosxservicos_intranet
+        description: >
+          Tabela responsável por vincular usuários da intranet aos serviços permitidos.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: uxs_usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: uxs_servicos
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+      - name: tabelas__mensagens
+        description: >
+          Tabela responsável por armazenar mensagens, botões e códigos de ajuda.
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: msg_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: msg_descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: msg_botoes
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: msg_codigo_ajuda
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: msg_resposta
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__menus
+        description: >
+          Tabela responsável por cadastrar menus, opções e estruturas de navegação do sistema.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: men_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: men_sistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: men_modulo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+          - name: men_menu
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: men_opcao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: men_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: men_exibicao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: men_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: men_seguranca
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: men_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+          - name: men_aplicacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+      - name: tabelas__menus_ares
+        description: >
+          Tabela responsável por configurar menus e navegação do sistema ARES.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: men_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: men_sistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: men_modulo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+          - name: men_menu
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: men_opcao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: men_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: men_exibicao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: men_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: men_seguranca
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: men_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+          - name: men_aplicacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+      - name: tabelas__menus_minc11
+        description: >
+          Tabela responsável por configurar menus e navegação do sistema MinC11.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: men_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: men_sistema
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: men_modulo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+          - name: men_menu
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: men_opcao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: men_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: men_exibicao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: men_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: men_seguranca
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: men_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+          - name: men_aplicacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+      - name: tabelas__menusxgrupos
+        description: >
+          Tabela responsável por vincular menus aos grupos de acesso.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: mxg_menu
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: mxg_grupo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+      - name: tabelas__menusxgrupos_ares
+        description: >
+          Tabela responsável por vincular menus aos grupos do sistema ARES.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: mxg_menu
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: mxg_grupo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+      - name: tabelas__menusxgrupos_minc11
+        description: >
+          Tabela responsável por vincular menus aos grupos do MinC11.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: mxg_menu
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: mxg_grupo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+      - name: tabelas__meta_dados
+        description: >
+          Tabela responsável por metadados de tabelas, tamanho, tipo, critérios e ocorrências.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: met_tabela
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: met_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: met_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: met_ocorrencia
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: met_tamanho
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: met_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: met_criterio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(255).
+            data_type: text
+          - name: met_indice_palavras
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: met_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__orgaos
+        description: >
+          Tabela responsável por cadastrar órgãos, siglas, gerente, vínculos e informações administrativas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: org_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: org_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: org_gerente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: org_superior
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: org_sigla
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+          - name: org_cei
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: org_uf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(2).
+            data_type: text
+          - name: org_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: org_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: org_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+      - name: tabelas__orgaos_ares
+        description: >
+          Tabela responsável por armazenar órgãos e dados institucionais específicos do sistema
+          ARES.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: org_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: org_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: org_gerente
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: org_superior
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: org_sigla
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+          - name: org_cei
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: org_uf
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(2).
+            data_type: text
+          - name: org_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: org_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: org_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+      - name: tabelas__orgaos_subordinados
+        description: >
+          Tabela responsável por registrar a hierarquia entre órgãos e seus níveis de subordinação.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: sub_orgao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: sub_superior
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: sub_nivel
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__orgaosxusuarios
+        description: >
+          Tabela responsável por vincular usuários aos órgãos e níveis de acesso.
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: oxu_orgao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: oxu_usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: oxu_acesso
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__palavras
+        description: >
+          Tabela responsável por armazenar palavras indexadas e seus status para busca.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pal_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: pal_texto
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: pal_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__palavras2
+        description: >
+          Tabela responsável por registrar conjunto paralelo de palavras para indexação e consulta.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pal_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: pal_texto
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: pal_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__pessoa_dados
+        description: >
+          Tabela responsável por armazenar metadados e valores vinculados a pessoas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pdd_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: pdd_meta_dado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: pdd_sequencia
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: pdd_dado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(80).
+            data_type: text
+      - name: tabelas__pessoa_dados_bkp
+        description: >
+          Tabela responsável por backup de dados e metadados associados às pessoas.
+
+
+          Observações do levantamento automatizado: [heurística] nome contém o termo 'bkp',
+          indicativo de backup/versão/teste.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pdd_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: pdd_meta_dado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pdd_sequencia
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pdd_dado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(80).
+            data_type: text
+      - name: tabelas__pessoa_enderecos
+        description: >
+          Tabela responsável por cadastrar endereços das pessoas, tipos, CEP e localidades.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pen_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: pen_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: pen_endereco
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: pen_bairro
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: pen_cep
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: pen_localidade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(12).
+            data_type: text
+      - name: tabelas__pessoa_identificacoes
+        description: >
+          Tabela responsável por registrar identificações e documentos das pessoas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pid_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: pid_meta_dado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: pid_sequencia
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: pid_identificacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(80).
+            data_type: text
+      - name: tabelas__pessoa_identificacoes_alteradas
+        description: >
+          Tabela responsável por registrar alterações históricas das identificações das pessoas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pia_datahora
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): datetime(16,3).
+            data_type: text
+          - name: pia_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: pia_anterior
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(80).
+            data_type: text
+          - name: pia_atual
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(80).
+            data_type: text
+      - name: tabelas__pessoa_identificacoes_bkp
+        description: >
+          Tabela responsável por backup de identificações associadas às pessoas.
+
+
+          Observações do levantamento automatizado: [heurística] nome contém o termo 'bkp',
+          indicativo de backup/versão/teste.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pid_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: pid_meta_dado
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pid_sequencia
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pid_identificacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(80).
+            data_type: text
+      - name: tabelas__pessoas
+        description: >
+          Tabela responsável por cadastrar pessoas, categorias, utilidade pública, orgãos vinculados
+          e status.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pes_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: pes_categoria
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: pes_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pes_esfera
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pes_administracao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pes_utilidade_publica
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pes_superior
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: pes_validade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pes_orgao_cadastrador
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: pes_usuario_cadastrador
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: pes_data_cadastramento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: pes_orgao_atualizador
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: pes_usuario_atualizador
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: pes_data_atualizacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: pes_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+      - name: tabelas__pessoas_bkp
+        description: >
+          Tabela responsável por armazenar backup de dados cadastrais de pessoas.
+
+
+          Observações do levantamento automatizado: [heurística] nome contém o termo 'bkp',
+          indicativo de backup/versão/teste.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pes_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: pes_categoria
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: pes_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pes_esfera
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pes_administracao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pes_utilidade_publica
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pes_superior
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: pes_validade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: pes_orgao_cadastrador
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: pes_usuario_cadastrador
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: pes_data_cadastramento
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: pes_orgao_atualizador
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: pes_usuario_atualizador
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: pes_data_atualizacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: pes_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+      - name: tabelas__pessoasxfuncoes
+        description: >
+          Tabela responsável por vincular pessoas às funções e entidades associadas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: pxf_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: pxf_funcao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: pxf_entidade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+            tests:
+              - not_null
+          - name: pxf_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__plan1$
+        description: >
+          [Não documentado no dicionário de dados original do SALIC — tabela presente apenas
+          no bronze, sem descrição confirmada.]
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros). [observado] tabela ausente do dicionário de dados original
+          do SALIC (export SchemaSpy) — pode ter sido criada após a extração do dicionário,
+          ou ser uma tabela técnica não catalogada na origem.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+            - possivel_obsoleta
+            - nao_documentado
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: f1
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+          - name: f2
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+          - name: f3
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+          - name: f4
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+          - name: f5
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+          - name: f6
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+          - name: f7
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+          - name: f8
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+          - name: f9
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+          - name: f10
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+          - name: f11
+            description: >
+              [não documentado no dicionário de dados original do SALIC]
+            data_type: text
+      - name: tabelas__servicos_intranet
+        description: >
+          Tabela responsável por cadastrar serviços disponíveis na intranet e suas características.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: srv_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: srv_titulo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(256).
+            data_type: text
+          - name: srv_link
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(512).
+            data_type: text
+          - name: srv_janela
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(50).
+            data_type: text
+          - name: srv_ordem
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+          - name: srv_seguranca
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+      - name: tabelas__sistemas
+        description: >
+          Tabela responsável por registrar sistemas, siglas, URLs, segurança e status de utilização.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: sis_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: sis_sigla
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(16).
+            data_type: text
+          - name: sis_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: sis_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: sis_seguranca
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: sis_url
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(150).
+            data_type: text
+          - name: sis_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+      - name: tabelas__sistemas_ares
+        description: >
+          Tabela responsável por registrar sistemas específicos da plataforma ARES.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: sis_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: sis_sigla
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(16).
+            data_type: text
+          - name: sis_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: sis_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: sis_seguranca
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: sis_url
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(150).
+            data_type: text
+          - name: sis_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+      - name: tabelas__sysdiagrams
+        description: >
+          Tabela responsável por armazenar diagramas e estruturas criadas no SQL Server.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: name
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): sysname(256).
+            data_type: text
+          - name: principal_id
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: diagram_id
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int identity(4).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: version
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: definition
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varbinary(2147483647).
+            data_type: text
+      - name: tabelas__tabelas
+        description: >
+          Tabela responsável por registrar informações sobre tabelas, tipos, status e descrição.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: tab_tipo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+          - name: tab_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: tab_descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: tab_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__table1
+        description: >
+          Tabela responsável por armazenar dados temporários auxiliares (uso genérico).
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: a
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+      - name: tabelas__temp_tbl
+        description: >
+          Tabela responsável por armazenar textos temporários para uso interno da aplicação.
+
+
+          Observações do levantamento automatizado: [heurística] nome contém o termo 'temp',
+          indicativo de backup/versão/teste.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: tmp_texto
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(100).
+            data_type: text
+      - name: tabelas__tipos_logradouro
+        description: >
+          Tabela responsável por cadastrar tipos de logradouros e abreviações.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: tlg_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: tlg_sigla
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+          - name: tlg_descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(30).
+            data_type: text
+      - name: tabelas__tipos_pessoa
+        description: >
+          Tabela responsável por definir tipos de pessoa e características jurídicas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: tpe_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: tpe_descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(100).
+            data_type: text
+          - name: tpe_pf_pj
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: tpe_direito
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: tpe_fim
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: tpe_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__unidadesorcamentarias
+        description: >
+          Tabela responsável por armazenar unidades orçamentárias, siglas, fundos e status.
+
+
+          Observações do levantamento automatizado: [observado] tabela sem nenhuma linha no
+          bronze hoje (0 registros).
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+            - possivel_obsoleta
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: uor_exercicio
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: uor_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(6).
+            data_type: text
+            tests:
+              - not_null
+          - name: uor_descricao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(60).
+            data_type: text
+          - name: uor_sigla
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(10).
+            data_type: text
+          - name: uor_fundo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: uor_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+      - name: tabelas__usuarios
+        description: >
+          Tabela responsável por registrar usuários, credenciais, permissões, dados de segurança
+          e vínculos.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: usu_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+              - unique
+          - name: usu_identificacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(16).
+            data_type: text
+          - name: usu_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: usu_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: usu_orgao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: usu_sala
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: usu_ramal
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: usu_nivel
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: usu_exibicao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: usu_sql_login
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: usu_sql_senha
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: usu_duracao_senha
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: usu_data_validade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: usu_limite_utilizacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: usu_senha
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(15).
+            data_type: text
+          - name: usu_validacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+          - name: usu_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: usu_seguranca
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: usu_data_atualizacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: usu_conta_nt
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: usu_dica_intranet
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: usu_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+          - name: usu_localizacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: usu_andar
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+          - name: usu_telefone
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+      - name: tabelas__usuarios_ares
+        description: >
+          Tabela responsável por armazenar usuários e permissões específicas do sistema ARES.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: usu_codigo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: usu_identificacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(16).
+            data_type: text
+          - name: usu_nome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: usu_pessoa
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: usu_orgao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: usu_sala
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: usu_ramal
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: usu_nivel
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: usu_exibicao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: usu_sql_login
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: usu_sql_senha
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+          - name: usu_duracao_senha
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: usu_data_validade
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: usu_limite_utilizacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: usu_senha
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(15).
+            data_type: text
+          - name: usu_validacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+          - name: usu_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: usu_seguranca
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(8).
+            data_type: text
+          - name: usu_data_atualizacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smalldatetime(16).
+            data_type: text
+          - name: usu_conta_nt
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: usu_dica_intranet
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): int(4).
+            data_type: text
+          - name: usu_controle
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): timestamp(8).
+            data_type: text
+          - name: usu_localizacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text
+          - name: usu_andar
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+          - name: usu_telefone
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(10).
+            data_type: text
+      - name: tabelas__usuariosxgrupos_intranet
+        description: >
+          Tabela responsável por vincular usuários a grupos de acesso da intranet.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: uxg_usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: uxg_grupo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+      - name: tabelas__usuariosxorgaosxgrupos
+        description: >
+          Tabela responsável por relacionar usuários, órgãos e grupos de acesso.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: uog_usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: uog_orgao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: uog_grupo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+            tests:
+              - not_null
+          - name: uog_status
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): char(1).
+            data_type: text
+      - name: tabelas__usuariosxorgaosxgrupos_ares
+        description: >
+          Tabela responsável por registrar vínculos entre usuários, órgãos e grupos no ambiente
+          ARES.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: uog_usuario
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: uog_orgao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+          - name: uog_grupo
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): smallint(2).
+            data_type: text
+      - name: tabelas__usuexternosistemas
+        description: >
+          Tabela responsável por armazenar usuários externos, senhas, nomes e permissões de
+          acesso aos sistemas.
+        config:
+          tags:
+            - bronze
+            - salic
+            - tabelas
+        meta:
+          openmetadata:
+            tier: Tier.Tier4
+            domain: Cultura
+            tags:
+              - Certification.Bronze
+        columns:
+          - name: usuidentificacao
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(11).
+            data_type: text
+          - name: usunome
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(20).
+            data_type: text
+          - name: ususenha
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(11).
+            data_type: text
+          - name: usuobs
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): varchar(50).
+            data_type: text
+          - name: usustatus
+            description: >
+              [não documentado no dicionário de dados original do SALIC] Tipo original (SQL
+              Server): tinyint(1).
+            data_type: text

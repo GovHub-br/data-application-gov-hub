@@ -2,26 +2,130 @@ version: 2
 
 models:
   - name: stg_agentes_pf
-    description: "Perfil LPG Pessoa Física (base + audiovisual + multicultural), lixo filtrado."
+    description: >
+      Perfil LPG Pessoa Física — une 3 fontes (base + variantes audiovisual e
+      multicultural) via UNION ALL. Filtra o "lixo" de parsing: linhas sem CPF
+      válido são descartadas após normalização (macro normaliza_documento).
+      indigena_bruto e quilombola_bruto ficam sempre NULL (exclusivos do PNAB).
+    config:
+      tags: [bronze, cotas]
+      meta:
+        status: Active
   - name: stg_agentes_pj
-    description: "Perfil LPG Pessoa Jurídica (corpo diretivo)."
+    description: >
+      Perfil LPG Pessoa Jurídica — une 3 fontes (base + variantes audiovisual e
+      multicultural) via UNION ALL. Demografia = raça/PCD do corpo diretivo da PJ
+      (não de um indivíduo isolado). Documento normalizado via normaliza_documento;
+      linhas sem documento válido são descartadas.
+    config:
+      tags: [bronze, cotas]
+      meta:
+        status: Active
   - name: stg_agentes_coletivos
-    description: "Perfil LPG Coletivos/Grupos (maioria do grupo)."
+    description: >
+      Perfil LPG Coletivos/Grupos — une 4 fontes (base + variantes grupo_coletivo,
+      audiovisual e multicultural) via UNION ALL. Demografia = raça/PCD da maioria
+      do grupo/coletivo (não do indivíduo). Documento normalizado via macro
+      normaliza_documento (só dígitos, vazio → NULL); linhas sem documento
+      válido são descartadas. indigena_bruto e quilombola_bruto não existem
+      na fonte LPG — ficam sempre NULL (só preenchidos no PNAB).
+    config:
+      tags: [bronze, cotas]
+      meta:
+        status: Active
   - name: stg_agentes_pnab_pf
-    description: "Perfil PNAB Pessoa Física (pnab_pessoas) — CPF real + raça/PCD/indígena/quilombola."
+    description: >
+      Perfil PNAB Pessoa Física (fonte pnab_pessoas) — CPF real (não mascarado) +
+      raça/PCD/indígena/quilombola do próprio indivíduo. Viabiliza cotas
+      demográficas para o PNAB que antes eram impossíveis de calcular (LPG não
+      traz indígena/quilombola). Documento normalizado via normaliza_documento;
+      linhas sem documento válido são descartadas.
+    config:
+      tags: [bronze, cotas]
+      meta:
+        status: Active
   - name: stg_agentes_pnab_pj
-    description: "Perfil PNAB Organizações (pnab_organizacoes) — CNPJ real + raça/PCD do representante."
+    description: >
+      Perfil PNAB Organizações (fonte pnab_organizacoes) — CNPJ real + raça/PCD/
+      indígena/quilombola do representante legal da organização. Documento
+      normalizado via normaliza_documento; linhas sem documento válido são
+      descartadas.
+    config:
+      tags: [bronze, cotas]
+      meta:
+        status: Active
+  - name: stg_bbagil
+    description: >
+      [MODELO DESABILITADO — config(enabled=false)] Aguarda a DAG
+      extracao_bbagil_dag rodar com sucesso (hoje falha na autenticação SCA por
+      SCA_TOKEN_URL vazio no .env); reativar (enabled=true) quando
+      bsc_pnab.fato_bbagil existir.
+
+      Lado-valor via extrato bancário (BB Gestão Ágil/SERPRO): mede o valor
+      efetivamente PAGO ao beneficiário final (pessoa), não o repasse a entes
+      públicos. Fonte já vem agregada e filtrada na origem (grão ente+documento,
+      só débito ao beneficiário, sem repasse entre entes públicos, valores ≥R$375).
+
+      Por que importa: fct_pagamentos_elegiveis (lado das listas de contemplados)
+      mede valor RECEBIDO pelos entes (~R$2,7bi, painel "recebido"); o bbágil mede
+      o valor GASTO/pago às pessoas (~R$447mi, painel "gasto") — o denominador
+      correto para as cotas. O documento do beneficiário vem real (não mascarado),
+      normalizado pela mesma macro normaliza_documento usada em
+      perfil_agentes_normalizado, garantindo join direto e consistente entre as
+      duas bases.
+    config:
+      tags: [bronze, cotas]
+      meta:
+        status: Disabled
   - name: stg_contemplados_lpg
-    description: "Contemplados LPG (valor pago), colunas duplicadas coalescidas."
+    description: >
+      Contemplados LPG (lado-valor) — colunas duplicadas por schema-drift na
+      ingestão de planilhas são resolvidas via coalesce_por_nome (lê pelo nome
+      real da coluna, imune a espaço/trailing). Extrai anexo_id do id_anexo da
+      fonte. Documento mascarado (contém '*') não vira chave casável
+      (identificador_unico = NULL), mas o valor é preservado e a linha é marcada
+      via chave_anonimizada. Valor monetário convertido por parse_valor, com
+      teto padrão de R$10M (valores acima disso viram NULL em valor_pago_num,
+      mas ficam preservados em valor_bruto_num para diagnóstico).
+    config:
+      tags: [bronze, cotas]
+      meta:
+        status: Active
     columns:
       - name: origem
         tests:
-          - accepted_values: {values: ['lpg']}
+          - accepted_values:
+              arguments:
+                values: ['lpg']
   - name: stg_contemplados_pnab
-    description: "Contemplados PNAB (geral + pncv). CNPJ casável; CPF anonimizado flagado."
+    description: >
+      Contemplados PNAB (lado-valor) — une as listas geral + pncv via
+      coalesce_por_nome (mesma técnica de stg_contemplados_lpg). Chave =
+      CNPJ real (sempre casável) ou CPF real do PNCV; CPF anonimizado
+      (***XXXXXX**) da lista geral não vira chave (fica NULL, flagado por
+      chave_anonimizada), mas o valor é preservado. anexo_id liga este modelo
+      ao ano do edital derivado por anexo (edital_ano_por_anexo /
+      edital_ano_por_arquivo). Valor monetário convertido por parse_valor
+      (mesmo teto de R$10M).
+    config:
+      tags: [bronze, cotas]
+      meta:
+        status: Active
     columns:
       - name: origem
         tests:
-          - accepted_values: {values: ['pnab']}
+          - accepted_values:
+              arguments:
+                values: ['pnab']
   - name: stg_editais
-    description: "Editais LPG (lpg_editais + instrumentos) — nome, número, valor total."
+    description: >
+      Editais LPG — une lpg_editais + 4 tabelas de instrumentos via UNION ALL;
+      resolve colunas duplicadas (ex.: "valor total do edital" aparece repetida
+      em lpg_editais) via coalesce_por_nome. Base de denominador e de derivação
+      de ano (nome/número do edital) para o reconciliador editais_unif — não é
+      o caminho de ano efetivamente usado pelo fluxo principal das cotas (ver
+      contemplados_unif).
+    config:
+      tags: [bronze, cotas]
+      meta:
+        status: Active
