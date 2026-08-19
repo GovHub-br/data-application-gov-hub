@@ -9,7 +9,7 @@ que a substitui, e o antigo passa a `Status: substituído por ADR NNNN`.
 
 | # | Decisão |
 |---|---|
-| [0001](0001-formularios-de-issue-em-yaml.md) | Formulários de issue em YAML, com o texto do cidades |
+| [0001](0001-formularios-de-issue-em-yaml.md) | Formulários de issue em YAML, com o texto do data-application-cidades |
 | [0002](0002-skills-versionadas-no-repositorio.md) | Skills versionadas no repositório, não instaladas por marketplace |
 | [0003](0003-labels-por-eixo.md) | Vocabulário de labels organizado por eixo |
 | [0004](0004-revisao-semanal-apura-antes-de-narrar.md) | A revisão semanal apura por script e narra por modelo |
