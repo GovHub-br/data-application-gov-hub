@@ -12,7 +12,8 @@ vira branch, como o PR é preenchido e o que a CI roda.
 | `PULL_REQUEST_TEMPLATE.md` | Preenchido automaticamente ao abrir PR |
 | `TEMPLATES/COMMIT_TEMPLATE.md` | Guia de mensagem de commit (Conventional Commits) |
 | `labels.yml` | Referência versionada do vocabulário de labels. O GitHub não lê este arquivo |
-| `workflows/main.yaml` | CI: lint, testes, build e push da imagem, deploy do `dbt docs` |
+| `workflows/main.yaml` | CI: lint, testes, build e push da imagem |
+| `workflows/docs-pages.yaml` | Publica o site de documentação (`docs-pages/`) no GitHub Pages |
 | `workflows/issue-para-branch.yml` | Label `Código` na issue → cria a branch vinculada |
 | `workflows/aviso-branch-orfa.yml` | Issue fechada com branch sem PR mergeado → comenta |
 | `actions/setup-poetry/` | Action reutilizável de setup do Poetry |
