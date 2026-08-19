@@ -56,8 +56,15 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Claude Code — arquivos locais de gestão/sessão
-.claude/
+# Claude Code — só o que é pessoal fica de fora. As skills e o settings.json
+# são versionados de propósito: é assim que a equipe recebe tudo ao clonar.
+.claude/settings.local.json
+.claude/*.local.json
+
+# Site de documentação — a saída do build e o virtualenv são gerados. O acervo
+# em docs-pages/src/_data/ É versionado: sem ele o CI não reproduz o site.
+docs-pages/site/
+docs-pages/.venv/
 
 # VPN 
 /connect.sh
@@ -75,6 +82,9 @@ data/**
 !data/**/
 !data/**/.gitkeep
 
+# Dependencia do conversor de Markdown->HTML das skills (accountability-report
+# e revisao-semanal). Instalada sob demanda na primeira geracao de PDF.
+node_modules/
 # Cache intermediário do pipeline de documentação do SALIC (dictionary.json,
 # profile/*.json) -- reprocessável a partir do banco e do dicionário original,
 # pode conter amostras de dado; só os artefatos finais (yaml/docx) são versionados.

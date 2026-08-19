@@ -1,0 +1,285 @@
+{
+  "dags": [
+    {
+      "arquivo": "extracao_bbagil_dag.py",
+      "caminho": "dags/data_ingest/bsc_pnab/extracao_bbagil_dag.py",
+      "fonte": "bsc_pnab",
+      "dag_id": "extracao_bbagil_dag",
+      "descricao": "DAG de extracao financeira do BB Gestao Agil (BSC/SERPRO).",
+      "tags": [
+        "minc",
+        "pnab",
+        "bsc",
+        "bbagil",
+        "raw"
+      ],
+      "schedule": "dinâmico (schedule_loader)"
+    },
+    {
+      "arquivo": "ingest_territorio_fcu_dag.py",
+      "caminho": "dags/data_ingest/territorio/ingest_territorio_fcu_dag.py",
+      "fonte": "territorio",
+      "dag_id": "ingest_territorio_fcu_dag",
+      "descricao": "Carrega o crosswalk setor->FCU->município->UF no Postgres.",
+      "tags": [
+        "minc",
+        "territorio",
+        "ibge",
+        "cotas",
+        "raw"
+      ],
+      "schedule": ""
+    },
+    {
+      "arquivo": "api_anexos_relatorios_dag.py",
+      "caminho": "dags/data_ingest/transferegov_fundo_a_fundo/api_anexos_relatorios_dag.py",
+      "fonte": "transferegov_fundo_a_fundo",
+      "dag_id": "api_anexos_relatorios_dag",
+      "descricao": "",
+      "tags": [
+        "minc",
+        "transferegov",
+        "anexos",
+        "raw"
+      ],
+      "schedule": ""
+    },
+    {
+      "arquivo": "api_movimentacoes_financeiras_dag.py",
+      "caminho": "dags/data_ingest/transferegov_fundo_a_fundo/api_movimentacoes_financeiras_dag.py",
+      "fonte": "transferegov_fundo_a_fundo",
+      "dag_id": "api_movimentacoes_financeiras_dag",
+      "descricao": "DAG de ingestao dos endpoints PostgREST ``/gestao_financeira_lancamentos`` e ``/gestao_financeira_subtransacoes`` do Transferegov Fundo a Fundo.",
+      "tags": [
+        "minc",
+        "transferegov",
+        "gestao_financeira",
+        "raw"
+      ],
+      "schedule": "dinâmico (schedule_loader)"
+    },
+    {
+      "arquivo": "api_plano_acao_dado_bancario_dag.py",
+      "caminho": "dags/data_ingest/transferegov_fundo_a_fundo/api_plano_acao_dado_bancario_dag.py",
+      "fonte": "transferegov_fundo_a_fundo",
+      "dag_id": "api_plano_acao_dado_bancario_dag",
+      "descricao": "Passo 3B da secao 6: contas bancarias de cada plano de acao.",
+      "tags": [
+        "minc",
+        "transferegov",
+        "dado_bancario",
+        "raw"
+      ],
+      "schedule": "dinâmico (schedule_loader)"
+    },
+    {
+      "arquivo": "api_plano_acao_meta_dag.py",
+      "caminho": "dags/data_ingest/transferegov_fundo_a_fundo/api_plano_acao_meta_dag.py",
+      "fonte": "transferegov_fundo_a_fundo",
+      "dag_id": "api_plano_acao_meta_dag",
+      "descricao": "Passo 3A da secao 6 da especificacao: metas de cada plano de acao.",
+      "tags": [
+        "minc",
+        "transferegov",
+        "metas",
+        "raw"
+      ],
+      "schedule": "dinâmico (schedule_loader)"
+    },
+    {
+      "arquivo": "api_planos_acao_dag.py",
+      "caminho": "dags/data_ingest/transferegov_fundo_a_fundo/api_planos_acao_dag.py",
+      "fonte": "transferegov_fundo_a_fundo",
+      "dag_id": "api_planos_acao_dag",
+      "descricao": "",
+      "tags": [
+        "minc",
+        "transferegov",
+        "planos_acao",
+        "raw"
+      ],
+      "schedule": "dinâmico (schedule_loader)"
+    },
+    {
+      "arquivo": "api_programas_dag.py",
+      "caminho": "dags/data_ingest/transferegov_fundo_a_fundo/api_programas_dag.py",
+      "fonte": "transferegov_fundo_a_fundo",
+      "dag_id": "api_programas_dag",
+      "descricao": "",
+      "tags": [
+        "minc",
+        "transferegov",
+        "programas",
+        "raw"
+      ],
+      "schedule": "dinâmico (schedule_loader)"
+    },
+    {
+      "arquivo": "api_relatorios_gestao_dag.py",
+      "caminho": "dags/data_ingest/transferegov_fundo_a_fundo/api_relatorios_gestao_dag.py",
+      "fonte": "transferegov_fundo_a_fundo",
+      "dag_id": "api_relatorios_gestao_dag",
+      "descricao": "",
+      "tags": [
+        "minc",
+        "transferegov",
+        "relatorios",
+        "raw"
+      ],
+      "schedule": ""
+    },
+    {
+      "arquivo": "download_anexos_dag.py",
+      "caminho": "dags/data_ingest/transferegov_fundo_a_fundo/download_anexos_dag.py",
+      "fonte": "transferegov_fundo_a_fundo",
+      "dag_id": "download_anexos_dag",
+      "descricao": "",
+      "tags": [
+        "minc",
+        "transferegov",
+        "extracao",
+        "anexos"
+      ],
+      "schedule": ""
+    },
+    {
+      "arquivo": "extracao_anexos_dag.py",
+      "caminho": "dags/data_ingest/transferegov_fundo_a_fundo/extracao_anexos_dag.py",
+      "fonte": "transferegov_fundo_a_fundo",
+      "dag_id": "extracao_anexos_dag",
+      "descricao": "DAG de extração de tabelas de anexos (XLSX/XLS/XLSM) para os programas LPG e PNAB, com Dynamic Task Mapping por **lote** de arquivos.",
+      "tags": [
+        "minc",
+        "transferegov",
+        "anexos",
+        "planilhas",
+        "raw"
+      ],
+      "schedule": ""
+    }
+  ],
+  "clientes": [
+    {
+      "arquivo": "cliente_base.py",
+      "sistema": "base",
+      "nome": "ClienteBase",
+      "base": "",
+      "descricao": ""
+    },
+    {
+      "arquivo": "cliente_bsc.py",
+      "sistema": "bsc",
+      "nome": "BscRequestError",
+      "base": "Exception",
+      "descricao": "Erro de requisicao ao BSC com o status HTTP e o corpo da resposta,"
+    },
+    {
+      "arquivo": "cliente_bsc.py",
+      "sistema": "bsc",
+      "nome": "AsyncBscClient",
+      "base": "",
+      "descricao": ""
+    },
+    {
+      "arquivo": "cliente_contratos.py",
+      "sistema": "contratos",
+      "nome": "ClienteContratos",
+      "base": "ClienteBase",
+      "descricao": ""
+    },
+    {
+      "arquivo": "cliente_deputados.py",
+      "sistema": "deputados",
+      "nome": "ClienteDeputados",
+      "base": "ClienteBase",
+      "descricao": "Cliente para consumir a API de Dados Abertos da Câmara dos Deputados."
+    },
+    {
+      "arquivo": "cliente_github.py",
+      "sistema": "github",
+      "nome": "ClienteGitHub",
+      "base": "",
+      "descricao": "Cliente para operações com GitHub API."
+    },
+    {
+      "arquivo": "cliente_pncp.py",
+      "sistema": "pncp",
+      "nome": "ClientePNCP",
+      "base": "ClienteBase",
+      "descricao": "Cliente para consultar publicações de contratações no PNCP."
+    },
+    {
+      "arquivo": "cliente_postgres.py",
+      "sistema": "postgres",
+      "nome": "ClientPostgresDB",
+      "base": "",
+      "descricao": "Client for interacting with PostgreSQL database."
+    },
+    {
+      "arquivo": "cliente_senadores.py",
+      "sistema": "senadores",
+      "nome": "ClienteSenadores",
+      "base": "ClienteBase",
+      "descricao": "Cliente para consumir a API de Dados Abertos do Senado Federal."
+    },
+    {
+      "arquivo": "cliente_siafi.py",
+      "sistema": "siafi",
+      "nome": "ClienteSiafi",
+      "base": "",
+      "descricao": ""
+    },
+    {
+      "arquivo": "cliente_siape.py",
+      "sistema": "siape",
+      "nome": "ClienteSiape",
+      "base": "",
+      "descricao": "Client to consume the SIAPE SOAP API using OAuth2 authentication"
+    },
+    {
+      "arquivo": "cliente_siorg.py",
+      "sistema": "siorg",
+      "nome": "ClienteSiorg",
+      "base": "ClienteBase",
+      "descricao": ""
+    },
+    {
+      "arquivo": "cliente_ted.py",
+      "sistema": "ted",
+      "nome": "ClienteTed",
+      "base": "ClienteBase",
+      "descricao": ""
+    },
+    {
+      "arquivo": "cliente_transferegov_emendas.py",
+      "sistema": "transferegov_emendas",
+      "nome": "ClienteTransfereGov",
+      "base": "ClienteBase",
+      "descricao": ""
+    },
+    {
+      "arquivo": "cliente_transferegov_fundo_a_fundo.py",
+      "sistema": "transferegov_fundo_a_fundo",
+      "nome": "ClienteTransfereGov",
+      "base": "ClienteBase",
+      "descricao": ""
+    },
+    {
+      "arquivo": "cliente_transferegov_fundo_a_fundo.py",
+      "sistema": "transferegov_fundo_a_fundo",
+      "nome": "ClienteTransfereGovBackend",
+      "base": "ClienteBase",
+      "descricao": ""
+    }
+  ],
+  "por_fonte": {
+    "bsc_pnab": 1,
+    "territorio": 1,
+    "transferegov_fundo_a_fundo": 9
+  },
+  "totais": {
+    "dags": 11,
+    "fontes": 3,
+    "clientes": 16
+  }
+}

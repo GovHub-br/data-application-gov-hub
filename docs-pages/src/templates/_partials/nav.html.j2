@@ -1,0 +1,21 @@
+<header class="topo">
+  <div class="container topo-linha">
+    <a class="marca" href="index.html">
+      <span class="marca-ponto" aria-hidden="true"></span>
+      <span class="marca-texto">
+        Gov Hub BR
+        <small class="marca-escopo">MinC</small>
+      </span>
+    </a>
+
+    <nav class="abas" aria-label="Escolha a visão">
+      <span class="abas-legenda" aria-hidden="true">Visões</span>
+      {% for p in paginas %}
+      <a class="aba" href="{{ p.arquivo }}"{% if p.arquivo == pagina_atual %} aria-current="page"{% endif %}>
+        <span class="aba-rotulo">{{ p.rotulo }}</span>
+        <span class="aba-publico">{{ p.publico }}</span>
+      </a>
+      {% endfor %}
+    </nav>
+  </div>
+</header>

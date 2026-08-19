@@ -1,0 +1,92 @@
+{% extends "base.html.j2" %}
+{% block conteudo %}
+
+<section class="hero">
+  <div class="container">
+    <p class="eyebrow">{{ programa.sigla }}</p>
+    <h1>{{ programa.nome }}</h1>
+    <p class="hero-texto">{{ programa.resumo }}</p>
+  </div>
+</section>
+
+<section class="faixa">
+  <div class="container">
+    <h2>Por que isto é difícil</h2>
+    <p class="prosa">{{ programa.por_que_e_dificil }}</p>
+  </div>
+</section>
+
+<section class="secao">
+  <div class="container">
+    <h2>O que existe hoje</h2>
+    <p class="secao-intro">
+      Todos os números abaixo são contados no repositório no momento da
+      publicação. Se um deles estiver errado, o erro está no código ou na
+      coleta — nunca no texto.
+    </p>
+    <div class="tiles">
+      <div class="tile">
+        <span class="tile-num">{{ metricas.modelos }}</span>
+        <span class="tile-rot">tabelas construídas</span>
+        <span class="tile-nota">em {{ metricas.dominios }} conjuntos de dados</span>
+      </div>
+      <div class="tile">
+        <span class="tile-num">{{ metricas.tabelas_origem }}</span>
+        <span class="tile-rot">tabelas de origem</span>
+        <span class="tile-nota">o dado como chega dos sistemas</span>
+      </div>
+      <div class="tile">
+        <span class="tile-num">{{ metricas.dags }}</span>
+        <span class="tile-rot">rotinas de coleta</span>
+        <span class="tile-nota">de {{ metricas.fontes }} fontes diferentes</span>
+      </div>
+      <div class="tile">
+        <span class="tile-num">{{ metricas.testes }}</span>
+        <span class="tile-rot">verificações automáticas</span>
+        <span class="tile-nota">rodam a cada atualização</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="secao secao-alt">
+  <div class="container">
+    <h2>As metas acompanhadas</h2>
+    <div class="metas">
+      {% for meta in metas %}
+      <article class="meta">
+        <div class="meta-cabeca">
+          <span class="meta-num">Meta {{ meta.numero }}</span>
+          <span class="selo selo-{{ 'ok' if meta.situacao == 'com resultado' else 'andamento' }}">{{ meta.situacao }}</span>
+        </div>
+        <h3>{{ meta.rotulo }}</h3>
+        <p>{{ meta.resumo }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="secao">
+  <div class="container">
+    <h2>Os conjuntos de dados</h2>
+    <p class="secao-intro">
+      Cada conjunto responde a um grupo de perguntas. Clique para ver o que ele
+      contém, de onde vem e o que é preciso saber antes de citar seus números.
+    </p>
+    <div class="cards">
+      {% for d in dominios %}
+      <a class="card" href="dominio-{{ d.slug }}.html">
+        {% if d.meta is defined %}<span class="card-meta">Meta {{ d.meta }}</span>{% endif %}
+        <h3>{{ d.rotulo }}</h3>
+        <p class="card-sub">{{ d.subtitulo }}</p>
+        <p class="card-num">
+          {{ d.metricas.modelos }} tabelas · {{ d.metricas.gold }} de uso final
+        </p>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

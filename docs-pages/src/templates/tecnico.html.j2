@@ -1,0 +1,109 @@
+{% extends "base.html.j2" %}
+{% block conteudo %}
+
+<section class="hero hero-menor">
+  <div class="container">
+    <p class="eyebrow">Para quem constrói</p>
+    <h1>Como o dado chega até aqui</h1>
+    <p class="hero-texto">
+      O caminho da origem ao consumo, as rotinas que o percorrem e o inventário
+      completo das tabelas.
+    </p>
+  </div>
+</section>
+
+<section class="secao">
+  <div class="container col-texto">
+    <h2>O caminho</h2>
+    <ol class="fluxo">
+      <li><strong>Cliente de API</strong> — fala com o sistema de origem e devolve o dado cru. Um por sistema, em <code>plugins/</code>.</li>
+      <li><strong>DAG de ingestão</strong> — orquestra a coleta e grava no Postgres, sem corrigir nada. Uma pasta por fonte, em <code>dags/data_ingest/</code>.</li>
+      <li><strong>Bronze</strong> — o dado tipado, com o lixo de leitura removido.</li>
+      <li><strong>Silver</strong> — as regras de negócio aplicadas.</li>
+      <li><strong>Gold</strong> — o que painel, relatório e consulta leem.</li>
+    </ol>
+    <p class="prosa">
+      A regra que atravessa tudo: o dado bruto não é corrigido na ingestão. A
+      limpeza acontece no dbt, onde fica versionada, testada e visível no
+      histórico. Corrigir na coleta esconde o problema — no dia em que o número
+      estiver errado, ninguém acha onde foi mexido.
+    </p>
+  </div>
+</section>
+
+<section class="secao secao-alt">
+  <div class="container">
+    <h2>Rotinas de coleta</h2>
+    <p class="secao-intro">
+      {{ metricas.dags }} rotinas, de {{ metricas.fontes }} fontes, apoiadas em
+      {{ metricas.clientes }} clientes de API.
+    </p>
+    <div class="tabela-rolagem">
+      <table>
+        <thead><tr><th>Rotina</th><th>Fonte</th><th>Periodicidade</th><th>Marcadores</th></tr></thead>
+        <tbody>
+          {% for dag in dags %}
+          <tr>
+            <td><code>{{ dag.dag_id }}</code></td>
+            <td>{{ dag.fonte }}</td>
+            <td>{{ dag.schedule if dag.schedule else "—" }}</td>
+            <td>{% for t in dag.tags %}<span class="tag">{{ t }}</span> {% endfor %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="secao">
+  <div class="container">
+    <h2>Inventário das tabelas</h2>
+    <div class="tabela-rolagem">
+      <table>
+        <thead>
+          <tr><th>Tabela</th><th>Conjunto</th><th>Etapa</th><th>Materialização</th><th>Depende de</th><th>Verif.</th></tr>
+        </thead>
+        <tbody>
+          {% for m in modelos %}
+          <tr>
+            <td><code>{{ m.nome }}</code></td>
+            <td>{{ m.dominio }}</td>
+            <td><span class="camada camada-{{ m.camada }}">{{ m.camada }}</span></td>
+            <td>{{ m.materializacao if m.materializacao else "—" }}</td>
+            <td class="dep">{{ m.depende_de | join(", ") if m.depende_de else "—" }}</td>
+            <td class="num">{{ m.testes }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="secao secao-alt">
+  <div class="container">
+    <h2>Histórico de entregas</h2>
+    <p class="secao-intro">
+      Lido do histórico do repositório, de {{ metricas.desde }} a
+      {{ metricas.ate }}: {{ metricas.entregas }} entregas em
+      {{ metricas.prs }} pull requests revisados.
+    </p>
+    <div class="tabela-rolagem">
+      <table>
+        <thead><tr><th>Data</th><th>Tipo</th><th>Entrega</th></tr></thead>
+        <tbody>
+          {% for e in entregas[:25] %}
+          <tr>
+            <td class="nowrap">{{ e.data }}</td>
+            <td><span class="tag">{{ e.tipo }}</span></td>
+            <td>{{ e.texto }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

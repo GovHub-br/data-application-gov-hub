@@ -1,0 +1,91 @@
+name: Infra / CI
+description: Docker, Compose, Airflow, Superset, GitHub Actions ou configuração de ambiente
+title: "[Infra] "
+labels: ["Infra"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Para tudo que sustenta o pipeline sem ser o pipeline: imagem, orquestrador,
+        CI, ambiente local, credencial, dashboard.
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: O que está acontecendo hoje, ou o que falta.
+    validations:
+      required: true
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: Como o ambiente deve ficar depois desta mudança.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área afetada
+      multiple: true
+      options:
+        - Docker / Compose
+        - Airflow
+        - Postgres
+        - Superset
+        - GitHub Actions / CI
+        - Dependências (Poetry)
+        - Credenciais / VPN
+        - Outro
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ambiente
+    attributes:
+      label: Ambiente
+      multiple: true
+      options:
+        - Local
+        - Homologação
+        - Produção
+    validations:
+      required: true
+
+  - type: textarea
+    id: impacto
+    attributes:
+      label: Impacto
+      description: Quem para de trabalhar se isso quebrar, e o que precisa ser reiniciado ou reexecutado depois.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducao
+    attributes:
+      label: Como reproduzir
+      description: Só para correção. Comando rodado, o que era esperado, o que aconteceu, log relevante.
+      placeholder: |
+        Comando:
+        Esperado:
+        Aconteceu:
+        Log:
+
+  - type: checkboxes
+    id: aceite
+    attributes:
+      label: Critérios de aceite
+      options:
+        - label: A mudança foi validada no ambiente local
+        - label: "`make up` sobe sem erro a partir de um clone limpo"
+        - label: Nenhuma credencial real entrou em arquivo versionado
+        - label: A documentação afetada foi atualizada
+        - label: A equipe foi avisada, se exige ação de cada pessoa
+
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: Observações
+      description: Links, logs completos, versões envolvidas.

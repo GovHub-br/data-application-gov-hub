@@ -1,0 +1,89 @@
+name: Discovery / Requisitos
+description: Explorar uma base, levantar requisitos ou mapear fontes e campos antes de implementar
+title: "[Discovery] "
+labels: ["Discovery"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use quando ainda não se sabe o suficiente para implementar. A entrega aqui é
+        entendimento — e, quase sempre, as issues de implementação que saem dela.
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: Que demanda ou dúvida motivou esta investigação.
+    validations:
+      required: true
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: O que precisa ficar decidido ao final
+      description: Escreva como pergunta fechada. "Descobrir se os anexos do SALIC distinguem local de execução de local de pagamento" é melhor que "analisar o SALIC".
+    validations:
+      required: true
+
+  - type: textarea
+    id: perguntas
+    attributes:
+      label: Perguntas de negócio
+      description: Apague as que não se aplicam, acrescente as que faltam.
+      value: |
+        - Qual problema será resolvido?
+        - Quem usará a entrega?
+        - Quais indicadores são necessários?
+        - Qual granularidade é esperada?
+        - Qual periodicidade?
+        - Quais fontes devem ser usadas?
+        - Quais filtros ou recortes são necessários?
+    validations:
+      required: true
+
+  - type: textarea
+    id: fontes
+    attributes:
+      label: Fontes envolvidas
+      description: O que já se sabe que precisa ser olhado — sistema, tabela, planilha, documento.
+    validations:
+      required: true
+
+  - type: textarea
+    id: mapeamento
+    attributes:
+      label: Mapeamento de campos
+      description: Preencha conforme a investigação avança. Pode nascer vazio.
+      value: |
+        | Campo origem | Fonte | Campo destino | Regra |
+        |--------------|-------|---------------|-------|
+        |              |       |               |       |
+
+  - type: textarea
+    id: duvidas
+    attributes:
+      label: Dúvidas em aberto
+      description: Registre também as que dependem de resposta de fora da equipe, e de quem.
+
+  - type: input
+    id: solicitante
+    attributes:
+      label: Solicitante e prazo
+      placeholder: Área, pessoa responsável pela validação, prazo se houver
+
+  - type: checkboxes
+    id: aceite
+    attributes:
+      label: Critérios de aceite
+      options:
+        - label: As perguntas de negócio foram respondidas ou registradas como bloqueio
+        - label: As fontes foram mapeadas
+        - label: A granularidade e os recortes ficaram definidos
+        - label: As dúvidas em aberto estão registradas com responsável
+        - label: As issues de implementação foram criadas
+
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: Observações
+      description: Atas, links, planilhas, queries exploratórias.

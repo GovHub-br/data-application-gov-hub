@@ -1,0 +1,97 @@
+{% extends "base.html.j2" %}
+{% block conteudo %}
+
+<section class="hero hero-menor">
+  <div class="container">
+    {% if dominio.meta is defined %}<p class="eyebrow">Meta {{ dominio.meta }}</p>{% endif %}
+    <h1>{{ dominio.rotulo }}</h1>
+    <p class="hero-texto">{{ dominio.subtitulo }}</p>
+  </div>
+</section>
+
+<section class="secao">
+  <div class="container col-texto">
+    <h2>O problema</h2>
+    <p class="prosa">{{ dominio.contexto }}</p>
+
+    <h2>O que este conjunto faz</h2>
+    <p class="prosa">{{ dominio.o_que_faz }}</p>
+
+    <h2>Perguntas que ele responde</h2>
+    <ul class="perguntas">
+      {% for p in dominio.perguntas %}
+      <li>{{ p }}</li>
+      {% endfor %}
+    </ul>
+
+    {% if dominio.armadilhas is defined %}
+    <div class="aviso">
+      <p class="aviso-tag">Antes de citar estes números</p>
+      <p>{{ dominio.armadilhas }}</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="secao secao-alt">
+  <div class="container">
+    <h2>Tabelas de uso final</h2>
+    <p class="secao-intro">
+      São as tabelas prontas para consulta, painel ou relatório. O desenho
+      abaixo mostra o caminho que constrói cada uma, da origem até ela — é
+      gerado do próprio código, não desenhado à mão.
+    </p>
+
+    {% for gold in dominio.golds %}
+    <article class="gold">
+      <h3>{{ gold.nome }}</h3>
+      {% if gold.descricao %}<p class="gold-desc">{{ gold.descricao }}</p>{% endif %}
+      <p class="gold-meta">
+        {{ gold.colunas | length }} colunas
+        {% if gold.colunas_descritas %}({{ gold.colunas_descritas }} descritas){% endif %}
+        · {{ gold.testes }} verificações
+        {% if gold.materializacao %} · {{ gold.materializacao }}{% endif %}
+      </p>
+      {% if gold.linhagem %}
+      <figure class="figura">
+        <div class="linhagem-caixa">{{ gold.linhagem | safe }}</div>
+        <figcaption>Da origem até {{ gold.nome }}.</figcaption>
+      </figure>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="secao">
+  <div class="container">
+    <h2>Todas as tabelas do conjunto</h2>
+    <p class="secao-intro">
+      Organizadas pela etapa de tratamento: <strong>bronze</strong> é o dado
+      como chegou, <strong>silver</strong> é o dado limpo e com as regras
+      aplicadas, <strong>gold</strong> é o que vai a consumo.
+    </p>
+    <div class="tabela-rolagem">
+      <table>
+        <thead>
+          <tr><th>Tabela</th><th>Etapa</th><th>O que é</th><th>Verificações</th></tr>
+        </thead>
+        <tbody>
+          {% for m in dominio.modelos %}
+          <tr>
+            <td><code>{{ m.nome }}</code></td>
+            <td><span class="camada camada-{{ m.camada }}">{{ m.camada }}</span></td>
+            <td>{{ m.descricao if m.descricao else "—" }}</td>
+            <td class="num">{{ m.testes }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="nota">
+      Sistemas de origem: {{ dominio.sistemas | join(", ") }}.
+    </p>
+  </div>
+</section>
+
+{% endblock %}

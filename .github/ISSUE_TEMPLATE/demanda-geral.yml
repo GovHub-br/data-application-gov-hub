@@ -1,0 +1,74 @@
+name: Demanda geral
+description: Registrar uma demanda que ainda não se encaixa nos outros formulários
+title: ""
+# Este formulário deveria aplicar uma label de triagem, mas ela ainda não existe
+# no repositório. Crie a label "A classificar" (ver .github/labels.yml) e
+# descomente a linha abaixo — sem isso, a issue nasce sem label nenhuma.
+# labels: ["A classificar"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use só quando os outros cinco formulários não servirem. A primeira tarefa
+        desta issue é justamente descobrir de que tipo ela é — e, quando descobrir,
+        reabrir no formulário certo ou trocar a label à mão.
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: Descreva a demanda com as palavras de quem pediu, antes de traduzir para termos técnicos.
+    validations:
+      required: true
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Resultado esperado
+      description: O que precisa existir no fim para esta demanda estar atendida.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: palpite
+    attributes:
+      label: Palpite de tipo
+      description: Se já houver um. Serve para a triagem começar de algum lugar.
+      options:
+        - Não sei ainda
+        - Ingestão / DAG
+        - Modelo dbt
+        - Cruzamento entre bases
+        - Discovery / Requisitos
+        - Infra / CI
+        - Não é trabalho de dados
+
+  - type: textarea
+    id: fontes
+    attributes:
+      label: Fontes envolvidas
+      description: O que já se sabe. Pode ficar vazio.
+
+  - type: textarea
+    id: duvidas
+    attributes:
+      label: O que falta saber
+      description: As perguntas que impedem de classificar esta demanda hoje.
+
+  - type: checkboxes
+    id: aceite
+    attributes:
+      label: Tarefas de triagem
+      options:
+        - label: A demanda foi entendida
+        - label: O tipo foi identificado e a label trocada
+        - label: As fontes foram levantadas
+        - label: A meta que ela atende foi identificada, se houver
+        - label: As issues de implementação foram criadas
+        - label: Esta issue foi fechada apontando para as que a substituem
+
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: Observações
+      description: Links, documentos, quem pediu e quando.

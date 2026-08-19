@@ -1,0 +1,70 @@
+# Publica o site de documentação no GitHub Pages.
+#
+# O build roda OFFLINE, a partir do acervo versionado em docs-pages/src/_data/.
+# Não precisa de VPN, de banco nem de credencial — é por isso que este workflow
+# funciona e o antigo `dbt_docs` nunca funcionou.
+#
+# PRÉ-REQUISITO, uma vez: em Settings → Pages, mudar a origem de "Deploy from a
+# branch" para "GitHub Actions". Enquanto o Pages estiver servindo a branch
+# gh-pages, o deploy por artefato não tem para onde ir.
+name: Site de documentação
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs-pages/**"
+      - ".github/workflows/docs-pages.yaml"
+  pull_request:
+    paths:
+      - "docs-pages/**"
+      - ".github/workflows/docs-pages.yaml"
+  workflow_dispatch:
+
+concurrency:
+  group: docs-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências do site
+        run: pip install -r docs-pages/requirements.txt
+
+      # Só o build. A coleta roda na máquina de quem edita, e o acervo é
+      # versionado — assim o CI nunca precisa de rede nem de banco.
+      - name: Construir
+        run: |
+          cd docs-pages
+          PYTHONPATH=. python -m tooling.build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs-pages/site
+
+  deploy:
+    name: Publicar
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

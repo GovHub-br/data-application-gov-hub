@@ -1,0 +1,838 @@
+{
+  "entregas": [
+    {
+      "sha": "f608b22",
+      "autor": "Caio Melo Borges",
+      "data": "2026-08-12",
+      "assunto": "fix: põe plugins/helpers/dags no sys.path do pytest",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "põe plugins/helpers/dags no sys.path do pytest"
+    },
+    {
+      "sha": "a9fc1be",
+      "autor": "Caio Melo Borges",
+      "data": "2026-08-12",
+      "assunto": "refactor: reponta os modelos dbt para as tabelas novas e remove as views de compatibilidade",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "reponta os modelos dbt para as tabelas novas e remove as views de compatibilidade"
+    },
+    {
+      "sha": "59778a1",
+      "autor": "Caio Melo Borges",
+      "data": "2026-08-12",
+      "assunto": "feat: conforma o banco com a especificação do MinC (schemas, chaves e território)",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "conforma o banco com a especificação do MinC (schemas, chaves e território)"
+    },
+    {
+      "sha": "1af818d",
+      "autor": "Caio Melo Borges",
+      "data": "2026-08-05",
+      "assunto": "refactor: migra extração BB Ágil de JSON local para Postgres raw (#17)",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "migra extração BB Ágil de JSON local para Postgres raw (#17)"
+    },
+    {
+      "sha": "71e162f",
+      "autor": "Aninha",
+      "data": "2026-07-17",
+      "assunto": "feat: domínio cotas_dbt (Meta 3) (#16)",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "domínio cotas_dbt (Meta 3) (#16)"
+    },
+    {
+      "sha": "3df7716",
+      "autor": "Caio Melo Borges",
+      "data": "2026-07-09",
+      "assunto": "fix: corrige autenticação SCA, rotas BB Ágil e bugs de consolidação do fato_bbagil",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "corrige autenticação SCA, rotas BB Ágil e bugs de consolidação do fato_bbagil"
+    },
+    {
+      "sha": "2112b07",
+      "autor": "Caio Melo Borges",
+      "data": "2026-07-08",
+      "assunto": "feat:extração de dados bancários transferegov",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "extração de dados bancários transferegov"
+    },
+    {
+      "sha": "fea1663",
+      "autor": "devwallyson",
+      "data": "2026-07-01",
+      "assunto": "fix: ajusta valores do dbt project",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "ajusta valores do dbt project"
+    },
+    {
+      "sha": "872ecdf",
+      "autor": "Caio Melo Borges",
+      "data": "2026-06-18",
+      "assunto": "fix: resolve conflito de dependencias no pyproject.toml",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "resolve conflito de dependencias no pyproject.toml"
+    },
+    {
+      "sha": "d8cdcc6",
+      "autor": "arthrok",
+      "data": "2026-06-18",
+      "assunto": "refactor: atualiza ci/cd para nova estrutura",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "atualiza ci/cd para nova estrutura"
+    },
+    {
+      "sha": "644fe7b",
+      "autor": "arthrok",
+      "data": "2026-06-18",
+      "assunto": "refactor: atualiza ci/cd para nova estrutura",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "atualiza ci/cd para nova estrutura"
+    },
+    {
+      "sha": "20a2b8d",
+      "autor": "Caio Melo Borges",
+      "data": "2026-06-17",
+      "assunto": "fix(meta5): corrige falso negativo de contemplados na LPG",
+      "tipo": "fix",
+      "escopo": "meta5",
+      "texto": "corrige falso negativo de contemplados na LPG"
+    },
+    {
+      "sha": "5f643b6",
+      "autor": "Caio Melo Borges",
+      "data": "2026-06-16",
+      "assunto": "feat(meta5): implementa inferência de veterania, resolve lock concorrente no banco e barra nulos nos modelos incrementais",
+      "tipo": "feat",
+      "escopo": "meta5",
+      "texto": "implementa inferência de veterania, resolve lock concorrente no banco e barra nulos nos modelos incrementais"
+    },
+    {
+      "sha": "9e4fed2",
+      "autor": "arthrok",
+      "data": "2026-06-15",
+      "assunto": "refactor: adapta as dags pro bump de versão 2.8.1 -> 3.2.2",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "adapta as dags pro bump de versão 2.8.1 -> 3.2.2"
+    },
+    {
+      "sha": "640270a",
+      "autor": "arthrok",
+      "data": "2026-06-14",
+      "assunto": "refactor: altera estrutura de pastas do projeto",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "altera estrutura de pastas do projeto"
+    },
+    {
+      "sha": "8be698b",
+      "autor": "Caio Melo Borges",
+      "data": "2026-06-11",
+      "assunto": "fix(cosmos): adiciona fallback nas env_vars do profiles.yml para corrigir parsing da DAG",
+      "tipo": "fix",
+      "escopo": "cosmos",
+      "texto": "adiciona fallback nas env_vars do profiles.yml para corrigir parsing da DAG"
+    },
+    {
+      "sha": "36a1a88",
+      "autor": "Caio Melo Borges",
+      "data": "2026-06-11",
+      "assunto": "refactor: refatora env.example para conexão com o banco para o dbt",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "refatora env.example para conexão com o banco para o dbt"
+    },
+    {
+      "sha": "c4fea61",
+      "autor": "Caio Melo Borges",
+      "data": "2026-06-11",
+      "assunto": "feat(analytics): unifica dados de proponentes LPG e PNAB para Meta 5",
+      "tipo": "feat",
+      "escopo": "analytics",
+      "texto": "unifica dados de proponentes LPG e PNAB para Meta 5"
+    },
+    {
+      "sha": "a980c0b",
+      "autor": "Caio Melo Borges",
+      "data": "2026-06-09",
+      "assunto": "feat: adiciona pipeline dbt para meta 5 de agentes (bronze a gold)",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "adiciona pipeline dbt para meta 5 de agentes (bronze a gold)"
+    },
+    {
+      "sha": "1611c2e",
+      "autor": "Caio Melo Borges",
+      "data": "2026-04-13",
+      "assunto": "refactor(minc): implementa orquestracao em cascata com triggerdagrun",
+      "tipo": "refactor",
+      "escopo": "minc",
+      "texto": "implementa orquestracao em cascata com triggerdagrun"
+    },
+    {
+      "sha": "e9b91c6",
+      "autor": "Caio Melo Borges",
+      "data": "2026-04-09",
+      "assunto": "feat(minc): adiciona cliente backend e pipeline de anexos dos relatorios",
+      "tipo": "feat",
+      "escopo": "minc",
+      "texto": "adiciona cliente backend e pipeline de anexos dos relatorios"
+    },
+    {
+      "sha": "5253fb3",
+      "autor": "Caio Melo Borges",
+      "data": "2026-04-09",
+      "assunto": "fix(minc): parametriza nome da tabela no plugin e aponta dag para raw_planos_acao",
+      "tipo": "fix",
+      "escopo": "minc",
+      "texto": "parametriza nome da tabela no plugin e aponta dag para raw_planos_acao"
+    },
+    {
+      "sha": "57e820b",
+      "autor": "devwallyson",
+      "data": "2026-04-09",
+      "assunto": "feat(minc): implementa DAG para extração e carga de planos de ação no PostgreSQL",
+      "tipo": "feat",
+      "escopo": "minc",
+      "texto": "implementa DAG para extração e carga de planos de ação no PostgreSQL"
+    },
+    {
+      "sha": "a07e546",
+      "autor": "Caio Melo Borges",
+      "data": "2026-04-08",
+      "assunto": "feat(minc): cria pipeline de ingestao para relatorios de gestao com fail-fast",
+      "tipo": "feat",
+      "escopo": "minc",
+      "texto": "cria pipeline de ingestao para relatorios de gestao com fail-fast"
+    },
+    {
+      "sha": "70f7d0e",
+      "autor": "Caio Melo Borges",
+      "data": "2026-04-08",
+      "assunto": "refactor(minc): atualiza schema de destino para transferegov_fundo_a_fundo e corrige id da dag",
+      "tipo": "refactor",
+      "escopo": "minc",
+      "texto": "atualiza schema de destino para transferegov_fundo_a_fundo e corrige id da dag"
+    },
+    {
+      "sha": "53122a9",
+      "autor": "Caio Melo Borges",
+      "data": "2026-04-08",
+      "assunto": "fix(ingest): corrigindo imports na dag extração de programas",
+      "tipo": "fix",
+      "escopo": "ingest",
+      "texto": "corrigindo imports na dag extração de programas"
+    },
+    {
+      "sha": "71bb91a",
+      "autor": "Caio Melo Borges",
+      "data": "2026-04-08",
+      "assunto": "feat(ingest): implementa extração de programas TransfereGov",
+      "tipo": "feat",
+      "escopo": "ingest",
+      "texto": "implementa extração de programas TransfereGov"
+    },
+    {
+      "sha": "c3dee89",
+      "autor": "Caio Melo Borges",
+      "data": "2026-04-08",
+      "assunto": "feat: atualizando gitignore",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "atualizando gitignore"
+    },
+    {
+      "sha": "36ed3f0",
+      "autor": "Caio Melo Borges",
+      "data": "2026-04-08",
+      "assunto": "fix: corrigindo plugin para adicionar laço que percorre todos os planos de ação",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "corrigindo plugin para adicionar laço que percorre todos os planos de ação"
+    },
+    {
+      "sha": "cd8f677",
+      "autor": "Caio Melo Borges",
+      "data": "2026-04-07",
+      "assunto": "feat(plugins): implementa cliente para API TransfereGov Fundo a Fundo",
+      "tipo": "feat",
+      "escopo": "plugins",
+      "texto": "implementa cliente para API TransfereGov Fundo a Fundo"
+    },
+    {
+      "sha": "b26aa77",
+      "autor": "Wallyson Souza",
+      "data": "2026-04-06",
+      "assunto": "feat(sgac): adiciona ingestao de projetos via anexo CSV de email (#140)",
+      "tipo": "feat",
+      "escopo": "sgac",
+      "texto": "adiciona ingestao de projetos via anexo CSV de email (#140)"
+    },
+    {
+      "sha": "f4e5fe5",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-04-06",
+      "assunto": "feat: parametrização data recebimento email dags mir (#139)",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "parametrização data recebimento email dags mir (#139)"
+    },
+    {
+      "sha": "93eab5b",
+      "autor": "Luana",
+      "data": "2026-04-02",
+      "assunto": "fix: incluindo todos os deputados ativos e nao ativos",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "incluindo todos os deputados ativos e nao ativos"
+    },
+    {
+      "sha": "b171cce",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-04-02",
+      "assunto": "feat: task unica ingest & insert xcom bloat prevent",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "task unica ingest & insert xcom bloat prevent"
+    },
+    {
+      "sha": "decb10e",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-04-02",
+      "assunto": "feat: bulk logic IMAP eficience",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "bulk logic IMAP eficience"
+    },
+    {
+      "sha": "641523d",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-03-29",
+      "assunto": "feat(silver): silver parlamentares e logo seed",
+      "tipo": "feat",
+      "escopo": "silver",
+      "texto": "silver parlamentares e logo seed"
+    },
+    {
+      "sha": "fb0ec56",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-03-27",
+      "assunto": "feat(bronze): emendas tesouro gerencial",
+      "tipo": "feat",
+      "escopo": "bronze",
+      "texto": "emendas tesouro gerencial"
+    },
+    {
+      "sha": "1ca0c3c",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-03-20",
+      "assunto": "feat(dag): siafi email empenhos emendas parlamentares",
+      "tipo": "feat",
+      "escopo": "dag",
+      "texto": "siafi email empenhos emendas parlamentares"
+    },
+    {
+      "sha": "9427e2b",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-03-18",
+      "assunto": "feat: silver planos cruzada com parlamentares",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "silver planos cruzada com parlamentares"
+    },
+    {
+      "sha": "ee444be",
+      "autor": "Mateushqms",
+      "data": "2026-03-18",
+      "assunto": "feat: camada bronze empenhos ted",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "camada bronze empenhos ted"
+    },
+    {
+      "sha": "e892d36",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-03-18",
+      "assunto": "feat: fallback csv vazio ingest",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "fallback csv vazio ingest"
+    },
+    {
+      "sha": "1ac8f63",
+      "autor": "Mateushqms",
+      "data": "2026-03-16",
+      "assunto": "refactor: otimizacao das dags que faziam processos de chunks desnecessários",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "otimizacao das dags que faziam processos de chunks desnecessários"
+    },
+    {
+      "sha": "355d508",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-03-13",
+      "assunto": "feat(dag): siafi email empenhos parlamentares",
+      "tipo": "feat",
+      "escopo": "dag",
+      "texto": "siafi email empenhos parlamentares"
+    },
+    {
+      "sha": "3362b41",
+      "autor": "Mateushqms",
+      "data": "2026-03-16",
+      "assunto": "refactor: ajustes para nao dar erro no sonar",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "ajustes para nao dar erro no sonar"
+    },
+    {
+      "sha": "e62fb62",
+      "autor": "Mateushqms",
+      "data": "2026-03-16",
+      "assunto": "feat: atualizar cliente TED e pipelines MIR no ingestão de dados",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "atualizar cliente TED e pipelines MIR no ingestão de dados"
+    },
+    {
+      "sha": "4021d4c",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-03-13",
+      "assunto": "fix: refs pastas mir inesistentes (#100)",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "refs pastas mir inesistentes (#100)"
+    },
+    {
+      "sha": "290fd1d",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-03-07",
+      "assunto": "feat: camada bronze senadores e docs",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "camada bronze senadores e docs"
+    },
+    {
+      "sha": "b6d1869",
+      "autor": "cibelinda",
+      "data": "2026-03-04",
+      "assunto": "feat: implementa ingestão de senadores",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "implementa ingestão de senadores"
+    },
+    {
+      "sha": "f3fdd7a",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-03-04",
+      "assunto": "fix: sources missing transferegov_emendas",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "sources missing transferegov_emendas"
+    },
+    {
+      "sha": "5ddf37d",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-03-04",
+      "assunto": "feat: modelagem bronze emendas",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "modelagem bronze emendas"
+    },
+    {
+      "sha": "b93650d",
+      "autor": "Mateushqms",
+      "data": "2026-03-04",
+      "assunto": "fix: ajustes na identacao e add url imagem",
+      "tipo": "fix",
+      "escopo": "",
+      "texto": "ajustes na identacao e add url imagem"
+    },
+    {
+      "sha": "ae81b84",
+      "autor": "Mateushqms",
+      "data": "2026-03-04",
+      "assunto": "feat: criacao da camanda bronze para deputados",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "criacao da camanda bronze para deputados"
+    },
+    {
+      "sha": "da376a4",
+      "autor": "Mateushqms",
+      "data": "2026-03-04",
+      "assunto": "feat: criacao da dag e cliente para extrair os partidos dos deputados",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "criacao da dag e cliente para extrair os partidos dos deputados"
+    },
+    {
+      "sha": "d5ff594",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-03-02",
+      "assunto": "feat: dag extração finalidade paginada (#68)",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "dag extração finalidade paginada (#68)"
+    },
+    {
+      "sha": "b2f7c63",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-03-02",
+      "assunto": "feat(metadata): nova tabela de metadados (dt-transform) (#62)",
+      "tipo": "feat",
+      "escopo": "metadata",
+      "texto": "nova tabela de metadados (dt-transform) (#62)"
+    },
+    {
+      "sha": "e737cba",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-02-26",
+      "assunto": "feat: extração historico pagamento emendas",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "extração historico pagamento emendas"
+    },
+    {
+      "sha": "06c36e2",
+      "autor": "Mateushqms",
+      "data": "2026-02-26",
+      "assunto": "refactor: atribuição desnecessária de dag_instance",
+      "tipo": "refactor",
+      "escopo": "",
+      "texto": "atribuição desnecessária de dag_instance"
+    },
+    {
+      "sha": "5e02502",
+      "autor": "Mateushqms",
+      "data": "2026-02-26",
+      "assunto": "feat: dag ingestao plano de trabalho",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "dag ingestao plano de trabalho"
+    },
+    {
+      "sha": "b3aab07",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-02-25",
+      "assunto": "feat: dag extração ordem pagamento e bancária",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "dag extração ordem pagamento e bancária"
+    },
+    {
+      "sha": "b9604e9",
+      "autor": "Tiago Santos Bittencourt",
+      "data": "2026-02-14",
+      "assunto": "feat: nova dag relatorios gestao novo",
+      "tipo": "feat",
+      "escopo": "",
+      "texto": "nova dag relatorios gestao novo"
+    },
+    {
+      "sha": "bdc0e30",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-02-04",
+      "assunto": "feat(dag): extração paginada para  eficiêcia (#61)",
+      "tipo": "feat",
+      "escopo": "dag",
+      "texto": "extração paginada para  eficiêcia (#61)"
+    },
+    {
+      "sha": "31d605d",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-01-26",
+      "assunto": "feat(metas): dag de extração metas_especiais (#60)",
+      "tipo": "feat",
+      "escopo": "metas",
+      "texto": "dag de extração metas_especiais (#60)"
+    },
+    {
+      "sha": "3c51ea4",
+      "autor": "Tiago Bittencourt",
+      "data": "2026-01-26",
+      "assunto": "feat(dag): extração documentos hábeis transferegov (#57)",
+      "tipo": "feat",
+      "escopo": "dag",
+      "texto": "extração documentos hábeis transferegov (#57)"
+    },
+    {
+      "sha": "0e09905",
+      "autor": "arthrok",
+      "data": "2026-01-06",
+      "assunto": "fix(ci): ajusta nome da imagem pra lower case",
+      "tipo": "fix",
+      "escopo": "ci",
+      "texto": "ajusta nome da imagem pra lower case"
+    },
+    {
+      "sha": "2ad3492",
+      "autor": "Tiago Bittencourt",
+      "data": "2025-12-12",
+      "assunto": "feat(schedule): retorno default, evita dag break (#56)",
+      "tipo": "feat",
+      "escopo": "schedule",
+      "texto": "retorno default, evita dag break (#56)"
+    },
+    {
+      "sha": "dabb294",
+      "autor": "arthrok",
+      "data": "2025-12-03",
+      "assunto": "fix(ci): corrige path da pasta de actions",
+      "tipo": "fix",
+      "escopo": "ci",
+      "texto": "corrige path da pasta de actions"
+    },
+    {
+      "sha": "8f2e9b4",
+      "autor": "arthrok",
+      "data": "2025-12-03",
+      "assunto": "feat(ci): adiciona sqlfluff no ci",
+      "tipo": "feat",
+      "escopo": "ci",
+      "texto": "adiciona sqlfluff no ci"
+    },
+    {
+      "sha": "14b0128",
+      "autor": "arthrok",
+      "data": "2025-12-01",
+      "assunto": "feat(ci): modulariza action do poetry",
+      "tipo": "feat",
+      "escopo": "ci",
+      "texto": "modulariza action do poetry"
+    },
+    {
+      "sha": "6df0667",
+      "autor": "arthrok",
+      "data": "2025-12-01",
+      "assunto": "refactor(ci): refatora ci corrigindo stages e jobs",
+      "tipo": "refactor",
+      "escopo": "ci",
+      "texto": "refatora ci corrigindo stages e jobs"
+    },
+    {
+      "sha": "3f811e2",
+      "autor": "Tiago Bittencourt",
+      "data": "2025-11-21",
+      "assunto": "feat(dags): paramentização do schedule das dags usando Airflow vars",
+      "tipo": "feat",
+      "escopo": "dags",
+      "texto": "paramentização do schedule das dags usando Airflow vars"
+    },
+    {
+      "sha": "73d6d5e",
+      "autor": "GabrielaTiago",
+      "data": "2025-11-19",
+      "assunto": "feat(docs): adiciona template de mensagem de commit",
+      "tipo": "feat",
+      "escopo": "docs",
+      "texto": "adiciona template de mensagem de commit"
+    },
+    {
+      "sha": "0bf2509",
+      "autor": "davi-aguiar-vieira",
+      "data": "2025-11-19",
+      "assunto": "feat(dags): padroniza transferegov",
+      "tipo": "feat",
+      "escopo": "dags",
+      "texto": "padroniza transferegov"
+    },
+    {
+      "sha": "318cb3f",
+      "autor": "davi-aguiar-vieira",
+      "data": "2025-11-19",
+      "assunto": "feat(dags): renomeia pasta do transferegov e esquema de inserção",
+      "tipo": "feat",
+      "escopo": "dags",
+      "texto": "renomeia pasta do transferegov e esquema de inserção"
+    },
+    {
+      "sha": "16ea34d",
+      "autor": "davi-aguiar-vieira",
+      "data": "2025-11-19",
+      "assunto": "feat(airflow): ingestao de programas e plano de acao transferegov",
+      "tipo": "feat",
+      "escopo": "airflow",
+      "texto": "ingestao de programas e plano de acao transferegov"
+    },
+    {
+      "sha": "d6a2222",
+      "autor": "mat054",
+      "data": "2025-10-27",
+      "assunto": "fix(linter): corrigindo erros de formatacao do linter",
+      "tipo": "fix",
+      "escopo": "linter",
+      "texto": "corrigindo erros de formatacao do linter"
+    },
+    {
+      "sha": "bcba8c9",
+      "autor": "mat054",
+      "data": "2025-10-27",
+      "assunto": "fix(schema oficial): removendo schema de todas as tabelas juntas",
+      "tipo": "fix",
+      "escopo": "schema oficial",
+      "texto": "removendo schema de todas as tabelas juntas"
+    },
+    {
+      "sha": "5acf698",
+      "autor": "mat054",
+      "data": "2025-10-27",
+      "assunto": "feat(macros): adicionando schema das macros na pasta das macros",
+      "tipo": "feat",
+      "escopo": "macros",
+      "texto": "adicionando schema das macros na pasta das macros"
+    },
+    {
+      "sha": "767e132",
+      "autor": "mat054",
+      "data": "2025-10-27",
+      "assunto": "feat(contratos bronze): adicionando schemas das tabelas bronze de contratos",
+      "tipo": "feat",
+      "escopo": "contratos bronze",
+      "texto": "adicionando schemas das tabelas bronze de contratos"
+    },
+    {
+      "sha": "ea3555e",
+      "autor": "mat054",
+      "data": "2025-10-27",
+      "assunto": "feat(contratos gold): adiconando schema das tabelas gold de contratos",
+      "tipo": "feat",
+      "escopo": "contratos gold",
+      "texto": "adiconando schema das tabelas gold de contratos"
+    },
+    {
+      "sha": "678ecf7",
+      "autor": "mat054",
+      "data": "2025-10-27",
+      "assunto": "feat(contratos silver): adicionando schema das tabelas silver de contratos",
+      "tipo": "feat",
+      "escopo": "contratos silver",
+      "texto": "adicionando schema das tabelas silver de contratos"
+    }
+  ],
+  "pull_requests": [
+    {
+      "numero": 20,
+      "titulo": "refactor: conforma schemas e tabelas à especificação do banco do MinC",
+      "autor": "CaioMelo25",
+      "data": "2026-08-13",
+      "linhas": 2126
+    },
+    {
+      "numero": 17,
+      "titulo": "refactor: migra extração BB Ágil de JSON local para Postgres raw",
+      "autor": "CaioMelo25",
+      "data": "2026-08-05",
+      "linhas": 968
+    },
+    {
+      "numero": 16,
+      "titulo": "feat: domínio cotas_dbt (Meta 3)",
+      "autor": "ananunesv",
+      "data": "2026-07-18",
+      "linhas": 1600
+    },
+    {
+      "numero": 15,
+      "titulo": "Feature/dbt data quality",
+      "autor": "devwallyson",
+      "data": "2026-07-15",
+      "linhas": 6757
+    },
+    {
+      "numero": 13,
+      "titulo": "Refactor/architecture",
+      "autor": "Arthrok",
+      "data": "2026-06-18",
+      "linhas": 17470
+    },
+    {
+      "numero": 9,
+      "titulo": "Feat/ingestao fundo a fundo",
+      "autor": "CaioMelo25",
+      "data": "2026-06-09",
+      "linhas": 2318
+    },
+    {
+      "numero": 1,
+      "titulo": "Feat/ingestao fundo a fundo",
+      "autor": "CaioMelo25",
+      "data": "2026-04-15",
+      "linhas": 601
+    }
+  ],
+  "por_mes": {
+    "2025-01": 2,
+    "2025-02": 8,
+    "2025-03": 11,
+    "2025-04": 10,
+    "2025-05": 28,
+    "2025-06": 3,
+    "2025-07": 2,
+    "2025-08": 6,
+    "2025-09": 1,
+    "2025-10": 16,
+    "2025-11": 5,
+    "2025-12": 5,
+    "2026-01": 3,
+    "2026-02": 6,
+    "2026-03": 20,
+    "2026-04": 16,
+    "2026-06": 11,
+    "2026-07": 4,
+    "2026-08": 4
+  },
+  "autores": {
+    "davi-aguiar-vieira": 36,
+    "Davi de Aguiar Vieira": 28,
+    "Caio Melo Borges": 24,
+    "Tiago Santos Bittencourt": 22,
+    "VictorSzk": 20,
+    "Joyce Dionizio": 19,
+    "mat054": 18,
+    "arthrok": 17,
+    "Joyce": 17,
+    "Tiago Bittencourt": 10,
+    "Mateushqms": 10,
+    "Mateus de Castro": 8,
+    "MatDias97": 6,
+    "João Henrique Egewarth": 5,
+    "joao": 5,
+    "devwallyson": 3,
+    "Lucas Bottino": 3,
+    "Mateus Henrique Queiroz Magalhães Sousa": 3,
+    "Matheus Dias Maciel": 3,
+    "Wallyson Souza": 2,
+    "Luana": 2,
+    "Carla Rocha": 2,
+    "João Freitas": 2,
+    "Pedro Rossi": 2,
+    "Arthur Melo": 2,
+    "Aninha": 1,
+    "LuizaMaluf": 1,
+    "cibelinda": 1,
+    "Leonardo Bonetti": 1,
+    "GabrielaTiago": 1,
+    "João Egewarth": 1,
+    "Marcus Martins": 1,
+    "pedro.rossi1": 1
+  },
+  "totais": {
+    "commits": 277,
+    "entregas": 161,
+    "pull_requests": 7,
+    "primeiro_commit": "2024-12-12",
+    "ultimo_commit": "2026-08-12"
+  }
+}

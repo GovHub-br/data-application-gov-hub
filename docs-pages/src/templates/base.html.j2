@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ titulo }} · Dados do MinC no Gov Hub</title>
+<meta name="description" content="Documentação dos dados da PNAB e da Lei Paulo Gustavo no Gov Hub BR.">
+<link rel="stylesheet" href="assets/tema.css">
+</head>
+<body>
+
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+{% include "_partials/nav.html.j2" %}
+
+<main id="conteudo">
+{% block conteudo %}{% endblock %}
+</main>
+
+<footer class="rodape">
+  <div class="container">
+    <p>
+      <strong>Dados do Ministério da Cultura no Gov Hub BR.</strong>
+      Os números desta página são lidos do repositório a cada publicação —
+      nenhum é digitado à mão. O texto que explica o que eles significam é
+      escrito e revisado pela equipe.
+    </p>
+    <p class="rodape-meta">
+      Acervo coletado do repositório
+      <a href="https://github.com/GovHub-br/data-application-minc">data-application-minc</a>.
+      Página gerada em {{ gerado_em }}.
+      Mantido pelo <a href="https://www.instagram.com/lab.livre/">Lab Livre</a>.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

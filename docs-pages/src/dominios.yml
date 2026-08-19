@@ -1,0 +1,138 @@
+# Curadoria do site de documentação do data-application-minc.
+#
+# ESTE É O ÚNICO ARQUIVO ESCRITO À MÃO. Contagens, modelos, DAGs e entregas são
+# lidos do repositório a cada coleta — aqui fica só o que o código não sabe
+# dizer: o que cada conjunto de dados significa e para que ele serve.
+#
+# COMO ESCREVER AQUI
+#   O público não é só quem programa. É também quem é de geografia, estatística,
+#   comunicação e gestão. A régua: uma pessoa que nunca abriu o repositório
+#   precisa entender o que este domínio responde, sem abrir nenhum arquivo.
+#
+#   Escreva o problema antes da solução. "Ninguém sabia se a cota estava sendo
+#   cumprida" explica mais que "modelagem dimensional das cotas".
+#
+# O QUE NÃO FAZER
+#   Não digite número aqui. Se um número precisa aparecer no site, ele se
+#   calcula em tooling/dados.py e o template consome. Número escrito à mão
+#   mente na primeira mudança do repositório, e ninguém percebe.
+#
+# REVISAR ANTES DE PUBLICAR
+#   Os campos marcados com "A CONFERIR" precisam de validação de quem conhece a
+#   política antes de o site ir ao ar. Estão escritos com o que o repositório
+#   permite afirmar, e podem estar incompletos.
+
+programa:
+  nome: Política Nacional Aldir Blanc e Lei Paulo Gustavo
+  sigla: PNAB / LPG
+  resumo: |
+    Duas políticas de fomento à cultura que repassam recursos federais a estados
+    e municípios, que por sua vez selecionam e pagam agentes culturais. Este
+    repositório acompanha esse caminho do dinheiro e o perfil de quem recebe.
+  por_que_e_dificil: |
+    O dado não nasce num lugar só. Ele vem de sistemas diferentes, de formatos
+    diferentes e em momentos diferentes: o repasse ao ente federado está no
+    TransfereGov, o pagamento ao agente cultural está nas planilhas de relatório
+    de gestão e no BB Ágil, e o perfil de quem recebeu — raça, deficiência,
+    território — está numa terceira ponta, preenchida pelo próprio proponente.
+    Cruzar isso é o trabalho, e é onde os números costumam divergir.
+
+# As metas que o repositório acompanha. Servem de eixo do site: cada domínio
+# responde a uma delas.
+metas:
+  - numero: 2
+    rotulo: Execução Financeira
+    resumo: |
+      Quanto foi repassado, para quem, e quanto disso chegou de fato ao agente
+      cultural. São duas perguntas diferentes, e confundi-las é o erro mais caro
+      da análise.
+    situacao: em construção
+
+  - numero: 3
+    rotulo: Diversidade, Cotas e Territórios
+    resumo: |
+      As leis reservam parte dos recursos para pessoas negras, indígenas, com
+      deficiência e — na LPG — de territórios vulnerabilizados. A pergunta é
+      simples de enunciar e difícil de responder: a reserva foi cumprida?
+    situacao: com resultado
+
+  - numero: 5
+    rotulo: Primeiro Acesso
+    resumo: |
+      Quantos dos contemplados nunca haviam acessado recurso público de fomento
+      à cultura antes. É o indicador de que a política alcançou gente nova, e
+      não apenas quem já sabia acessar.
+    situacao: com resultado
+
+dominios:
+  - slug: cotas
+    rotulo: Cotas e territórios
+    meta: 3
+    subtitulo: A reserva legal foi cumprida, e com que grau de confiança
+    contexto: |
+      A PNAB e a Lei Paulo Gustavo reservam percentuais dos recursos para
+      pessoas negras, indígenas e com deficiência; a LPG acrescenta uma reserva
+      territorial. Antes deste trabalho não havia como responder se a reserva
+      foi cumprida — os pagamentos estavam num sistema, e o perfil de quem
+      recebeu, em outro, sem chave comum confiável.
+    o_que_faz: |
+      Parte do pagamento, e não do proponente: cada linha da tabela base é um
+      pagamento, com marcações de qual cota ele atende, se o perfil de quem
+      recebeu é conhecido e de que ano o recurso é. A partir daí, calcula a
+      distribuição por cota e compara com o que a lei exige, separando PNAB de
+      LPG porque as reservas são diferentes.
+    perguntas:
+      - Que percentual dos recursos foi para agentes de cada cota?
+      - A reserva legal foi cumprida em cada programa?
+      - De quantos pagamentos a gente sabe o perfil de quem recebeu?
+      - Que parcela do total está datada com confiança?
+    sistemas: [TransfereGov, BB Ágil, Relatórios de gestão, FCU]
+    armadilhas: |
+      Duas coisas que quem lê estes números precisa saber. A primeira: o valor
+      total dos repasses não é o valor pago a agentes culturais — o repasse vai
+      ao ente federado, que depois paga o agente, e os dois montantes são
+      diferentes por ordens de grandeza. A segunda: a cobertura não é de 100%.
+      Parte dos pagamentos não tem perfil declarado ou não tem ano confiável, e
+      há uma tabela específica no domínio que mede esse teto de confiabilidade.
+      Ler a distribuição sem olhar a cobertura leva a conclusão errada.
+
+  - slug: agentes
+    rotulo: Perfil dos agentes
+    meta: 5
+    subtitulo: Quem são os proponentes, e quantos chegaram pela primeira vez
+    contexto: |
+      Uma política de fomento pode distribuir muito recurso e ainda assim
+      alcançar sempre as mesmas pessoas. O indicador de primeiro acesso existe
+      para responder se a política alargou o alcance — quantos contemplados
+      nunca haviam acessado fomento público antes.
+    o_que_faz: |
+      Consolida os proponentes das duas leis num cadastro único por documento
+      (CPF ou CNPJ), resolvendo o mesmo agente aparecendo escrito de formas
+      diferentes em fontes diferentes. Sobre esse cadastro, classifica cada
+      proponente pelo histórico de acesso a fomento e cruza com a informação de
+      quem foi de fato contemplado.
+    perguntas:
+      - Quantos proponentes distintos existem, sem contar a mesma pessoa duas vezes?
+      - Quantos acessaram fomento público pela primeira vez?
+      - Entre os contemplados, qual a proporção de primeiro acesso?
+      - Como o perfil muda entre PNAB e LPG?
+    sistemas: [Relatórios de gestão, BB Ágil, TransfereGov]
+    armadilhas: |
+      O histórico de acesso anterior é declarado pelo próprio proponente no
+      formulário de inscrição, não verificado contra uma base externa. É a única
+      informação disponível, e é o que o indicador mede — mas quem cita o número
+      precisa dizer isso junto.
+
+  - slug: metadata
+    rotulo: Metadados do pipeline
+    subtitulo: O que o próprio pipeline registra sobre sua execução
+    contexto: |
+      Domínio de apoio: guarda o que o pipeline sabe sobre si mesmo. Não
+      responde pergunta de política pública, e existe para dar rastreabilidade
+      ao resto.
+    o_que_faz: |
+      Registra informação de execução usada pelos outros domínios para datar e
+      rastrear a origem dos registros.
+    perguntas:
+      - De que arquivo e de que carga veio determinado registro?
+    sistemas: [Interno]

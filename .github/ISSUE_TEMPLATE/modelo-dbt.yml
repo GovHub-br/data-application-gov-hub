@@ -1,0 +1,124 @@
+name: Modelo dbt
+description: Criar, ajustar ou validar modelo dbt — inclui tratamento e tabela gold
+title: "[dbt] "
+labels: ["DBT"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use este formulário para qualquer transformação dentro de `dbt/minc/models/`,
+        em qualquer camada. Junção de duas ou mais bases tem formulário próprio:
+        **Cruzamento entre bases**.
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: Que problema este modelo resolve? Se for correção, o que está errado hoje?
+    validations:
+      required: true
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: Qual transformação ou modelagem é esperada.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: dominio
+    attributes:
+      label: Domínio
+      options:
+        - cotas_dbt
+        - agentes_dbt
+        - metadata
+        - Novo domínio
+    validations:
+      required: true
+
+  - type: dropdown
+    id: camada
+    attributes:
+      label: Camada
+      description: Gold é o que vai a consumo — dashboard, relatório ou API.
+      options:
+        - bronze
+        - silver
+        - gold
+        - views
+    validations:
+      required: true
+
+  - type: textarea
+    id: modelos
+    attributes:
+      label: Modelos envolvidos
+      value: |
+        - Modelo(s) de origem:
+        - Modelo de destino:
+    validations:
+      required: true
+
+  - type: textarea
+    id: granularidade
+    attributes:
+      label: Granularidade
+      description: O que uma linha da tabela final representa. É a pergunta que mais gera retrabalho quando fica implícita.
+      placeholder: Uma linha por proponente contemplado por edital.
+    validations:
+      required: true
+
+  - type: textarea
+    id: regras
+    attributes:
+      label: Regras de transformação
+      description: Filtros, deduplicação, conversões, regras de negócio a aplicar.
+
+  - type: checkboxes
+    id: problemas
+    attributes:
+      label: Problemas conhecidos na origem
+      description: Marque o que já se sabe que vai precisar de tratamento.
+      options:
+        - label: Dados nulos
+        - label: Duplicidades
+        - label: Tipos incorretos
+        - label: Datas inconsistentes
+        - label: Campos fora do padrão
+        - label: Nenhum conhecido até agora
+
+  - type: textarea
+    id: campos
+    attributes:
+      label: Campos principais
+      description: Preencha o que já souber. O que faltar sai na implementação.
+      value: |
+        | Campo | Tipo | Origem | Regra |
+        |-------|------|--------|-------|
+        |       |      |        |       |
+
+  - type: textarea
+    id: consumidores
+    attributes:
+      label: Quem consome
+      description: Só para camada gold. Dashboard, relatório, API, área.
+
+  - type: checkboxes
+    id: aceite
+    attributes:
+      label: Critérios de aceite
+      options:
+        - label: "`dbt run` executa sem erro"
+        - label: "`dbt test` passa"
+        - label: A granularidade da tabela final é a declarada acima
+        - label: As regras de transformação foram aplicadas
+        - label: Os campos estão descritos no schema.yml
+        - label: Os números foram conferidos contra a origem
+
+  - type: textarea
+    id: observacoes
+    attributes:
+      label: Observações
+      description: Queries, links, contagens esperadas ou referências.

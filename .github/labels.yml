@@ -1,0 +1,105 @@
+# Vocabulário de labels do repositório.
+#
+# Este arquivo é a referência versionada — o GitHub não o lê. Ele existe para a
+# criação das labels ser reproduzível e para o desenho ficar registrado.
+#
+# O vocabulário tem três eixos independentes, e é de propósito que eles não se
+# misturem numa lista plana:
+#
+#   tipo      que trabalho é isso        aplicado pelo formulário, automaticamente
+#   meta      para que esse trabalho serve   aplicado por pessoa
+#   controle  lido por máquina              aplicado por pessoa, causa efeito
+#   natureza  atravessa o tipo             aplicado por pessoa
+#
+# Formulário e label não são um-para-um: `cruzamento.yml` e `modelo-dbt.yml`
+# aplicam a mesma label `DBT`. O formulário existe para perguntar certo; a label,
+# para filtrar.
+
+tipo:
+  - name: "Ingestão"
+    color: "5319e7"
+    description: "Cliente de API, DAG de extração, carga no datalake"
+    formulario: ingestao-dag.yml
+
+  - name: "DBT"
+    color: "5319e7"
+    description: "Modelo dbt, camada, teste — inclui cruzamento entre bases"
+    formulario: [modelo-dbt.yml, cruzamento.yml]
+
+  - name: "Discovery"
+    color: "5319e7"
+    description: "Exploração, requisitos, mapeamento de fontes e campos"
+    formulario: discovery.yml
+
+  - name: "Infra"
+    color: "eaf9b9"
+    description: "Docker, CI, Airflow, Superset"
+    formulario: infra-ci.yml
+
+  # PENDENTE — ainda não existe no repositório.
+  # Sem ela, o formulário `demanda-geral.yml` abre a issue sem label nenhuma, e a
+  # demanda não classificada some no meio da lista. Depois de criar, descomente a
+  # linha `labels:` em `.github/ISSUE_TEMPLATE/demanda-geral.yml`.
+  - name: "A classificar"
+    color: "5319e7"
+    description: "Demanda aberta sem tipo definido — precisa de triagem"
+    formulario: demanda-geral.yml
+    status: pendente
+
+# PENDENTE — nenhuma das três existe ainda.
+#
+# São elas que respondem "para que este trabalho serve", que o eixo de tipo não
+# responde. Sem elas, a skill `revisao-semanal` só consegue dizer quantas issues
+# fecharam; com elas, diz quanto cada meta andou.
+#
+# Os números vêm dos títulos das issues #6 a #12, que já carregam a meta.
+meta:
+  - name: "meta-2"
+    color: "BFE5CF"
+    description: "Execução Financeira PNAB"
+    status: pendente
+
+  - name: "meta-3"
+    color: "BFE5CF"
+    description: "Diversidade, Cotas e Territórios"
+    status: pendente
+
+  - name: "meta-5"
+    color: "BFE5CF"
+    description: "Primeiro Acesso (Novos Entrantes)"
+    status: pendente
+
+# A única label lida por máquina. O workflow `issue-para-branch.yml` compara esta
+# string exata — mudar o nome (acento, maiúscula, espaço) quebra o workflow em
+# silêncio, sem erro e sem aviso.
+#
+# É manual de propósito: se o formulário a aplicasse sozinho, toda issue registrada
+# criaria uma branch na hora, inclusive as que ninguém vai tocar por meses. Manual,
+# ela separa "registrei" de "vou começar agora".
+controle:
+  - name: "Código"
+    color: "ad5b22"
+    description: "Para a criação de branch vinculada automaticamente"
+
+# Atravessam o tipo em vez de substituí-lo: uma DAG quebrada é `Ingestão` + `bug`.
+# Já existiam no repositório, com as cores padrão do GitHub.
+natureza:
+  - name: "bug"
+    color: "d73a4a"
+    description: "Something isn't working"
+
+  - name: "documentation"
+    color: "0075ca"
+    description: "Improvements or additions to documentation"
+
+# A APAGAR — as sete padrão do GitHub que sobraram. Nenhuma issue do repositório
+# usa qualquer uma delas, e menu de label longo tem o mesmo problema do menu de
+# formulário longo: ninguém acha a certa.
+a_apagar:
+  - duplicate
+  - enhancement
+  - good first issue
+  - help wanted
+  - invalid
+  - question
+  - wontfix
