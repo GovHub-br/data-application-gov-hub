@@ -1,0 +1,58 @@
+metadata:
+  titulo: Camada semântica — SALIC (schema bronze) — índice
+  gerado_em: '2026-08-18T23:03:01'
+  fonte_dados: schema bronze do data warehouse do MinC (dados brutos, não tratados)
+  fonte_documentacao_original: Dicionário de dados do SALIC — export SchemaSpy 7.0.2 do banco SQL Server
+    de origem (snapshot dez/2025), fornecido pela equipe.
+  aviso_camada_bronze: 'Estes dados são a camada bruta (bronze): réplica do sistema de origem sem tratamento,
+    deduplicação ou padronização. Podem conter duplicidades, valores inconsistentes e tabelas técnicas
+    de backup/teste/versão — sinalizadas em `observacao` quando identificadas por heurística de nome,
+    mas não removidas.'
+  legenda_proveniencia:
+    documentado: Vem do dicionário de dados original do SALIC (SchemaSpy).
+    observado: Vem do levantamento estatístico feito no bronze na data de geração deste arquivo.
+    inferido: Dedução deste pipeline a partir de nome/padrão — sinalizada como tal, não é fato confirmado.
+    nao_documentado: Não foi possível determinar com segurança; não deve ser tratado como fato.
+    heuristica: 'Regra automática de sinalização (ex.: nome sugere backup) — indício, não confirmação.'
+  total_tabelas: 561
+  nota_estrutura: As tabelas ficam em arquivos separados por schema (ver `schemas` abaixo), no mesmo padrão
+    schema__tabela usado no bronze — cada arquivo cobre um schema de origem, para facilitar edição e diff.
+dominios:
+  sac: Núcleo do SALIC (Sistema de Apoio às Leis de Incentivo à Cultura) — projetos culturais incentivados,
+    proponentes, captação de recursos, editais, prestação de contas, pareceres e patrocínio (Lei Rouanet
+    e leis correlatas de incentivo fiscal à cultura).
+  tabelas: 'Cadastro auxiliar do SALIC: pessoas, endereços, órgãos e domínios de apoio (categorias, localidades)
+    usados pelo núcleo SAC.'
+  agentes: 'Registro de identidade de agentes (pessoas físicas e jurídicas), compartilhado com outros
+    domínios do MinC além do SALIC (ex.: LPG, PNAB).'
+  controledeacesso: Infraestrutura de controle de acesso aos sistemas do MinC — usuários, sistemas e permissões.
+    Não é dado de negócio do SALIC.
+  bdcorporativo: 'Metadados técnicos do banco de dados corporativo (ex.: diagramas do SQL Server). Não
+    é dado de negócio do SALIC.'
+schemas:
+  sac:
+    arquivo: schemas/sac.yaml
+    descricao: Núcleo do SALIC (Sistema de Apoio às Leis de Incentivo à Cultura) — projetos culturais
+      incentivados, proponentes, captação de recursos, editais, prestação de contas, pareceres e patrocínio
+      (Lei Rouanet e leis correlatas de incentivo fiscal à cultura).
+    total_tabelas: 431
+  tabelas:
+    arquivo: schemas/tabelas.yaml
+    descricao: 'Cadastro auxiliar do SALIC: pessoas, endereços, órgãos e domínios de apoio (categorias,
+      localidades) usados pelo núcleo SAC.'
+    total_tabelas: 67
+  agentes:
+    arquivo: schemas/agentes.yaml
+    descricao: 'Registro de identidade de agentes (pessoas físicas e jurídicas), compartilhado com outros
+      domínios do MinC além do SALIC (ex.: LPG, PNAB).'
+    total_tabelas: 57
+  controledeacesso:
+    arquivo: schemas/controledeacesso.yaml
+    descricao: Infraestrutura de controle de acesso aos sistemas do MinC — usuários, sistemas e permissões.
+      Não é dado de negócio do SALIC.
+    total_tabelas: 5
+  bdcorporativo:
+    arquivo: schemas/bdcorporativo.yaml
+    descricao: 'Metadados técnicos do banco de dados corporativo (ex.: diagramas do SQL Server). Não é
+      dado de negócio do SALIC.'
+    total_tabelas: 1

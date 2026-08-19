@@ -1,6 +1,325 @@
 version: 2
 
 sources:
+  - name: agentes
+    schema: agentes
+    description: >
+      NÃO é uma fonte raw externa — é o schema físico de SAÍDA do bronze do
+      domínio agentes_dbt (config +schema: agentes em dbt_project.yml). As 5
+      tabelas abaixo são os models incrementais lpg_agentes_pf/pj/coletivos e
+      pnab_agentes_pf/pj (ver agentes_dbt/bronze/schema.yml e descriptions.yml
+      para a documentação real deles); nenhum model deste projeto as lê via
+      source(), só via ref(). Documentadas aqui para quem consulta o Postgres
+      ou o catálogo (OpenMetadata) sem passar pela lineage do dbt.
+    tables:
+      - name: lpg_agentes_coletivos
+        description: >
+          Dados brutos de proponentes coletivos da LPG. [= model
+          agentes_dbt.lpg_agentes_coletivos, não fonte externa — ver nota do schema]
+        meta:
+          used: false
+      - name: lpg_agentes_pf
+        description: >
+          Dados brutos de pessoas físicas da LPG (Lei Paulo Gustavo). [= model
+          agentes_dbt.lpg_agentes_pf, não fonte externa — ver nota do schema]
+        meta:
+          used: false
+      - name: lpg_agentes_pj
+        description: >
+          Dados brutos de pessoas jurídicas da LPG. [= model
+          agentes_dbt.lpg_agentes_pj, não fonte externa — ver nota do schema]
+        meta:
+          used: false
+      - name: pnab_agentes_pf
+        description: >
+          Dados brutos de pessoas físicas da PNAB (Política Nacional Aldir Blanc).
+          [= model agentes_dbt.pnab_agentes_pf, não fonte externa — ver nota do schema]
+        meta:
+          used: false
+      - name: pnab_agentes_pj
+        description: >
+          Dados brutos de organizações da PNAB. [= model
+          agentes_dbt.pnab_agentes_pj, não fonte externa — ver nota do schema]
+        meta:
+          used: false
+
+  - name: bb_agil
+    schema: bb_agil
+    description: >
+      Schema de ingestão do extrato bancário BB Gestão Ágil/SERPRO — pouso dos
+      lançamentos financeiros brutos, anterior à agregação/filtragem que gera
+      bsc_pnab.fato_bbagil (a fonte de fato lida pelo model, hoje desabilitado,
+      stg_bbagil). Não consumido diretamente por nenhum model deste projeto.
+    tables:
+      - name: raw_ingestao_financeira_lancamentos
+        description: >
+          [Inferido do nome + do pipeline bbágil, não verificado a nível de
+          coluna] Lançamentos financeiros brutos do extrato bancário, um passo
+          antes da agregação em bsc_pnab.fato_bbagil.
+        meta:
+          used: false
+
+  - name: bsc
+    schema: bsc
+    description: >
+      Schema de apoio à ingestão bbágil (extrato bancário BB Gestão Ágil).
+      [Descrição anterior — "contemplados, editais, instrumentos e anexos" —
+      estava copiada de outro schema e não correspondia às tabelas reais aqui;
+      corrigida nesta revisão.] Não consumido diretamente por nenhum model
+      deste projeto.
+    tables:
+      - name: raw_bbagil_extrato_transacoes
+        description: >
+          [Inferido do nome + do pipeline bbágil, não verificado a nível de
+          coluna] Transações do extrato bancário BB Gestão Ágil.
+        meta:
+          used: false
+      - name: raw_bbagil_subtransacoes
+        description: >
+          [Inferido do nome + do pipeline bbágil, não verificado a nível de
+          coluna] Subtransações (desdobramento/rateio) de uma transação do
+          extrato BB Gestão Ágil.
+        meta:
+          used: false
+
+  - name: dados_mapa_cultura
+    schema: dados_mapa_cultura
+    description: >
+      Base de dados da plataforma Mapas Culturais (Hacklab) — cadastro de
+      agentes, oportunidades/editais, inscrições, projetos e eventos culturais.
+      [Descrição anterior — "contemplados, editais, instrumentos e anexos" —
+      era copiada de outro schema; corrigida nesta revisão.] Schema não
+      integrado a nenhum model deste projeto dbt; as descrições de tabela
+      abaixo são inferidas do modelo de dados público da plataforma
+      (github.com/hacklabr/mapasculturais), NÃO verificadas contra as colunas
+      reais deste banco.
+    tables:
+      - name: agent
+        description: "[Inferido, não verificado] Agente cultural (pessoa física, coletivo ou organização) cadastrado na plataforma."
+        meta:
+          used: false
+      - name: agent_meta
+        description: "[Inferido, não verificado] Campos dinâmicos (metadados) do agente cultural."
+        meta:
+          used: false
+      - name: agent_relation
+        description: "[Inferido, não verificado] Relação entre agentes (ex.: agente representante de um coletivo/organização)."
+        meta:
+          used: false
+      - name: event
+        description: "[Inferido, não verificado] Evento cultural cadastrado."
+        meta:
+          used: false
+      - name: event_occurence
+        description: "[Inferido, não verificado] Ocorrência (data/hora) de um evento."
+        meta:
+          used: false
+      - name: opportunity
+        description: "[Inferido, não verificado] Oportunidade/edital publicado na plataforma."
+        meta:
+          used: false
+      - name: opportunity_meta
+        description: "[Inferido, não verificado] Campos dinâmicos (metadados) da oportunidade/edital."
+        meta:
+          used: false
+      - name: pcache
+        description: "[Não identificado com segurança — possível tabela interna de cache da plataforma, não um dado de negócio]"
+        meta:
+          used: false
+      - name: project
+        description: "[Inferido, não verificado] Projeto cultural cadastrado."
+        meta:
+          used: false
+      - name: project_meta
+        description: "[Inferido, não verificado] Campos dinâmicos (metadados) do projeto cultural."
+        meta:
+          used: false
+      - name: regist_workplan_goal_deliv_meta
+        description: "[Inferido, não verificado; nome truncado] Metadados de uma entrega de meta do plano de trabalho de uma inscrição."
+        meta:
+          used: false
+      - name: registration
+        description: "[Inferido, não verificado] Inscrição de um agente em uma oportunidade/edital."
+        meta:
+          used: false
+      - name: registration_evaluation
+        description: "[Inferido, não verificado] Avaliação de uma inscrição."
+        meta:
+          used: false
+      - name: registration_field_configuratio
+        description: "[Inferido, não verificado; nome truncado] Configuração de campo de formulário de inscrição."
+        meta:
+          used: false
+      - name: registration_file_configuration
+        description: "[Inferido, não verificado] Configuração de campo de upload de arquivo da inscrição."
+        meta:
+          used: false
+      - name: registration_meta
+        description: "[Inferido, não verificado] Campos dinâmicos (metadados) da inscrição."
+        meta:
+          used: false
+      - name: registration_step
+        description: "[Inferido, não verificado] Etapa do fluxo de avaliação/seleção da inscrição."
+        meta:
+          used: false
+      - name: registration_workplan
+        description: "[Inferido, não verificado] Plano de trabalho vinculado a uma inscrição contemplada."
+        meta:
+          used: false
+      - name: registration_workplan_goal
+        description: "[Inferido, não verificado] Meta de um plano de trabalho."
+        meta:
+          used: false
+      - name: registration_workplan_goal_deli
+        description: "[Inferido, não verificado; nome truncado] Entrega vinculada a uma meta do plano de trabalho."
+        meta:
+          used: false
+      - name: registration_workplan_goal_meta
+        description: "[Inferido, não verificado] Campos dinâmicos (metadados) de uma meta do plano de trabalho."
+        meta:
+          used: false
+      - name: registration_workplan_meta
+        description: "[Inferido, não verificado] Campos dinâmicos (metadados) do plano de trabalho."
+        meta:
+          used: false
+      - name: seal
+        description: "[Inferido, não verificado] Selo/certificação concedido a um agente, projeto ou evento."
+        meta:
+          used: false
+      - name: sealmeta
+        description: "[Inferido, não verificado] Campos dinâmicos (metadados) do selo."
+        meta:
+          used: false
+      - name: seal_relation
+        description: "[Inferido, não verificado] Relação entre um selo e a entidade selada (agente/projeto/evento)."
+        meta:
+          used: false
+      - name: space
+        description: "[Inferido, não verificado] Espaço cultural cadastrado."
+        meta:
+          used: false
+      - name: space_meta
+        description: "[Inferido, não verificado] Campos dinâmicos (metadados) do espaço cultural."
+        meta:
+          used: false
+      - name: term
+        description: "[Inferido, não verificado] Termo de taxonomia (categoria/tag) usado para classificar agentes, projetos ou eventos."
+        meta:
+          used: false
+      - name: term_relation
+        description: "[Inferido, não verificado] Relação entre um termo de taxonomia e a entidade classificada."
+        meta:
+          used: false
+
+  - name: dados_salic
+    schema: dados_salic
+    description: >
+      Base de dados do SALIC (Sistema de Apoio às Leis de Incentivo à Cultura,
+      MinC) — cadastro de proponentes (pessoas físicas e jurídicas) de projetos
+      culturais incentivados (Lei Rouanet e demais leis de incentivo).
+      [Descrição anterior — "contemplados, editais, instrumentos e anexos" —
+      era copiada de outro schema; corrigida nesta revisão.] Schema não
+      integrado a nenhum model deste projeto dbt; descrições de tabela abaixo
+      são inferidas do próprio nome (autoexplicativo em português), NÃO
+      verificadas contra as colunas reais deste banco.
+    tables:
+      - name: bairros
+        description: "[Inferido do nome, não verificado] Cadastro de bairros."
+        meta:
+          used: false
+      - name: cadastro
+        description: "[Inferido do nome, não verificado] Cadastro central de proponentes/projetos do SALIC."
+        meta:
+          used: false
+      - name: categorias_pessoa
+        description: "[Inferido do nome, não verificado] Categorias de classificação de pessoa (proponente)."
+        meta:
+          used: false
+      - name: emails
+        description: "[Inferido do nome, não verificado] E-mails cadastrados."
+        meta:
+          used: false
+      - name: listapessoais
+        description: "[Não identificado com segurança pelo nome]"
+        meta:
+          used: false
+      - name: localidades
+        description: "[Inferido do nome, não verificado] Cadastro de localidades (municípios)."
+        meta:
+          used: false
+      - name: logradouros
+        description: "[Inferido do nome, não verificado] Cadastro de logradouros (endereços)."
+        meta:
+          used: false
+      - name: orgaos
+        description: "[Inferido do nome, não verificado] Cadastro de órgãos."
+        meta:
+          used: false
+      - name: orgaos_ares
+        description: "[Não identificado com segurança pelo nome]"
+        meta:
+          used: false
+      - name: orgaos_subordinados
+        description: "[Inferido do nome, não verificado] Relação de subordinação entre órgãos."
+        meta:
+          used: false
+      - name: pessoa_dados
+        description: "[Inferido do nome, não verificado] Dados cadastrais de pessoa (proponente)."
+        meta:
+          used: false
+      - name: pessoa_enderecos
+        description: "[Inferido do nome, não verificado] Endereços de pessoa (proponente)."
+        meta:
+          used: false
+      - name: pessoa_identificacoes
+        description: "[Inferido do nome, não verificado] Documentos de identificação de pessoa (CPF/CNPJ etc.)."
+        meta:
+          used: false
+      - name: pessoa_identificacoes_aberto
+        description: "[Não identificado com segurança pelo nome — possível variante 'em aberto' de pessoa_identificacoes]"
+        meta:
+          used: false
+      - name: pessoas
+        description: "[Inferido do nome, não verificado] Cadastro de pessoas (proponentes)."
+        meta:
+          used: false
+      - name: pessoas_bkp
+        description: "[Inferido do nome, não verificado] Backup da tabela pessoas."
+        meta:
+          used: false
+      - name: pessoasxfuncoes
+        description: "[Inferido do nome, não verificado] Associação entre pessoas e funções/papéis."
+        meta:
+          used: false
+      - name: sistemas
+        description: "[Não identificado com segurança pelo nome]"
+        meta:
+          used: false
+      - name: tipos_pessoa
+        description: "[Inferido do nome, não verificado] Tipos de pessoa (ex.: física/jurídica)."
+        meta:
+          used: false
+
+  - name: execucao_pnab
+    schema: execucao_pnab
+    description: >
+      Base de dados de execução do PNAB. [Descrição anterior — "contemplados,
+      editais, instrumentos e anexos" — era copiada de outro schema; corrigida
+      nesta revisão.] Schema não integrado a nenhum model deste projeto dbt;
+      hipótese não confirmada: pode ser a fonte dos números do "painel
+      oficial" (recebido/gasto) citados nos comentários de
+      distribuicao_cotas_pnab.sql e stg_bbagil.sql.
+    tables:
+      - name: distribuicao_territorial_pnab
+        description: "[Inferido do nome, não verificado] Distribuição territorial (provavelmente por UF/município) da execução do PNAB."
+        meta:
+          used: false
+      - name: execucao_anual_pnab
+        description: "[Inferido do nome, não verificado] Execução financeira anual do PNAB."
+        meta:
+          used: false
+
+
   - name: transferegov
     schema: transferegov
     tables:

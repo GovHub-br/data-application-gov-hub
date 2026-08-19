@@ -7,10 +7,12 @@ models:
       Cada linha representa um modelo único, identificado pela combinação de schema e table_name.
       A tabela é atualizada de forma incremental, mantendo histórico das execuções.
     config:
+      # Tag nativa (não `meta.tags`): é a que o conector dbt do OpenMetadata
+      # mapeia para tags do catálogo. `infraestrutura` marca o que existe para
+      # operar o pipeline, e não como dado de negócio consumível pelo RAG.
+      tags: [infraestrutura, metadata, governance]
       meta:
-        tags:
-          - metadata
-          - governance
+        status: Active
     columns:
       - name: schema_name
         description: Nome do schema onde o modelo está localizado.

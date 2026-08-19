@@ -56,6 +56,13 @@ types-pycurl = "*"
 types-simplejson = "*"
 types-uWSGI = "*"
 
+
+[tool.poetry.group.docs.dependencies]
+pyyaml = "^6.0.3"
+python-docx = "^1.2.0"
+beautifulsoup4 = "^4.15.0"
+lxml = "^6.1.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,83 @@
+semantic_models:
+  - name: perfil_agentes_completo
+    model: ref('perfil_agentes_completo')
+    description: >
+      Master data de proponentes de fomento à cultura (Meta 5), com 1 linha por
+      CPF/CNPJ. Consolida a classificação de "primeiro acesso a fomento" de cada
+      proponente, distinguindo o que foi declarado por ele do que foi inferido
+      pela presença em múltiplos programas.
+    entities:
+      - name: proponente
+        type: primary
+        expr: identificador_unico
+        description: >
+          CPF/CNPJ do proponente como declarado nos formulários LPG/PNAB, em
+          minúsculas. PODE VIR MASCARADO ('***.123.456-**'). Não é casável com a
+          entidade agente_documento do domínio de cotas, que usa só dígitos.
+    dimensions:
+      - name: tipo_proponente
+        type: categorical
+        description: >
+          Natureza do proponente — 'Pessoa Física', 'Pessoa Jurídica',
+          'Coletivo' ou 'Organização'.
+      - name: programa_fomento
+        type: categorical
+        description: >
+          Programa do primeiro registro do proponente — 'LPG' ou 'PNAB'.
+          A ordem usa a precedência alfabética como proxy temporal (LPG antes de
+          PNAB), que reflete a ordem real de ingresso na base.
+      - name: status_origem
+        type: categorical
+        description: >
+          Qualidade do dado de primeiro acesso — 'Confirmado' (o proponente
+          respondeu sim/não no formulário), 'Inferido' (derivado da sequência de
+          programas ou da presença em mais de um programa) ou 'Não Informado'.
+          Relatórios sem inferência devem filtrar status_origem = 'Confirmado'.
+      - name: perfil_classificacao
+        type: categorical
+        description: >
+          Classificação final de veterania do proponente — 'Primeira Vez',
+          'Veterano', 'Veterano (Multi-Programa)', 'Provável Primeira Vez',
+          'Provável Veterano' ou 'Indeterminado'. As variantes 'Provável' e
+          'Multi-Programa' são inferidas, não declaradas.
+
+  - name: perfil_acesso_fomento
+    model: ref('perfil_acesso_fomento')
+    primary_entity: registro_acesso_fomento
+    description: >
+      Classificação de primeiro acesso a fomento por proponente E por programa
+      (Meta 5), antes da consolidação. Preserva o caso de um mesmo proponente ter
+      participado de LPG e PNAB com situações distintas — informação que o
+      perfil_agentes_completo, por ter 1 linha por documento, necessariamente
+      perde.
+    entities:
+      - name: proponente
+        type: foreign
+        expr: identificador_unico
+        description: >
+          CPF/CNPJ do proponente (mesma normalização do perfil_agentes_completo,
+          podendo vir mascarado). Vários registros por proponente — um por
+          programa em que ele aparece.
+    dimensions:
+      - name: programa_avaliado
+        type: categorical
+        expr: programa_fomento
+        description: >
+          Programa a que ESTE registro se refere — 'LPG' ou 'PNAB'. Não confundir
+          com programa_fomento do perfil_agentes_completo, que indica apenas o
+          programa de ingresso do proponente.
+      - name: classificacao_acesso_fomento
+        type: categorical
+        expr: perfil_acesso_fomento
+        description: >
+          Classificação do acesso neste programa — 'Confirmado - Primeira Vez',
+          'Confirmado - Veterano', 'Inferido - Primeira Vez (Estreante na base)',
+          'Inferido - Veterano (Possui histórico)' ou 'Não sabe/Não informou'.
+          O prefixo distingue resposta declarada de inferência.
+      - name: sequencia_fomento
+        type: categorical
+        description: >
+          Ordem do registro no histórico do proponente (1 = primeiro programa em
+          que aparece). Valor maior que 1 evidencia participação em mais de um
+          programa. A ordenação usa a precedência alfabética entre LPG e PNAB
+          como proxy temporal — não é uma data real.

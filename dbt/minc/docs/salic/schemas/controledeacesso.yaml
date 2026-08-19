@@ -1,0 +1,814 @@
+schema: controledeacesso
+descricao: Infraestrutura de controle de acesso aos sistemas do MinC — usuários, sistemas e permissões.
+  Não é dado de negócio do SALIC.
+total_tabelas: 5
+tabelas:
+  controledeacesso__dtproperties:
+    schema: bronze
+    nome_tabela: controledeacesso__dtproperties
+    nome_origem: dtproperties
+    dominio: controledeacesso
+    descricao: Tabela responsável por guardar propriedades internas de objetos do banco (tabela padrão
+      do SQL Server).
+    descricao_fonte: documentado
+    presente_no_dicionario_original: true
+    presente_no_perfil_atual: true
+    linhas_atuais_bronze: 0
+    linhas_snapshot_dicionario_original: 0
+    quantidade_colunas: 7
+    chave_primaria_documentada:
+    - id
+    - property
+    indices_documentados:
+    - nome: pk_dtproperties
+      tipo: Primary key
+      colunas:
+      - id
+      - property
+    regras_de_negocio_documentadas: []
+    observacao:
+    - '[observado] tabela sem nenhuma linha no bronze hoje (0 registros).'
+    amostra_linhas_observada: []
+    colunas:
+    - nome: id
+      tipo_documentado: int identity
+      tamanho_documentado: '4'
+      permite_null_documentado: false
+      chave_primaria_documentada: true
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: true
+    - nome: objectid
+      tipo_documentado: int
+      tamanho_documentado: '4'
+      permite_null_documentado: true
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: false
+    - nome: property
+      tipo_documentado: varchar
+      tamanho_documentado: '64'
+      permite_null_documentado: false
+      chave_primaria_documentada: true
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: true
+    - nome: value
+      tipo_documentado: varchar
+      tamanho_documentado: '255'
+      permite_null_documentado: true
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: false
+    - nome: uvalue
+      tipo_documentado: nvarchar
+      tamanho_documentado: '510'
+      permite_null_documentado: true
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: false
+    - nome: lvalue
+      tipo_documentado: image
+      tamanho_documentado: '2147483647'
+      permite_null_documentado: true
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: false
+    - nome: version
+      tipo_documentado: int
+      tamanho_documentado: '4'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: false
+  controledeacesso__sgcacesso:
+    schema: bronze
+    nome_tabela: controledeacesso__sgcacesso
+    nome_origem: SGCacesso
+    dominio: controledeacesso
+    descricao: Tabela responsável por armazenar os dados de acesso dos usuários, incluindo identificação,
+      CPF, senha, e situação do cadastro.
+    descricao_fonte: documentado
+    presente_no_dicionario_original: true
+    presente_no_perfil_atual: true
+    linhas_atuais_bronze: 407971
+    linhas_snapshot_dicionario_original: 391906
+    quantidade_colunas: 9
+    chave_primaria_documentada:
+    - Cpf
+    indices_documentados:
+    - nome: PK_SGCacesso
+      tipo: Primary key
+      colunas:
+      - Cpf
+    - nome: <Name of Missing Index, sysname,>
+      tipo: Performance
+      colunas:
+      - IdUsuario
+    regras_de_negocio_documentadas: []
+    observacao: []
+    amostra_linhas_observada:
+    - idusuario: '113602'
+      cpf: 00*******01
+      nome: Lucinete Aparecida de Morais
+      dtnascimento: '1980-09-07 00:00:00'
+      email: mo*********************om
+      senha: '@_***********M5'
+      dtcadastro: '2026-08-03 00:00:00'
+      situacao: '1'
+      dtsituacao: '2026-08-03 00:00:00'
+    - idusuario: '241592'
+      cpf: 00*******91
+      nome: teste teste
+      dtnascimento: '1990-11-11 00:00:00'
+      email: co********************br
+      senha: W0***********do
+      dtcadastro: '2015-12-16 00:00:00'
+      situacao: '1'
+      dtsituacao: '2015-12-16 00:00:00'
+    - idusuario: '304317'
+      cpf: 00*******00
+      nome: Juneba Castilho
+      dtnascimento: '1985-03-25 00:00:00'
+      email: ol********************om
+      senha: ~9***********dG
+      dtcadastro: '2018-10-05 00:00:00'
+      situacao: '1'
+      dtsituacao: '2018-10-05 00:00:00'
+    - idusuario: '66778'
+      cpf: 00*******60
+      nome: CLAUDEMI PEREIRA DOS SANTOS
+      dtnascimento: '1985-01-02 00:00:00'
+      email: cl*********************om
+      senha: '>8***********Sb'
+      dtcadastro: '2012-02-29 16:08:00'
+      situacao: '3'
+      dtsituacao: '2012-02-29 16:18:00'
+    - idusuario: '251160'
+      cpf: 00*******61
+      nome: Nathalia Moreira de Figueiredo
+      dtnascimento: '1992-09-19 00:00:00'
+      email: na**********************es
+      senha: jE***********Yn
+      dtcadastro: '2016-06-04 15:36:00'
+      situacao: '1'
+      dtsituacao: '2018-01-08 00:00:00'
+    colunas:
+    - nome: idusuario
+      tipo_documentado: int identity
+      tamanho_documentado: '4'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 407971
+        fonte: estimado_pg_stats
+      min_observado: '1000'
+      max_observado: '9999'
+      aparenta_ser_identificador: true
+    - nome: cpf
+      tipo_documentado: char
+      tamanho_documentado: '11'
+      permite_null_documentado: false
+      chave_primaria_documentada: true
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: true
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 407971
+        fonte: estimado_pg_stats
+      min_observado: 00*******01
+      max_observado: O2*******93
+      aparenta_ser_identificador: true
+    - nome: nome
+      tipo_documentado: varchar
+      tamanho_documentado: '100'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 2
+      distintos:
+        quantidade: 398893
+        fonte: estimado_pg_stats
+      min_observado: ''
+      max_observado: ZYSMAN NEIMAN
+      aparenta_ser_identificador: true
+    - nome: dtnascimento
+      tipo_documentado: smalldatetime
+      tamanho_documentado: '16'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 17885
+        fonte: estimado_pg_stats
+      min_observado: '1900-01-01 00:00:00'
+      max_observado: '2076-02-26 00:00:00'
+      aparenta_ser_identificador: false
+    - nome: email
+      tipo_documentado: varchar
+      tamanho_documentado: '60'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: true
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 396412
+        fonte: estimado_pg_stats
+      min_observado: 00**********************************br
+      max_observado: zz****************om
+      aparenta_ser_identificador: true
+    - nome: senha
+      tipo_documentado: char
+      tamanho_documentado: '15'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: true
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 258444
+        fonte: estimado_pg_stats
+      min_observado: '>?***********d~'
+      max_observado: \!***********V6
+      aparenta_ser_identificador: false
+    - nome: dtcadastro
+      tipo_documentado: smalldatetime
+      tamanho_documentado: '16'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 34320
+        fonte: estimado_pg_stats
+      min_observado: '2006-11-28 14:46:00'
+      max_observado: '2026-08-11 00:00:00'
+      aparenta_ser_identificador: false
+    - nome: situacao
+      tipo_documentado: tinyint
+      tamanho_documentado: '1'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 4
+        fonte: estimado_pg_stats
+      min_observado: '1'
+      max_observado: '5'
+      valores_observados:
+      - valor: '3'
+        frequencia: 248592
+      - valor: '1'
+        frequencia: 141282
+      - valor: '2'
+        frequencia: 17422
+      - valor: '5'
+        frequencia: 675
+      valores_observados_fonte: observado (enumeração completa se distintos <= 30, tabela <= 6M linhas)
+      aparenta_ser_identificador: false
+    - nome: dtsituacao
+      tipo_documentado: smalldatetime
+      tamanho_documentado: '16'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 30255
+        fonte: estimado_pg_stats
+      min_observado: '2006-11-28 14:46:00'
+      max_observado: '2026-08-11 00:00:00'
+      aparenta_ser_identificador: false
+  controledeacesso__sgcsistema:
+    schema: bronze
+    nome_tabela: controledeacesso__sgcsistema
+    nome_origem: SGCsistema
+    dominio: controledeacesso
+    descricao: Tabela responsável por registrar os sistemas disponíveis no ambiente e suas respectivas
+      descrições.
+    descricao_fonte: documentado
+    presente_no_dicionario_original: true
+    presente_no_perfil_atual: true
+    linhas_atuais_bronze: 8
+    linhas_snapshot_dicionario_original: 8
+    quantidade_colunas: 3
+    chave_primaria_documentada:
+    - IdSistema
+    indices_documentados:
+    - nome: PK_SGCsistema
+      tipo: Primary key
+      colunas:
+      - IdSistema
+    regras_de_negocio_documentadas: []
+    observacao: []
+    amostra_linhas_observada:
+    - idsistema: '1'
+      nomesistema: Projeto_IDI
+      descricaosistema: Inclusão Cultural da Pessoa Idosa
+    - idsistema: '2'
+      nomesistema: Projeto_SAI
+      descricaosistema: Sistema de Informações Culturais
+    - idsistema: '3'
+      nomesistema: Projeto_CP
+      descricaosistema: Prêmio Culturas Populares 2007
+    - idsistema: '4'
+      nomesistema: Sistema_RH
+      descricaosistema: Sistema de Recursos Humanos
+    - idsistema: '5'
+      nomesistema: SalicWeb
+      descricaosistema: Apresentação de Projetos via Web
+    colunas:
+    - nome: idsistema
+      tipo_documentado: int identity
+      tamanho_documentado: '4'
+      permite_null_documentado: false
+      chave_primaria_documentada: true
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 8
+        fonte: exato
+      min_observado: '1'
+      max_observado: '8'
+      min_numerico_observado: '1'
+      max_numerico_observado: '8'
+      valores_observados:
+      - valor: '2'
+        frequencia: 1
+      - valor: '4'
+        frequencia: 1
+      - valor: '7'
+        frequencia: 1
+      - valor: '3'
+        frequencia: 1
+      - valor: '6'
+        frequencia: 1
+      - valor: '5'
+        frequencia: 1
+      - valor: '1'
+        frequencia: 1
+      - valor: '8'
+        frequencia: 1
+      valores_observados_fonte: observado (enumeração completa se distintos <= 30, tabela <= 6M linhas)
+      aparenta_ser_identificador: true
+    - nome: nomesistema
+      tipo_documentado: varchar
+      tamanho_documentado: '20'
+      permite_null_documentado: true
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 8
+        fonte: exato
+      min_observado: Ciganas
+      max_observado: SNIIC
+      valores_observados:
+      - valor: SalicWeb
+        frequencia: 1
+      - valor: Sistema_RH
+        frequencia: 1
+      - valor: SNC
+        frequencia: 1
+      - valor: SNIIC
+        frequencia: 1
+      - valor: Projeto_IDI
+        frequencia: 1
+      - valor: Projeto_SAI
+        frequencia: 1
+      - valor: Projeto_CP
+        frequencia: 1
+      - valor: Ciganas
+        frequencia: 1
+      valores_observados_fonte: observado (enumeração completa se distintos <= 30, tabela <= 6M linhas)
+      aparenta_ser_identificador: false
+    - nome: descricaosistema
+      tipo_documentado: varchar
+      tamanho_documentado: '100'
+      permite_null_documentado: true
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 8
+        fonte: exato
+      min_observado: Apresentação de Projetos via Web
+      max_observado: Sistema Prêmio Culturas Ciganas 2007
+      valores_observados:
+      - valor: Prêmio Culturas Populares 2007
+        frequencia: 1
+      - valor: Sistema Nacional de Cultura
+        frequencia: 1
+      - valor: Sistema Prêmio Culturas Ciganas 2007
+        frequencia: 1
+      - valor: Inclusão Cultural da Pessoa Idosa
+        frequencia: 1
+      - valor: Sistema Nacional de Indicadores e Informações Culturais
+        frequencia: 1
+      - valor: Apresentação de Projetos via Web
+        frequencia: 1
+      - valor: Sistema de Informações Culturais
+        frequencia: 1
+      - valor: Sistema de Recursos Humanos
+        frequencia: 1
+      valores_observados_fonte: observado (enumeração completa se distintos <= 30, tabela <= 6M linhas)
+      aparenta_ser_identificador: false
+  controledeacesso__sgcusuarioxsistema:
+    schema: bronze
+    nome_tabela: controledeacesso__sgcusuarioxsistema
+    nome_origem: SGCusuarioXsistema
+    dominio: controledeacesso
+    descricao: Tabela responsável por controlar quais usuários têm permissão para acessar cada sistema.
+    descricao_fonte: documentado
+    presente_no_dicionario_original: true
+    presente_no_perfil_atual: true
+    linhas_atuais_bronze: 17118
+    linhas_snapshot_dicionario_original: 17118
+    quantidade_colunas: 2
+    chave_primaria_documentada:
+    - IdUsuario
+    - IdSistema
+    indices_documentados:
+    - nome: PK_SGCusuarioXsistema
+      tipo: Primary key
+      colunas:
+      - IdUsuario
+      - IdSistema
+    regras_de_negocio_documentadas: []
+    observacao: []
+    amostra_linhas_observada:
+    - idusuario: '0'
+      idsistema: '7'
+    - idusuario: '94'
+      idsistema: '7'
+    - idusuario: '105'
+      idsistema: '3'
+    - idusuario: '105'
+      idsistema: '4'
+    - idusuario: '105'
+      idsistema: '6'
+    colunas:
+    - nome: idusuario
+      tipo_documentado: int
+      tamanho_documentado: '4'
+      permite_null_documentado: false
+      chave_primaria_documentada: true
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 15805
+        fonte: exato
+      min_observado: '0'
+      max_observado: '9979'
+      min_numerico_observado: '0'
+      max_numerico_observado: '238167'
+      aparenta_ser_identificador: true
+    - nome: idsistema
+      tipo_documentado: int
+      tamanho_documentado: '4'
+      permite_null_documentado: false
+      chave_primaria_documentada: true
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 7
+        fonte: exato
+      min_observado: '1'
+      max_observado: '8'
+      min_numerico_observado: '1'
+      max_numerico_observado: '8'
+      valores_observados:
+      - valor: '7'
+        frequencia: 13832
+      - valor: '8'
+        frequencia: 3169
+      - valor: '6'
+        frequencia: 49
+      - valor: '3'
+        frequencia: 41
+      - valor: '1'
+        frequencia: 25
+      - valor: '4'
+        frequencia: 1
+      - valor: '5'
+        frequencia: 1
+      valores_observados_fonte: observado (enumeração completa se distintos <= 30, tabela <= 6M linhas)
+      aparenta_ser_identificador: true
+  controledeacesso__sysdiagrams:
+    schema: bronze
+    nome_tabela: controledeacesso__sysdiagrams
+    nome_origem: sysdiagrams
+    dominio: controledeacesso
+    descricao: null
+    descricao_fonte: nao_documentado
+    presente_no_dicionario_original: true
+    presente_no_perfil_atual: true
+    linhas_atuais_bronze: 0
+    linhas_snapshot_dicionario_original: 0
+    quantidade_colunas: 5
+    chave_primaria_documentada:
+    - diagram_id
+    indices_documentados:
+    - nome: PK__sysdiagr__C2B05B612A4B4B5E
+      tipo: Primary key
+      colunas:
+      - diagram_id
+    - nome: UK_principal_name
+      tipo: Must be unique
+      colunas:
+      - principal_id
+      - name
+    regras_de_negocio_documentadas: []
+    observacao:
+    - '[observado] tabela sem nenhuma linha no bronze hoje (0 registros).'
+    amostra_linhas_observada: []
+    colunas:
+    - nome: name
+      tipo_documentado: sysname
+      tamanho_documentado: '256'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: false
+    - nome: principal_id
+      tipo_documentado: int
+      tamanho_documentado: '4'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: false
+    - nome: diagram_id
+      tipo_documentado: int identity
+      tamanho_documentado: '4'
+      permite_null_documentado: false
+      chave_primaria_documentada: true
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: true
+    - nome: version
+      tipo_documentado: int
+      tamanho_documentado: '4'
+      permite_null_documentado: true
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: false
+    - nome: definition
+      tipo_documentado: varbinary
+      tamanho_documentado: '2147483647'
+      permite_null_documentado: true
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: null
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: null
+        fonte: null
+      min_observado: null
+      max_observado: null
+      aparenta_ser_identificador: false

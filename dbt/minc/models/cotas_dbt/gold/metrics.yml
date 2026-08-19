@@ -1,0 +1,117 @@
+metrics:
+  - name: valor_total_pago
+    type: simple
+    label: "Valor total pago"
+    description: >
+      Soma de todo o valor pago aos contemplados, em R$, incluindo pagamentos
+      sem perfil demográfico casado. É o denominador bruto das cotas.
+    type_params:
+      measure: valor_pago
+
+  - name: valor_pago_com_perfil
+    type: simple
+    label: "Valor pago a agentes com perfil identificado"
+    description: >
+      Soma do valor pago apenas aos pagamentos que casaram com um perfil
+      demográfico. É o denominador honesto das cotas: um agente sem perfil nunca
+      pode entrar no numerador de nenhuma cota, então medir a cota sobre o valor
+      total subestima sistematicamente o cumprimento.
+    type_params:
+      measure: valor_pago
+    filter: "{{ Dimension('pagamento__tem_perfil') }} = true"
+
+  - name: agentes_contemplados
+    type: simple
+    label: "Agentes contemplados (distintos)"
+    description: >
+      Quantidade de agentes distintos que receberam ao menos um pagamento,
+      contada por documento normalizado.
+    type_params:
+      measure: qtd_agentes_distintos
+
+  - name: valor_pago_agentes_negros
+    type: simple
+    label: "Valor pago a agentes negros"
+    description: "Soma do valor pago a agentes de raça/cor negra (preta ou parda), em R$."
+    type_params:
+      measure: valor_pago
+    filter: "{{ Dimension('pagamento__flag_negra') }} = true"
+
+  - name: valor_pago_agentes_indigenas
+    type: simple
+    label: "Valor pago a agentes indígenas"
+    description: "Soma do valor pago a agentes indígenas, em R$."
+    type_params:
+      measure: valor_pago
+    filter: "{{ Dimension('pagamento__flag_indigena') }} = true"
+
+  - name: valor_pago_agentes_pcd
+    type: simple
+    label: "Valor pago a agentes com deficiência"
+    description: "Soma do valor pago a agentes com deficiência (PCD), em R$."
+    type_params:
+      measure: valor_pago
+    filter: "{{ Dimension('pagamento__flag_pcd') }} = true"
+
+  - name: valor_pago_territorio_vulneravel
+    type: simple
+    label: "Valor pago a agentes de território vulnerabilizado"
+    description: >
+      Soma do valor pago a agentes cujo município é território vulnerabilizado
+      (periférico), em R$. Só faz sentido para a LPG — o lado-valor do PNAB não
+      traz localização do agente.
+    type_params:
+      measure: valor_pago
+    filter: "{{ Dimension('pagamento__flag_territorio_vulneravel') }} = true"
+
+  - name: participacao_agentes_negros
+    type: ratio
+    label: "Participação de agentes negros no valor pago (meta 25%)"
+    description: >
+      Percentual do valor pago que foi destinado a agentes negros, sobre o valor
+      pago a agentes com perfil identificado. Meta legal mínima: 25%.
+    type_params:
+      numerator: valor_pago_agentes_negros
+      denominator: valor_pago_com_perfil
+
+  - name: participacao_agentes_indigenas
+    type: ratio
+    label: "Participação de agentes indígenas no valor pago (meta 10%)"
+    description: >
+      Percentual do valor pago que foi destinado a agentes indígenas, sobre o
+      valor pago a agentes com perfil identificado. Meta legal mínima: 10%.
+    type_params:
+      numerator: valor_pago_agentes_indigenas
+      denominator: valor_pago_com_perfil
+
+  - name: participacao_agentes_pcd
+    type: ratio
+    label: "Participação de agentes PCD no valor pago (meta 5%)"
+    description: >
+      Percentual do valor pago que foi destinado a agentes com deficiência,
+      sobre o valor pago a agentes com perfil identificado. Meta legal mínima: 5%.
+    type_params:
+      numerator: valor_pago_agentes_pcd
+      denominator: valor_pago_com_perfil
+
+  - name: participacao_territorio_vulneravel
+    type: ratio
+    label: "Participação de território vulnerabilizado no valor pago (meta 20%, só LPG)"
+    description: >
+      Percentual do valor pago que foi destinado a agentes de territórios
+      vulnerabilizados, sobre o valor pago a agentes com perfil identificado.
+      Meta legal mínima: 20%, aplicável SOMENTE à LPG.
+    type_params:
+      numerator: valor_pago_territorio_vulneravel
+      denominator: valor_pago_com_perfil
+
+  - name: cobertura_perfil_valor
+    type: ratio
+    label: "Cobertura de perfil sobre o valor pago"
+    description: >
+      Percentual do valor pago cujos agentes têm perfil demográfico identificado.
+      É o teto de confiabilidade das cotas: quanto menor, menos representativo é
+      qualquer veredito de cumprimento. Deve ser lido ANTES das cotas.
+    type_params:
+      numerator: valor_pago_com_perfil
+      denominator: valor_total_pago

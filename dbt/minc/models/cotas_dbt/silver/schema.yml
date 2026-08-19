@@ -2,7 +2,25 @@ version: 2
 
 models:
   - name: perfil_agentes_normalizado
-    description: "Perfil unificado LPG+PNAB, 1 linha por documento, raça/PCD normalizados."
+    description: >
+      Perfil unificado LPG + PNAB — une os 5 bronzes de agentes (pf, pj,
+      coletivos, pnab_pf, pnab_pj). Deduplicado por identificador_unico
+      (1 linha por documento, não por tipo de proponente, para permitir join
+      1:1 com pagamentos): prioriza, na desambiguação, a linha que já traz
+      raça preenchida, depois por origem. Normaliza raça/cor em 5 categorias
+      (negra, indigena, branca, amarela, nao_declarada) via regex sobre texto
+      sem acento. Deriva as flags flag_negra, flag_indigena (raça normalizada
+      OU campo indígena explícito) e is_pcd. cidade/uf só existem nas fontes
+      LPG (os stg do PNAB não trazem localização do agente) e ficam NULL para
+      PNAB; são propagadas até aqui exclusivamente para viabilizar a 4ª cota
+      territorial (só aplicável à LPG). chave_municipio_uf (cidade+UF sem
+      acento, minúsculo) é a chave de join com territorio_municipio; fica NULL
+      quando não há localização — nesse caso o agente não é classificável pela
+      cota territorial.
+    config:
+      tags: [silver, cotas]
+      meta:
+        status: Active
     columns:
       - name: identificador_unico
         tests:
@@ -11,43 +29,161 @@ models:
       - name: raca_normalizada
         tests:
           - accepted_values:
-              values: ['negra', 'indigena', 'branca', 'amarela', 'nao_declarada']
+              arguments:
+                values: ['negra', 'indigena', 'branca', 'amarela', 'nao_declarada']
   - name: identificadores_agentes_cotas
-    description: "Chaves distintas de agentes (para contagem secundária e unicidade)."
+    description: >
+      Chaves distintas de agentes (identificador_unico, tipo_proponente,
+      origem) extraídas de perfil_agentes_normalizado — usada para teste de
+      unicidade e para contagem secundária de proponentes.
+    config:
+      tags: [silver, cotas]
+      meta:
+        status: Active
     columns:
       - name: identificador_unico
         tests:
           - unique
           - not_null
   - name: editais_unif
-    description: "Editais unificados com ano derivado (número/nome), validado ≤2026."
+    description: >
+      Editais unificados a partir de stg_editais, com ano derivado
+      (numero_edital, com fallback para nome_edital), validado em [2013, 2026].
+      Mantido para reconciliação/auditoria — não é o caminho de ano
+      efetivamente usado pelas cotas (esse é o de contemplados_unif, via
+      edital_ano_por_anexo/edital_ano_por_arquivo).
+    config:
+      tags: [silver, cotas]
+      meta:
+        status: Active
   - name: edital_ano_por_anexo
-    description: "Ano do edital por anexo PNAB (abas de definição); só anexos ano-único."
+    description: >
+      Ano do edital por ANEXO (PNAB) — 2ª fonte na cascata de datação de
+      contemplados_unif. Extraído do campo "número do edital" nas abas de
+      definição PNAB (raw_pnab_acoes_gerais + raw_pnab_acoes_cultura_viva), mais
+      completo que o nome do edital na planilha de contemplados. Só mantém
+      anexos com ano ÚNICO e consistente entre linhas — descarta anexo
+      multi-ano por ambiguidade.
+    config:
+      tags: [silver, cotas]
+      meta:
+        status: Active
     columns:
       - name: anexo_id
         tests:
           - unique
           - not_null
   - name: edital_ano_por_arquivo
-    description: "Ano do edital por anexo via nome do arquivo (fallback 3); só anexos ano-único."
+    description: >
+      Ano do edital por ANEXO via NOME DO ARQUIVO — 3ª fonte (fallback) na
+      cascata de datação de contemplados_unif, usada só quando nome_edital e
+      o número do edital por anexo não resolvem o ano. O nome do xlsx de
+      origem costuma carregar o ano (ex.: "Contemplados 2024.xlsx"). Mesma
+      regra de edital_ano_por_anexo: agrega por anexo_id e só mantém anexos
+      com ano único, na faixa [2013, 2026]. Ganho medido (jul/2026): cobre
+      1.036 anexos contra 477 do método por número do edital — 849 anexos
+      adicionais. É deliberadamente a fonte de menor prioridade: o nome do
+      arquivo pode refletir a data de publicação, defasada em até ~1 ano em
+      relação ao edital em si.
+    config:
+      tags: [silver, cotas]
+      meta:
+        status: Active
     columns:
       - name: anexo_id
         tests:
           - unique
           - not_null
   - name: territorio_municipio
-    description: "Crosswalk IBGE CD2022 a nível de município (setor->FCU colapsado): flag em_concentracao_urbana + chave nome+uf p/ 4ª cota territorial LPG."
+    description: >
+      Crosswalk IBGE (CD2022) colapsado do grão setor censitário para o grão
+      MUNICÍPIO. em_concentracao_urbana é true quando o município tem ao menos
+      um setor com código FCU preenchido (zona periférica). Constrói
+      chave_municipio_uf (nome do município + sigla da UF, normalizados sem
+      acento/minúsculo) porque agentes e contemplados LPG só têm cidade/UF em
+      texto livre, sem código IBGE — o join por nome é por natureza imperfeito
+      (grafias divergentes), por isso a chave normalizada é exposta para
+      auditoria do casamento. Inclui tabela de mapeamento código-UF → sigla,
+      já que o crosswalk traz a UF por extenso ("Rondônia") enquanto os
+      agentes LPG normalmente registram a sigla ("RO").
+    config:
+      tags: [silver, cotas]
+      meta:
+        status: Active
     columns:
       - name: cd_mun
         tests:
           - unique
           - not_null
+      - name: chave_municipio_uf
+        description: >
+          Chave de junção por nome (município+UF normalizados) com
+          perfil_agentes_normalizado. É a entidade `primary` do semantic model:
+          duplicata aqui multiplicaria o valor pago no cálculo da cota
+          territorial. NULL quando a sigla da UF não resolve — o teste `unique`
+          ignora nulos.
+        tests:
+          - unique
   - name: contemplados_unif
-    description: "Contemplados unificados LPG+PNAB (núcleo do valor) + ano_final/origem_ano."
+    description: >
+      Contemplados unificados LPG + PNAB — núcleo do lado-valor das cotas.
+      Deriva o ANO do edital em cascata de 3 fontes, todas validadas em
+      [2013, 2026]: 1) nome_edital no padrão "NN/AAAA"; 2) ano por ANEXO via
+      número do edital nas abas de definição PNAB (edital_ano_por_anexo);
+      3) fallback pelo ano no NOME DO ARQUIVO por anexo (edital_ano_por_arquivo).
+      anexo_id é propagado até o fato para rastreio.
+
+      Limpeza de linhas-fantasma: as planilhas PNAB trazem linhas que não são
+      pagamentos individuais mas carregam valor e por isso escapam do filtro do
+      bronze (que só descarta linha sem documento E sem valor). São descartadas
+      aqui por padrão de texto em nome_edital: (a) rodapé de subtotal
+      ("TOTAL DE RECURSOS APLICADOS:"), que somado como pagamento duplicaria o
+      dinheiro (medido: ~R$492M de fantasma, mais que o total real do PNAB de
+      ~R$447M no painel oficial); (b) texto de instrução do template
+      ("Insira informações na aba..."). O corte é feito na silver (não no
+      bronze, que permanece raw-fiel) para cobrir o fato e os golds num único
+      ponto. IMPORTANTE: nome_edital = 'nan' NÃO é cortado — é pagamento real
+      sem edital identificado (vira 'sem_ano' no denominador), não lixo.
+    config:
+      tags: [silver, cotas]
+      meta:
+        status: Active
     columns:
       - name: origem
         tests:
-          - accepted_values: {values: ['lpg', 'pnab']}
+          - accepted_values:
+              arguments:
+                values: ['lpg', 'pnab']
       - name: origem_ano
         tests:
-          - accepted_values: {values: ['nome_edital', 'anexo_edital', 'nome_arquivo', 'sem_ano']}
+          - accepted_values:
+              arguments:
+                values: ['nome_edital', 'anexo_edital', 'nome_arquivo', 'sem_ano']
+  - name: diag_valores_cortados
+    description: >
+      Diagnóstico de valores por magnitude — audita o que o teto de R$10M do
+      parse_valor cortou (valores acima do teto viram NULL em valor_pago_num
+      e saem do denominador de valor). Classifica cada linha de
+      stg_contemplados_lpg/pnab em faixas (sem valor; até R$10M/ok; R$10M–100M
+      cortado; R$100M–1tri cortado; acima de 1tri cortado) e conta por origem.
+    config:
+      tags: [silver, cotas]
+      meta:
+        status: Active
+  - name: bbagil_ente_ano
+    description: >
+      [MODELO DESABILITADO — config(enabled=false)] Desabilitado junto com
+      stg_bbagil, mesmo motivo (DAG bbágil bloqueada). Reativar
+      (enabled=true) junto.
+
+      Datação e localização do bbágil por ente (id_plano_acao), buscadas em
+      raw_planos_acao — o fato_bbagil não traz ano nem município diretamente.
+      ano_plano é o ano de INÍCIO DA VIGÊNCIA do plano de ação: uma aproximação
+      (mede o ciclo do plano, não a data exata do edital), por isso é marcado
+      com menor precisão via origem_ano='vigencia_plano'. codigo_ibge destrava
+      o cruzamento com município (e uma futura ponte com o Querido Diário, que
+      busca por território via código IBGE).
+    config:
+      tags: [silver, cotas]
+      meta:
+        status: Disabled

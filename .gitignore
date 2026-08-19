@@ -85,3 +85,10 @@ data/**
 # Dependencia do conversor de Markdown->HTML das skills (accountability-report
 # e revisao-semanal). Instalada sob demanda na primeira geracao de PDF.
 node_modules/
+# Cache intermediário do pipeline de documentação do SALIC (dictionary.json,
+# profile/*.json) -- reprocessável a partir do banco e do dicionário original,
+# pode conter amostras de dado; só os artefatos finais (yaml/docx) são versionados.
+scripts/salic_docs/output/
+
+*.docx
+*.html

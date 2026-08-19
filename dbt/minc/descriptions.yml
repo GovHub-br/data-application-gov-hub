@@ -1,13 +1,402 @@
 models:
-  - name: agentes_pf
-    description: Dados brutos de proponentes pessoa física da LPG
-  - name: agentes_pj
-    description: Dados brutos de proponentes pessoa jurídica da LPG
-  - name: agentes_coletivos
-    description: Dados brutos de proponentes coletivos da LPG
-  - name: identificadores_agentes
-    description: Consolidação dos identificadores de todos os tipos de proponentes
-  - name: perfil_agentes_historico
-    description: Perfil dos agentes com higienização do histórico de acesso a recursos de fomento
-  - name: primeiro_acesso_resumo
-    description: Resumo agregado do indicador de primeiro acesso a recursos de fomento (Meta 5)
+  agentes_dbt:
+    bronze:
+      - name: lpg_agentes_pf
+        status: Active
+        description: >
+          Camada Bronze — dados brutos de pessoas físicas da LPG (Lei Paulo Gustavo).
+          Mapeia o CPF como identificador único e traz a coluna bruta de histórico
+          de acesso a recursos públicos de fomento à cultura. Carga incremental
+          (materialized='incremental'), deduplicada por identificador_unico;
+          descarta CPF nulo, vazio ou 'nan'/'none'.
+      - name: lpg_agentes_pj
+        status: Active
+        description: >
+          Camada Bronze — dados brutos de pessoas jurídicas da LPG.
+          Mapeia o CNPJ como identificador único e traz a coluna bruta de histórico
+          de acesso a recursos públicos de fomento à cultura. Carga incremental,
+          deduplicada por identificador_unico; descarta CNPJ nulo, vazio ou 'nan'/'none'.
+      - name: lpg_agentes_coletivos
+        status: Active
+        description: >
+          Camada Bronze — dados brutos de proponentes coletivos da LPG.
+          Mapeia o CPF do representante do grupo/coletivo como identificador único
+          e traz a coluna bruta de histórico de acesso a recursos públicos de fomento.
+          Carga incremental, deduplicada por identificador_unico.
+      - name: pnab_agentes_pf
+        status: Active
+        description: >
+          Camada Bronze — dados brutos de pessoas físicas da PNAB (Política Nacional Aldir Blanc).
+          Mapeia o CPF como identificador único e traz a coluna bruta de histórico
+          de acesso a recursos públicos de fomento à cultura nos últimos 5 anos.
+          Carga incremental, deduplicada por identificador_unico; descarta CPF nulo,
+          vazio ou 'nan'/'none'.
+      - name: pnab_agentes_pj
+        status: Active
+        description: >
+          Camada Bronze — dados brutos de organizações da PNAB.
+          Mapeia o CNPJ como identificador único e traz a coluna bruta de histórico
+          de acesso a recursos públicos de fomento à cultura anteriormente.
+          Carga incremental, deduplicada por identificador_unico.
+    silver:
+      - name: perfil_agentes_historico
+        status: Active
+        description: >
+          Camada Silver — perfil dos agentes (a partir da view identificadores_agentes,
+          que já consolida os cinco bronzes) com higienização da coluna de histórico
+          de acesso a recursos públicos. Remove valores nulos, 'nan' e caracteres
+          inválidos (ponto, ponto-e-vírgula). Classifica as respostas em três
+          categorias padronizadas: 'Sim', 'Não' e 'Não sabe/Não informou'.
+          Propaga a coluna programa_fomento para rastreabilidade por programa.
+    gold:
+      - name: perfil_acesso_fomento
+        status: Active
+        description: >
+          Camada Gold — Meta 5 (Mapeamento de agentes culturais acessando fomento
+          pela primeira vez), construída sobre identificadores_agentes. Classifica cada
+          proponente por programa com a coluna perfil_acesso_fomento. Respostas
+          confirmadas ('Sim'/'Não') são mantidas; respostas nulas ou omitidas recebem
+          inferência cronológica via ROW_NUMBER() particionado por CPF/CNPJ e ordenado
+          por programa_fomento (proxy temporal: LPG precede PNAB alfabeticamente, o que
+          reflete a ordem real de ingresso na base). Um proponente com
+          sequencia_fomento > 1 acessou mais de um programa, evidenciando veterania.
+      - name: perfil_agentes_completo
+        status: Active
+        description: >
+          Camada Gold — Master Data de proponentes (Meta 5).
+          Grain: 1 linha por identificador_unico (CPF/CNPJ). Consolida perfil_acesso_fomento
+          eliminando duplicatas entre programas: proponentes presentes em mais de um programa
+          têm veterania confirmada por presença multi-programa, sobrepondo a resposta declarada.
+          Serve como base para dois consumos:
+            - Relatório consolidado (sem inferência): filtrar WHERE status_origem = 'Confirmado'
+            - Visão analítica (com inferência): consumir todos os registros
+      - name: primeiro_acesso_contemplados
+        status: Active
+        description: >
+          Camada Gold — Meta 5 com flag de contemplação. Estrutura de saída semelhante
+          à de primeiro_acesso_resumo (mesmo par programa × categoria de acesso), mas
+          construída a partir de perfil_acesso_fomento (não de perfil_agentes_historico),
+          pois depende da coluna status_dado (Confirmado/Inferido) exposta apenas
+          naquele modelo. Adiciona duas dimensões: se o proponente foi contemplado em
+          edital e a discriminação entre dados confirmados (resposta declarada no
+          formulário) vs. inferidos (derivados por sequência ou presença
+          multi-programa). Grain: 1 linha por
+          (programa_fomento × categoria_primeiro_acesso × contemplado).
+
+          Cobertura de contemplados:
+            - LPG: CPF e CNPJ completos via lpg_contemplados — cobertura total.
+            - PNAB PNCV: CPF real via raw_pnab_lista_contemplados_pncv — cobertura PF.
+            - PNAB Geral: apenas CNPJ via raw_pnab_lista_contemplados_geral — CPF
+              anonimizado (***XXXXXX**), PF da lista geral fora do PNCV não é rastreável.
+
+          Ressalvas de qualidade do JOIN de contemplação:
+            - CPF mascarado da LPG: a base de proponentes (lpg_agentes_pf/coletivos)
+              traz o CPF anonimizado no formato "***.NNN.NNN-**" (só os 6 dígitos
+              centrais visíveis), enquanto lpg_contemplados traz o CPF completo. Um
+              match exato nunca ocorre nesses casos, o que geraria falso-negativo
+              sistemático de 'contemplado'. Por isso o modelo faz, adicionalmente, um
+              match parcial pelo "miolo" do CPF (os mesmos 6 dígitos centrais expostos
+              pela máscara) — esse match parcial tem risco de colisão entre CPFs
+              distintos com miolo igual.
+            - Colunas "fantasma" em lpg_contemplados: a ingestão dinâmica de planilhas
+              não normaliza espaços/caracteres invisíveis (ex.: NBSP) nos cabeçalhos, então
+              "CPF ou CNPJ" de arquivos diferentes pode virar colunas distintas no Postgres,
+              cada uma com parte dos dados. A coluna de CPF/CNPJ é por isso resolvida
+              dinamicamente via information_schema (qualquer coluna cujo nome contenha
+              "cpf" e "cnpj"), e não por um nome fixo.
+      - name: primeiro_acesso_resumo
+        status: Active
+        description: >
+          Camada Gold — resumo agregado da Meta 5 (Indicador de Primeiro Acesso),
+          construído sobre perfil_agentes_historico. Conta proponentes distintos por
+          programa de fomento e categoria de acesso anterior a recursos públicos.
+          Calcula o percentual de cada categoria sobre o total do respectivo programa
+          (cada programa soma 100%).
+    views:
+      - name: identificadores_agentes
+        status: Active
+        description: >
+          Camada Views — consolidação dos cinco modelos bronze (3 LPG + 2 PNAB)
+          em um único dataset via UNION ALL. Padroniza identificador_unico e adiciona
+          as colunas literais programa_fomento e tipo_proponente para rastrear
+          a origem de cada registro. Base de onde partem perfil_agentes_historico
+          e perfil_acesso_fomento.
+  cotas_dbt:
+    bronze:
+      - name: stg_agentes_coletivos
+        status: Active
+        description: >
+          Perfil LPG Coletivos/Grupos — une 4 fontes (base + variantes grupo_coletivo,
+          audiovisual e multicultural) via UNION ALL. Demografia = raça/PCD da maioria
+          do grupo/coletivo (não do indivíduo). Documento normalizado via macro
+          normaliza_documento (só dígitos, vazio → NULL); linhas sem documento
+          válido são descartadas. indigena_bruto e quilombola_bruto não existem
+          na fonte LPG — ficam sempre NULL (só preenchidos no PNAB).
+      - name: stg_agentes_pf
+        status: Active
+        description: >
+          Perfil LPG Pessoa Física — une 3 fontes (base + variantes audiovisual e
+          multicultural) via UNION ALL. Filtra o "lixo" de parsing: linhas sem CPF
+          válido são descartadas após normalização (macro normaliza_documento).
+          indigena_bruto e quilombola_bruto ficam sempre NULL (exclusivos do PNAB).
+      - name: stg_agentes_pj
+        status: Active
+        description: >
+          Perfil LPG Pessoa Jurídica — une 3 fontes (base + variantes audiovisual e
+          multicultural) via UNION ALL. Demografia = raça/PCD do corpo diretivo da PJ
+          (não de um indivíduo isolado). Documento normalizado via normaliza_documento;
+          linhas sem documento válido são descartadas.
+      - name: stg_agentes_pnab_pf
+        status: Active
+        description: >
+          Perfil PNAB Pessoa Física (fonte pnab_pessoas) — CPF real (não mascarado) +
+          raça/PCD/indígena/quilombola do próprio indivíduo. Viabiliza cotas
+          demográficas para o PNAB que antes eram impossíveis de calcular (LPG não
+          traz indígena/quilombola). Documento normalizado via normaliza_documento;
+          linhas sem documento válido são descartadas.
+      - name: stg_agentes_pnab_pj
+        status: Active
+        description: >
+          Perfil PNAB Organizações (fonte pnab_organizacoes) — CNPJ real + raça/PCD/
+          indígena/quilombola do representante legal da organização. Documento
+          normalizado via normaliza_documento; linhas sem documento válido são
+          descartadas.
+      - name: stg_bbagil
+        status: Disabled
+        description: >
+          Aguarda a DAG extracao_bbagil_dag rodar com sucesso (hoje falha na
+          autenticação SCA por SCA_TOKEN_URL vazio no .env); reativar
+          (config enabled=true) quando bsc_pnab.fato_bbagil existir.
+
+          Lado-valor via extrato bancário (BB Gestão Ágil/SERPRO): mede o valor
+          efetivamente PAGO ao beneficiário final (pessoa), não o repasse a entes
+          públicos. Fonte já vem agregada e filtrada na origem (grão ente+documento,
+          só débito ao beneficiário, sem repasse entre entes públicos, valores ≥R$375).
+
+          Por que importa: fct_pagamentos_elegiveis (lado das listas de contemplados)
+          mede valor RECEBIDO pelos entes (~R$2,7bi, painel "recebido"); o bbágil mede
+          o valor GASTO/pago às pessoas (~R$447mi, painel "gasto") — o denominador
+          correto para as cotas. O documento do beneficiário vem real (não mascarado),
+          normalizado pela mesma macro normaliza_documento usada em
+          perfil_agentes_normalizado, garantindo join direto e consistente entre as
+          duas bases.
+      - name: stg_contemplados_lpg
+        status: Active
+        description: >
+          Contemplados LPG (lado-valor) — colunas duplicadas por schema-drift na
+          ingestão de planilhas são resolvidas via coalesce_por_nome (lê pelo nome
+          real da coluna, imune a espaço/trailing). Extrai anexo_id do id_anexo da
+          fonte. Documento mascarado (contém '*') não vira chave casável
+          (identificador_unico = NULL), mas o valor é preservado e a linha é marcada
+          via chave_anonimizada. Valor monetário convertido por parse_valor, com
+          teto padrão de R$10M (valores acima disso viram NULL em valor_pago_num,
+          mas ficam preservados em valor_bruto_num para diagnóstico).
+      - name: stg_contemplados_pnab
+        status: Active
+        description: >
+          Contemplados PNAB (lado-valor) — une as listas geral + pncv via
+          coalesce_por_nome (mesma técnica de stg_contemplados_lpg). Chave =
+          CNPJ real (sempre casável) ou CPF real do PNCV; CPF anonimizado
+          (***XXXXXX**) da lista geral não vira chave (fica NULL, flagado por
+          chave_anonimizada), mas o valor é preservado. anexo_id liga este modelo
+          ao ano do edital derivado por anexo (edital_ano_por_anexo /
+          edital_ano_por_arquivo). Valor monetário convertido por parse_valor
+          (mesmo teto de R$10M).
+      - name: stg_editais
+        status: Active
+        description: >
+          Editais LPG — une lpg_editais + 4 tabelas de instrumentos via UNION ALL;
+          resolve colunas duplicadas (ex.: "valor total do edital" aparece repetida
+          em lpg_editais) via coalesce_por_nome. Base de denominador e de derivação
+          de ano (nome/número do edital) para o reconciliador editais_unif — não é
+          o caminho de ano efetivamente usado pelo fluxo principal das cotas (ver
+          contemplados_unif).
+    silver:
+      - name: bbagil_ente_ano
+        status: Disabled
+        description: >
+          Desabilitado junto com stg_bbagil, mesmo motivo (DAG bbágil bloqueada).
+          Reativar (config enabled=true) junto.
+
+          Datação e localização do bbágil por ente (id_plano_acao), buscadas em
+          raw_planos_acao — o fato_bbagil não traz ano nem município diretamente.
+          ano_plano é o ano de INÍCIO DA VIGÊNCIA do plano de ação: uma aproximação
+          (mede o ciclo do plano, não a data exata do edital), por isso é marcado
+          com menor precisão via origem_ano='vigencia_plano'. codigo_ibge destrava
+          o cruzamento com município (e uma futura ponte com o Querido Diário, que
+          busca por território via código IBGE).
+      - name: contemplados_unif
+        status: Active
+        description: >
+          Contemplados unificados LPG + PNAB — núcleo do lado-valor das cotas.
+          Deriva o ANO do edital em cascata de 3 fontes, todas validadas em
+          [2013, 2026]: 1) nome_edital no padrão "NN/AAAA"; 2) ano por ANEXO via
+          número do edital nas abas de definição PNAB (edital_ano_por_anexo);
+          3) fallback pelo ano no NOME DO ARQUIVO por anexo (edital_ano_por_arquivo).
+          anexo_id é propagado até o fato para rastreio.
+
+          Limpeza de linhas-fantasma: as planilhas PNAB trazem linhas que não são
+          pagamentos individuais mas carregam valor e por isso escapam do filtro do
+          bronze (que só descarta linha sem documento E sem valor). São descartadas
+          aqui por padrão de texto em nome_edital: (a) rodapé de subtotal
+          ("TOTAL DE RECURSOS APLICADOS:"), que somado como pagamento duplicaria o
+          dinheiro (medido: ~R$492M de fantasma, mais que o total real do PNAB de
+          ~R$447M no painel oficial); (b) texto de instrução do template
+          ("Insira informações na aba..."). O corte é feito na silver (não no
+          bronze, que permanece raw-fiel) para cobrir o fato e os golds num único
+          ponto. IMPORTANTE: nome_edital = 'nan' NÃO é cortado — é pagamento real
+          sem edital identificado (vira 'sem_ano' no denominador), não lixo.
+      - name: diag_valores_cortados
+        status: Active
+        description: >
+          Diagnóstico de valores por magnitude — audita o que o teto de R$10M do
+          parse_valor cortou (valores acima do teto viram NULL em valor_pago_num
+          e saem do denominador de valor). Classifica cada linha de
+          stg_contemplados_lpg/pnab em faixas (sem valor; até R$10M/ok; R$10M–100M
+          cortado; R$100M–1tri cortado; acima de 1tri cortado) e conta por origem.
+      - name: editais_unif
+        status: Active
+        description: >
+          Editais unificados a partir de stg_editais, com ano derivado
+          (numero_edital, com fallback para nome_edital), validado em [2013, 2026].
+          Mantido para reconciliação/auditoria — não é o caminho de ano
+          efetivamente usado pelas cotas (esse é o de contemplados_unif, via
+          edital_ano_por_anexo/edital_ano_por_arquivo).
+      - name: edital_ano_por_anexo
+        status: Active
+        description: >
+          Ano do edital por ANEXO (PNAB) — 2ª fonte na cascata de datação de
+          contemplados_unif. Extraído do campo "número do edital" nas abas de
+          definição PNAB (raw_pnab_acoes_gerais + raw_pnab_acoes_cultura_viva), mais
+          completo que o nome do edital na planilha de contemplados. Só mantém
+          anexos com ano ÚNICO e consistente entre linhas — descarta anexo
+          multi-ano por ambiguidade.
+      - name: edital_ano_por_arquivo
+        status: Active
+        description: >
+          Ano do edital por ANEXO via NOME DO ARQUIVO — 3ª fonte (fallback) na
+          cascata de datação de contemplados_unif, usada só quando nome_edital e
+          o número do edital por anexo não resolvem o ano. O nome do xlsx de
+          origem costuma carregar o ano (ex.: "Contemplados 2024.xlsx"). Mesma
+          regra de edital_ano_por_anexo: agrega por anexo_id e só mantém anexos
+          com ano único, na faixa [2013, 2026]. Ganho medido (jul/2026): cobre
+          1.036 anexos contra 477 do método por número do edital — 849 anexos
+          adicionais. É deliberadamente a fonte de menor prioridade: o nome do
+          arquivo pode refletir a data de publicação, defasada em até ~1 ano em
+          relação ao edital em si.
+      - name: identificadores_agentes_cotas
+        status: Active
+        description: >
+          Chaves distintas de agentes (identificador_unico, tipo_proponente,
+          origem) extraídas de perfil_agentes_normalizado — usada para teste de
+          unicidade e para contagem secundária de proponentes.
+      - name: perfil_agentes_normalizado
+        status: Active
+        description: >
+          Perfil unificado LPG + PNAB — une os 5 bronzes de agentes (pf, pj,
+          coletivos, pnab_pf, pnab_pj). Deduplicado por identificador_unico
+          (1 linha por documento, não por tipo de proponente, para permitir join
+          1:1 com pagamentos): prioriza, na desambiguação, a linha que já traz
+          raça preenchida, depois por origem. Normaliza raça/cor em 5 categorias
+          (negra, indigena, branca, amarela, nao_declarada) via regex sobre texto
+          sem acento. Deriva as flags flag_negra, flag_indigena (raça normalizada
+          OU campo indígena explícito) e is_pcd. cidade/uf só existem nas fontes
+          LPG (os stg do PNAB não trazem localização do agente) e ficam NULL para
+          PNAB; são propagadas até aqui exclusivamente para viabilizar a 4ª cota
+          territorial (só aplicável à LPG). chave_municipio_uf (cidade+UF sem
+          acento, minúsculo) é a chave de join com territorio_municipio; fica NULL
+          quando não há localização — nesse caso o agente não é classificável pela
+          cota territorial.
+      - name: territorio_municipio
+        status: Active
+        description: >
+          Crosswalk IBGE (CD2022) colapsado do grão setor censitário para o grão
+          MUNICÍPIO. em_concentracao_urbana é true quando o município tem ao menos
+          um setor com código FCU preenchido (zona periférica). Constrói
+          chave_municipio_uf (nome do município + sigla da UF, normalizados sem
+          acento/minúsculo) porque agentes e contemplados LPG só têm cidade/UF em
+          texto livre, sem código IBGE — o join por nome é por natureza imperfeito
+          (grafias divergentes), por isso a chave normalizada é exposta para
+          auditoria do casamento. Inclui tabela de mapeamento código-UF → sigla,
+          já que o crosswalk traz a UF por extenso ("Rondônia") enquanto os
+          agentes LPG normalmente registram a sigla ("RO").
+    gold:
+      - name: cobertura_pagamentos
+        status: Active
+        description: >
+          Cobertura por ano — teto de confiabilidade das cotas; leitura recomendada
+          antes de consultar as tabelas de distribuição de cotas. Por ano
+          (ano_final, com 'sem_ano' quando não há ano derivado), reporta
+          quantidade de pagamentos, pessoas distintas (documentos, já excluindo
+          mascarados), pessoas com perfil casado, valor total e valor com perfil,
+          e três percentuais (0–100): cobertura_pessoas_pct (pessoas com perfil
+          sobre o total de pessoas), cobertura_valor_pct (valor com perfil sobre
+          valor total) e cobertura_temporal_pct (valor com ano derivado sobre
+          valor total).
+      - name: comparativo_recebido_vs_pago
+        status: Disabled
+        description: >
+          Desabilitado junto com stg_bbagil, pois depende de fct_pagamentos_bbagil.
+          Reativar (config enabled=true) junto.
+
+          Valida o "Diagnóstico 4": confronta os dois lados-valor.
+          fct_pagamentos_elegiveis (listas de contemplados) mede o valor RECEBIDO
+          pelos entes (esperado ~R$2,7bi, ≈ painel oficial "recebido");
+          fct_pagamentos_bbagil (extrato bancário) mede o valor PAGO ao
+          beneficiário final (esperado ~R$447mi, ≈ painel oficial "gasto"). Se o
+          bbágil bater com o "gasto" do painel, ele passa a ser o denominador
+          correto para as cotas. Enquanto a extração bbágil estiver parcial
+          (amostra de 1 programa/ano), o total do bbágil será menor que o real —
+          este modelo serve para acompanhar a convergência à medida que a
+          extração avança.
+      - name: distribuicao_cotas_lpg
+        status: Active
+        description: >
+          Cotas SOMENTE LPG, via macro compartilhada distribuicao_cotas (mesma
+          lógica de distribuicao_cotas_pnab, sem duplicar SQL). Valor ponderado
+          (não por contagem de agentes) por ano, para 4 grupos com meta legal
+          mínima: negra 25%, indígena 10%, PCD 5%, território vulnerabilizado
+          (periférico) 20% — só a LPG tem a cota territorial, pois depende de
+          flag_territorio_vulneravel (exige cidade/UF do agente). Reporta o
+          percentual do grupo sobre o valor total do ano E sobre o valor
+          total-com-perfil, além do veredito ('alcancada'/'descumprida') comparando
+          o percentual sobre valor-com-perfil contra a meta.
+      - name: distribuicao_cotas_pnab
+        status: Active
+        description: >
+          Cotas SOMENTE PNAB, via macro compartilhada distribuicao_cotas. 3 grupos
+          com meta legal mínima (negra 25%, indígena 10%, PCD 5%), sem a cota
+          territorial — flag_territorio_vulneravel exige cidade/UF do agente, que
+          o lado-valor do PNAB (listas/bbágil) não traz. Ressalva (Diagnóstico 4):
+          enquanto o lado-valor do PNAB vier das listas de contemplados, o
+          denominador mede o valor RECEBIDO pelos entes (repasse, ~R$2,7bi), não o
+          valor efetivamente PAGO a pessoas (~R$447mi). Quando fct_pagamentos_bbagil
+          estiver ativo, este modelo deve passar a ler o valor pago real.
+      - name: fct_pagamentos_bbagil
+        status: Disabled
+        description: >
+          Desabilitado junto com stg_bbagil/bbagil_ente_ano, até a extração
+          bbágil rodar. Reativar (config enabled=true) junto.
+
+          Fato de pagamentos via extrato bancário (valor PAGO ao beneficiário
+          final) cruzado com o perfil de raça/PCD. Espelha fct_pagamentos_elegiveis
+          (payment-first, LEFT JOIN, preserva órfãos sem perfil), mas usa o bbágil
+          como lado-valor — o denominador correto para as cotas (pago a pessoas,
+          não repasse a entes). Projetado para rodar em PARALELO a
+          fct_pagamentos_elegiveis, não substituí-lo ainda; comparativo_recebido_vs_pago
+          confronta os dois. A decisão de trocar o denominador oficial das cotas
+          para este modelo é do lab (ver plano_integracao_meta3).
+      - name: fct_pagamentos_elegiveis
+        status: Active
+        description: >
+          1 linha por pagamento (payment-first) — base do denominador das cotas.
+          Parte de contemplados_unif com LEFT JOIN para perfil_agentes_normalizado
+          e territorio_municipio, preservando todos os pagamentos (inclusive
+          órfãos sem perfil casado, marcados por tem_perfil=false, e pagamentos
+          sem ano derivado, 'sem_ano'). Carrega flag_negra, flag_indigena, flag_pcd
+          e, exclusivo da LPG, flag_territorio_vulneravel: true quando o município
+          do agente casa (por nome + UF normalizados) com o crosswalk IBGE de
+          zonas periféricas (territorio_municipio); NULL quando o agente não tem
+          cidade informada (majoritariamente PNAB). O casamento por nome cobre
+          cerca de 47,5% dos agentes com perfil — grafias divergentes ainda não
+          refinadas. Meta da cota territorial: 20% (ver distribuicao_cotas_lpg).

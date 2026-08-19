@@ -1,0 +1,186 @@
+schema: bdcorporativo
+descricao: 'Metadados técnicos do banco de dados corporativo (ex.: diagramas do SQL Server). Não é dado
+  de negócio do SALIC.'
+total_tabelas: 1
+tabelas:
+  bdcorporativo__sysdiagrams:
+    schema: bronze
+    nome_tabela: bdcorporativo__sysdiagrams
+    nome_origem: sysdiagrams
+    dominio: bdcorporativo
+    descricao: Tabela responsável por armazenar diagramas do SQL Server criados no ambiente.
+    descricao_fonte: documentado
+    presente_no_dicionario_original: true
+    presente_no_perfil_atual: true
+    linhas_atuais_bronze: 3
+    linhas_snapshot_dicionario_original: 3
+    quantidade_colunas: 5
+    chave_primaria_documentada:
+    - diagram_id
+    indices_documentados:
+    - nome: PK__sysdiagr__C2B05B611B0907CE
+      tipo: Primary key
+      colunas:
+      - diagram_id
+    - nome: UK_principal_name
+      tipo: Must be unique
+      colunas:
+      - principal_id
+      - name
+    regras_de_negocio_documentadas: []
+    observacao: []
+    amostra_linhas_observada:
+    - name: UC26
+      principal_id: '1'
+      diagram_id: '2'
+      version: '1'
+      definition: b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\…
+    - name: dgr_scdne
+      principal_id: '1'
+      diagram_id: '3'
+      version: '1'
+      definition: b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\…
+    - name: Diagrama tbFormDocumentoProjeto
+      principal_id: '1'
+      diagram_id: '4'
+      version: '1'
+      definition: b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\…
+    colunas:
+    - nome: name
+      tipo_documentado: sysname
+      tamanho_documentado: '256'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 3
+        fonte: exato
+      min_observado: dgr_scdne
+      max_observado: UC26
+      valores_observados:
+      - valor: Diagrama tbFormDocumentoProjeto
+        frequencia: 1
+      - valor: dgr_scdne
+        frequencia: 1
+      - valor: UC26
+        frequencia: 1
+      valores_observados_fonte: observado (enumeração completa se distintos <= 30, tabela <= 6M linhas)
+      aparenta_ser_identificador: false
+    - nome: principal_id
+      tipo_documentado: int
+      tamanho_documentado: '4'
+      permite_null_documentado: false
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 1
+        fonte: exato
+      min_observado: '1'
+      max_observado: '1'
+      min_numerico_observado: '1'
+      max_numerico_observado: '1'
+      valores_observados:
+      - valor: '1'
+        frequencia: 3
+      valores_observados_fonte: observado (enumeração completa se distintos <= 30, tabela <= 6M linhas)
+      aparenta_ser_identificador: false
+    - nome: diagram_id
+      tipo_documentado: int identity
+      tamanho_documentado: '4'
+      permite_null_documentado: false
+      chave_primaria_documentada: true
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 3
+        fonte: exato
+      min_observado: '2'
+      max_observado: '4'
+      min_numerico_observado: '2'
+      max_numerico_observado: '4'
+      valores_observados:
+      - valor: '2'
+        frequencia: 1
+      - valor: '4'
+        frequencia: 1
+      - valor: '3'
+        frequencia: 1
+      valores_observados_fonte: observado (enumeração completa se distintos <= 30, tabela <= 6M linhas)
+      aparenta_ser_identificador: true
+    - nome: version
+      tipo_documentado: int
+      tamanho_documentado: '4'
+      permite_null_documentado: true
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 1
+        fonte: exato
+      min_observado: '1'
+      max_observado: '1'
+      min_numerico_observado: '1'
+      max_numerico_observado: '1'
+      valores_observados:
+      - valor: '1'
+        frequencia: 3
+      valores_observados_fonte: observado (enumeração completa se distintos <= 30, tabela <= 6M linhas)
+      aparenta_ser_identificador: false
+    - nome: definition
+      tipo_documentado: varbinary
+      tamanho_documentado: '2147483647'
+      permite_null_documentado: true
+      chave_primaria_documentada: false
+      chave_estrangeira_documentada: false
+      significado: null
+      significado_fonte: nao_documentado
+      dado_sensivel: false
+      nulos:
+        quantidade: 0
+        percentual: 0.0
+      vazios:
+        quantidade: 0
+      distintos:
+        quantidade: 3
+        fonte: exato
+      min_observado: b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\…
+      max_observado: b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\…
+      valores_observados:
+      - valor: b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\…
+        frequencia: 1
+      - valor: b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\…
+        frequencia: 1
+      - valor: b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\…
+        frequencia: 1
+      valores_observados_fonte: observado (enumeração completa se distintos <= 30, tabela <= 6M linhas)
+      aparenta_ser_identificador: false

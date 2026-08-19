@@ -3,14 +3,16 @@ version: 2
 models:
   - name: perfil_agentes_historico
     description: >
-      Camada Silver — perfil dos agentes com higienização da coluna de histórico
+      Camada Silver — perfil dos agentes (a partir da view identificadores_agentes,
+      que já consolida os cinco bronzes) com higienização da coluna de histórico
       de acesso a recursos públicos. Remove valores nulos, 'nan' e caracteres
       inválidos (ponto, ponto-e-vírgula). Classifica as respostas em três
       categorias padronizadas: 'Sim', 'Não' e 'Não sabe/Não informou'.
       Propaga a coluna programa_fomento para rastreabilidade por programa.
     config:
+      tags: [silver, agentes, higienizacao]
       meta:
-        tags: [silver, agentes, higienizacao]
+        status: Active
     columns:
       - name: identificador_unico
         description: Identificador único do proponente (CPF, CNPJ ou CPF do representante).
@@ -24,7 +26,8 @@ models:
         description: Programa de fomento de origem — 'LPG' ou 'PNAB'.
         tests:
           - accepted_values:
-              values: ['LPG', 'PNAB']
+              arguments:
+                values: ['LPG', 'PNAB']
       - name: historico_acesso_limpo
         description: Texto limpo da resposta bruta sobre acesso anterior a recursos de fomento.
       - name: categoria_primeiro_acesso
@@ -33,4 +36,5 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Sim', 'Não', 'Não sabe/Não informou']
+              arguments:
+                values: ['Sim', 'Não', 'Não sabe/Não informou']
