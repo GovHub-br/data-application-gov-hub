@@ -29,8 +29,27 @@ with
     preenchimento as (select contrato_id, mes_ref from {{ ref("preenchimento_meses") }}),
 
     contratos as (
-        select id, numero, fornecedor_cnpj_cpf_idgener, fornecedor_tipo, fornecedor_nome, dt_ingest as dt_ingest_contratos
+        select
+            id,
+            numero,
+            fornecedor_cnpj_cpf_idgener,
+            fornecedor_tipo,
+            fornecedor_nome,
+            objeto,
+            vigencia_inicio,
+            vigencia_fim,
+            dt_ingest as dt_ingest_contratos
         from {{ ref("contratos") }}
+    ),
+
+    naturezas_por_contrato as (
+        select
+            contrato_id,
+            array_agg(distinct natureza_despesa_detalhada order by natureza_despesa_detalhada)
+                filter (where natureza_despesa_detalhada is not null) as naturezas_despesa_detalhada
+        from {{ ref("contratos_empenhos") }}
+        where contrato_id is not null
+        group by contrato_id
     ),
 
     comparativo_mensal as (
@@ -66,6 +85,11 @@ select
     c.fornecedor_cnpj_cpf_idgener,
     c.fornecedor_tipo,
     c.fornecedor_nome,
+    c.objeto,
+    c.vigencia_inicio,
+    c.vigencia_fim,
+    n.naturezas_despesa_detalhada,
     greatest(ccm.dt_ingest::timestamptz, c.dt_ingest_contratos::timestamptz) as dt_ingest
 from comparativo_mensal as ccm
 left join contratos as c on ccm.contrato_id = c.id
+left join naturezas_por_contrato as n on ccm.contrato_id = n.contrato_id
