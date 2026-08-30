@@ -137,6 +137,12 @@ sources:
     schema: sgac
     tables:
       - name: projetos_sgac
+
+  - name: mcid
+    schema: mcid
+    tables:
+      - name: empreendimento_far
+      - name: evolucao_financeira
       
   - name: censo_demografico
     schema: censo_demografico
