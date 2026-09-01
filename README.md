@@ -12,7 +12,7 @@ Potencializamos informações de sistemas como TransfereGov, Siape, Siafi,
 ComprasGov e Siorg para gerar diagnósticos estratégicos, indicadores confiáveis
 e decisões baseadas em evidências.
 
-![Informações do Projeto](https://github.com/GovHub-br/gov-hub/blob/main/docs/land/dist/images/imagem_informacoes.jpg)
+![Informações do Projeto](assets/images/imagem_informacoes.jpg)
 
 - Transparência pública e cultura de dados abertos
 - Indicadores confiáveis para acompanhamento e monitoramento
@@ -25,7 +25,7 @@ e decisões baseadas em evidências.
 A arquitetura do Gov Hub BR é baseada na Arquitetura Medallion, em um fluxo de
 dados que permite a coleta, transformação e visualização de dados.
 
-![Fluxo de Dados](https://github.com/GovHub-br/gov-hub/blob/main/fluxo_dados.jpg)
+![Fluxo de Dados](assets/images/fluxo_dados.jpg)
 
 Para mais informações sobre o projeto, veja o nosso
 [e-book](https://github.com/GovHub-br/gov-hub/blob/main/docs/land/dist/ebook/GovHub_Livro-digital_0905.pdf).
