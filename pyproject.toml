@@ -28,6 +28,10 @@ dependencies = [
     "s3fs",
     "boto3",
     "adlfs",
+    # O Airflow 2.8.1 declara universal-pathlib>=0.1.4 sem limite superior, mas
+    # importa `_CloudAccessor`, símbolo removido na versão 0.2. Sem este teto o
+    # resolver sobe para 0.3.x e o Airflow não inicializa.
+    "universal-pathlib>=0.1.4,<0.2",
 ]
 
 [dependency-groups]
