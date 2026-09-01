@@ -1,173 +1,198 @@
-# Gov Hub BR - Transformando Dados em Valor para Gestão Pública
+# Gov Hub BR - Data Application
 
-O Gov Hub BR é uma iniciativa para enfrentar os desafios da fragmentação, redundância e inconsistências nos sistemas estruturantes do governo federal. O projeto busca transformar dados públicos em ativos estratégicos, promovendo eficiência administrativa, transparência e melhor tomada de decisão. A partir da integração de dados, gestores públicos terão acesso a informações qualificadas para subsidiar decisões mais assertivas, reduzir custos operacionais e otimizar processos internos. 
+Este repositório reúne pipelines, modelos dbt, integrações e configurações locais
+da aplicação de dados do Gov Hub BR.
 
-Potencializamos informações de sistemas como TransfereGov, Siape, Siafi, ComprasGov e Siorg para gerar diagnósticos estratégicos, indicadores confiáveis e decisões baseadas em evidências.
+O Gov Hub BR é uma iniciativa para enfrentar desafios de fragmentação,
+redundância e inconsistências em sistemas estruturantes do governo federal. O
+projeto busca transformar dados públicos em ativos estratégicos para apoiar
+gestão pública, transparência, interoperabilidade e tomada de decisão baseada em
+evidências.
 
-![Informações do Projeto](https://github.com/GovHub-br/gov-hub/blob/main/docs/land/dist/images/imagem_informacoes.jpg)
+## Stack do Projeto
 
-- Transparência pública e cultura de dados abertos
-- Indicadores confiáveis para acompanhamento e monitoramento
-- Decisões baseadas em evidências e diagnósticos estratégicos
-- Exploração de inteligência artificial para gerar insights
-- Gestão orientada a dados em todos os níveis
+- **Apache Airflow 2.8.1:** orquestração das DAGs de ingestão, transformação e
+  rotinas auxiliares.
+- **dbt:** transformação, testes e documentação dos modelos analíticos.
+- **PostgreSQL:** persistência relacional para dados ingeridos e transformados.
+- **MinIO:** armazenamento de objetos para fluxos que usam landing zone.
+- **Apache Superset:** visualização e exploração de dados.
+- **Jupyter:** análises exploratórias locais.
+- **Docker Compose:** execução do ambiente local.
+- **uv + Make:** gerenciamento de dependências e automação de comandos.
 
-## Fluxo/Arquitetura de Dados
+## Pré-Requisitos
 
-A arquitetura do Gov Hub BR é baseada na Arquitetura Medallion,  em um fluxo de dados que permite a coleta, transformação e visualização de dados.
-
-![Fluxo de Dados](https://github.com/GovHub-br/gov-hub/blob/main/fluxo_dados.jpg)
-
-Para mais informações sobre o projeto, veja o nosso [e-book](https://github.com/GovHub-br/gov-hub/blob/main/docs/land/dist/ebook/GovHub_Livro-digital_0905.pdf).
-E temos também alguns slides falando do projeto e como ele pode ajudar a transformar a gestão pública.
-
-[Slides](https://www.figma.com/slides/PlubQE0gaiBBwFAV5GcVlH/Gov-Hub---F%C3%B3rum-IA---Giga-candanga?node-id=5-131&t=hlLiJiwfyPEPRFys-1)
-
-## Apoio
-
-Esse trabalho  é mantido pelo [Lab Livre](https://www.instagram.com/lab.livre/) e apoiado pelo [IPEA/Dides](https://www.ipea.gov.br/portal/categorias/72-estrutura-organizacional/210-dides-estrutura-organizacional).
-
-## Contato
-
-Para dúvidas, sugestões ou para contribuir com o projeto, entre em contato conosco: [lablivreunb@gmail.com](mailto:lablivreunb@gmail.com)
-
-
-# Data Pipeline Project
-
-O Data Pipeline Project é uma solução moderna que utiliza ferramentas como Airflow, DBT, Jupyter e Superset para orquestração, transformação, análise e visualização de dados. 
-
-## 🚀 Stack do projeto
-
-- **Apache Airflow**: Orquestração de workflows
-- **dbt**: Transformação de dados
-- **Jupyter**: Análise de dados interativa
-- **Apache Superset**: Visualização e exploração de dados
-- **Docker**: Containerização e desenvolvimento local
-- **Make**: Automação de build e configuração
-
-## 📋 Pré-requisitos
-
+- Git
 - Docker e Docker Compose
 - Make
-- Python 3.11.x
-- Git
+- Python 3.11
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- Acesso às credenciais necessárias para os sistemas integrados, quando a DAG
+  depender de APIs, certificados ou secrets externos
 
-## 🔧 Setup
+## Setup Local
 
 1. Clone o repositório:
+
 ```bash
 git clone git@github.com:GovHub-br/data-application-gov-hub.git
 cd data-application-gov-hub
 ```
 
-2. Execute a configuração usando Make:
+2. Configure dependências, ambiente local e hooks:
+
 ```bash
 make setup
 ```
 
-- Isso irá:
-    - Criar os ambientes virtuais necessários
-    - Instalar as dependências
-    - Configurar os hooks de pre-commit
-    - Preparar o ambiente de desenvolvimento
+O comando cria `.env` a partir de `local.env` quando o arquivo ainda não existe,
+instala as dependências com `uv`, atualiza o `requirements.txt` e configura os
+hooks de Git.
 
-
-3. Configuração de ambiente
-
-Este projeto depende de variáveis de ambiente para o desenvolvimento local.
-
-Você pode configurá-las seguindo **[este guia](https://gov-hub.io/govhub/documentacao/instalacao/)**.
-
-
-## 🏃‍♂️ Executando localmente
-
-Inicie todos os serviços usando Docker Compose:
+3. Suba o ambiente local:
 
 ```bash
-docker-compose up -d
+make compose
 ```
 
-Acesse os diferentes componentes:
-- Airflow: http://localhost:8080
-- Jupyter: http://localhost:8888
-- Superset: http://localhost:8088
+Esse comando executa o Docker Compose, configura variáveis/conexões básicas do
+Airflow com `make dev` e valida a configuração com `make dev-check`.
 
-## 💻 Desenvolvimento
+## Serviços Locais
 
-### Qualidade de Código
+Após subir o ambiente, os principais serviços ficam disponíveis em:
 
-Este projeto utiliza diversas ferramentas para manter a qualidade do código:
-- Hooks de pre-commit
-- Configurações de lint
-- Testes automatizados
+| Serviço | URL |
+| --- | --- |
+| Airflow | <http://localhost:8080> |
+| Superset | <http://localhost:8088> |
+| Jupyter | <http://localhost:8888> |
+| MinIO API | <http://localhost:9000> |
+| MinIO Console | <http://localhost:9001> |
 
-Execute a verificação de lint:
-```bash
-make lint
-```
+As credenciais e variáveis locais vêm de `.env`/`local.env`. Não versione
+credenciais reais, tokens, certificados ou secrets de produção.
 
-Execute os testes:
-```bash
-make test
-```
+## Estrutura do Repositório
 
-### Estrutura do projeto
-
-```
+```text
 .
-├── airflow/
+├── .github/
+│   ├── workflows/
+│   ├── actions/
+│   ├── CONTRIBUTING.md
+│   ├── MERGE_REQUEST_PROTOCOL.md
+│   └── PULL_REQUEST_TEMPLATE.md
+├── airflow_lappis/
+│   ├── airflow.cfg
 │   ├── dags/
-│   └── plugins/
-├── dbt/
-│   └── models/
-├── jupyter/
-│   └── notebooks/
+│   │   ├── dashboards/
+│   │   ├── data_ingest/
+│   │   ├── dbt/
+│   │   │   └── ipea/
+│   │   └── homologation/
+│   ├── helpers/
+│   ├── plugins/
+│   └── templates/
+├── docker/
+│   └── postgres/
 ├── superset/
-│   └── dashboards/
+├── tests/
+│   ├── integration/
+│   ├── test_helpers/
+│   ├── test_plugins/
+│   └── unit/
+├── Dockerfile
+├── Dockerfile.superset
 ├── docker-compose.yml
+├── local.env
 ├── Makefile
+├── pyproject.toml
+├── requirements.txt
+├── uv.lock
 └── README.md
 ```
 
-### Comandos do Makefile
+## Comandos Úteis
 
-- `make setup`: Configuração inicial do projeto
-- `make lint`: Executa verificações de lint
-- `make tests`: Executa a suíte de testes
-- `make clean`: Remove arquivos gerados
-- `make build`: Constrói as imagens Docker
+| Comando | Uso |
+| --- | --- |
+| `make setup` | Prepara `.env`, instala dependências, gera `requirements.txt` e configura hooks |
+| `make install` | Instala dependências com `uv` |
+| `make requirements` | Regenera o `requirements.txt` a partir do `uv` |
+| `make compose` | Sobe o ambiente local e configura o Airflow |
+| `make dev` | Configura variáveis e conexões locais do Airflow |
+| `make dev-check` | Valida variáveis e conexão padrão do Airflow |
+| `make format` | Formata código com Black e Ruff |
+| `make lint` | Executa verificações de Black, Ruff e Ty |
+| `make test` | Executa testes unitários e gera relatórios |
+| `make test-integration` | Sobe serviços necessários e executa testes de integração |
 
-## 🔐 Fluxo de Trabalho com Git
+## Airflow Local
 
-Este projeto exige commits assinados. Para configurar a assinatura com GPG:
+O ambiente local monta o código do repositório dentro do container do Airflow:
 
-1. Gere uma chave GPG:
+- `airflow_lappis/dags` em `${AIRFLOW_HOME}/dags`
+- `airflow_lappis/plugins` em `${AIRFLOW_HOME}/plugins`
+- `airflow_lappis/helpers` em `${AIRFLOW_HOME}/helpers`
+- `airflow_lappis/dags/dbt/ipea/profiles.yml` em `${AIRFLOW_HOME}/.dbt/profiles.yml`
+
+O `make dev` configura variáveis como `airflow_orgao`,
+`airflow_variables`, `dynamic_schedules` e a conexão `postgres_default` para
+desenvolvimento local.
+
+## Desenvolvimento
+
+Antes de abrir um Pull Request, execute:
+
 ```bash
-gpg --full-generate-key
+make lint
+make test
 ```
 
-2. Configure o Git para usar assinatura GPG:
+Para mudanças em DAGs, valide também no Airflow:
+
 ```bash
-git config --global user.signingkey SUA_KEY_ID
-git config --global commit.gpgsign true
+docker compose exec airflow airflow dags list
+docker compose exec airflow airflow dags test <dag_id> <data_execucao>
 ```
 
-3. Adicione sua chave GPG à sua conta do GitLab
+Para mudanças em modelos dbt, execute os comandos dentro do projeto alterado:
 
-## 📚 Documentação
+```bash
+cd airflow_lappis/dags/dbt/ipea
+dbt run --select <modelo_ou_dominio>
+dbt test --select <modelo_ou_dominio>
+```
 
-- [Documentação do Airflow](https://airflow.apache.org/docs/)
-- [Documentação do dbt](https://docs.getdbt.com/)
-- [Documentação do Superset](https://superset.apache.org/docs/intro)
-- [Documentação do GovHub](https://gov-hub.io/govhub/documentacao/instalacao/)
+## Contribuição
 
-## 🤝 Contribuição
+Antes de contribuir, leia:
 
-Antes de contribuir, leia o [Guia de Contribuição](.github/CONTRIBUTING.md) e o [Protocolo de Aprovação de Pull Requests](.github/MERGE_REQUEST_PROTOCOL.md), que definem o fluxo de branches, commits, Pull Requests, revisão de código, testes e lint.
+- [Guia de Contribuição](.github/CONTRIBUTING.md)
+- [Protocolo de Aprovação de Pull Requests](.github/MERGE_REQUEST_PROTOCOL.md)
+- [Template de Pull Request](.github/PULL_REQUEST_TEMPLATE.md)
 
 Resumo do fluxo:
 
-1. Crie uma branch seguindo o padrão `<tipo>/<descricao-curta>`
-2. Faça commits seguindo Conventional Commits
-3. Garanta que testes e lint passam
-4. Abra um Pull Request usando o template do repositório
+1. Crie uma branch seguindo o padrão `<tipo>/<descricao-curta>`.
+2. Faça commits seguindo Conventional Commits.
+3. Rode lint e testes aplicáveis.
+4. Abra um Pull Request usando o template do repositório.
+5. Use labels `team:*` quando a revisão por domínio for necessária.
+
+Se o repositório exigir commits assinados, configure sua chave GPG ou SSH no
+GitHub e habilite a assinatura no Git antes de commitar.
+
+## Documentação
+
+- [Documentação do GovHub](https://gov-hub.io/govhub/documentacao/)
+- [Apache Airflow](https://airflow.apache.org/docs/)
+- [dbt](https://docs.getdbt.com/)
+- [Apache Superset](https://superset.apache.org/docs/intro)
+
+## Contato
+
+Para dúvidas, sugestões ou contribuições, entre em contato com o Lab Livre:
+[lablivreunb@gmail.com](mailto:lablivreunb@gmail.com).
