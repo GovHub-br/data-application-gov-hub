@@ -57,8 +57,15 @@ test-integration:
 compose:
 	@echo "Iniciando ambiente local do Airflow com Docker Compose..."
 	docker compose up -d --build
+	$(MAKE) setup-roles
 	$(MAKE) dev
 	$(MAKE) dev-check
+
+setup-roles:
+	@echo "Garantindo roles do Postgres (role somente leitura)..."
+	@for i in $$(seq 1 30); do docker compose exec -T postgres pg_isready -U postgres >/dev/null 2>&1 && break; sleep 2; done
+	@docker compose exec -T postgres bash /docker-entrypoint-initdb.d/setup_roles.sh
+	@echo "Role somente-leitura pronta."
 
 dev:
 	@docker compose ps --status running $(AIRFLOW_SERVICE) >/dev/null 2>&1 || (echo "Serviço '$(AIRFLOW_SERVICE)' não está em execução. Rode: docker compose up -d" && exit 1)
