@@ -28,6 +28,7 @@ dependencies = [
     "s3fs",
     "boto3",
     "adlfs",
+    "universal-pathlib>=0.1.4,<0.2",
 ]
 
 [dependency-groups]
