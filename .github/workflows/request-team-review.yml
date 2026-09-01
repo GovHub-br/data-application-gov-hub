@@ -1,0 +1,68 @@
+name: Request team review
+
+on:
+  pull_request_target:
+    types: [labeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  request-team-review:
+    name: Request review by domain
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Request reviewers from team labels
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          github-token: ${{ secrets.TEAM_REVIEW_TOKEN || github.token }}
+          script: |
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            const teamByLabel = {
+              "team:gces": "oss",
+              "team:ipea": "ipea",
+              "team:mir": "mir",
+              "team:mcid": "mcid",
+              "team:minc": "minc",
+              "team:oss": "oss",
+            };
+
+            const currentLabels = new Set(
+              context.payload.pull_request.labels.map((label) => label.name)
+            );
+
+            const team_reviewers = [...new Set([...currentLabels]
+              .map((label) => teamByLabel[label])
+              .filter(Boolean))];
+
+            if (team_reviewers.length === 0) {
+              core.info("No team labels found for this PR.");
+            } else {
+              const failedTeams = [];
+
+              for (const team of team_reviewers) {
+                try {
+                  await github.rest.pulls.requestReviewers({
+                    owner,
+                    repo,
+                    pull_number,
+                    team_reviewers: [team],
+                  });
+                  core.info(`Requested review from team: ${team}`);
+                } catch (error) {
+                  failedTeams.push(team);
+                  core.warning(`Could not request review from team "${team}": ${error.message}`);
+                }
+              }
+
+              if (failedTeams.length > 0) {
+                core.warning(
+                  `Some teams could not be requested automatically: ${failedTeams.join(", ")}. ` +
+                  "Check team repository access or configure TEAM_REVIEW_TOKEN with Pull requests: read/write and Members: read permissions."
+                );
+              }
+            }

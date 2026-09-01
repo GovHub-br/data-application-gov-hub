@@ -361,6 +361,7 @@ def extrair_chunks_de_excel(
     chunks: list[ChunkProcessado] = []
     for sheet_name in abas_validas:
         df_aba = excel_file.parse(sheet_name, header=None)
+        assert isinstance(df_aba, pd.DataFrame)
         partes = _identificar_chunks_horizontais(df_aba)
         for idx, df_raw in enumerate(partes):
             sufixo = f"_parte_{idx + 1}" if len(partes) > 1 else ""
@@ -456,4 +457,3 @@ def preparar_registros_insercao(chunk: ChunkProcessado) -> list[dict[str, str]]:
     df["nome_fonte"] = chunk.arquivo
     df["subcaminho_fonte"] = chunk.subcaminho
     return df.astype(str).to_dict(orient="records")
-

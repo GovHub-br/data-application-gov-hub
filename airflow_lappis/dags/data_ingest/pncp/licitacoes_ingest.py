@@ -88,7 +88,7 @@ def pncp_publicacoes_dag() -> None:
                 data_inicial=data_inicial,
                 data_final=data_final,
                 codigo_modalidade_contratacao=cod_modalidade_int,
-                cnpj=cnpj_orgao_int,
+                cnpj=str(cnpj_orgao_int),
             )
 
             if not registros:

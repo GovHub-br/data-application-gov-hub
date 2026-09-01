@@ -1,64 +1,50 @@
-[tool.poetry]
-package-mode = false
+[project]
 name = "lappis"
 version = "0.1.0"
 description = "Gestão de Dados do IPEA - Aplicações Python"
-authors = ["Lappis UNB"]
+authors = [{ name = "Lappis UNB" }]
 readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "apache-airflow==2.8.1",
+    "apache-airflow-providers-postgres==5.14.0",
+    "apache-airflow-providers-microsoft-mssql==3.7.2",
+    "flask-session==0.5.0",
+    "numpy==1.26.4",
+    "flask",
+    "dbt-core==1.12.0",
+    "dbt-postgres",
+    "pandas",
+    "requests",
+    "httpx",
+    "sqlalchemy",
+    "zeep",
+    "imap-tools",
+    "chardet",
+    "astronomer-cosmos",
+    "openpyxl>=3.1.5,<4.0.0",
+    "polars",
+    "pyarrow",
+    "s3fs",
+    "boto3",
+    "adlfs",
+    "universal-pathlib>=0.1.4,<0.2",
+]
 
-[tool.poetry.dependencies]
-python = "~3.11"
-apache-airflow = "2.8.1"
-apache-airflow-providers-postgres = "5.14.0"
-apache-airflow-providers-microsoft-mssql = "3.7.2"
-flask-session = "0.5.0"
-numpy = "1.26.4"
-flask = "*"
-dbt-core = "*"
-dbt-postgres = "*"
-pandas = "*"
-requests = "*"
-httpx = "*"
-sqlalchemy = "*"
-zeep = "*"
-imap-tools = "*"
-astronomer-cosmos = "*"
-openpyxl = "^3.1.5"
+[dependency-groups]
+dev = [
+    "black==26.5.1",
+    "ruff",
+    "pytest",
+    "pytest-cov",
+    "ty",
+    "jupyter",
+    "moto[s3]",
+    "shandy-sqlfmt",
+]
 
-[tool.poetry.group.dev.dependencies]
-black = "*"
-ruff = "*"
-pytest = "*"
-pytest-cov = "*"
-mypy = "*"
-types-psycopg2 = "*"
-pandas-stubs = "*"
-sqlalchemy-stubs = "*"
-jupyter = "*"
-shandy-sqlfmt = "*"
-sqlfluff = "*"
-sqlfluff-templater-dbt = "*"
-types-Authlib = "*"
-types-Deprecated = "*"
-types-Pygments = "*"
-types-WTForms = "*"
-types-croniter = "*"
-types-gevent = "*"
-types-jmespath = "*"
-types-jsonschema = "*"
-types-openpyxl = "*"
-types-psutil = "*"
-types-tabulate = "*"
-types-colorama = "*"
-types-decorator = "*"
-types-passlib = "*"
-types-pycurl = "*"
-types-simplejson = "*"
-types-uWSGI = "*"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+package = false
 
 [tool.black]
 line-length = 90
@@ -81,7 +67,7 @@ exclude = '''
 '''
 
 [tool.ruff]
-line-length = 90
+line-length = 120
 target-version = "py311"
 exclude = [
     ".git",
@@ -96,35 +82,14 @@ exclude = [
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90"]
-ignore = []
-
-[tool.mypy]
-python_version = "3.11"
-files = ["**/*.py"]
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = false
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
-follow_untyped_imports = true
-disable_error_code = ["arg-type", "attr-defined"]
+ignore = ["C901"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = [
-    "-v",
-    "--cov=airflow_lappis/plugins",
-    "--cov=airflow_lappis/helpers",
-    "--cov-report=term",
-    "--cov-report=term-missing",
-    "--cov-report=html:htmlcov",
+markers = [
+    "integration: requires a live MinIO instance (docker-compose up)",
+    "unit: pure unit tests with no external dependencies",
 ]
 
 [tool.coverage.run]
@@ -136,7 +101,7 @@ skip_empty = true
 pythonpath = ["airflow_lappis", "airflow_lappis/helpers", "airflow_lappis/plugins"]
 
 [tool.sqlfmt]
-line_length = 90
+line_length = 120
 dialect = "polyglot"
 exclude = [
     ".git/",
@@ -147,40 +112,3 @@ exclude = [
     "**/compiled/**"
 ]
 
-[tool.sqlfluff.core]
-dialect = "postgres"
-templater = "dbt"
-max_line_length = 90
-exclude_rules = "L016,LT02,LT09,LT14,RF02,AL04,CV08"
-verbose = 1
-
-[tool.sqlfluff.indentation]
-indented_joins = true
-indented_using_on = true
-template_blocks_indent = true
-indent_unit = "space"
-tab_space_size = 2
-
-[tool.sqlfluff.rules.capitalisation.keywords]
-capitalisation_policy = "lower"
-
-[tool.sqlfluff.rules.capitalisation.identifiers]
-capitalisation_policy = "lower"
-
-[tool.sqlfluff.rules.capitalisation.functions]
-extended_capitalisation_policy = "lower"
-
-[tool.sqlfluff.rules.capitalisation.literals]
-capitalisation_policy = "lower"
-
-[tool.sqlfluff.templater]
-unwrap_wrapped_queries = true
-
-[tool.sqlfluff.templater.dbt]
-project_dir = "./airflow_lappis/dags/dbt/ipea"
-profiles_dir = "./airflow_lappis/dags/dbt/ipea"
-profile = "ipea"
-target = "prod"
-defer_mode = true
-static_analysis = true
-disable_database_connection = true

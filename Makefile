@@ -1,5 +1,4 @@
-export PYTHONPATH := $(CURDIR)/airflow_lappis
-export MYPYPATH := $(CURDIR):$(CURDIR)/airflow_lappis/dags:$(CURDIR)/airflow_lappis/helpers:$(CURDIR)/airflow_lappis/plugins
+export PYTHONPATH := $(CURDIR)/airflow_lappis:$(CURDIR)/airflow_lappis/helpers:$(CURDIR)/airflow_lappis/plugins
 
 AIRFLOW_SERVICE ?= airflow
 AIRFLOW_LOCAL_ORGAO ?= ipea
@@ -9,9 +8,18 @@ AIRFLOW_LOCAL_DB_USER ?= postgres
 AIRFLOW_LOCAL_DB_PASSWORD ?= postgres
 AIRFLOW_LOCAL_DB_PORT ?= 5432
 
+install:
+	@echo "Instalando dependências..."
+	uv sync --all-extras --group dev
+
+requirements:
+	@echo "Gerando requirements.txt..."
+	uv export --no-hashes --no-annotate --no-header --format requirements-txt -o requirements.txt
+
 setup:
-	@if ! command -v poetry >/dev/null 2>&1; then \
-		echo "Poetry não encontrado. Instale antes com pipx install poetry==1.8.5"; \
+	@echo "Configurando ambiente..."
+	@if ! command -v uv >/dev/null 2>&1; then \
+		echo "uv não encontrado. Instale antes: https://docs.astral.sh/uv/getting-started/installation/"; \
 		exit 1; \
 	fi
 	@if [ ! -f .env ]; then \
@@ -23,43 +31,48 @@ setup:
 			exit 1; \
 		fi; \
 	fi
-	poetry self add poetry-plugin-export || true
-	poetry config virtualenvs.in-project false
-	poetry lock
-	poetry install --no-root --with dev
-	poetry export --without-hashes --format=requirements.txt > requirements.generated.txt
+	$(MAKE) install
+	$(MAKE) requirements
 	bash setup-git-hooks.sh
+
+format:
+	uv run black .
+	uv run ruff check --fix .
+
+lint:
+	uv run black . --check
+	uv run ruff check .
+	uv run ty check .
+
+test:
+	uv run pytest tests/unit --junitxml=report.xml --cov=. --cov-report=xml:coverage.xml
+
+test-integration:
+	@if [ ! -f .env ]; then cp local.env .env; echo ".env created from local.env"; fi
+	@docker-compose --env-file local.env up -d minio minio-init postgres
+	@echo "Waiting for services to be healthy..."
+	@docker-compose --env-file local.env ps
+	uv run pytest tests/integration/ -m integration -v
+
+compose:
+	@echo "Iniciando ambiente local do Airflow com Docker Compose..."
 	docker compose up -d --build
+	$(MAKE) setup-roles
 	$(MAKE) dev
 	$(MAKE) dev-check
 
-format:
-	poetry run black .
-	poetry run ruff check --fix .
-	poetry run sqlfmt ./airflow_lappis/dags/dbt
-
-lint:
-	poetry run black . --check
-	poetry run ruff check .
-	poetry run mypy . --explicit-package-bases --install-types --non-interactive
-	poetry run sqlfmt ./airflow_lappis/dags/dbt --check
-	[ "${GITLAB_CI}" ] || poetry run sqlfluff lint ./airflow_lappis/dags/dbt
-
-lint-ci:
-	poetry run sqlfmt ./airflow_lappis/dags/dbt --check
-	poetry run sqlfluff lint ./airflow_lappis/dags/dbt --config .sqlfluff.ci --ignore templating
-
-test:
-	poetry run pytest tests
-	@echo ""
-	@echo "Coverage HTML: $(CURDIR)/htmlcov/index.html"
+setup-roles:
+	@echo "Garantindo roles do Postgres (role somente leitura)..."
+	@for i in $$(seq 1 30); do docker compose exec -T postgres pg_isready -U postgres >/dev/null 2>&1 && break; sleep 2; done
+	@docker compose exec -T postgres bash /docker-entrypoint-initdb.d/setup_roles.sh
+	@echo "Role somente-leitura pronta."
 
 dev:
 	@docker compose ps --status running $(AIRFLOW_SERVICE) >/dev/null 2>&1 || (echo "Serviço '$(AIRFLOW_SERVICE)' não está em execução. Rode: docker compose up -d" && exit 1)
 	@echo "Aguardando Airflow/DB ficarem prontos..."
 	@docker compose exec -T $(AIRFLOW_SERVICE) sh -c 'for i in $$(seq 1 30); do airflow db init >/dev/null 2>&1 && exit 0; sleep 2; done; echo "Airflow DB não ficou pronto a tempo para inicializar."; exit 1'
 	@docker compose exec -T $(AIRFLOW_SERVICE) airflow variables set airflow_orgao '$(AIRFLOW_LOCAL_ORGAO)'
-	@docker compose exec -T $(AIRFLOW_SERVICE) airflow variables set airflow_variables '{"ipea":{"codigos_ug":[113601,113602]},"unb":{"codigos_ug":[154040]},"ibama":{"codigos_ug":[440001,440048,440050]},"mgi":{"codigos_ug":[201082]}}'
+	@docker compose exec -T $(AIRFLOW_SERVICE) airflow variables set airflow_variables '{"ipea":{"codigos_ug":[113601,113602]},"unb":{"codigos_ug":[154040]},"ibama":{"codigos_ug":[440001,440048,440050]},"mgi":{"codigos_ug":[201082]},"mir":{"codigos_ug":[230002,810008]}}'
 	@docker compose exec -T $(AIRFLOW_SERVICE) airflow variables set dynamic_schedules '{"empenhos_tesouro_ingest_dag":{"type":"cron","value":"0 13 * * 1-6"},"nc_tesouro_ingest_dag":{"type":"cron","value":"0 13 * * 1-6"},"pf_tesouro_ingest_dag":{"type":"cron","value":"0 13 * * 1-6"},"visao_orcamentaria_ingest":{"type":"cron","value":"0 13 * * 1-6"}}'
 	@docker compose exec -T $(AIRFLOW_SERVICE) sh -c "printf '%s\n' '{\"postgres_default\":{\"conn_type\":\"postgres\",\"host\":\"$(AIRFLOW_LOCAL_DB_HOST)\",\"schema\":\"$(AIRFLOW_LOCAL_DB_NAME)\",\"login\":\"$(AIRFLOW_LOCAL_DB_USER)\",\"password\":\"$(AIRFLOW_LOCAL_DB_PASSWORD)\",\"port\":$(AIRFLOW_LOCAL_DB_PORT)}}' > /tmp/airflow-connections.json && airflow connections import --overwrite /tmp/airflow-connections.json && rm -f /tmp/airflow-connections.json"
 	@echo "Ambiente local do Airflow configurado com sucesso."

@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional, Tuple
 from cliente_base import ClienteBase
 from safe_request import request_safe
 
-
 # logging.basicConfig(
 #     level=logging.INFO,  # ou DEBUG para depurar
 #     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -401,7 +400,7 @@ class ClientePNCP(ClienteBase):
         return agregados
 
     def get_itens_e_resultados(
-        self, lista_chaves: List[Tuple[str, int, str]]
+        self, lista_chaves: List[str]
     ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
         Recebe lista de numeroControlePNCP e retorna:

@@ -10,7 +10,6 @@ from cliente_email import fetch_and_process_email_csv_attachment
 from cliente_postgres import ClientPostgresDB
 from postgres_helpers import get_postgres_conn
 import pandas as pd
-import io
 import os
 import tempfile
 
@@ -114,7 +113,9 @@ with DAG(
     dag_id="email_projetos_sgac_ingest",
     default_args=default_args,
     description="Processa anexos do email de dados do SGAC e insere no db",
-    schedule_interval=get_dynamic_schedule("email_projetos_sgac_ingest", default="15 12 * * *"),
+    schedule_interval=get_dynamic_schedule(
+        "email_projetos_sgac_ingest", default="15 12 * * *"
+    ),
     start_date=datetime(2023, 12, 1),
     catchup=False,
     tags=["email", "projetos", "sgac"],
@@ -126,7 +127,10 @@ with DAG(
         EMAIL = creds["email"]
         PASSWORD = creds["password"]
         IMAP_SERVER = creds["imap_server"]
-        SENDER_EMAIL = Variable.get("sender_email_sgac", default_var=creds["sender_email"],)
+        SENDER_EMAIL = Variable.get(
+            "sender_email_sgac",
+            default_var=creds["sender_email"],
+        )
 
         try:
             logging.info("Iniciando o processamento dos emails...")
@@ -147,11 +151,11 @@ with DAG(
             logging.info(
                 "CSV processado com sucesso. Dados encontrados: %s", total_linhas
             )
-            
+
             fd, file_path = tempfile.mkstemp(prefix="sgac_email_data_", suffix=".csv")
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(csv_data)
-                
+
             return file_path
         except Exception as e:
             logging.error("Erro no processamento dos emails: %s", str(e))
@@ -198,19 +202,17 @@ with DAG(
             if file_path and os.path.exists(file_path):
                 os.remove(file_path)
 
-    #tarefa 1: processar os e-mails e extrair o CSV
+    # tarefa 1: processar os e-mails e extrair o CSV
     process_emails_task = PythonOperator(
         task_id="process_emails",
         python_callable=process_email_data,
         provide_context=True,
     )
-    #tarefa 2: inserir os dados no banco de dados
+    # tarefa 2: inserir os dados no banco de dados
     insert_to_db_task = PythonOperator(
         task_id="insert_to_db",
         python_callable=insert_data_to_db,
         provide_context=True,
     )
-    #Fluxo da DAG
+    # Fluxo da DAG
     process_emails_task >> insert_to_db_task
-
-    

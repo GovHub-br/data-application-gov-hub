@@ -89,8 +89,9 @@ models:
 
   - name: nc_tesouro
     description: >
-      Esta tabela registra informações detalhadas sobre as Notas de Crédito emitidas no âmbito da execução orçamentária e financeira do governo federal. 
-      As Notas de Crédito representam autorizações para a realização de despesas, sendo fundamentais para o controle e acompanhamento da execução orçamentária.
+      Tabela bronze canônica de Notas de Crédito do SIAFI. Consolida com UNION ALL
+      o layout histórico de siafi.nc_tesouro e o layout vigente a partir de 2026
+      de siafi.nc_tesouro_pos_2026, preservando os campos usados pelos modelos TED.
     meta:
       tags:
         - bronze
@@ -119,9 +120,9 @@ models:
     - name: nc_evento
       description: >
         Código do evento contábil associado à Nota de Crédito, representando a natureza da transação.
-    - name: nc_evento_descricao
+    - name: nc_evento_descr
       description: >
-        Descrição do evento contábil vinculado à Nota de Crédito.
+        Descrição do evento contábil; a partir de 2026 recebe o tipo da NC.
     - name: ug_responsavel
       description: >
         Código da Unidade Gestora responsável pela emissão da Nota de Crédito.
@@ -158,6 +159,21 @@ models:
     - name: dt_ingest
       description: >
         Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    - name: descricao
+      description: >
+        Descrição da NC disponível somente no layout a partir de 2026.
+    - name: nc_item_detalhamento
+      description: >
+        Indicador de detalhamento do item da NC, disponível a partir de 2026.
+    - name: ro
+      description: >
+        Registro de operação da NC, disponível a partir de 2026.
+    - name: dc
+      description: >
+        Direção do movimento informada no novo relatório (por exemplo, ORIGEM ou DESTINO).
+    - name: tipo_nc
+      description: >
+        Tipo da Nota de Crédito no layout a partir de 2026. Não equivale ao código nc_evento histórico.
 
   - name: planos_acao
     description: >
@@ -232,3 +248,184 @@ models:
     - name: dt_ingest
       description: >
         Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+
+  - name: bolsas_pagas
+    description: >
+      Bolsas pagas extraídas do Tesouro Gerencial (SIAFI), detalhando por documento de despesa o credor,
+      a fonte de recursos, a natureza da despesa e os valores pagos. Serve de ponte entre os pagamentos
+      por bolsista (pagamentos_ob_bolsa) e as notas de crédito (nc_tesouro): a OB que liquidou a despesa
+      é registrada em item_informacao e a origem do recurso em fonte_recursos_codigo.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: credor_codigo
+      description: >
+        Código do credor (CPF/CNPJ) beneficiário da despesa.
+    - name: credor_nome
+      description: >
+        Nome do credor beneficiário da despesa.
+    - name: dia_emissao
+      description: >
+        Data de emissão do documento de despesa.
+    - name: mes_emissao
+      description: >
+        Mês de emissão do documento de despesa, convertido para data (primeiro dia do mês) a partir do
+        formato YYYYMM da origem.
+    - name: ano_emissao
+      description: >
+        Ano de emissão do documento de despesa.
+    - name: emissao_ano
+      description: >
+        Ano de emissão (representação numérica) do documento de despesa.
+    - name: mes_lancamento
+      description: >
+        Mês de lançamento contábil da despesa, convertido para data (primeiro dia do mês) a partir do
+        formato MMM/YYYY da origem.
+    - name: fonte_recursos_codigo
+      description: >
+        Código da fonte de recursos da despesa. Chave de cruzamento com nc_tesouro.nc_fonte_recursos.
+    - name: fonte_recursos_descricao
+      description: >
+        Descrição da fonte de recursos da despesa.
+    - name: pi_codigo
+      description: >
+        Código do Plano Interno (PI) associado à despesa.
+    - name: pi_descricao
+      description: >
+        Descrição do Plano Interno (PI) associado à despesa.
+    - name: ptres
+      description: >
+        Código do Programa de Trabalho Resumido (PTRES) da despesa, sem o sufixo decimal de ingestão.
+        Junto da fonte de recursos, é a chave de cruzamento com nc_tesouro.
+    - name: natureza_codigo
+      description: >
+        Código da natureza da despesa, sem o sufixo decimal de ingestão.
+    - name: natureza_descricao
+      description: >
+        Descrição da natureza da despesa.
+    - name: processo
+      description: >
+        Número do processo administrativo da despesa.
+    - name: valor
+      description: >
+        Valor registrado da despesa, em R$.
+    - name: observacao
+      description: >
+        Observações do documento de despesa.
+    - name: ne_ccor
+      description: >
+        Nota de empenho / célula de crédito orçamentário associada à despesa.
+    - name: documento_habil
+      description: >
+        Documento hábil que originou o pagamento.
+    - name: item_informacao
+      description: >
+        Ordem Bancária (OB) que liquidou a despesa. Chave de cruzamento com pagamentos_ob_bolsa.ob.
+    - name: despesa_paga
+      description: >
+        Valor de despesa efetivamente paga, em R$.
+    - name: rp_processados
+      description: >
+        Valor de Restos a Pagar processados, em R$.
+    - name: rp_nao_processados
+      description: >
+        Valor de Restos a Pagar não processados, em R$.
+    - name: pagamentos_totais
+      description: >
+        Valor total de pagamentos, em R$.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    data_tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.bolsas_pagas'
+            nome_coluna: 'dia_emissao'
+            tipo_esperado: 'date'
+        - verificacao_tipagem:
+            nome_tabela: 'ted.bolsas_pagas'
+            nome_coluna: 'mes_emissao'
+            tipo_esperado: 'date'
+        - verificacao_tipagem:
+            nome_tabela: 'ted.bolsas_pagas'
+            nome_coluna: 'valor'
+            tipo_esperado: 'numeric'
+
+  - name: pagamentos_ob_bolsa
+    description: >
+      Pagamentos de bolsas detalhados por Ordem Bancária (OB) e credor, extraídos do Tesouro Gerencial
+      (SIAFI). Cada linha corresponde a um bolsista pago dentro de uma OB, com favorecido, dados bancários
+      e valor. É o grão de bolsista usado para chegar, via bolsas_pagas e nc_tesouro, ao TED de origem.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: dh_mes_emissao
+      description: >
+        Mês de emissão do documento hábil.
+    - name: dh_dia_emissao
+      description: >
+        Data de emissão do documento hábil.
+    - name: dh_dia_pagamento
+      description: >
+        Data de pagamento do documento hábil.
+    - name: emitente_ug_codigo
+      description: >
+        Código da Unidade Gestora emitente da OB.
+    - name: emitente_ug_nome
+      description: >
+        Nome da Unidade Gestora emitente da OB.
+    - name: ob
+      description: >
+        Número da Ordem Bancária (OB). Chave de cruzamento com bolsas_pagas.item_informacao.
+    - name: ob_lista_credores
+      description: >
+        Número da Lista de Credores (LC) associada à OB.
+    - name: oblc_favorecido_numero
+      description: >
+        Documento (CPF/CNPJ) do favorecido/bolsista pago na OB/LC.
+    - name: oblc_favorecido_nome
+      description: >
+        Nome do favorecido/bolsista pago na OB/LC.
+    - name: oblc_banco_codigo
+      description: >
+        Código do banco do favorecido.
+    - name: oblc_banco_nome
+      description: >
+        Nome do banco do favorecido.
+    - name: oblc_agencia_bancaria_codigo
+      description: >
+        Código da agência bancária do favorecido.
+    - name: oblc_agencia_bancaria_nome
+      description: >
+        Nome da agência bancária do favorecido.
+    - name: oblc_conta_bancaria
+      description: >
+        Conta bancária do favorecido.
+    - name: oblc_valor
+      description: >
+        Valor pago ao favorecido/bolsista na OB/LC, em R$.
+    - name: oblc_sequencial
+      description: >
+        Sequencial do credor dentro da OB/LC.
+    - name: ob_processo
+      description: >
+        Número do processo administrativo associado à OB.
+    - name: documento_habil
+      description: >
+        Documento hábil que originou a OB.
+    - name: doc_observacao
+      description: >
+        Observação do documento hábil (descrição do pagamento da bolsa).
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    data_tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.pagamentos_ob_bolsa'
+            nome_coluna: 'dh_dia_pagamento'
+            tipo_esperado: 'date'
+        - verificacao_tipagem:
+            nome_tabela: 'ted.pagamentos_ob_bolsa'
+            nome_coluna: 'oblc_valor'
+            tipo_esperado: 'numeric'

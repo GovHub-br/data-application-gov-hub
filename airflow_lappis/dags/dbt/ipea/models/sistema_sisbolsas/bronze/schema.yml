@@ -639,6 +639,25 @@ models:
       - name: ativo
         description: Indica se o status de projeto está ativo no sistema.
 
+  - name: sisbolsas_tb_anexo
+    description: >
+      Tabela bronze com o cadastro de anexos (arquivos comprobatórios) do
+      Sisbolsas, incluindo nome do arquivo, tipo e data de criação.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_anexo
+        description: Código identificador registrado no campo de origem referente a `co anexo`.
+      - name: ds_anexo
+        description: Descrição textual registrada no campo de origem referente a `ds anexo`.
+      - name: co_tipo_anexo
+        description: Código identificador registrado no campo de origem referente a `co tipo anexo`.
+      - name: ds_original
+        description: Descrição textual registrada no campo de origem referente a `ds original`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+
   - name: sisbolsas_tb_area_formacao
     description: >
       Tabela bronze com o cadastro de áreas de formação utilizadas pelo
@@ -828,6 +847,40 @@ models:
       - name: co_unidade
         description: Código identificador registrado no campo de origem referente a `co unidade`.
 
+  - name: sisbolsas_tb_concessao_auxilio
+    description: >
+      Tabela bronze com as concessões de auxílio do Sisbolsas, uma por
+      beneficiário/seleção/bolsa, incluindo situação, número SEI, período de
+      vigência e data da ordem bancária do crédito do auxílio.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: co_selecao
+        description: Código identificador registrado no campo de origem referente a `co selecao`.
+      - name: nu_bolsa
+        description: Número registrado no campo de origem referente a `nu bolsa`.
+      - name: co_situacao_conceauxi
+        description: Código identificador registrado no campo de origem referente a `co situacao conceauxi`.
+      - name: in_cadin
+        description: Indicador lógico registrado no campo de origem referente a `in cadin`.
+      - name: dt_inicio
+        description: Data registrada no campo de origem referente a `dt inicio`.
+      - name: dt_fim
+        description: Data registrada no campo de origem referente a `dt fim`.
+      - name: ds_numero_sei
+        description: Descrição textual registrada no campo de origem referente a `ds numero sei`.
+      - name: ds_token_aceite
+        description: Descrição textual registrada no campo de origem referente a `ds token aceite`.
+      - name: dt_ordem_bancaria
+        description: Data registrada no campo de origem referente a `dt ordem bancaria`.
+      - name: nu_titularidade
+        description: Número registrado no campo de origem referente a `nu titularidade`.
+      - name: in_pendente_prestacao
+        description: Indicador lógico registrado no campo de origem referente a `in pendente prestacao`.
+
   - name: sisbolsas_tb_coordenador
     description: >
       Tabela bronze com a relação de coordenadores vinculados às chamadas
@@ -840,6 +893,28 @@ models:
         description: Código identificador registrado no campo de origem referente a `co chamada publica`.
       - name: ds_cpf
         description: CPF associado ao registro, padronizado apenas com dígitos.
+
+  - name: sisbolsas_tb_dado_bancario
+    description: >
+      Tabela bronze com os dados bancários dos usuários do Sisbolsas
+      (instituição financeira, agência e conta), usados como instrumento
+      financeiro nos pagamentos e prestações de contas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_dado_bancario
+        description: Código identificador registrado no campo de origem referente a `co dado bancario`.
+      - name: co_instituicao_financeira
+        description: Código identificador registrado no campo de origem referente a `co instituicao financeira`.
+      - name: ds_numero_conta
+        description: Descrição textual registrada no campo de origem referente a `ds numero conta`.
+      - name: ds_numero_agencia
+        description: Descrição textual registrada no campo de origem referente a `ds numero agencia`.
+      - name: in_ativo
+        description: Indicador lógico registrado no campo de origem referente a `in ativo`.
+      - name: co_dado_pessoal
+        description: Código identificador registrado no campo de origem referente a `co dado pessoal`.
 
   - name: sisbolsas_tb_dado_formacao
     description: >
@@ -1064,6 +1139,96 @@ models:
       - name: ds_fonte_financeira
         description: Descrição textual registrada no campo de origem referente a `ds fonte financeira`.
 
+  - name: sisbolsas_tb_hist_lanca_despesa
+    description: >
+      Tabela bronze com o histórico dos lançamentos de despesa do Sisbolsas,
+      registrando as mudanças de situação e as observações/justificativas por
+      lançamento.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_hist_lanca_despesa
+        description: Código identificador registrado no campo de origem referente a `co hist lanca despesa`.
+      - name: co_lancamento_despesa
+        description: Código identificador registrado no campo de origem referente a `co lancamento despesa`.
+      - name: st_lancamento_despesa
+        description: Status registrado no campo de origem referente a `st lancamento despesa`.
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: tx_observacao
+        description: Texto livre registrado no campo de origem referente a `tx observacao`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+
+  - name: sisbolsas_tb_instituicao_financeira
+    description: >
+      Tabela bronze com o cadastro de instituições financeiras (bancos)
+      referenciadas pelos dados bancários do Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_instituicao_financeira
+        description: Código identificador registrado no campo de origem referente a `co instituicao financeira`.
+      - name: ds_nome
+        description: Descrição textual registrada no campo de origem referente a `ds nome`.
+      - name: nu_codigo
+        description: Número registrado no campo de origem referente a `nu codigo`.
+
+  - name: sisbolsas_tb_lancadespe_anexo
+    description: >
+      Tabela bronze de ponte entre lançamentos de despesa e anexos
+      (comprovantes) do Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_lancamento_despesa
+        description: Código identificador registrado no campo de origem referente a `co lancamento despesa`.
+      - name: co_anexo
+        description: Código identificador registrado no campo de origem referente a `co anexo`.
+
+  - name: sisbolsas_tb_lancamento_despesa
+    description: >
+      Tabela bronze com os lançamentos de despesa (prestação de contas) do
+      Sisbolsas: tipo de despesa, situação, valores (despesa, aprovado, glosado),
+      dados do comprovante e do documento fiscal. É o grão do Anexo III.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_lancamento_despesa
+        description: Código identificador registrado no campo de origem referente a `co lancamento despesa`.
+      - name: co_usuario
+        description: Código identificador registrado no campo de origem referente a `co usuario`.
+      - name: co_selecao
+        description: Código identificador registrado no campo de origem referente a `co selecao`.
+      - name: nu_bolsa
+        description: Número registrado no campo de origem referente a `nu bolsa`.
+      - name: co_tipo_despesa
+        description: Código identificador registrado no campo de origem referente a `co tipo despesa`.
+      - name: st_lancamento_despesa
+        description: Status registrado no campo de origem referente a `st lancamento despesa`.
+      - name: vl_despesa
+        description: Valor monetário registrado no campo de origem referente a `vl despesa`.
+      - name: tp_comprovante
+        description: Tipo registrado no campo de origem referente a `tp comprovante`.
+      - name: ds_titulo_comprovante
+        description: Descrição textual registrada no campo de origem referente a `ds titulo comprovante`.
+      - name: dt_comprovante
+        description: Data registrada no campo de origem referente a `dt comprovante`.
+      - name: tx_lancamento_despesa
+        description: Texto livre registrado no campo de origem referente a `tx lancamento despesa`.
+      - name: dt_criacao
+        description: Data registrada no campo de origem referente a `dt criacao`.
+      - name: vl_aprovado
+        description: Valor monetário registrado no campo de origem referente a `vl aprovado`.
+      - name: vl_glossado
+        description: Valor monetário registrado no campo de origem referente a `vl glossado`.
+      - name: ds_numero_nota
+        description: Descrição textual registrada no campo de origem referente a `ds numero nota`.
+
   - name: sisbolsas_tb_modalidade
     description: >
       Tabela bronze com o cadastro de modalidades de bolsa do Sisbolsas,
@@ -1249,6 +1414,34 @@ models:
         description: Código identificador registrado no campo de origem referente a `co situacao concessao`.
       - name: ds_situacao_concessao
         description: Descrição textual registrada no campo de origem referente a `ds situacao concessao`.
+
+  - name: sisbolsas_tb_tipo_anexo
+    description: >
+      Tabela bronze com o catálogo de tipos de anexo do Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_tipo_anexo
+        description: Código identificador registrado no campo de origem referente a `co tipo anexo`.
+      - name: ds_tipo_anexo
+        description: Descrição textual registrada no campo de origem referente a `ds tipo anexo`.
+
+  - name: sisbolsas_tb_tipo_despesa
+    description: >
+      Tabela bronze com o catálogo de tipos de despesa do Sisbolsas, base para
+      a natureza (custeio/capital, via `tp_categoria`) e a categoria da despesa
+      no Anexo III.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_tipo_despesa
+        description: Código identificador registrado no campo de origem referente a `co tipo despesa`.
+      - name: tp_categoria
+        description: Tipo registrado no campo de origem referente a `tp categoria` (1 = Capital, 2 = Custeio).
+      - name: ds_tipo_despesa
+        description: Descrição textual registrada no campo de origem referente a `ds tipo despesa`.
 
   - name: sisbolsas_tb_unidade
     description: >
