@@ -405,3 +405,50 @@ models:
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: gold_estrutura_organizacional
+    description: >
+      Estrutura organizacional hierárquica do IPEA conforme dados do SIORG, com a hierarquia
+      recursiva já resolvida (ordem_grandeza e caminho_unidade). Destinada ao consumo direto
+      pelos dashboards para navegação e filtros por unidade organizacional.
+      Substitui o consumo direto da tabela Bronze `unidade_organizacional`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: codigounidade
+        description: >
+          Código único da unidade organizacional no SIORG.
+      - name: codigounidadepai
+        description: >
+          Código da unidade organizacional pai (superior hierárquico).
+      - name: nome
+        description: >
+          Nome completo da unidade organizacional.
+      - name: sigla
+        description: >
+          Sigla da unidade organizacional.
+      - name: codigoorgaoentidade
+        description: >
+          Código do órgão/entidade a que pertence a unidade.
+      - name: codigotipounidade
+        description: >
+          Código do tipo da unidade organizacional.
+      - name: codigoesfera
+        description: >
+          Código da esfera de governo (federal, estadual, municipal).
+      - name: codigopoder
+        description: >
+          Código do poder (Executivo, Legislativo, Judiciário).
+      - name: codigonaturezajuridica
+        description: >
+          Código da natureza jurídica da unidade.
+      - name: ordem_grandeza
+        description: >
+          Nível hierárquico da unidade na árvore organizacional (1 = raiz).
+      - name: caminho_unidade
+        description: >
+          Caminho hierárquico completo da unidade, concatenando siglas da raiz até a unidade.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
