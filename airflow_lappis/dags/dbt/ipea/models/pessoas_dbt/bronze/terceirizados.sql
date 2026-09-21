@@ -6,7 +6,16 @@ select
     funcao_id,
     descricao_complementar,
     jornada::numeric as jornada,
-    unidade,
+    trim(
+        regexp_replace(
+            translate(
+                upper(unidade),
+                'ÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇ',
+                'AAAAAEEEEIIIIOOOOOUUUUC'
+            ),
+            '[/\-]+|\s+', ' ', 'g'
+        )
+    ) as unidade,
     replace(replace(salario, '.', ''), ',', '.')::numeric(15, 2) as salario,
     replace(replace(custo, '.', ''), ',', '.')::numeric(15, 2) as custo,
     escolaridade_id,
