@@ -44,7 +44,7 @@ def api_terceirizados_dag() -> None:
                     f"{contrato_id} into PostgreSQL"
                 )
                 db.insert_data(
-                    terceirizados,  # type: ignore
+                    terceirizados,
                     "terceirizados",
                     conflict_fields=["id"],
                     primary_key=["id"],

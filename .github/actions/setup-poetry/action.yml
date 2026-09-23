@@ -1,0 +1,38 @@
+name: Setup Poetry
+description: Install Python, cache & install deps (dev)
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python_version }}
+
+    - name: Cache Poetry
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ inputs.poetry_cache_dir }}
+          .venv
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+
+    - name: Install Poetry + deps
+      shell: bash
+      run: |
+        pip install poetry==${{ inputs.poetry_version }}
+        poetry config virtualenvs.in-project true
+        poetry install --no-root --with dev --no-interaction
+inputs:
+  python_version:
+    description: Python version
+    required: true
+    default: "3.11"
+  poetry_version:
+    description: Poetry version
+    required: true
+    default: "1.8.5"
+  poetry_cache_dir:
+    description: Poetry cache dir
+    required: true
+    default: "~/.cache/poetry"

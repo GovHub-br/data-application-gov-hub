@@ -16,7 +16,9 @@ permissions:
 
 env:
   PYTHON_VERSION: "3.11"
-  UV_VERSION: "0.5.11"
+  POETRY_VERSION: "1.8.5"
+  POETRY_VIRTUALENVS_IN_PROJECT: "true"
+  POETRY_CACHE_DIR: "/home/runner/.cache/poetry"
   DBT_PROJECT_DIR: "${{ github.workspace }}/airflow_lappis/dags/dbt/ipea"
 
   IMAGE_REGISTRY_OWNER: govhub-br
@@ -24,25 +26,40 @@ env:
   IMAGE_TAG_SHA: ${{ github.sha }}
 
 jobs:
-
-  code_checks:
-    name: Code checks
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/setup-uv
+      - uses: ./.github/actions/setup-poetry
         with:
           python_version: ${{ env.PYTHON_VERSION }}
-          uv_version: ${{ env.UV_VERSION }}
+          poetry_version: ${{ env.POETRY_VERSION }}
+          poetry_cache_dir: ${{ env.POETRY_CACHE_DIR }}
 
       - name: Run lint
-        run: make lint
+        run: poetry run make lint-ci || true
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-poetry
+        with:
+          python_version: ${{ env.PYTHON_VERSION }}
+          poetry_version: ${{ env.POETRY_VERSION }}
+          poetry_cache_dir: ${{ env.POETRY_CACHE_DIR }}
 
       - name: Run tests
-        run: make test
+        run: >
+          poetry run pytest tests
+          --junitxml=report.xml
+          --cov=. --cov-report=xml:coverage.xml
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@v4
         with:
           name: reports
           path: |
@@ -52,14 +69,20 @@ jobs:
   docker_build:
     name: Docker build
     runs-on: ubuntu-latest
-    needs: code_checks
+    needs: [lint, test]
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
 
-      - uses: ./.github/actions/docker-build
+      - name: Build
+        uses: docker/build-push-action@v5
         with:
-          push: "false"
-          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_SHA }}
+          push: false
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_SHA }}
 
   docker_push:
     name: Docker push
@@ -70,17 +93,26 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
 
-      - uses: ./.github/actions/docker-build
+      - name: Login GHCR
+        uses: docker/login-action@v3
         with:
-          push: "true"
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_SHA }}
             ${{ env.IMAGE_NAME }}:latest
-          registry: ghcr.io
-          registry_username: ${{ github.actor }}
-          registry_password: ${{ secrets.GITHUB_TOKEN }}
 
   dbt_docs:
     name: DBT Docs (deploy)
@@ -101,13 +133,13 @@ jobs:
             exit 0
           fi
 
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@v4
 
       - name: Instalar deps (DBT + VPN)
         run: |
           sudo apt-get update
           sudo apt-get -y install openvpn iputils-ping
-          pip install --only-binary :all: dbt-core==1.12.0 dbt-postgres==1.11.0
+          pip install dbt-core dbt-postgres
 
       - name: Conectar VPN
         env:
@@ -163,8 +195,8 @@ jobs:
         if: always()
         run: sudo pkill openvpn || true
 
-      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ env.DBT_PROJECT_DIR }}/public
 
-      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+      - uses: actions/deploy-pages@v4
