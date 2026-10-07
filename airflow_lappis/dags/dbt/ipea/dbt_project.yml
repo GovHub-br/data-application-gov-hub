@@ -19,7 +19,7 @@ clean-targets:
 
 models:
   ipea: 
-    +database: analytics
+    +database: analytics_ipea
     metadata:
       +materialized: incremental
       +schema: metadata
