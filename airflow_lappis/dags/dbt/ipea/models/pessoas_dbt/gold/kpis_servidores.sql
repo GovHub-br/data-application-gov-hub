@@ -1,25 +1,29 @@
 with
     total_servidores as (
-        select count(distinct cpf) as total, max(dt_ingest) as dt_ingest 
+        select count(distinct cpf) as total, max(dt_ingest) as dt_ingest
         from {{ ref("dados_funcionais") }}
+        where dt_ocorr_exclusao is null
     ),
 
     servidores_ativos as (
         select count(distinct cpf) as total, max(dt_ingest) as dt_ingest
         from {{ ref("dados_funcionais") }}
         where nome_situacao_funcional in ('ATIVO PERMANENTE')
+        and dt_ocorr_exclusao is null
     ),
 
     aposentados as (
         select count(distinct cpf) as total, max(dt_ingest) as dt_ingest
         from {{ ref("dados_funcionais") }}
         where nome_situacao_funcional in ('APOSENTADO')
+        and dt_ocorr_exclusao is null
     ),
 
     estagiarios as (
         select count(distinct cpf) as total, max(dt_ingest) as dt_ingest
         from {{ ref("dados_funcionais") }}
         where nome_situacao_funcional in ('ESTAGIARIO SIGEPE')
+        and dt_ocorr_exclusao is null
     ),
 
     terceirizados as (select count(distinct id) as total, max(dt_ingest) as dt_ingest from {{ ref("terceirizados") }})
