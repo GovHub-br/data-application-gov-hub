@@ -12,6 +12,24 @@ macros:
       Função que gera o nome do schema a ser utilizado no projeto.
       A função dentro desta macro é built-in do dbt.
   
+  - name: sisbolsas_codigo_situacao_bolsista
+    description: >
+      Normaliza o código de situação do bolsista do Sisbolsas, removendo o
+      sufixo `.0` que pode aparecer quando a origem chega float-ificada.
+    arguments:
+      - name: coluna
+        type: string
+        description: Coluna ou expressão com o código de situação.
+
+  - name: sisbolsas_bolsista_ativo
+    description: >
+      Regra única de bolsista ativo do Sisbolsas: situação 1 (Ativo) ou 3
+      (Encerramento pendente). Retorna booleano (nulo vira `false`).
+    arguments:
+      - name: coluna
+        type: string
+        description: Coluna ou expressão com o código de situação.
+
   ## UDFS
   - name: create_f_parse_dates
     description: >

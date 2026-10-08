@@ -821,6 +821,21 @@ models:
       - name: dt_inicio_previsao_bolsa
         description: Data registrada no campo de origem referente a `dt inicio previsao bolsa`.
 
+  - name: sisbolsas_tb_chapubli_diretoria
+    description: >
+      Tabela bronze com a associação entre chamadas públicas e diretorias do
+      Ipea no Sisbolsas. Diferente de `sisbolsas_tb_chapubli_unidade`, cobre
+      todas as chamadas, por isso é a fonte da unidade (diretoria) nos
+      modelos silver.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_chamada_publica
+        description: Código identificador registrado no campo de origem referente a `co chamada publica`.
+      - name: co_diretoria
+        description: Código identificador registrado no campo de origem referente a `co diretoria`.
+
   - name: sisbolsas_tb_chapubli_fontfina
     description: >
       Tabela bronze com a associação entre chamadas públicas e fontes
@@ -1045,6 +1060,21 @@ models:
       - name: dt_criacao
         description: Data registrada no campo de origem referente a `dt criacao`.
 
+  - name: sisbolsas_tb_diretoria
+    description: >
+      Tabela bronze com o cadastro de diretorias do Ipea (ex.: DIRUR, DISOC,
+      DIEST) usado pelo Sisbolsas.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_diretoria
+        description: Código identificador registrado no campo de origem referente a `co diretoria`.
+      - name: ds_diretoria
+        description: Descrição textual registrada no campo de origem referente a `ds diretoria`.
+      - name: ds_sigla
+        description: Descrição textual registrada no campo de origem referente a `ds sigla`.
+
   - name: sisbolsas_tb_estado
     description: >
       Tabela bronze com o cadastro de estados utilizado pelo Sisbolsas para
@@ -1059,6 +1089,19 @@ models:
         description: Descrição textual registrada no campo de origem referente a `ds uf`.
       - name: ds_nome
         description: Descrição textual registrada no campo de origem referente a `ds nome`.
+
+  - name: sisbolsas_tb_etnia
+    description: >
+      Tabela bronze com o catálogo de etnias do Sisbolsas (1 Branco, 2 Negro,
+      3 Indígena, 4 Pardo, 5 Mulato, 6 Caboclo, 7 Cafuzo, 8 Amarela).
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_etnia
+        description: Código identificador registrado no campo de origem referente a `co etnia`.
+      - name: ds_etnia
+        description: Descrição textual registrada no campo de origem referente a `ds etnia`.
 
   - name: sisbolsas_tb_folha_bolsista
     description: >
@@ -1388,6 +1431,19 @@ models:
         description: Indicador lógico registrado no campo de origem referente a `in anexo outro`.
       - name: ds_anexo_outro
         description: Descrição textual registrada no campo de origem referente a `ds anexo outro`.
+
+  - name: sisbolsas_tb_situacao_bolsista
+    description: >
+      Tabela bronze com o catálogo de situações possíveis para bolsistas no
+      Sisbolsas (ex.: Ativo, Suspenso, Encerramento pendente, Encerrado).
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: co_situacao_bolsista
+        description: Código identificador registrado no campo de origem referente a `co situacao bolsista`.
+      - name: ds_situacao_bolsista
+        description: Descrição textual registrada no campo de origem referente a `ds situacao bolsista`.
 
   - name: sisbolsas_tb_situacao_chamada
     description: >
