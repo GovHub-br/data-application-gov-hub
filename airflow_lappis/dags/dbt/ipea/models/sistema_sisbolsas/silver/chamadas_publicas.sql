@@ -145,6 +145,20 @@ with
         group by 1
     ),
 
+    -- diretoria existe para todas as chamadas (tb_chapubli_unidade só para parte)
+    diretorias_chamada as (
+        select
+            cd.co_chamada_publica,
+            string_agg(distinct d.ds_sigla, ' | ' order by d.ds_sigla)
+            as diretorias_sigla,
+            string_agg(distinct d.ds_diretoria, ' | ' order by d.ds_diretoria)
+            as diretorias_nome
+        from {{ ref("sisbolsas_tb_chapubli_diretoria") }} as cd
+        left join
+            {{ ref("sisbolsas_tb_diretoria") }} as d on cd.co_diretoria = d.co_diretoria
+        group by 1
+    ),
+
     modalidades as (
         select
             s.co_chamada_publica,
@@ -318,6 +332,8 @@ select
     unidades.unidades_sigla,
     unidades.unidades_nome,
     unidades.ufs,
+    diretorias_chamada.diretorias_sigla,
+    diretorias_chamada.diretorias_nome,
     modalidades.modalidades,
     modalidades.total_selecoes,
     modalidades.prazo_meses,
@@ -366,6 +382,8 @@ from chamadas as c
 left join programas as prog on c.co_programa = prog.co_programa
 left join situacoes as sit on c.co_situacao_chamada = sit.co_situacao_chamada
 left join unidades on c.co_chamada_publica = unidades.co_chamada_publica
+left join
+    diretorias_chamada on c.co_chamada_publica = diretorias_chamada.co_chamada_publica
 left join modalidades on c.co_chamada_publica = modalidades.co_chamada_publica
 left join processos_agg as processos on c.co_chamada_publica = processos.co_chamada_publica
 left join fontes_chamada on c.co_chamada_publica = fontes_chamada.co_chamada_publica
