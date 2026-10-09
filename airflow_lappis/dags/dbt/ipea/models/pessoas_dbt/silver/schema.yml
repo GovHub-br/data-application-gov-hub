@@ -8,7 +8,9 @@ models:
     description: >
       Tabela silver que enriquece os dados funcionais dos servidores com campos
       padronizados de participação no PGD e informações da unidade organizacional
-      de exercício.
+      de exercício. Inclui servidores sem uorg ativa (ex.: aposentados e cedidos),
+      com as colunas de uorg nulas, e exclui servidores desligados
+      (dt_ocorr_exclusao preenchida).
     meta:
       tags:
         - silver
