@@ -86,6 +86,8 @@ select distinct
     du.nome_municipio_uorg,
     greatest(df.dt_ingest, du.dt_ingest) as dt_ingest
 from {{ ref("dados_funcionais") }} as df
--- INNER JOIN: exclui servidores sem uorg ativa (ex: aposentados, cedidos a outros órgãos).
--- Esses servidores existem em dados_funcionais mas não possuem entrada em dados_uorg.
-inner join {{ ref("dados_uorg") }} as du on df.cpf = du.cpf
+
+left join {{ ref("dados_uorg") }} as du on df.cpf = du.cpf
+-- considera apenas servidores sem data de exclusão (desligados ficam de fora),
+-- mesma regra usada em kpis_servidores e hierarquia
+where df.dt_ocorr_exclusao is null
