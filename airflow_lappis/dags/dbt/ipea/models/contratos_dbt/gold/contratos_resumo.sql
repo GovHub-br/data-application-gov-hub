@@ -7,6 +7,16 @@ with
         group by contrato_id
     ),
 
+    naturezas_por_contrato as (
+        select
+            contrato_id as id,
+            array_agg(distinct natureza_despesa_detalhada order by natureza_despesa_detalhada)
+                filter (where natureza_despesa_detalhada is not null) as naturezas_despesa_detalhada
+        from {{ ref("contratos_empenhos") }}
+        where contrato_id is not null
+        group by contrato_id
+    ),
+
     contratos_gold as (
         select
             *,
@@ -15,6 +25,7 @@ with
             end as pendente_baixa
         from {{ ref("contratos") }} as c
         left join valores_pagos_contratos as vp using (id)
+        left join naturezas_por_contrato as n using (id)
     )
 
 --
@@ -49,5 +60,6 @@ select
         then 'Sim'
         else 'Não'
     end as continuado,
+    naturezas_despesa_detalhada,
     greatest(dt_ingest, dt_ingest_vpc) as dt_ingest
 from contratos_gold
