@@ -4,12 +4,55 @@ Responsável por filtrar e selecionar registros funcionais ativos.
 """
 
 import logging
+from datetime import date, datetime
 from typing import Dict, List
 import xml.etree.ElementTree as ET
+
+# Campos registrados no log quando o SIAPE devolve mais de um vínculo por CPF.
+# Comparados em minúsculas para não depender da grafia exata das tags.
+CAMPOS_LOG_VINCULO = (
+    "matriculasiape",
+    "nomesitfuncional",
+    "siglaorgao",
+    "siglauorgexercicio",
+    "dataingressofuncao",
+    "dataocorringressoorgao",
+    "dataocorrexclusao",
+)
 
 
 class DadosFuncionaisHandler:
     """Handler para processar dados funcionais do SIAPE."""
+
+    @staticmethod
+    def _parse_data_siape(valor: str | None) -> date | None:
+        """Converte uma data do SIAPE no formato DDMMYYYY. Retorna None se inválida."""
+        if not valor:
+            return None
+        try:
+            return datetime.strptime(valor.strip(), "%d%m%Y").date()
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _chave_data_ingresso(registro: Dict[str, str | None]) -> date:
+        """Chave de ordenação por dataIngressoFuncao; sem data válida fica por último."""
+        data = DadosFuncionaisHandler._parse_data_siape(
+            registro.get("dataIngressoFuncao")
+        )
+        return data or date.min
+
+    @staticmethod
+    def _log_vinculos(registros: List[Dict[str, str | None]]) -> None:
+        """Registra no log todos os vínculos devolvidos para o mesmo CPF."""
+        logging.info(f"SIAPE devolveu {len(registros)} vínculos para o mesmo CPF:")
+        for i, registro in enumerate(registros, start=1):
+            campos = {
+                chave: valor
+                for chave, valor in registro.items()
+                if chave.lower() in CAMPOS_LOG_VINCULO
+            }
+            logging.info(f"  vínculo {i}: {campos}")
 
     @staticmethod
     def extract_dados_funcionais_elements(xml_string: str) -> List[ET.Element]:
@@ -59,6 +102,9 @@ class DadosFuncionaisHandler:
         if not registros:
             return {}
 
+        if len(registros) > 1:
+            DadosFuncionaisHandler._log_vinculos(registros)
+
         # Filtra registros ativos (sem dataOcorrExclusao ou com valor vazio/None)
         registros_ativos = [
             r
@@ -88,11 +134,15 @@ class DadosFuncionaisHandler:
         )
         # Se não há registros ativos, retorna o mais recente
         # baseado em dataIngressoFuncao
-        registros_com_data = [r for r in registros if r.get("dataIngressoFuncao")]
+        registros_com_data = [
+            r
+            for r in registros
+            if DadosFuncionaisHandler._parse_data_siape(r.get("dataIngressoFuncao"))
+        ]
         if registros_com_data:
             registros_ordenados = sorted(
                 registros_com_data,
-                key=lambda x: x.get("dataIngressoFuncao") or "00000000",
+                key=DadosFuncionaisHandler._chave_data_ingresso,
                 reverse=True,
             )
             data_ingresso = registros_ordenados[0].get("dataIngressoFuncao")
@@ -122,13 +172,15 @@ class DadosFuncionaisHandler:
         # Se há múltiplos registros ativos, retorna o mais recente
         # baseado em dataIngressoFuncao
         registros_ativos_com_data = [
-            r for r in registros_ativos if r.get("dataIngressoFuncao")
+            r
+            for r in registros_ativos
+            if DadosFuncionaisHandler._parse_data_siape(r.get("dataIngressoFuncao"))
         ]
 
         if registros_ativos_com_data:
             registro_mais_recente = max(
                 registros_ativos_com_data,
-                key=lambda x: x.get("dataIngressoFuncao") or "00000000",
+                key=DadosFuncionaisHandler._chave_data_ingresso,
             )
         else:
             # Se nenhum tem data de ingresso, pega o primeiro ativo
