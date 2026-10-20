@@ -6,12 +6,18 @@ import pytest
 from dados_funcionais_handler import DadosFuncionaisHandler
 
 
-def _registro(matricula: str, ingresso: str | None, exclusao: str | None = None):
+def _registro(
+    matricula: str,
+    ingresso: str | None,
+    exclusao: str | None = None,
+    cod_exclusao: str | None = None,
+):
     return {
         "matriculaSiape": matricula,
         "nomeSitFuncional": "ATIVO PERMANENTE",
         "dataIngressoFuncao": ingresso,
         "dataOcorrExclusao": exclusao,
+        "codOcorrExclusao": cod_exclusao,
     }
 
 
@@ -63,6 +69,48 @@ def test_sem_ativos_escolhe_excluido_mais_recente_pelo_ano() -> None:
     recente = _registro("222", "01102026", exclusao="05102026")
 
     escolhido = DadosFuncionaisHandler.select_best_registro([antigo, recente])
+
+    assert escolhido["matriculaSiape"] == "222"
+
+
+def test_sem_ativos_e_sem_data_de_funcao_escolhe_exclusao_mais_recente() -> None:
+    # Caso real: nenhum vínculo tem dataIngressoFuncao e o mais antigo vem primeiro.
+    cedido_2019 = _registro("111", None, exclusao="07082019", cod_exclusao="02108")
+    duplicidade = _registro("222", None, exclusao="08082019", cod_exclusao="02027")
+    descentralizado_2026 = _registro(
+        "333", None, exclusao="01102026", cod_exclusao="02253"
+    )
+
+    escolhido = DadosFuncionaisHandler.select_best_registro(
+        [cedido_2019, duplicidade, descentralizado_2026]
+    )
+
+    assert escolhido["matriculaSiape"] == "333"
+
+
+def test_sem_ativos_ignora_exclusao_por_erro_de_cadastramento() -> None:
+    valido = _registro("111", None, exclusao="01012020", cod_exclusao="02108")
+    duplicidade = _registro("222", None, exclusao="01012025", cod_exclusao="02027")
+
+    escolhido = DadosFuncionaisHandler.select_best_registro([valido, duplicidade])
+
+    assert escolhido["matriculaSiape"] == "111"
+
+
+def test_sem_ativos_apenas_erros_de_cadastramento_escolhe_o_mais_recente() -> None:
+    antigo = _registro("111", None, exclusao="01012020", cod_exclusao="02027")
+    recente = _registro("222", None, exclusao="01012025", cod_exclusao="02027")
+
+    escolhido = DadosFuncionaisHandler.select_best_registro([antigo, recente])
+
+    assert escolhido["matriculaSiape"] == "222"
+
+
+def test_sem_ativos_exclusao_invalida_fica_por_ultimo() -> None:
+    invalido = _registro("111", None, exclusao="99999999")
+    valido = _registro("222", None, exclusao="01012020")
+
+    escolhido = DadosFuncionaisHandler.select_best_registro([invalido, valido])
 
     assert escolhido["matriculaSiape"] == "222"
 

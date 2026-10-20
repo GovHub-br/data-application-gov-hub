@@ -20,6 +20,10 @@ CAMPOS_LOG_VINCULO = (
     "dataocorrexclusao",
 )
 
+# codOcorrExclusao de "ERRO DE CADASTRAMENTO OU DUPLICIDADE": o registro foi
+# lançado por engano e não representa um vínculo real.
+COD_EXCLUSAO_ERRO_CADASTRAMENTO = "02027"
+
 
 class DadosFuncionaisHandler:
     """Handler para processar dados funcionais do SIAPE."""
@@ -40,6 +44,12 @@ class DadosFuncionaisHandler:
         data = DadosFuncionaisHandler._parse_data_siape(
             registro.get("dataIngressoFuncao")
         )
+        return data or date.min
+
+    @staticmethod
+    def _chave_data_exclusao(registro: Dict[str, str | None]) -> date:
+        """Chave de ordenação por dataOcorrExclusao; sem data válida fica por último."""
+        data = DadosFuncionaisHandler._parse_data_siape(registro.get("dataOcorrExclusao"))
         return data or date.min
 
     @staticmethod
@@ -128,32 +138,30 @@ class DadosFuncionaisHandler:
     def _handle_no_active_records(
         registros: List[Dict[str, str | None]],
     ) -> Dict[str, str | None]:
-        """Lida com o caso onde não há registros ativos."""
+        """Lida com o caso onde não há registros ativos.
+
+        Retorna o vínculo encerrado mais recentemente (maior dataOcorrExclusao),
+        que é a última situação do servidor no órgão. Registros excluídos por erro
+        de cadastramento são ignorados, a menos que sejam os únicos.
+        """
         logging.warning(
             "Nenhum registro funcional ativo encontrado (todos têm dataOcorrExclusao)"
         )
-        # Se não há registros ativos, retorna o mais recente
-        # baseado em dataIngressoFuncao
-        registros_com_data = [
+        registros_validos = [
             r
             for r in registros
-            if DadosFuncionaisHandler._parse_data_siape(r.get("dataIngressoFuncao"))
-        ]
-        if registros_com_data:
-            registros_ordenados = sorted(
-                registros_com_data,
-                key=DadosFuncionaisHandler._chave_data_ingresso,
-                reverse=True,
-            )
-            data_ingresso = registros_ordenados[0].get("dataIngressoFuncao")
-            logging.info(
-                f"Retornando registro mais recente: "
-                f"dataIngressoFuncao={data_ingresso}"
-            )
-            return registros_ordenados[0]
-        else:
-            # Se não há datas de ingresso, retorna o primeiro
-            return registros[0] if registros else {}
+            if r.get("codOcorrExclusao") != COD_EXCLUSAO_ERRO_CADASTRAMENTO
+        ] or registros
+
+        registro_mais_recente = max(
+            registros_validos, key=DadosFuncionaisHandler._chave_data_exclusao
+        )
+        logging.info(
+            f"Retornando vínculo encerrado mais recente: "
+            f"dataOcorrExclusao={registro_mais_recente.get('dataOcorrExclusao')}, "
+            f"matricula={registro_mais_recente.get('matriculaSiape')}"
+        )
+        return registro_mais_recente
 
     @staticmethod
     def _handle_single_active_record(
