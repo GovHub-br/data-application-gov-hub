@@ -105,6 +105,7 @@ sources:
       - name: tb_bolsa_fonterecurso
       - name: tb_bolsista
       - name: tb_chamada_publica
+      - name: tb_chapubli_diretoria
       - name: tb_chapubli_fontfina
       - name: tb_chapubli_unidade
       - name: tb_concessao_auxilio
@@ -113,7 +114,9 @@ sources:
       - name: tb_dado_formacao
       - name: tb_dado_pessoal
       - name: tb_dado_profissional
+      - name: tb_diretoria
       - name: tb_estado
+      - name: tb_etnia
       - name: tb_folha_bolsista
       - name: tb_folha_pagamento
       - name: tb_fonte_financeira
@@ -126,6 +129,7 @@ sources:
       - name: tb_processo_seletivo
       - name: tb_programa
       - name: tb_selecao
+      - name: tb_situacao_bolsista
       - name: tb_situacao_chamada
       - name: tb_situacao_concessao
       - name: tb_tipo_anexo

@@ -162,9 +162,7 @@ def quilombolas_alfabetizacao_censo_dag() -> None:
     tabelas_dados = inserir_chunks.expand(payloads=payloads_excel)
     tabelas_indices = inserir_chunks.expand(payloads=payloads_indices)
 
-    consolidar_resultado(
-        tabelas_dados, tabelas_indices  # ty: ignore[invalid-argument-type]
-    )
+    consolidar_resultado(tabelas_dados, tabelas_indices)
 
 
 quilombolas_alfabetizacao_censo_dag()

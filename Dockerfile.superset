@@ -9,4 +9,7 @@ RUN /usr/local/bin/python -m pip install psycopg2-binary --target /app/.venv/lib
 # Install other useful database drivers for future use
 RUN /usr/local/bin/python -m pip install pymysql --target /app/.venv/lib/python3.10/site-packages/
 
+COPY superset/superset_config.py /app/pythonpath/superset_config.py
+COPY superset/superset_db_dialects.py /app/pythonpath/superset_db_dialects.py
+
 USER superset

@@ -86,13 +86,19 @@ models:
     description: >
       Modelo silver de bolsistas do Sisbolsas. Parte de `sisbolsas_tb_bolsista`
       e consolida dados de usuário, seleção/chamada, unidade/UF, projeto,
-      programa, modalidade, pagamentos e coordenador.
+      programa, modalidade, pagamentos, coordenador e situação do bolsista.
+      Para contar bolsistas ativos, filtre `is_ativo` em vez de usar janelas
+      de data sobre `termino`.
     meta:
       tags:
         - silver
     columns:
       - name: unidade
-        description: Sigla da unidade associada à chamada pública.
+        description: >
+          Sigla da diretoria do Ipea associada à chamada pública
+          (`tb_chapubli_diretoria`), ex.: DIRUR, DISOC.
+      - name: diretoria
+        description: Nome da diretoria do Ipea associada à chamada pública.
       - name: bolsista
         description: Nome do bolsista.
       - name: titulo_projeto
@@ -124,24 +130,37 @@ models:
       - name: ano_referencia
         description: Ano de referência do pagamento.
       - name: situacao_bolsista
-        description: Situação do bolsista conforme `co_situacao_bolsista`.
+        description: Código da situação do bolsista (`co_situacao_bolsista`).
+      - name: situacao_bolsista_descricao
+        description: >
+          Descrição da situação do bolsista (`tb_situacao_bolsista`), ex.:
+          Ativo, Suspenso, Encerramento pendente, Encerrado.
+      - name: is_ativo
+        description: >
+          Indica se o bolsista está ativo: situação 1 (Ativo) ou 3
+          (Encerramento pendente). Regra no macro `sisbolsas_bolsista_ativo`.
 
   - name: bolsistas_diversidade
     description: >
-      Indicadores de diversidade de bolsistas por unidade (sigla), com totais,
+      Indicadores de diversidade dos bolsistas ativos (macro
+      `sisbolsas_bolsista_ativo`) por unidade (sigla da diretoria), com totais,
       percentuais e metas mínimas de participação de mulheres (40%) e negros (30%).
     meta:
       tags:
         - silver
     columns:
       - name: unidade
-        description: Sigla da unidade (ou `SEM_UNIDADE` quando não há vínculo).
+        description: >
+          Sigla da diretoria da chamada do bolsista (ou `SEM_UNIDADE` quando a
+          chamada não tem diretoria vinculada).
       - name: total_bolsistas
         description: Total de bolsistas distintos na unidade.
       - name: total_mulheres
         description: Total de bolsistas mulheres na unidade.
       - name: total_negros
-        description: Total de bolsistas negros na unidade (etnia preta ou parda).
+        description: >
+          Total de bolsistas negros na unidade (`co_etnia` 2 = Negro ou
+          4 = Pardo em `tb_etnia`).
       - name: percentual_mulheres
         description: Percentual de mulheres sobre o total de bolsistas da unidade.
       - name: percentual_negros
@@ -210,6 +229,13 @@ models:
         description: Nomes das unidades vinculadas à chamada pública.
       - name: ufs
         description: UFs das unidades vinculadas à chamada pública.
+      - name: diretorias_sigla
+        description: >
+          Siglas das diretorias do Ipea vinculadas à chamada pública
+          (`tb_chapubli_diretoria`). Cobre todas as chamadas, diferente de
+          `unidades_sigla`.
+      - name: diretorias_nome
+        description: Nomes das diretorias do Ipea vinculadas à chamada pública.
       - name: modalidades
         description: Modalidades agregadas das seleções da chamada.
       - name: total_selecoes

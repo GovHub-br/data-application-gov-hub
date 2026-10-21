@@ -13,38 +13,47 @@ class ClienteSiape:
     and dynamic XML generation with Jinja2 templates.
     """
 
-    BEARER_ENDPOINT = (
-        "https://apigateway.conectagov.estaleiro.serpro.gov.br/oauth2/jwt-token/"
-    )
-    SOAP_ENDPOINT = "https://apigateway.conectagov.estaleiro.serpro.gov.br/api-consulta-siape/v1/consulta-siape"
-
     def __init__(self) -> None:
         """
         Initialize the SIAPE client using environment variables:
+        - SIAPE_BEARER_ENDPOINT
         - SIAPE_BEARER_USER
         - SIAPE_BEARER_PASSWORD
         - SIAPE_CPF_USER
+        - SIAPE_SOAP_ENDPOINT
         """
+        self.bearer_endpoint = os.getenv("SIAPE_BEARER_ENDPOINT")
         self.oauth_user = os.getenv("SIAPE_BEARER_USER")
         self.oauth_password = os.getenv("SIAPE_BEARER_PASSWORD")
         self.cpf_usuario = os.getenv("SIAPE_CPF_USER")
+        self.soap_endpoint = os.getenv("SIAPE_SOAP_ENDPOINT")
 
-        if not all([self.oauth_user, self.oauth_password, self.cpf_usuario]):
+        if not all(
+            [
+                self.bearer_endpoint,
+                self.oauth_user,
+                self.oauth_password,
+                self.cpf_usuario,
+                self.soap_endpoint,
+            ]
+        ):
             raise ValueError("Variáveis de ambiente do SIAPE estão incompletas")
 
-        assert self.oauth_user and self.oauth_password and self.cpf_usuario
-        token = self._get_token(self.oauth_user, self.oauth_password)
+        token = self._get_token(
+            self.bearer_endpoint, self.oauth_user, self.oauth_password
+        )
         self.headers = self._get_headers(token, self.cpf_usuario)
         base_path = os.environ["AIRFLOW_REPO_BASE"]
         templates_path = f"{base_path}/templates/siape"
         self.env = Environment(loader=FileSystemLoader(templates_path))
 
     @staticmethod
-    def _get_token(oauth_username: str, oauth_password: str) -> str:
+    def _get_token(bearer_endpoint: str, oauth_username: str, oauth_password: str) -> str:
         """
         Gets the token for the client.
 
         Args:
+            bearer_endpoint (str): OAuth token endpoint (SIAPE_BEARER_ENDPOINT).
             oauth_username (str): OAuth username.
             oauth_password (str): OAuth password.
 
@@ -53,7 +62,7 @@ class ClienteSiape:
         """
         data = {"grant_type": "client_credentials"}
         response = requests.post(
-            ClienteSiape.BEARER_ENDPOINT,
+            bearer_endpoint,
             auth=(oauth_username, oauth_password),
             data=data,
             headers={"Content-Type": "application/x-www-form-urlencoded"},
@@ -105,19 +114,19 @@ class ClienteSiape:
             str: The raw XML response.
         """
         response = requests.post(
-            ClienteSiape.SOAP_ENDPOINT, headers=self.headers, data=xml
+            self.soap_endpoint, headers=self.headers, data=xml
         )
         response.raise_for_status()
         response_text: str = response.text
         return response_text
 
-    def call(self, template_name: str, context: Dict[str, Any]) -> str:
+    def call(self, template_name: str, context: Dict[str, str]) -> str:
         """
         Execute a SOAP request using a Jinja2 template and parameters.
 
         Args:
             template_name (str): Jinja2 template file name.
-            context (Dict[str, Any]): Parameters for rendering the XML.
+            context (Dict[str, str]): Parameters for rendering the XML.
 
         Returns:
             str: The raw XML response.

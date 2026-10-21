@@ -1,0 +1,407 @@
+name: Diagnose PR rebase
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number, comma-separated list, or "all"
+        required: false
+        default: all
+        type: string
+      old_main_ref:
+        description: Reference that preserves main before rewrite
+        required: true
+        default: pre-rewrite-main
+        type: string
+      comment_normal_prs:
+        description: Also comment PRs classified as normal
+        required: true
+        default: false
+        type: boolean
+      max_prs:
+        description: Maximum open PRs to process when pr_number is "all"
+        required: true
+        default: 100
+        type: number
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+
+concurrency:
+  group: diagnose-rebase-pr-${{ github.event.issue.number || github.event.inputs.pr_number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    name: Diagnose PR history
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request &&
+        startsWith(github.event.comment.body, '/diagnose-rebase') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      )
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OLD_MAIN_REF: ${{ github.event.inputs.old_main_ref || 'pre-rewrite-main' }}
+      INPUT_PR_NUMBER: ${{ github.event.inputs.pr_number || '' }}
+      INPUT_COMMENT_NORMAL_PRS: ${{ github.event.inputs.comment_normal_prs || 'false' }}
+      INPUT_MAX_PRS: ${{ github.event.inputs.max_prs || '100' }}
+      ISSUE_NUMBER: ${{ github.event.issue.number || '' }}
+      COMMENT_BODY: ${{ github.event.comment.body || '' }}
+    steps:
+      - name: Checkout base repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Diagnose and comment
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          owner_repo="${GITHUB_REPOSITORY}"
+          base_remote="origin"
+          marker="<!-- diagnose-rebase-pr -->"
+          anomaly_threshold="50"
+          safe_candidate_limit="10"
+          display_candidate_limit="25"
+
+          target_spec="${INPUT_PR_NUMBER:-all}"
+          comment_normal_prs="${INPUT_COMMENT_NORMAL_PRS:-false}"
+          max_prs="${INPUT_MAX_PRS:-100}"
+
+          if [[ "${GITHUB_EVENT_NAME}" == "issue_comment" ]]; then
+            if grep -Eiq '^/diagnose-rebase[[:space:]]+all([[:space:]]|$)' <<<"${COMMENT_BODY}"; then
+              target_spec="all"
+            else
+              target_spec="${ISSUE_NUMBER}"
+            fi
+            comment_normal_prs="false"
+          fi
+
+          git fetch --no-tags "${base_remote}" main:refs/remotes/origin/main
+
+          old_ref_available="true"
+          old_fetch_error=""
+          if ! git fetch --no-tags "${base_remote}" "${OLD_MAIN_REF}:refs/remotes/origin/${OLD_MAIN_REF}" 2>old-ref.err; then
+            old_ref_available="false"
+            old_fetch_error="$(tr '\n' ' ' <old-ref.err)"
+          fi
+
+          if [[ "${target_spec}" == "all" ]]; then
+            mapfile -t pr_numbers < <(
+              gh pr list \
+                --repo "${owner_repo}" \
+                --state open \
+                --limit "${max_prs}" \
+                --json number \
+                --jq '.[].number'
+            )
+          else
+            normalized_targets="${target_spec//,/ }"
+            read -r -a pr_numbers <<<"${normalized_targets}"
+          fi
+
+          if [[ "${#pr_numbers[@]}" -eq 0 ]]; then
+            echo "No PRs selected for diagnosis."
+            exit 0
+          fi
+
+          summary_file="${GITHUB_STEP_SUMMARY:-/tmp/diagnose-rebase-summary.md}"
+          {
+            echo "## Diagnose PR rebase"
+            echo
+            echo "| PR | Classification | Divergence | Comment | Notes |"
+            echo "| --- | --- | --- | --- | --- |"
+          } >>"${summary_file}"
+
+          diagnose_pr() {
+            local pr_number="$1"
+            local pr_json state pr_title pr_url author_login head_branch head_sha
+            local head_owner base_branch is_cross_repo maintainer_can_modify
+            local pr_ref current_main_ref divergence left_count right_count current_merge_base
+            local classification expected_after old_base old_range_count old_range_merge_count
+            local candidate_commits displayed_candidate_commits candidate_count recommendation old_section
+            local should_comment comment_file comment_body existing_comment_id comment_status notes
+            local repair_branch cherry_pick_list old_ref
+
+            echo "Diagnosing PR #${pr_number}..."
+
+            pr_json="$(gh pr view "${pr_number}" \
+              --repo "${owner_repo}" \
+              --json number,title,state,author,headRefName,headRefOid,headRepositoryOwner,baseRefName,isCrossRepository,maintainerCanModify,url)"
+
+            state="$(jq -r '.state' <<<"${pr_json}")"
+            if [[ "${state}" != "OPEN" ]]; then
+              echo "| #${pr_number} | skipped | - | no | PR is ${state} |" >>"${summary_file}"
+              return 0
+            fi
+
+            pr_title="$(jq -r '.title' <<<"${pr_json}")"
+            pr_url="$(jq -r '.url' <<<"${pr_json}")"
+            author_login="$(jq -r '.author.login' <<<"${pr_json}")"
+            head_branch="$(jq -r '.headRefName' <<<"${pr_json}")"
+            head_sha="$(jq -r '.headRefOid' <<<"${pr_json}")"
+            head_owner="$(jq -r '.headRepositoryOwner.login' <<<"${pr_json}")"
+            base_branch="$(jq -r '.baseRefName' <<<"${pr_json}")"
+            is_cross_repo="$(jq -r '.isCrossRepository' <<<"${pr_json}")"
+            maintainer_can_modify="$(jq -r '.maintainerCanModify' <<<"${pr_json}")"
+
+            if [[ "${base_branch}" != "main" ]]; then
+              echo "| [#${pr_number}](${pr_url}) | skipped | - | no | base is ${base_branch} |" >>"${summary_file}"
+              return 0
+            fi
+
+            git fetch --no-tags "${base_remote}" "pull/${pr_number}/head:refs/remotes/pr/${pr_number}"
+
+            pr_ref="refs/remotes/pr/${pr_number}"
+            current_main_ref="refs/remotes/origin/main"
+            divergence="$(git rev-list --left-right --count "${current_main_ref}...${pr_ref}")"
+            left_count="$(awk '{print $1}' <<<"${divergence}")"
+            right_count="$(awk '{print $2}' <<<"${divergence}")"
+            current_merge_base="$(git merge-base "${current_main_ref}" "${pr_ref}")"
+
+            classification="manual"
+            expected_after="unknown"
+            old_base=""
+            old_range_count=""
+            old_range_merge_count=""
+            candidate_commits=""
+            displayed_candidate_commits=""
+            candidate_count="0"
+            notes=""
+
+            if [[ "${right_count}" -le "${anomaly_threshold}" ]]; then
+              classification="normal"
+              expected_after="${left_count} ${right_count}"
+            elif [[ "${old_ref_available}" == "true" ]]; then
+              old_ref="refs/remotes/origin/${OLD_MAIN_REF}"
+              old_base="$(git merge-base "${old_ref}" "${pr_ref}")"
+              old_range_count="$(git rev-list --count "${old_base}..${pr_ref}")"
+              old_range_merge_count="$(git rev-list --count --merges "${old_base}..${pr_ref}")"
+              candidate_commits="$(git log --reverse --format='%h %s' --no-merges "${old_base}..${pr_ref}")"
+              candidate_count="$(sed '/^[[:space:]]*$/d' <<<"${candidate_commits}" | wc -l | tr -d ' ')"
+              displayed_candidate_commits="$(sed -n "1,${display_candidate_limit}p" <<<"${candidate_commits}")"
+
+              if [[ "${candidate_count}" -gt "${display_candidate_limit}" ]]; then
+                displayed_candidate_commits="${displayed_candidate_commits}"$'\n'"... ${candidate_count} candidatos no total; lista truncada para evitar uma receita perigosa."
+              fi
+
+              if [[ "${old_range_count}" -gt 0 && "${old_range_count}" -le 20 && "${old_range_merge_count}" -eq 0 ]]; then
+                classification="linear"
+                expected_after="0 ${old_range_count}"
+              elif [[ "${old_range_merge_count}" -gt 0 || "${old_range_count}" -gt 20 ]]; then
+                classification="contaminated"
+                expected_after="0 ${candidate_count}"
+              fi
+            else
+              notes="old ref unavailable"
+            fi
+
+            if [[ -z "${displayed_candidate_commits}" ]]; then
+              displayed_candidate_commits="Nenhum candidato identificado automaticamente."
+            fi
+
+            if [[ "${classification}" == "normal" ]]; then
+              recommendation="$(cat <<EOF
+          ### Receita sugerida
+
+          A divergência atual não parece anômala: o PR tem ${right_count} commit(s) que não estão em \`origin/main\`. Nenhuma correção de rebase foi sugerida automaticamente.
+
+          Se o GitHub ainda estiver mostrando commits demais, revise manualmente antes de reescrever a branch.
+          EOF
+          )"
+              old_section="$(cat <<EOF
+          | Referência antiga | não usada; divergência atual abaixo do limiar \`${anomaly_threshold}\` |
+          EOF
+          )"
+            elif [[ "${classification}" == "linear" ]]; then
+              recommendation="$(cat <<EOF
+          ### Receita sugerida
+
+          Este PR parece linear: o intervalo \`${old_base}..HEAD\` tem ${old_range_count} commit(s) e ${old_range_merge_count} merge commit(s). A correção recomendada é \`git rebase --onto\`.
+
+          \`\`\`bash
+          git remote add upstream git@github.com:${owner_repo}.git 2>/dev/null || true
+          git fetch upstream main
+          git fetch origin ${head_branch}
+          git switch ${head_branch}
+          git rebase --onto upstream/main ${old_base} ${head_branch}
+          git rev-list --left-right --count upstream/main...${head_branch}
+          \`\`\`
+
+          Resultado esperado:
+
+          \`\`\`text
+          ${expected_after}
+          \`\`\`
+
+          Se a contagem estiver correta, publique a branch reescrita:
+
+          \`\`\`bash
+          git push --force-with-lease origin ${head_branch}
+          \`\`\`
+          EOF
+          )"
+            elif [[ "${classification}" == "contaminated" ]]; then
+              repair_branch="repair-${head_branch//\//-}"
+              if [[ "${candidate_count}" -gt 0 && "${candidate_count}" -le "${safe_candidate_limit}" ]]; then
+                cherry_pick_list="$(awk '{print $1}' <<<"${candidate_commits}" | paste -sd' ' -)"
+                recommendation="$(cat <<EOF
+          ### Receita sugerida
+
+          Este PR parece contaminado por merges ou por commits herdados da \`main\` antiga. Evite \`git rebase --onto\` automático. Como há poucos commits candidatos, a correção sugerida é reconstruir a branch sobre a \`main\` atual e revisar o \`cherry-pick\` abaixo.
+
+          \`\`\`bash
+          git remote add upstream git@github.com:${owner_repo}.git 2>/dev/null || true
+          git fetch upstream main
+          git fetch origin ${head_branch}
+          git switch -c ${repair_branch} upstream/main
+          git cherry-pick ${cherry_pick_list}
+          git rev-list --left-right --count upstream/main...${repair_branch}
+          \`\`\`
+
+          Resultado esperado, se os commits candidatos estiverem corretos:
+
+          \`\`\`text
+          ${expected_after}
+          \`\`\`
+
+          Depois de revisar o resultado:
+
+          \`\`\`bash
+          git push --force-with-lease origin ${repair_branch}:${head_branch}
+          \`\`\`
+          EOF
+          )"
+              else
+                recommendation="$(cat <<EOF
+          ### Receita sugerida
+
+          Este PR parece contaminado por merges ou por muitos commits herdados da \`main\` antiga. Evite \`git rebase --onto\` automático.
+
+          O diagnóstico encontrou ${candidate_count} commits candidatos sem merge, o que é demais para uma receita automática segura. Reconstrua manualmente a branch a partir da \`main\` atual e selecione apenas os commits reais do PR:
+
+          \`\`\`bash
+          git remote add upstream git@github.com:${owner_repo}.git 2>/dev/null || true
+          git fetch upstream main
+          git fetch origin ${head_branch}
+          git switch -c ${repair_branch} upstream/main
+          git log --oneline --no-merges ${old_base}..origin/${head_branch}
+          git cherry-pick COMMIT_REAL_1 COMMIT_REAL_2
+          git rev-list --left-right --count upstream/main...${repair_branch}
+          \`\`\`
+
+          Só faça o push depois de confirmar manualmente quais commits pertencem ao PR:
+
+          \`\`\`bash
+          git push --force-with-lease origin ${repair_branch}:${head_branch}
+          \`\`\`
+          EOF
+          )"
+              fi
+            else
+              recommendation="$(cat <<EOF
+          ### Receita sugerida
+
+          Não consegui identificar uma receita segura automaticamente. Revise o histórico manualmente antes de reescrever a branch.
+          EOF
+          )"
+            fi
+
+            if [[ "${classification}" != "normal" ]]; then
+              if [[ "${old_ref_available}" == "true" ]]; then
+                old_section="$(cat <<EOF
+          | Base antiga detectada | \`${old_base}\` |
+          | Commits em \`base_antiga..HEAD\` | \`${old_range_count}\` |
+          | Merge commits nesse intervalo | \`${old_range_merge_count}\` |
+          EOF
+          )"
+              else
+                old_section="$(cat <<EOF
+          | Referência antiga | não disponível: \`${OLD_MAIN_REF}\` |
+          | Erro ao buscar referência | \`${old_fetch_error}\` |
+          EOF
+          )"
+              fi
+            fi
+
+            should_comment="true"
+            if [[ "${classification}" == "normal" && "${comment_normal_prs}" != "true" ]]; then
+              should_comment="false"
+            fi
+
+            comment_status="skipped"
+            if [[ "${should_comment}" == "true" ]]; then
+              comment_file="comment-${pr_number}.md"
+              cat >"${comment_file}" <<EOF
+          ${marker}
+          ## Diagnóstico de rebase do PR #${pr_number}
+
+          PR: [${pr_title}](${pr_url})
+
+          | Campo | Valor |
+          | --- | --- |
+          | Autor | \`${author_login}\` |
+          | Origem | \`${head_owner}:${head_branch}\` |
+          | Fork | \`${is_cross_repo}\` |
+          | Allow edits from maintainers | \`${maintainer_can_modify}\` |
+          | HEAD | \`${head_sha}\` |
+          | Merge-base com \`main\` atual | \`${current_merge_base}\` |
+          | Divergência \`origin/main...PR\` | \`${left_count} ${right_count}\` |
+          ${old_section}
+          | Classificação | \`${classification}\` |
+
+          ### Commits candidatos
+
+          \`\`\`text
+          ${displayed_candidate_commits}
+          \`\`\`
+
+          ${recommendation}
+
+          > Este diagnóstico trata commits e diffs como dados. Ele não executa código do PR.
+          EOF
+
+              sed -i 's/^          //' "${comment_file}"
+              existing_comment_id="$(gh api "repos/${owner_repo}/issues/${pr_number}/comments" \
+                --jq ".[] | select(.body | contains(\"${marker}\")) | .id" | head -n 1)"
+
+              comment_body="$(cat "${comment_file}")"
+              if [[ -n "${existing_comment_id}" ]]; then
+                gh api \
+                  --method PATCH \
+                  "repos/${owner_repo}/issues/comments/${existing_comment_id}" \
+                  --field body="${comment_body}" >/dev/null
+                comment_status="updated"
+              else
+                gh pr comment "${pr_number}" \
+                  --repo "${owner_repo}" \
+                  --body-file "${comment_file}"
+                comment_status="created"
+              fi
+            fi
+
+            if [[ -z "${notes}" && "${classification}" == "normal" ]]; then
+              notes="below anomaly threshold"
+            elif [[ -z "${notes}" && "${classification}" == "contaminated" && "${candidate_count}" -gt "${safe_candidate_limit}" ]]; then
+              notes="manual selection required"
+            fi
+
+            echo "| [#${pr_number}](${pr_url}) | ${classification} | \`${left_count} ${right_count}\` | ${comment_status} | ${notes:--} |" >>"${summary_file}"
+          }
+
+          for pr_number in "${pr_numbers[@]}"; do
+            if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
+              echo "Ignoring invalid PR selector: ${pr_number}"
+              continue
+            fi
+            diagnose_pr "${pr_number}"
+          done

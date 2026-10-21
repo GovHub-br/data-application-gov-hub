@@ -1,17 +1,22 @@
 with
+    -- só bolsistas ativos (mesma regra de bolsistas.is_ativo)
     bolsistas_base as (
         select distinct b.co_usuario, b.co_selecao
         from {{ ref("sisbolsas_tb_bolsista") }} as b
+        where {{ sisbolsas_bolsista_ativo("b.co_situacao_bolsista") }}
     ),
 
+    -- a unidade é a diretoria da chamada: tb_chapubli_unidade só cobre parte
+    -- das chamadas e gerava SEM_UNIDADE
     unidade_por_bolsista as (
-        select distinct bb.co_usuario, coalesce(u.ds_sigla, 'SEM_UNIDADE') as unidade
+        select distinct bb.co_usuario, coalesce(d.ds_sigla, 'SEM_UNIDADE') as unidade
         from bolsistas_base as bb
         left join {{ ref("sisbolsas_tb_selecao") }} as s on bb.co_selecao = s.co_selecao
         left join
-            {{ ref("sisbolsas_tb_chapubli_unidade") }} as cu
-            on s.co_chamada_publica = cu.co_chamada_publica
-        left join {{ ref("sisbolsas_tb_unidade") }} as u on cu.co_unidade = u.co_unidade
+            {{ ref("sisbolsas_tb_chapubli_diretoria") }} as cd
+            on s.co_chamada_publica = cd.co_chamada_publica
+        left join
+            {{ ref("sisbolsas_tb_diretoria") }} as d on cd.co_diretoria = d.co_diretoria
     ),
 
     demografia as (

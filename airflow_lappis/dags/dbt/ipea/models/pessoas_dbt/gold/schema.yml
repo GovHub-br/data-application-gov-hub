@@ -313,6 +313,8 @@ models:
       aposentados, estagiários e terceirizados. Esta tabela fornece uma visão rápida e consolidada
       dos principais indicadores quantitativos de recursos humanos da organização.
       Cada linha representa um KPI específico com seu respectivo valor.
+      As contagens de servidores consideram apenas registros sem data de exclusão
+      (dt_ocorr_exclusao nula), ou seja, servidores desligados não são contados.
 
     meta:
       tags:

@@ -4,7 +4,9 @@ with
             b.co_usuario,
             b.co_selecao,
             b.nu_bolsa,
-            b.co_situacao_bolsista,
+            {{ sisbolsas_codigo_situacao_bolsista("b.co_situacao_bolsista") }}
+            as co_situacao_bolsista,
+            {{ sisbolsas_bolsista_ativo("b.co_situacao_bolsista") }} as is_ativo,
             case
                 when b.dt_inicio ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
                 then substring(b.dt_inicio from 1 for 10)::date
@@ -34,10 +36,32 @@ with
         from {{ ref("sisbolsas_tb_chamada_publica") }} as cp
     ),
 
-    unidade_por_chamada as (
+    situacoes as (
+        select
+            {{ sisbolsas_codigo_situacao_bolsista("sb.co_situacao_bolsista") }}
+            as co_situacao_bolsista,
+            sb.ds_situacao_bolsista
+        from {{ ref("sisbolsas_tb_situacao_bolsista") }} as sb
+    ),
+
+    -- tb_chapubli_unidade só cobre parte das chamadas; a diretoria
+    -- (tb_chapubli_diretoria) existe para todas e é a "unidade" do dashboard
+    diretoria_por_chamada as (
+        select
+            cd.co_chamada_publica,
+            string_agg(distinct d.ds_sigla, ' | ' order by d.ds_sigla) as diretoria_sigla,
+            string_agg(
+                distinct d.ds_diretoria, ' | ' order by d.ds_diretoria
+            ) as diretoria
+        from {{ ref("sisbolsas_tb_chapubli_diretoria") }} as cd
+        left join
+            {{ ref("sisbolsas_tb_diretoria") }} as d on cd.co_diretoria = d.co_diretoria
+        group by 1
+    ),
+
+    uf_por_chamada as (
         select
             cu.co_chamada_publica,
-            string_agg(distinct u.ds_sigla, ' | ' order by u.ds_sigla) as unidade,
             string_agg(distinct e.ds_uf, ' | ' order by e.ds_uf) as uf_unidade
         from {{ ref("sisbolsas_tb_chapubli_unidade") }} as cu
         left join {{ ref("sisbolsas_tb_unidade") }} as u on cu.co_unidade = u.co_unidade
@@ -81,7 +105,8 @@ with
     )
 
 select
-    uc.unidade as unidade,
+    dc.diretoria_sigla as unidade,
+    dc.diretoria,
     ub.ds_nome as bolsista,
     proj.tituloprojeto as titulo_projeto,
     prog.ds_programa as programa,
@@ -94,6 +119,8 @@ select
     coord.coordenador,
     p.mes_referencia,
     b.co_situacao_bolsista as situacao_bolsista,
+    sit.ds_situacao_bolsista as situacao_bolsista_descricao,
+    b.is_ativo,
     case
         when s.tp_atuacao = '1'
         then 'Presencial'
@@ -115,7 +142,9 @@ from bolsistas as b
 left join usuarios as ub on b.co_usuario = ub.co_usuario
 left join selecoes as s on b.co_selecao = s.co_selecao
 left join chamadas as c on s.co_chamada_publica = c.co_chamada_publica
-left join unidade_por_chamada as uc on c.co_chamada_publica = uc.co_chamada_publica
+left join diretoria_por_chamada as dc on c.co_chamada_publica = dc.co_chamada_publica
+left join uf_por_chamada as uc on c.co_chamada_publica = uc.co_chamada_publica
+left join situacoes as sit on b.co_situacao_bolsista = sit.co_situacao_bolsista
 left join {{ ref("sisbolsas_tb_programa") }} as prog on c.co_programa = prog.co_programa
 left join
     {{ ref("sisbolsas_tb_modalidade") }} as mod on s.co_modalidade = mod.co_modalidade
