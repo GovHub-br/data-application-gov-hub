@@ -1,54 +1,18 @@
-with categorias_gastos as (
-    select
-        ano_exercicio,
-        acao_governo,
-        acao_governo_desc,
-        elemento_despesa,
-        elemento_despesa_desc,
-        coalesce(dotacao_atualizada, 0) as valor,
-        'Dotação' as categoria,
-        dt_ingest
-    from {{ ref('visao_orcamentaria_total') }}
-
-    union all
-
-    select
-        ano_exercicio,
-        acao_governo,
-        acao_governo_desc,
-        elemento_despesa,
-        elemento_despesa_desc,
-        coalesce(despesas_empenhadas, 0) as valor,
-        'Orçamento alocado (empenhado)' as categoria,
-        dt_ingest
-    from {{ ref('visao_orcamentaria_total') }}
-
-    union all
-
-    select
-        ano_exercicio,
-        acao_governo,
-        acao_governo_desc,
-        elemento_despesa,
-        elemento_despesa_desc,
-        coalesce(despesar_a_pagar, 0) as valor,
-        'Despesas programadas' as categoria,
-        dt_ingest
-    from {{ ref('visao_orcamentaria_total') }}
-
-    union all
-
-    select
-        ano_exercicio,
-        acao_governo,
-        acao_governo_desc,
-        elemento_despesa,
-        elemento_despesa_desc,
-        coalesce(despesas_pagas, 0) as valor,
-        'Despesas pagas' as categoria,
-        dt_ingest
-    from {{ ref('visao_orcamentaria_total') }}
-)
-
-select * from categorias_gastos
+select
+    v.ano_exercicio,
+    v.acao_governo,
+    v.acao_governo_desc,
+    v.elemento_despesa,
+    v.elemento_despesa_desc,
+    coalesce(u.valor, 0) as valor,
+    u.categoria,
+    v.dt_ingest
+from {{ ref('visao_orcamentaria_total') }} as v
+cross join lateral (
+    values
+        (v.dotacao_atualizada, 'Dotação'),
+        (v.despesas_empenhadas, 'Orçamento alocado (empenhado)'),
+        (v.despesar_a_pagar, 'Despesas programadas'),
+        (v.despesas_pagas, 'Despesas pagas')
+) as u(valor, categoria)
 order by valor desc
