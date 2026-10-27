@@ -9,6 +9,9 @@ models:
       sobre a data de ingresso no serviço público, data de aposentadoria e tempo
       de serviço público calculado em anos, meses e dias. A granularidade da tabela
       é por CPF, ou seja, cada linha representa um servidor aposentado único.
+      Considera apenas aposentados vigentes: situação funcional 'APOSENTADO',
+      com data de aposentadoria e sem data de exclusão (exclui falecidos e
+      instituidores de pensão).
 
     meta:
       tags:
@@ -16,6 +19,9 @@ models:
     columns:
       - name: cpf
         description: Número do CPF do servidor aposentado.
+        data_tests:
+          - unique
+          - not_null
       - name: nome_pessoa
         description: Nome completo do servidor aposentado.
       - name: dt_ocorr_ingresso_serv_publico

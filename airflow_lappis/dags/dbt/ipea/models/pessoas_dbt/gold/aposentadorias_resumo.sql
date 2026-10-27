@@ -17,6 +17,8 @@ with
             dt_ingest
         from {{ ref("servidores_detalhados") }} sd
         where dt_ocorr_aposentadoria is not null
+        and nome_situacao_funcional = 'APOSENTADO'
+        and dt_ocorr_exclusao is null
     )
 
 select
