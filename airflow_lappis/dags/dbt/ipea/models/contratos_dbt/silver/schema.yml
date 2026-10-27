@@ -40,6 +40,12 @@ models:
       - name: natureza_despesa_descricao
         description: >
           Descrição da natureza da despesa do empenho.
+      - name: natureza_despesa_detalhada
+        description: >
+          Código da natureza da despesa detalhada (subelemento) do empenho.
+      - name: natureza_despesa_detalhada_descricao
+        description: >
+          Descrição da natureza da despesa detalhada (subelemento) do empenho.
       - name: ne_ccor_favorecido
         description: >
           CNPJ ou CPF do favorecido do empenho.

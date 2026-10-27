@@ -75,6 +75,9 @@ models:
       silver:
         +grants:
           select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
+      gold:
+        +grants:
+          select: ["{{ env_var('DB_DW_READONLY_ROLE', 'de_postgres') }}"]
       views:
         +materialized: view
     sistema_sisbolsas:

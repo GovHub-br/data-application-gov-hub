@@ -170,3 +170,215 @@ models:
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: gold_contratos_faturas
+    description: >
+      Integração detalhada de faturas com dados dos contratos relacionados, destinada ao consumo
+      direto pelos dashboards. Permite uma visão completa de cada fatura no contexto do seu contrato,
+      incluindo dados como número de contrato, processo, objeto e fornecedor.
+      Substitui o consumo direto da tabela Silver `contratos_faturas`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: id
+        description: >
+          Identificador único da fatura.
+      - name: contrato_id
+        description: >
+          Identificador do contrato relacionado à fatura.
+      - name: numero_contrato
+        description: >
+          Número do contrato no sistema ComprasGov.
+      - name: contrato_processo
+        description: >
+          Número do processo administrativo relacionado ao contrato.
+      - name: fornecedor_cnpj_cpf_idgener
+        description: >
+          CNPJ, CPF ou identificador genérico do fornecedor do contrato.
+      - name: fornecedor_tipo
+        description: >
+          Tipo do fornecedor do contrato.
+      - name: fornecedor_nome
+        description: >
+          Nome ou razão social do fornecedor associado ao contrato.
+      - name: objeto_contrato
+        description: >
+          Descrição do objeto contratado.
+      - name: unidades_requisitantes
+        description: >
+          Unidades requisitantes associadas ao contrato relacionado à fatura.
+      - name: tipolistafatura_id
+        description: >
+          Identificador do tipo de lista de fatura.
+      - name: justificativafatura_id
+        description: >
+          Identificador da justificativa da fatura, quando aplicável.
+      - name: sfadrao_id
+        description: >
+          Identificador do padrão de sistema financeiro relacionado.
+      - name: numero
+        description: >
+          Número da fatura emitida pelo fornecedor.
+      - name: emissao
+        description: >
+          Data de emissão da fatura.
+      - name: prazo
+        description: >
+          Data limite para pagamento da fatura.
+      - name: vencimento
+        description: >
+          Data de vencimento da fatura.
+      - name: valor
+        description: >
+          Valor bruto da fatura.
+      - name: juros
+        description: >
+          Valor de juros aplicados à fatura.
+      - name: multa
+        description: >
+          Valor de multa aplicada à fatura.
+      - name: glosa
+        description: >
+          Valor de glosa aplicada à fatura.
+      - name: valorliquido
+        description: >
+          Valor líquido da fatura após subtrações de glosas, multas ou juros.
+      - name: processo
+        description: >
+          Número do processo administrativo específico da fatura, quando diferente do processo do contrato.
+      - name: protocolo
+        description: >
+          Data de protocolo da fatura no sistema.
+      - name: ateste
+        description: >
+          Data em que a fatura foi atestada, confirmando a entrega do produto ou serviço.
+      - name: repactuacao
+        description: >
+          Indica se a fatura está relacionada a uma repactuação contratual.
+      - name: infcomplementar
+        description: >
+          Informações complementares sobre a fatura.
+      - name: mesref
+        description: >
+          Mês de referência da fatura.
+      - name: anoref
+        description: >
+          Ano de referência da fatura.
+      - name: situacao
+        description: >
+          Status atual da fatura (Pago ou Pendente).
+      - name: chave_nfe
+        description: >
+          Chave da Nota Fiscal Eletrônica associada à fatura, quando disponível.
+      - name: dados_referencia
+        description: >
+          Dados de referência adicionais da fatura, geralmente em formato JSON.
+      - name: dados_item_faturado
+        description: >
+          Detalhamento dos itens faturados, geralmente em formato JSON.
+      - name: dados_empenho
+        description: >
+          Informações sobre o empenho relacionado à fatura, em formato JSON.
+      - name: id_empenho
+        description: >
+          Identificador do empenho extraído do campo JSON dados_empenho.
+      - name: numero_empenho
+        description: >
+          Número do empenho relacionado à fatura.
+      - name: valor_empenho
+        description: >
+          Valor do empenho relacionado à fatura.
+      - name: subelemento
+        description: >
+          Código do subelemento de despesa relacionado à fatura.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: gold_contratos_empenhos
+    description: >
+      Cruzamento dos empenhos do SIAFI (fonte oficial) com os empenhos do ComprasGov (vínculo direto
+      com contrato). Indica a origem de cada registro ('SIAFI', 'ComprasGov' ou 'Ambos'), deduplica
+      notas que existem em ambas as fontes e sinaliza empenhos SIAFI que não puderam ser vinculados
+      a nenhum contrato (sem_vinculo_contrato = true), indicando erro de preenchimento ou necessidade
+      de melhoria no processo interno.
+      Substitui o consumo direto da tabela Silver `contratos_empenhos`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: contrato_id
+        description: >
+          Identificador do contrato relacionado ao empenho. Nulo para empenhos SIAFI sem vínculo.
+      - name: nota_empenho
+        description: >
+          Número da nota de empenho padronizado (12 caracteres, uppercase).
+      - name: ne_ccor
+        description: >
+          Número completo da nota de empenho no SIAFI. Nulo para empenhos exclusivos do ComprasGov.
+      - name: ne_num_processo
+        description: >
+          Número do processo administrativo relacionado ao empenho.
+      - name: ne_ccor_descricao
+        description: >
+          Descrição da nota de empenho conforme registrado no SIAFI.
+      - name: doc_observacao
+        description: >
+          Observações registradas no documento do empenho.
+      - name: natureza_despesa
+        description: >
+          Código da natureza da despesa do empenho.
+      - name: natureza_despesa_descricao
+        description: >
+          Descrição da natureza da despesa do empenho.
+      - name: cnpj_cpf_favorecido
+        description: >
+          CNPJ ou CPF do favorecido do empenho.
+      - name: ano_emissao
+        description: >
+          Ano de emissão do empenho.
+      - name: despesas_empenhadas
+        description: >
+          Valor total das despesas empenhadas. Prioriza valor do SIAFI quando presente em ambas as fontes.
+      - name: despesas_liquidadas
+        description: >
+          Valor total das despesas liquidadas.
+      - name: despesas_pagas
+        description: >
+          Valor total das despesas pagas.
+      - name: fornecedor_tipo
+        description: >
+          Tipo do fornecedor do contrato.
+      - name: fornecedor_nome
+        description: >
+          Nome ou razão social do fornecedor associado ao contrato.
+      - name: fornecedor_cnpj_cpf_idgener
+        description: >
+          CNPJ, CPF ou identificador genérico do fornecedor do contrato.
+      - name: numero_contrato
+        description: >
+          Número do contrato no sistema ComprasGov.
+      - name: unidades_requisitantes
+        description: >
+          Unidades requisitantes associadas ao contrato.
+      - name: objeto
+        description: >
+          Descrição do objeto contratado.
+      - name: vigencia_inicio
+        description: >
+          Data de início da vigência do contrato.
+      - name: vigencia_fim
+        description: >
+          Data de término da vigência do contrato.
+      - name: origem_dados
+        description: >
+          Indica a origem do empenho: 'SIAFI' (fonte oficial apenas), 'ComprasGov' (vínculo direto apenas),
+          ou 'Ambos' (presente nas duas fontes, valores priorizados do SIAFI).
+      - name: sem_vinculo_contrato
+        description: >
+          Indica se o empenho SIAFI não pôde ser vinculado a nenhum contrato (true = erro de preenchimento
+          que indica necessidade de melhoria no processo interno). Sempre false para empenhos do ComprasGov.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.

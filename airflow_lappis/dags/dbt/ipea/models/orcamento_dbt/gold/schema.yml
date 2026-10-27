@@ -1,0 +1,179 @@
+version: 2
+
+models:
+
+  ## Golds
+  - name: gold_visao_orcamentaria
+    description: >
+      Visão consolidada da execução orçamentária total do IPEA, destinada ao consumo direto
+      pelos dashboards. Correlaciona dados de dotação, empenho, liquidação e pagamento por
+      ano de exercício, unidade orçamentária, ação de governo, programa e elemento de despesa.
+      Inclui métricas derivadas como saldo orçamentário e percentual de execução para
+      facilitar a análise gerencial.
+      Substitui o consumo direto da tabela Bronze `visao_orcamentaria_total`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: ano_exercicio
+        description: >
+          Ano do exercício orçamentário.
+      - name: unidade_orcamentaria
+        description: >
+          Código da unidade orçamentária responsável pela dotação.
+      - name: unidade_orcamentaria_desc
+        description: >
+          Descrição da unidade orçamentária.
+      - name: acao_governo
+        description: >
+          Código da ação de governo vinculada à execução orçamentária.
+      - name: acao_governo_desc
+        description: >
+          Descrição da ação de governo.
+      - name: programa_governo
+        description: >
+          Código do programa de governo associado.
+      - name: programa_governo_desc
+        description: >
+          Descrição do programa de governo.
+      - name: unidade_plano_orcamentario
+        description: >
+          Unidade do plano orçamentário.
+      - name: plano_orcamentario_1
+        description: >
+          Campo 1 do plano orçamentário.
+      - name: plano_orcamentario_2
+        description: >
+          Campo 2 do plano orçamentário.
+      - name: programa_plano_orcamentario
+        description: >
+          Programa vinculado ao plano orçamentário.
+      - name: acao_plano_orcamentario
+        description: >
+          Ação vinculada ao plano orçamentário.
+      - name: plano_orcamentario_6
+        description: >
+          Campo 6 do plano orçamentário.
+      - name: plano_orcamentario_desc
+        description: >
+          Descrição do plano orçamentário.
+      - name: elemento_despesa
+        description: >
+          Código do elemento de despesa conforme classificação orçamentária.
+      - name: elemento_despesa_desc
+        description: >
+          Descrição do elemento de despesa.
+      - name: orgao_uge
+        description: >
+          Código do órgão da Unidade Gestora Executora.
+      - name: orgao_uge_desc
+        description: >
+          Descrição do órgão da Unidade Gestora Executora.
+      - name: uge_matriz_filial
+        description: >
+          Indicador de UGE matriz ou filial.
+      - name: ug_executora
+        description: >
+          Código da Unidade Gestora Executora.
+      - name: ug_executora_desc
+        description: >
+          Descrição da Unidade Gestora Executora.
+      - name: projeto_inicial_loa
+        description: >
+          Valor do projeto inicial conforme a Lei Orçamentária Anual (LOA).
+      - name: dotacao_inicial
+        description: >
+          Valor da dotação inicial aprovada na LOA.
+      - name: dotacao_atualizada
+        description: >
+          Valor da dotação atualizada após créditos adicionais e remanejamentos.
+      - name: credito_disponivel
+        description: >
+          Valor do crédito disponível para empenho.
+      - name: despesas_empenhadas
+        description: >
+          Valor total das despesas empenhadas no exercício.
+      - name: despesas_a_liquidar
+        description: >
+          Valor das despesas empenhadas que ainda não foram liquidadas.
+      - name: despesar_a_pagar
+        description: >
+          Valor das despesas liquidadas que ainda não foram pagas.
+      - name: despesas_pagas
+        description: >
+          Valor total das despesas efetivamente pagas no exercício.
+      - name: restos_a_pagar_inscritos
+        description: >
+          Valor dos restos a pagar inscritos (processados e não processados).
+      - name: restos_a_pagar_pagos
+        description: >
+          Valor dos restos a pagar efetivamente pagos.
+      - name: saldo_orcamentario
+        description: >
+          Saldo orçamentário disponível, calculado como dotação atualizada menos despesas empenhadas.
+      - name: percentual_execucao
+        description: >
+          Percentual de execução orçamentária, calculado como (despesas empenhadas / dotação atualizada) × 100,
+          arredondado para 2 casas decimais. Retorna 0 quando a dotação atualizada é zero.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: gold_orcamento_total
+    description: >
+      Consolidação do orçamento total por ano de exercício, combinando duas visões:
+      (1) orçamento das TEDs, calculado como crédito disponível + despesas empenhadas,
+      excluindo as unidades orçamentárias 25300 e 47204;
+      (2) orçamento geral, baseado na dotação atualizada de todas as unidades.
+      O resultado final agrega os valores de ambas as visões por ano.
+      Substitui o consumo direto da tabela Silver `orcamento_total_`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: ano_exercicio
+        description: >
+          Ano do exercício orçamentário.
+      - name: orcamento
+        description: >
+          Soma do orçamento total (TEDs + geral) para o ano de exercício.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: gold_categorias_gastos_orcamento
+    description: >
+      Tabela que transforma a visão orçamentária em categorias de gastos para utilização
+      em gráficos de barras empilhadas. As categorias são: Dotação, Orçamento alocado (empenhado),
+      Despesas programadas e Despesas pagas. Cada linha da visão orçamentária gera quatro registros,
+      um para cada categoria, facilitando a visualização comparativa da execução orçamentária.
+      Substitui o consumo direto da tabela Silver `categoria_gastos_orcamento_total_`.
+    meta:
+      tags:
+        - gold
+    columns:
+      - name: ano_exercicio
+        description: >
+          Ano do exercício orçamentário.
+      - name: acao_governo
+        description: >
+          Código da ação de governo.
+      - name: acao_governo_desc
+        description: >
+          Descrição da ação de governo.
+      - name: elemento_despesa
+        description: >
+          Código do elemento de despesa.
+      - name: elemento_despesa_desc
+        description: >
+          Descrição do elemento de despesa.
+      - name: valor
+        description: >
+          Valor numérico associado à categoria (com COALESCE 0 para nulos).
+      - name: categoria
+        description: >
+          Categoria do gasto para agrupamento no gráfico.
+          Valores possíveis: 'Dotação', 'Orçamento alocado (empenhado)', 'Despesas programadas', 'Despesas pagas'.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.

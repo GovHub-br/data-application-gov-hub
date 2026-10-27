@@ -1,0 +1,60 @@
+with
+
+    contratos as (
+        select
+            id::int as contrato_id,
+            fornecedor_cnpj_cpf_idgener,
+            fornecedor_tipo,
+            fornecedor_nome,
+            processo as processo_contrato,
+            numero as numero_contrato,
+            objeto as objeto_contrato,
+            unidades_requisitantes,
+            dt_ingest as dt_ingest_contratos
+        from {{ ref("contratos") }}
+    ),
+
+    faturas_base as (select * from {{ ref("faturas") }})
+
+select
+    f.id,
+    f.contrato_id,
+    c.numero_contrato,
+    c.processo_contrato as contrato_processo,
+    c.fornecedor_cnpj_cpf_idgener,
+    c.fornecedor_tipo,
+    c.fornecedor_nome,
+    c.objeto_contrato,
+    c.unidades_requisitantes,
+    f.tipolistafatura_id,
+    f.justificativafatura_id,
+    f.sfadrao_id,
+    f.numero,
+    f.emissao,
+    f.prazo,
+    f.vencimento,
+    f.valor,
+    f.juros,
+    f.multa,
+    f.glosa,
+    f.valorliquido,
+    f.processo,
+    f.protocolo,
+    f.ateste,
+    f.repactuacao,
+    f.infcomplementar,
+    f.mesref,
+    f.anoref,
+    f.situacao,
+    f.chave_nfe,
+    f.dados_referencia,
+    f.dados_item_faturado,
+    f.dados_empenho,
+    f.id_empenho,
+    f.numero_empenho,
+    f.valor_empenho,
+    f.subelemento,
+    greatest(f.dt_ingest, c.dt_ingest_contratos) as dt_ingest
+from faturas_base f
+left join contratos c on f.contrato_id = c.contrato_id
+where f.emissao < '2026-01-01'
