@@ -12,10 +12,8 @@ with
             {{ safe_text("tp_unidade_meta") }} as ds_unidade,
             {{ safe_numeric("nr_quantidade_meta") }} as qt_meta,
             {{ safe_numeric("vl_valor_unitario_meta") }} as vl_unitario,
-            to_date(
-                {{ safe_text("dt_inicio_vigencia_meta") }}, 'YYYY-MM-DD'
-            ) as dt_inicio,
-            to_date({{ safe_text("dt_fim_vigencia_meta") }}, 'YYYY-MM-DD') as dt_fim,
+            {{ safe_date("dt_inicio_vigencia_meta") }} as dt_inicio,
+            {{ safe_date("dt_fim_vigencia_meta") }} as dt_fim,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("transfere_gov", "planos_acao_meta") }}
         order by {{ safe_bigint("id_meta") }}, dt_ingest desc

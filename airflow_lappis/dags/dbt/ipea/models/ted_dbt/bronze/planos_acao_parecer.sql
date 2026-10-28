@@ -10,7 +10,7 @@ with
             {{ safe_text("resultado_parecer") }} as ds_resultado,
             {{ safe_text("tx_parecer") }} as ds_parecer,
             {{ safe_bigint("plano_acao_hist_fk") }} as id_plano_acao_hist,
-            to_date({{ safe_text("dt_data_parecer") }}, 'YYYY-MM-DD') as dt_parecer,
+            {{ safe_timestamp("dt_data_parecer") }}::date as dt_parecer,
             (dt_ingest || '-03:00')::timestamptz as dt_ingest
         from {{ source("transfere_gov", "planos_acao_parecer") }}
         order by {{ safe_bigint("id_parecer") }}, dt_ingest desc
