@@ -1,3 +1,4 @@
+import math
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -49,7 +50,7 @@ def test_flatten_data_sem_preserva_nulos_mantem_o_comportamento_atual() -> None:
     achatado = ClientPostgresDB("dsn")._flatten_data([{"a": None}, {"a": "x"}])
 
     assert achatado[1] == {"a": "x"}
-    assert achatado[0]["a"] != achatado[0]["a"]  # NaN, como antes
+    assert math.isnan(achatado[0]["a"])  # NaN, como antes
 
 
 def test_flatten_data_preserva_nulos_troca_nan_por_none() -> None:
@@ -74,13 +75,17 @@ def test_replace_rows_sem_dados_nao_toca_no_banco() -> None:
 
 
 @pytest.mark.parametrize(
-    "schema, tabela", [("transfere_gov; drop", "t"), ("transfere_gov", "t-1")]
+    "schema, tabela",
+    [("transfere_gov; drop", "t"), ("transfere_gov", "t-1"), ("transfere_gov", "ação")],
 )
 def test_replace_rows_rejeita_identificador_invalido(schema: str, tabela: str) -> None:
+    db = ClientPostgresDB("dsn")
+    linhas = [{"a": "1"}]
+
     with patch("cliente_postgres.psycopg2.connect") as mock_connect:
         with pytest.raises(ValueError):
-            ClientPostgresDB("dsn").replace_rows(
-                [{"a": "1"}], tabela, delete_where="true", delete_params=(), schema=schema
+            db.replace_rows(
+                linhas, tabela, delete_where="true", delete_params=(), schema=schema
             )
 
     mock_connect.assert_not_called()

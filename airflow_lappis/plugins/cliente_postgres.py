@@ -33,7 +33,7 @@ class ClientPostgresDB:
     @staticmethod
     def _validate_identifiers(schema: str, table_name: str) -> None:
         for identifier, label in ((schema, "schema"), (table_name, "table_name")):
-            if not re.fullmatch(r"[a-zA-Z_][a-zA-Z0-9_]*", identifier):
+            if not re.fullmatch(r"[a-zA-Z_]\w*", identifier, re.ASCII):
                 raise ValueError(f"{label} inválido: {identifier!r}")
 
     def _flatten_data(
@@ -222,7 +222,7 @@ class ClientPostgresDB:
             return 0
 
         self._validate_identifiers(schema, table_name)
-        column_probe = {col: None for col in self._flatten_data(data)[0].keys()}
+        column_probe = dict.fromkeys(self._flatten_data(data)[0])
 
         with self._connect() as conn:
             self.create_table_if_not_exists(
@@ -291,10 +291,9 @@ class ClientPostgresDB:
         pandas pode transformar inteiro em '64.0'; por isso o float antes do int."""
         self._validate_identifiers("transfere_gov", table_name)
         query = f"SELECT DISTINCT {column} FROM transfere_gov.{table_name}"
-        with self._connect() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                valores = [row[0] for row in cursor.fetchall()]
+        with self._connect() as conn, conn.cursor() as cursor:
+            cursor.execute(query)
+            valores = [row[0] for row in cursor.fetchall()]
         return sorted({int(float(v)) for v in valores if v not in (None, "", "NaN")})
 
     def get_id_metas(self) -> List[int]:
