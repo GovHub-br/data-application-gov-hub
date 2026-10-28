@@ -38,7 +38,7 @@ def plano_acao_etapa_dag() -> None:
             dados = api.get_etapas_by_id_meta(id_meta)
             if dados is None:
                 raise RuntimeError(
-                    f"Falha na API de TED ao buscar etapas " f"(id_meta {id_meta})"
+                    f"Falha na API de TED ao buscar etapas (id_meta {id_meta})"
                 )
             linhas.extend(numeros_como_texto(dados))
 
