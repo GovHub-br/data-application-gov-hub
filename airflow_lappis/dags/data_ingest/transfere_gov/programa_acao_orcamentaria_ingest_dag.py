@@ -68,4 +68,4 @@ def programa_acao_orcamentaria_dag() -> None:
     fetch_and_store_programas_acao_orcamentaria()
 
 
-dag_instance = programa_acao_orcamentaria_dag()
+programa_acao_orcamentaria_dag()

@@ -69,4 +69,4 @@ def trf_programacao_financeira_dag() -> None:
     fetch_and_store_trf_programacao_financeira()
 
 
-dag_instance = trf_programacao_financeira_dag()
+trf_programacao_financeira_dag()

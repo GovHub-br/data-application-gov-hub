@@ -66,4 +66,4 @@ def beneficiarios_programa_dag() -> None:
     fetch_and_store_programas_beneficiario()
 
 
-dag_instance = beneficiarios_programa_dag()
+beneficiarios_programa_dag()

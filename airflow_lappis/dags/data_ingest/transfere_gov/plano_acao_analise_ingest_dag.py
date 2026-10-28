@@ -66,4 +66,4 @@ def plano_acao_analise_dag() -> None:
     fetch_and_store_planos_acao_analise()
 
 
-dag_instance = plano_acao_analise_dag()
+plano_acao_analise_dag()

@@ -64,4 +64,4 @@ def plano_acao_meta_dag() -> None:
     fetch_and_store_planos_acao_meta()
 
 
-dag_instance = plano_acao_meta_dag()
+plano_acao_meta_dag()

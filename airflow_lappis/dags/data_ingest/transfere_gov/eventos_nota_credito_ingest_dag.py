@@ -66,4 +66,4 @@ def eventos_nota_credito_dag() -> None:
     fetch_and_store_eventos_nota_credito()
 
 
-dag_instance = eventos_nota_credito_dag()
+eventos_nota_credito_dag()

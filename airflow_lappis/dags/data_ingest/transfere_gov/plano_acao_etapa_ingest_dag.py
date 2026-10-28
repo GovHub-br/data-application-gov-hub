@@ -63,4 +63,4 @@ def plano_acao_etapa_dag() -> None:
     fetch_and_store_planos_acao_etapa()
 
 
-dag_instance = plano_acao_etapa_dag()
+plano_acao_etapa_dag()

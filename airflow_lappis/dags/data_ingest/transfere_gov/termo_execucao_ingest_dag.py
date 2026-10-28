@@ -64,4 +64,4 @@ def termo_execucao_dag() -> None:
     fetch_and_store_termos_execucao()
 
 
-dag_instance = termo_execucao_dag()
+termo_execucao_dag()

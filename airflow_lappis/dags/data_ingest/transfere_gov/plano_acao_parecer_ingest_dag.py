@@ -66,4 +66,4 @@ def plano_acao_parecer_dag() -> None:
     fetch_and_store_planos_acao_parecer()
 
 
-dag_instance = plano_acao_parecer_dag()
+plano_acao_parecer_dag()
