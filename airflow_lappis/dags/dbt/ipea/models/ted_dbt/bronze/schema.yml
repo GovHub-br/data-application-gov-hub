@@ -429,3 +429,385 @@ models:
             nome_tabela: 'ted.pagamentos_ob_bolsa'
             nome_coluna: 'oblc_valor'
             tipo_esperado: 'numeric'
+
+  - name: planos_acao_meta
+    description: >
+      Metas dos Planos de Ação de TED, obtidas do endpoint plano_acao_meta da API de TED
+      do Transferegov. Cada meta pertence a um Plano de Ação e detalha quantidade, unidade,
+      valor unitário e vigência do produto a ser entregue.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: id_meta
+      description: >
+        Identificador único da meta.
+      tests:
+        - unique
+        - not_null
+    - name: id_plano_acao
+      description: >
+        Identificador do Plano de Ação ao qual a meta pertence.
+      tests:
+        - not_null
+    - name: nr_meta
+      description: >
+        Número sequencial da meta dentro do Plano de Ação.
+    - name: no_meta
+      description: >
+        Nome da meta.
+    - name: ds_meta
+      description: >
+        Descrição da meta.
+    - name: ds_unidade
+      description: >
+        Unidade de medida da meta.
+    - name: qt_meta
+      description: >
+        Quantidade prevista para a meta.
+    - name: vl_unitario
+      description: >
+        Valor unitário previsto para a meta.
+    - name: dt_inicio
+      description: >
+        Data de início da vigência da meta.
+    - name: dt_fim
+      description: >
+        Data de fim da vigência da meta.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.planos_acao_meta'
+            nome_coluna: 'dt_inicio'
+            tipo_esperado: 'date'
+        - verificacao_tipagem:
+            nome_tabela: 'ted.planos_acao_meta'
+            nome_coluna: 'vl_unitario'
+            tipo_esperado: 'numeric'
+
+  - name: planos_acao_etapa
+    description: >
+      Etapas das metas dos Planos de Ação de TED, obtidas do endpoint plano_acao_etapa da
+      API de TED do Transferegov. Cada etapa pertence a uma meta.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: id_etapa
+      description: >
+        Identificador único da etapa.
+      tests:
+        - unique
+        - not_null
+    - name: id_meta
+      description: >
+        Identificador da meta à qual a etapa pertence.
+      tests:
+        - not_null
+        - relationships:
+            to: ref('planos_acao_meta')
+            field: id_meta
+    - name: nr_etapa
+      description: >
+        Número sequencial da etapa dentro da meta.
+    - name: no_etapa
+      description: >
+        Nome da etapa.
+    - name: ds_etapa
+      description: >
+        Descrição da etapa.
+    - name: ds_unidade
+      description: >
+        Unidade de medida da etapa.
+    - name: qt_etapa
+      description: >
+        Quantidade prevista para a etapa.
+    - name: vl_unitario
+      description: >
+        Valor unitário previsto para a etapa.
+    - name: dt_inicio
+      description: >
+        Data de início da vigência da etapa.
+    - name: dt_fim
+      description: >
+        Data de fim da vigência da etapa.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.planos_acao_etapa'
+            nome_coluna: 'dt_inicio'
+            tipo_esperado: 'date'
+        - verificacao_tipagem:
+            nome_tabela: 'ted.planos_acao_etapa'
+            nome_coluna: 'vl_unitario'
+            tipo_esperado: 'numeric'
+
+  - name: termos_execucao
+    description: >
+      Termos de Execução Descentralizada dos Planos de Ação, obtidos do endpoint
+      termo_execucao da API de TED do Transferegov. Traz o processo SEI e as datas de
+      assinatura, divulgação, recebimento e efetivação do termo.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: id_termo
+      description: >
+        Identificador único do termo de execução.
+      tests:
+        - unique
+        - not_null
+    - name: id_plano_acao
+      description: >
+        Identificador do Plano de Ação ao qual o termo pertence.
+      tests:
+        - not_null
+    - name: ds_situacao
+      description: >
+        Situação do termo de execução.
+    - name: nr_processo_sei
+      description: >
+        Número do processo SEI do termo de execução.
+    - name: dt_assinatura
+      description: >
+        Data de assinatura do termo.
+    - name: dt_divulgacao
+      description: >
+        Data de divulgação do termo.
+    - name: in_minuta_padrao
+      description: >
+        Indica se o termo usa a minuta padrão.
+    - name: nr_ns
+      description: >
+        Número da Nota de Sistema (NS) do termo.
+    - name: dt_recebimento
+      description: >
+        Data de recebimento do termo.
+    - name: dt_efetivacao
+      description: >
+        Data de efetivação do termo.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.termos_execucao'
+            nome_coluna: 'dt_assinatura'
+            tipo_esperado: 'date'
+        - verificacao_tipagem:
+            nome_tabela: 'ted.termos_execucao'
+            nome_coluna: 'in_minuta_padrao'
+            tipo_esperado: 'boolean'
+
+  - name: planos_acao_analise
+    description: >
+      Análises dos Planos de Ação de TED, obtidas do endpoint plano_acao_analise da API
+      de TED do Transferegov.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: id_analise
+      description: >
+        Identificador único da análise.
+      tests:
+        - unique
+        - not_null
+    - name: id_plano_acao
+      description: >
+        Identificador do Plano de Ação analisado.
+    - name: ds_justificativa
+      description: >
+        Justificativa registrada na análise.
+    - name: ds_resultado
+      description: >
+        Resultado da análise.
+    - name: ds_situacao
+      description: >
+        Situação da análise.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+
+  - name: planos_acao_parecer
+    description: >
+      Pareceres dos Planos de Ação de TED, obtidos do endpoint plano_acao_parecer da API
+      de TED do Transferegov.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: id_parecer
+      description: >
+        Identificador único do parecer.
+      tests:
+        - unique
+        - not_null
+    - name: id_plano_acao
+      description: >
+        Identificador do Plano de Ação ao qual o parecer se refere.
+    - name: tp_analise
+      description: >
+        Tipo de análise do parecer.
+    - name: ds_resultado
+      description: >
+        Resultado do parecer.
+    - name: ds_parecer
+      description: >
+        Texto do parecer.
+    - name: id_plano_acao_hist
+      description: >
+        Identificador da versão histórica do Plano de Ação avaliada no parecer.
+    - name: dt_parecer
+      description: >
+        Data do parecer.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.planos_acao_parecer'
+            nome_coluna: 'dt_parecer'
+            tipo_esperado: 'date'
+
+  - name: eventos_nota_credito
+    description: >
+      Eventos contábeis das Notas de Crédito de TED, obtidos do endpoint evento da API de
+      TED do Transferegov: PTRES, fonte, plano interno e natureza de despesa por NC. A fonte
+      não tem chave: há várias linhas por id_nota.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: id_nota
+      description: >
+        Identificador da Nota de Crédito à qual o evento pertence.
+      tests:
+        - not_null
+    - name: cd_evento
+      description: >
+        Código do evento contábil.
+    - name: cd_ptres
+      description: >
+        Código do Plano de Trabalho Resumido (PTRES) do evento.
+    - name: cd_fonte_recurso
+      description: >
+        Código da fonte de recurso do evento.
+    - name: cd_plano_interno
+      description: >
+        Código do plano interno do evento.
+    - name: vl_evento
+      description: >
+        Valor do evento.
+    - name: cd_ug_responsavel
+      description: >
+        Código da Unidade Gestora responsável pelo evento.
+    - name: cd_natureza_despesa
+      description: >
+        Código da natureza de despesa.
+    - name: ds_natureza_despesa
+      description: >
+        Descrição da natureza de despesa.
+    - name: no_esfera_orcamentaria
+      description: >
+        Nome da esfera orçamentária.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.eventos_nota_credito'
+            nome_coluna: 'vl_evento'
+            tipo_esperado: 'numeric'
+
+  - name: trf_programacao_financeira
+    description: >
+      TRF das Programações Financeiras de TED, obtidos do endpoint trf da API de TED do
+      Transferegov: vinculação, fonte, categoria de gasto e valor. A fonte não tem chave.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: id_programacao
+      description: >
+        Identificador da Programação Financeira à qual o TRF pertence.
+      tests:
+        - not_null
+    - name: cd_vinculacao
+      description: >
+        Código de vinculação de pagamento.
+    - name: cd_fonte_recurso
+      description: >
+        Código da fonte de recurso.
+    - name: cd_categoria_gasto
+      description: >
+        Código da categoria de gasto.
+    - name: vl_trf
+      description: >
+        Valor do TRF.
+    - name: cd_situacao_contabil
+      description: >
+        Código da situação contábil.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.trf_programacao_financeira'
+            nome_coluna: 'vl_trf'
+            tipo_esperado: 'numeric'
+
+  - name: programas_acao_orcamentaria
+    description: >
+      Ações orçamentárias dos programas de TED, obtidas do endpoint
+      programa_acao_orcamentaria da API de TED do Transferegov. A fonte não tem chave.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: id_programa
+      description: >
+        Identificador do programa.
+      tests:
+        - not_null
+    - name: cd_acao_orcamentaria
+      description: >
+        Código da ação orçamentária.
+    - name: ds_acao_orcamentaria
+      description: >
+        Descrição da ação orçamentária.
+
+  - name: programas_beneficiario
+    description: >
+      Beneficiários (órgãos, por código Siorg) dos programas de TED, obtidos do endpoint
+      programa_beneficiario da API de TED do Transferegov. A fonte não tem chave.
+    meta:
+      tags:
+        - bronze
+    columns:
+    - name: id_programa
+      description: >
+        Identificador do programa.
+      tests:
+        - not_null
+    - name: cd_siorg
+      description: >
+        Código Siorg do órgão beneficiário.
+    - name: no_beneficiario
+      description: >
+        Nome do órgão beneficiário.
+    - name: vl_beneficiario
+      description: >
+        Valor destinado ao beneficiário.
+    - name: dt_ingest
+      description: >
+        Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw.
+    tests:
+        - verificacao_tipagem:
+            nome_tabela: 'ted.programas_beneficiario'
+            nome_coluna: 'vl_beneficiario'
+            tipo_esperado: 'numeric'

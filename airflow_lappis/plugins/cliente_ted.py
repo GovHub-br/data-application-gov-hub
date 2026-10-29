@@ -3,6 +3,23 @@ import logging
 from cliente_base import ClienteBase
 
 
+def numeros_como_texto(linhas: list[dict]) -> list[dict]:
+    """Converte int e float em texto antes de gravar.
+
+    O ClientPostgresDB passa todos os registros juntos pelo pandas, que transforma
+    em float uma coluna que mistura inteiro e nulo: 2024 vira '2024.0' e o nulo
+    vira 'NaN', o que quebra os casts das bronzes. Como texto, a coluna fica
+    object e o nulo continua nulo. bool fica como esta (str(True) seria 'True').
+    """
+    return [
+        {
+            k: str(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else v
+            for k, v in linha.items()
+        }
+        for linha in linhas
+    ]
+
+
 class ClienteTed(ClienteBase):
     BASE_URL = "https://api.transferegov.gestao.gov.br/ted/"
     BASE_HEADER = {"accept": "application/json"}
@@ -130,6 +147,71 @@ class ClienteTed(ClienteBase):
         else:
             logging.warning(f"Falha ao buscar programação financeira - Status: {status}")
             return None
+
+    def _get_lista(self, endpoint: str, descricao: str) -> list | None:
+        """GET de um endpoint que devolve lista; None em qualquer falha."""
+        logging.info(f"[cliente_ted.py] Buscando {descricao}")
+        status, data = self.request(
+            http.HTTPMethod.GET, endpoint, headers=self.BASE_HEADER
+        )
+        if status == http.HTTPStatus.OK and isinstance(data, list):
+            return data
+        logging.warning(
+            f"[cliente_ted.py] Falha ao buscar {descricao} - Status: {status}"
+        )
+        return None
+
+    def get_metas_by_id_plano_acao(self, id_plano_acao: int) -> list | None:
+        return self._get_lista(
+            f"plano_acao_meta?id_plano_acao=eq.{id_plano_acao}",
+            f"metas do plano de ação {id_plano_acao}",
+        )
+
+    def get_etapas_by_id_meta(self, id_meta: int) -> list | None:
+        return self._get_lista(
+            f"plano_acao_etapa?id_meta=eq.{id_meta}", f"etapas da meta {id_meta}"
+        )
+
+    def get_termos_execucao_by_id_plano_acao(self, id_plano_acao: int) -> list | None:
+        return self._get_lista(
+            f"termo_execucao?id_plano_acao=eq.{id_plano_acao}",
+            f"termos de execução do plano de ação {id_plano_acao}",
+        )
+
+    def get_analises_by_id_plano_acao(self, id_plano_acao: int) -> list | None:
+        return self._get_lista(
+            f"plano_acao_analise?id_plano_acao=eq.{id_plano_acao}",
+            f"análises do plano de ação {id_plano_acao}",
+        )
+
+    def get_pareceres_by_id_plano_acao(self, id_plano_acao: int) -> list | None:
+        return self._get_lista(
+            f"plano_acao_parecer?id_plano_acao=eq.{id_plano_acao}",
+            f"pareceres do plano de ação {id_plano_acao}",
+        )
+
+    def get_eventos_by_id_nota(self, id_nota: int) -> list | None:
+        return self._get_lista(
+            f"evento?id_nota=eq.{id_nota}", f"eventos da nota de crédito {id_nota}"
+        )
+
+    def get_trf_by_id_programacao(self, id_programacao: int) -> list | None:
+        return self._get_lista(
+            f"trf?id_programacao=eq.{id_programacao}",
+            f"TRF da programação financeira {id_programacao}",
+        )
+
+    def get_acoes_orcamentarias_by_id_programa(self, id_programa: int) -> list | None:
+        return self._get_lista(
+            f"programa_acao_orcamentaria?id_programa=eq.{id_programa}",
+            f"ações orçamentárias do programa {id_programa}",
+        )
+
+    def get_beneficiarios_by_id_programa(self, id_programa: int) -> list | None:
+        return self._get_lista(
+            f"programa_beneficiario?id_programa=eq.{id_programa}",
+            f"beneficiários do programa {id_programa}",
+        )
 
     def get_todos_programas(self, limit: int = 1000, offset: int = 0) -> list | None:
         """
