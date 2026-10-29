@@ -69,8 +69,10 @@ def test_unlisted_exception_propagates_immediately(
 ) -> None:
     target, spy = _scripted([KeyError("x"), "ok"])
 
+    wrapped = retry_on_exception(max_attempts=3, exceptions_to_retry=retry_on)(target)
+
     with pytest.raises(KeyError):
-        retry_on_exception(max_attempts=3, exceptions_to_retry=retry_on)(target)()
+        wrapped()
 
     assert spy.call_count == 1
     sleep_mock.assert_not_called()
@@ -108,8 +110,10 @@ def test_default_parameters_use_three_attempts_and_doubling_delay(
 ) -> None:
     target, spy = _scripted([RuntimeError(i) for i in range(3)])
 
+    wrapped = retry_on_exception()(target)
+
     with pytest.raises(RuntimeError):
-        retry_on_exception()(target)()
+        wrapped()
 
     assert spy.call_count == 3
     assert _delays(sleep_mock) == [1.0, 2.0]
@@ -125,8 +129,10 @@ def test_boundary_max_attempts_raises_last_exception_after_exact_count(
     errors = [ValueError(i) for i in range(max_attempts + 1)]
     target, spy = _scripted(list(errors))
 
+    wrapped = retry_on_exception(max_attempts=max_attempts)(target)
+
     with pytest.raises(ValueError) as exc_info:
-        retry_on_exception(max_attempts=max_attempts)(target)()
+        wrapped()
 
     assert exc_info.value is errors[max_attempts - 1]
     assert spy.call_count == max_attempts
@@ -152,10 +158,12 @@ def test_boundary_delay_and_backoff_factor(
 ) -> None:
     target, _ = _scripted([ValueError(i) for i in range(4)])
 
+    wrapped = retry_on_exception(
+        max_attempts=4, initial_delay=initial_delay, backoff_factor=backoff_factor
+    )(target)
+
     with pytest.raises(ValueError):
-        retry_on_exception(
-            max_attempts=4, initial_delay=initial_delay, backoff_factor=backoff_factor
-        )(target)()
+        wrapped()
 
     assert _delays(sleep_mock) == expected
 
@@ -169,8 +177,10 @@ def test_non_positive_max_attempts_raises_runtime_error_without_calling(
 ) -> None:
     target, spy = _scripted(["ok"])
 
+    wrapped = retry_on_exception(max_attempts=max_attempts)(target)
+
     with pytest.raises(RuntimeError, match="Erro inesperado no mecanismo de retry"):
-        retry_on_exception(max_attempts=max_attempts)(target)()
+        wrapped()
 
     spy.assert_not_called()
 
@@ -205,9 +215,11 @@ def test_exhausted_attempts_log_single_error(
 ) -> None:
     target, _ = _scripted([ValueError(1), ValueError(2)])
 
+    wrapped = retry_on_exception(max_attempts=2)(target)
+
     with caplog.at_level(logging.INFO, logger="retry_helpers"):
         with pytest.raises(ValueError):
-            retry_on_exception(max_attempts=2)(target)()
+            wrapped()
 
     errors = [r.getMessage() for r in caplog.records if r.levelno == logging.ERROR]
     assert errors == ["Todas as 2 tentativas falharam: target"]
@@ -223,8 +235,10 @@ def test_sleep_happens_between_attempts_and_not_after_the_last(
         order.append("call")
         raise ValueError("x")
 
+    wrapped = retry_on_exception(max_attempts=2)(target)
+
     with pytest.raises(ValueError):
-        retry_on_exception(max_attempts=2)(target)()
+        wrapped()
 
     assert order == ["call", "sleep", "call"]
 
@@ -273,9 +287,11 @@ def test_mcdc_sleep_requires_match_and_remaining_attempts(
 ) -> None:
     target, _ = _scripted([ValueError("x"), ValueError("y")])
 
+    wrapped = retry_on_exception(max_attempts=max_attempts, exceptions_to_retry=retry_on)(
+        target
+    )
+
     with pytest.raises(ValueError):
-        retry_on_exception(max_attempts=max_attempts, exceptions_to_retry=retry_on)(
-            target
-        )()
+        wrapped()
 
     assert sleep_mock.call_count == sleeps
