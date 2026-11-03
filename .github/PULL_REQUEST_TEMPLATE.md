@@ -21,7 +21,9 @@ Closes #
 - [ ] IPEA
 - [ ] MIR
 - [ ] MCid
+- [ ] MGI
 - [ ] MinC
+- [ ] Infra
 - [ ] OSS
 - [ ] Múltiplos domínios: ___
 
