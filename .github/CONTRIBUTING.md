@@ -215,7 +215,7 @@ Toda solicitação de mudança ou sugestão deve ser registrada como issue.
 
 Consulte o [Protocolo de Aprovação de Pull Requests](MERGE_REQUEST_PROTOCOL.md) para os critérios obrigatórios de revisão, aprovação e merge.
 
-O repositório usa domínios de revisão (`IPEA`, `MIR`, `MCid`, `MinC` e `OSS`) e a workflow `Request team review` para solicitar revisões conforme as labels `team:*` aplicadas manualmente no PR. PRs originados na disciplina GCES devem usar a label `team:gces`, que solicita revisão do time `OSS`.
+O repositório usa `team:ipea` para mudanças do IPEA e `team:infra` ou `team:oss` para mudanças transversais. A workflow `Request team review` solicita revisão conforme as labels aplicadas manualmente ao PR. Mudanças da disciplina GCES que precisem de revisão OSS usam `team:oss`; caminhos legados de outros domínios exigem combinar a revisão manualmente com o time responsável.
 
 **Para quem submete o PR:** responda a todos os comentários de revisão, implemente as mudanças em novos commits e aguarde nova aprovação antes do merge.
 

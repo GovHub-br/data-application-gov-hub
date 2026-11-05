@@ -25,13 +25,8 @@ jobs:
             const pull_number = context.payload.pull_request.number;
 
             const teamByLabel = {
-              "team:gces": "oss",
               "team:infra": "infra",
               "team:ipea": "ipea",
-              "team:mir": "mir",
-              "team:mcid": "mcid",
-              "team:mgi": "mgi",
-              "team:minc": "minc",
               "team:oss": "oss",
             };
 

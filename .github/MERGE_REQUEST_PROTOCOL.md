@@ -178,19 +178,15 @@ Closes #42
 
 ### Times de Revisão
 
-O repositório usa times do GitHub para direcionar revisões por domínio de atuação. Os times configurados na organização são:
+Neste repositório, a revisão automática usa o time IPEA e os times transversais Infra e OSS:
 
 | Time | Escopo principal |
 | --- | --- |
 | `@GovHub-br/ipea` | Pipelines, modelos dbt e integrações vinculadas ao IPEA |
-| `@GovHub-br/mir` | Pipelines, modelos dbt e integrações vinculadas ao MIR |
-| `@GovHub-br/mcid` | Pipelines e integrações vinculadas ao MCid |
-| `@GovHub-br/mgi` | Mudanças vinculadas ao MGI |
-| `@GovHub-br/minc` | Pipelines, modelos dbt e integrações vinculadas ao MinC, quando houver paths correspondentes neste repositório |
 | `@GovHub-br/infra` | Infraestrutura e CI, de forma transversal aos domínios |
 | `@GovHub-br/oss` | Contribuições externas, documentação pública, governança de colaboração open source e PRs originados na disciplina GCES |
 
-Os nomes acima usam os slugs dos times no GitHub. O time pode aparecer visualmente como `MCid`, `MinC` ou `OSS`, mas automações e revisões devem usar o slug configurado na organização. Não há um time separado para GCES; a label `team:gces` existe para triagem e também solicita revisão do time `@GovHub-br/oss`.
+Os nomes acima usam os slugs dos times no GitHub. Mudanças da disciplina GCES que precisem de revisão OSS usam `team:oss`.
 
 ### Estratégia de Revisão Automática
 
@@ -203,13 +199,13 @@ A estratégia adotada para domínios de dados é **GitHub Actions + labels `team
 
 Essa escolha evita manter listas frágeis de caminhos na automação, reduz falsos positivos e deixa a decisão do domínio explícita no PR.
 
-Mapa atual dos principais caminhos de DAGs e modelos:
+Principais caminhos de DAGs e modelos e sua revisão neste repositório:
 
 | Caminho | Domínio |
 | --- | --- |
 | `airflow_lappis/dags/dashboards/` | IPEA |
 | `airflow_lappis/dags/dbt/ipea/` | IPEA |
-| `airflow_lappis/dags/data_ingest/compras_gov/` | IPEA, exceto subpasta `mir/` |
+| `airflow_lappis/dags/data_ingest/compras_gov/` | IPEA |
 | `airflow_lappis/dags/data_ingest/ipea_pro/` | IPEA |
 | `airflow_lappis/dags/data_ingest/pncp/` | IPEA |
 | `airflow_lappis/dags/data_ingest/sgac/` | IPEA |
@@ -217,31 +213,19 @@ Mapa atual dos principais caminhos de DAGs e modelos:
 | `airflow_lappis/dags/data_ingest/siape/` | IPEA |
 | `airflow_lappis/dags/data_ingest/siorg/` | IPEA |
 | `airflow_lappis/dags/data_ingest/sisbolsas/` | IPEA |
-| `airflow_lappis/dags/data_ingest/tesouro_gerencial/` | IPEA, exceto subpastas `mir/` e `mcid/` |
-| `airflow_lappis/dags/data_ingest/transfere_gov/` | IPEA, exceto subpasta `mir/` |
-| `airflow_lappis/dags/dbt/mir/` | MIR |
-| `airflow_lappis/dags/data_ingest/compras_gov/mir/` | MIR |
-| `airflow_lappis/dags/data_ingest/dados_abertos/` | MIR |
-| `airflow_lappis/dags/data_ingest/siconv/` | MIR |
-| `airflow_lappis/dags/data_ingest/tesouro_gerencial/mir/` | MIR |
-| `airflow_lappis/dags/data_ingest/transfere_gov/mir/` | MIR |
-| `airflow_lappis/dags/data_ingest/transferegov_emendas/` | MIR |
-| `airflow_lappis/dags/data_ingest/tesouro_gerencial/mcid/` | MCid |
-| `airflow_lappis/dags/data_ingest/ibge/` | GCES / OSS |
+| `airflow_lappis/dags/data_ingest/tesouro_gerencial/` | IPEA, exceto subpasta `mcid/` |
+| `airflow_lappis/dags/data_ingest/transfere_gov/` | IPEA |
+| `airflow_lappis/dags/data_ingest/tesouro_gerencial/mcid/` | MCid (legado; combinar revisão manual com o time responsável) |
+| `airflow_lappis/dags/data_ingest/ibge/` | OSS |
 
-Quando um PR alterar arquivos de um domínio, o autor ou mantenedor deve aplicar a label `team:*` correspondente. A workflow solicita review do time associado a essa label. A ruleset da branch `main` deve exigir pelo menos uma aprovação antes do merge.
+Para mudanças do IPEA, o autor ou mantenedor deve aplicar `team:ipea`. Mudanças transversais usam `team:infra` ou `team:oss`, conforme o caso. Caminhos legados de outros domínios exigem revisão manual combinada com o time responsável; a workflow deste repositório não os roteia automaticamente. A ruleset da branch `main` deve exigir pelo menos uma aprovação antes do merge.
 
 ### Labels de Apoio
 
 Labels são a referência para o roteamento automático de revisores:
 
 - `team:ipea`
-- `team:mir`
-- `team:mcid`
-- `team:mgi`
-- `team:minc`
 - `team:infra`
-- `team:gces`
 - `team:oss`
 
 Se uma label indicar um domínio diferente dos arquivos alterados, o autor deve justificar no PR ou ajustar a label antes do merge.
@@ -252,7 +236,7 @@ Para adicionar um novo projeto, ministério ou disciplina ao fluxo de revisão:
 
 1. Criar o time correspondente na organização `GovHub-br`.
 2. Adicionar os membros responsáveis ao time.
-3. Definir o slug oficial do time, por exemplo `@GovHub-br/minc`.
+3. Definir o slug oficial do time, por exemplo `@GovHub-br/ipea`.
 4. Criar a label `team:*` correspondente, se ela ainda não existir.
 5. Mapear a label para o slug do time na workflow `Request team review`.
 6. Documentar quando a label deve ser usada.
