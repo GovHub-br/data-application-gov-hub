@@ -1,0 +1,36 @@
+repos:
+  - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
+    rev: v2.0.7
+    hooks:
+      - id: check-model-has-description
+        name: Check IPEA model descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/ipea/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/ipea/models/.*\.(sql|ya?ml)$
+      - id: check-model-columns-have-desc
+        name: Check IPEA model column descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/ipea/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/ipea/models/.*\.(sql|ya?ml)$
+      - id: check-source-table-has-description
+        name: Check IPEA source table descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/ipea/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/ipea/models/.*\.ya?ml$
+      - id: check-source-columns-have-desc
+        name: Check IPEA source column descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/ipea/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/ipea/models/.*\.ya?ml$
+      - id: check-model-has-description
+        name: Check MIR model descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/mir/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/mir/models/.*\.(sql|ya?ml)$
+      - id: check-model-columns-have-desc
+        name: Check MIR model column descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/mir/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/mir/models/.*\.(sql|ya?ml)$
+      - id: check-source-table-has-description
+        name: Check MIR source table descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/mir/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/mir/models/.*\.ya?ml$
+      - id: check-source-columns-have-desc
+        name: Check MIR source column descriptions
+        args: ["--manifest", "airflow_lappis/dags/dbt/mir/target/manifest.json", "--"]
+        files: ^airflow_lappis/dags/dbt/mir/models/.*\.ya?ml$
