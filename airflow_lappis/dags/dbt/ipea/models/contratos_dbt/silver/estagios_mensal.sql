@@ -13,6 +13,8 @@ with
             ne_ccor_favorecido as cnpj_cpf,
             substring(ne_info_complementar, '(^[0-9]+)') as info_complementar,
             ne_num_processo,
+            natureza_despesa_detalhada,
+            natureza_despesa_detalhada_descricao,
             despesas_empenhadas as valor_empenhado,
             despesas_liquidadas as valor_liquidado,
             despesas_pagas as valor_pago,
@@ -32,6 +34,8 @@ with
             cnpj_cpf,
             max(info_complementar) as info_complementar,
             max(ne_num_processo) as num_processo,
+            natureza_despesa_detalhada,
+            natureza_despesa_detalhada_descricao,
             sum(valor_empenhado) as valor_empenhado,
             sum(valor_liquidado) as valor_liquidado,
             sum(valor_pago) as valor_pago,
@@ -39,7 +43,7 @@ with
             sum(restos_a_pagar_pago) as restos_a_pagar_pago,
             max(dt_ingest) as dt_ingest
         from parsed_estagios
-        group by 1, 2, 3, 4, 5
+        group by 1, 2, 3, 4, 5, natureza_despesa_detalhada, natureza_despesa_detalhada_descricao
         order by 1, 2
     ),
 
@@ -57,6 +61,8 @@ with
                 else array[ano_lancamento]
             end as ano_efetivo,
             min(num_processo) over (partition by ne) as num_processo,
+            natureza_despesa_detalhada,
+            natureza_despesa_detalhada_descricao,
             valor_empenhado,
             valor_liquidado,
             valor_pago,
@@ -76,6 +82,8 @@ with
             ano_lancamento,
             unnest(ano_efetivo) as ano_efetivo,
             num_processo,
+            natureza_despesa_detalhada,
+            natureza_despesa_detalhada_descricao,
             valor_empenhado,
             valor_liquidado,
             valor_pago,
@@ -97,6 +105,8 @@ with
             ano_lancamento,
             ano_efetivo,
             num_processo,
+            natureza_despesa_detalhada,
+            natureza_despesa_detalhada_descricao,
             valor_empenhado,
             valor_liquidado,
             valor_pago,
@@ -119,6 +129,8 @@ with
             to_date(
                 ano_efetivo || '-' || mes_lancamento || '-01', 'YYYY-MM-DD'
             ) as mes_lancamento,
+            natureza_despesa_detalhada,
+            natureza_despesa_detalhada_descricao,
             valor_empenhado,
             valor_liquidado,
             valor_pago,

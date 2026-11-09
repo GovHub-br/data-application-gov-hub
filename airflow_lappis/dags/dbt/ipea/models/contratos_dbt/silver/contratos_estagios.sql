@@ -17,6 +17,8 @@ with
             num_processo,
             info_complementar,
             mes_lancamento,
+            natureza_despesa_detalhada,
+            natureza_despesa_detalhada_descricao,
             valor_empenhado,
             valor_liquidado,
             valor_pago,
@@ -49,6 +51,8 @@ with
             num_processo,
             info_complementar,
             mes_lancamento,
+            natureza_despesa_detalhada,
+            natureza_despesa_detalhada_descricao,
             valor_empenhado,
             valor_liquidado,
             valor_pago,
@@ -79,6 +83,8 @@ with
             num_processo,
             info_complementar,
             mes_lancamento,
+            natureza_despesa_detalhada,
+            natureza_despesa_detalhada_descricao,
             valor_empenhado,
             valor_liquidado,
             valor_pago,
@@ -113,6 +119,8 @@ select
     c.fornecedor_tipo,
     c.fornecedor_nome,
     r.mes_lancamento,
+    r.natureza_despesa_detalhada,
+    r.natureza_despesa_detalhada_descricao,
     sum(r.valor_empenhado) as valor_empenhado,
     sum(r.valor_liquidado) as valor_liquidado,
     sum(r.valor_pago) as valor_pago,
@@ -122,5 +130,5 @@ select
 from result_table r
 left join contratos c on r.contrato_id = c.id
 where r.contrato_id is not null
-group by 1, 2, 3, 4, 5, 6
+group by 1, 2, 3, 4, 5, 6, 7, 8
 order by r.contrato_id, r.mes_lancamento
