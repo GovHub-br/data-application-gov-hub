@@ -29,6 +29,15 @@ sources:
       - name: planos_acao
       - name: programacao_financeira
       - name: programas
+      - name: planos_acao_meta
+      - name: planos_acao_etapa
+      - name: termos_execucao
+      - name: planos_acao_analise
+      - name: planos_acao_parecer
+      - name: eventos_nota_credito
+      - name: trf_programacao_financeira
+      - name: programas_acao_orcamentaria
+      - name: programas_beneficiario
   - name: siape 
     schema: siape 
     tables:

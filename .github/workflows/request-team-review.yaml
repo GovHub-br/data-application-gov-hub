@@ -2,7 +2,7 @@ name: Request team review
 
 on:
   pull_request_target:
-    types: [labeled]
+    types: [labeled, ready_for_review]
 
 permissions:
   contents: read
@@ -15,7 +15,9 @@ jobs:
     if: github.event.pull_request.draft == false
     steps:
       - name: Request reviewers from team labels
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
+        env:
+          TEAM_REVIEW_TOKEN: ${{ secrets.TEAM_REVIEW_TOKEN }}
         with:
           github-token: ${{ secrets.TEAM_REVIEW_TOKEN || github.token }}
           script: |
@@ -23,11 +25,8 @@ jobs:
             const pull_number = context.payload.pull_request.number;
 
             const teamByLabel = {
-              "team:gces": "oss",
+              "team:infra": "infra",
               "team:ipea": "ipea",
-              "team:mir": "mir",
-              "team:mcid": "mcid",
-              "team:minc": "minc",
               "team:oss": "oss",
             };
 
@@ -41,28 +40,40 @@ jobs:
 
             if (team_reviewers.length === 0) {
               core.info("No team labels found for this PR.");
-            } else {
-              const failedTeams = [];
+              return;
+            }
 
-              for (const team of team_reviewers) {
-                try {
-                  await github.rest.pulls.requestReviewers({
-                    owner,
-                    repo,
-                    pull_number,
-                    team_reviewers: [team],
-                  });
-                  core.info(`Requested review from team: ${team}`);
-                } catch (error) {
-                  failedTeams.push(team);
-                  core.warning(`Could not request review from team "${team}": ${error.message}`);
-                }
-              }
+            if (!process.env.TEAM_REVIEW_TOKEN) {
+              core.setFailed("TEAM_REVIEW_TOKEN is required to request team reviews.");
+              return;
+            }
 
-              if (failedTeams.length > 0) {
-                core.warning(
-                  `Some teams could not be requested automatically: ${failedTeams.join(", ")}. ` +
-                  "Check team repository access or configure TEAM_REVIEW_TOKEN with Pull requests: read/write and Members: read permissions."
-                );
+            const requested = await github.rest.pulls.listRequestedReviewers({
+              owner,
+              repo,
+              pull_number,
+            });
+            const pendingTeams = new Set(requested.data.teams.map((team) => team.slug));
+            const failedTeams = [];
+
+            for (const team of team_reviewers) {
+              if (pendingTeams.has(team)) {
+                core.info(`Review already requested from team: ${team}`);
+                continue;
               }
+              try {
+                await github.rest.pulls.requestReviewers({
+                  owner,
+                  repo,
+                  pull_number,
+                  team_reviewers: [team],
+                });
+                core.info(`Requested review from team: ${team}`);
+              } catch (error) {
+                failedTeams.push(`${team}: ${error.message}`);
+              }
+            }
+
+            if (failedTeams.length > 0) {
+              core.setFailed(`Could not request team reviews: ${failedTeams.join("; ")}`);
             }

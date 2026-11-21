@@ -15,15 +15,11 @@
 Closes #
 
 ## Domínio de revisão
-<!-- Marque o domínio/time principal impactado por este PR. Use labels team:* quando ajudar na triagem. -->
+<!-- Adicione manualmente ao PR a label do time correspondente para solicitar revisao. -->
 
-- [ ] GCES / OSS
 - [ ] IPEA
-- [ ] MIR
-- [ ] MCid
-- [ ] MinC
+- [ ] Infra
 - [ ] OSS
-- [ ] Múltiplos domínios: ___
 
 ## Como testar / validar
 

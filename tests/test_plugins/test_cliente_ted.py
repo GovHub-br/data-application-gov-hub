@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from cliente_ted import ClienteTed
+from cliente_ted import ClienteTed, numeros_como_texto
 
 
 @pytest.fixture
@@ -303,3 +303,91 @@ def test_get_all_programas_first_page_none(cliente_ted: ClienteTed) -> None:
 
     assert result == []
     mock_get.assert_called_once_with(limit=1000, offset=0)
+
+
+# ---------------------------------------------------------------------------
+# Endpoints filtrados por id (metas, etapas, termos, analises, pareceres,
+# eventos, TRF, acoes orcamentarias e beneficiarios)
+# ---------------------------------------------------------------------------
+ENDPOINTS_POR_ID = [
+    ("get_metas_by_id_plano_acao", "plano_acao_meta?id_plano_acao=eq.7"),
+    ("get_etapas_by_id_meta", "plano_acao_etapa?id_meta=eq.7"),
+    ("get_termos_execucao_by_id_plano_acao", "termo_execucao?id_plano_acao=eq.7"),
+    ("get_analises_by_id_plano_acao", "plano_acao_analise?id_plano_acao=eq.7"),
+    ("get_pareceres_by_id_plano_acao", "plano_acao_parecer?id_plano_acao=eq.7"),
+    ("get_eventos_by_id_nota", "evento?id_nota=eq.7"),
+    ("get_trf_by_id_programacao", "trf?id_programacao=eq.7"),
+    (
+        "get_acoes_orcamentarias_by_id_programa",
+        "programa_acao_orcamentaria?id_programa=eq.7",
+    ),
+    ("get_beneficiarios_by_id_programa", "programa_beneficiario?id_programa=eq.7"),
+]
+
+
+@pytest.mark.parametrize("metodo, endpoint", ENDPOINTS_POR_ID)
+def test_endpoint_por_id_success(
+    cliente_ted: ClienteTed, metodo: str, endpoint: str
+) -> None:
+    expected = [{"id": 1}, {"id": 2}]
+    with patch.object(
+        cliente_ted, "request", return_value=(HTTPStatus.OK, expected)
+    ) as mock_request:
+        result = getattr(cliente_ted, metodo)(7)
+
+    assert result == expected
+    mock_request.assert_called_once_with(
+        http.HTTPMethod.GET, endpoint, headers=ClienteTed.BASE_HEADER
+    )
+
+
+@pytest.mark.parametrize("metodo, endpoint", ENDPOINTS_POR_ID)
+def test_endpoint_por_id_lista_vazia_nao_e_falha(
+    cliente_ted: ClienteTed, metodo: str, endpoint: str
+) -> None:
+    with patch.object(cliente_ted, "request", return_value=(HTTPStatus.OK, [])):
+        assert getattr(cliente_ted, metodo)(7) == []
+
+
+@pytest.mark.parametrize("metodo, endpoint", ENDPOINTS_POR_ID)
+@pytest.mark.parametrize(
+    "resposta", [(HTTPStatus.INTERNAL_SERVER_ERROR, []), (HTTPStatus.OK, {"x": 1})]
+)
+def test_endpoint_por_id_falha_retorna_none(
+    cliente_ted: ClienteTed, metodo: str, endpoint: str, resposta: tuple
+) -> None:
+    with patch.object(cliente_ted, "request", return_value=resposta):
+        assert getattr(cliente_ted, metodo)(7) is None
+
+
+# ---------------------------------------------------------------------------
+# numeros_como_texto
+# ---------------------------------------------------------------------------
+def test_numeros_como_texto_mantem_inteiro_e_nulo() -> None:
+    linhas = [
+        {"aa_instrumento": 2024, "sq_instrumento": None, "vl": 650000.5, "ativo": True},
+        {"aa_instrumento": 2023, "sq_instrumento": 7, "vl": 10, "ativo": None},
+    ]
+
+    assert numeros_como_texto(linhas) == [
+        {
+            "aa_instrumento": "2024",
+            "sq_instrumento": None,
+            "vl": "650000.5",
+            "ativo": True,
+        },
+        {"aa_instrumento": "2023", "sq_instrumento": "7", "vl": "10", "ativo": None},
+    ]
+
+
+def test_numeros_como_texto_evita_float_do_pandas() -> None:
+    # o ClientPostgresDB achata tudo junto no pandas: sem a conversao, a coluna que
+    # mistura inteiro e nulo vira float ('2024.0' e 'NaN')
+    from cliente_postgres import ClientPostgresDB
+
+    linhas = [{"aa": 2024, "sq": None}, {"aa": None, "sq": 7}]
+    achatado = ClientPostgresDB("dsn")._flatten_data(
+        numeros_como_texto(linhas), preserva_nulos=True
+    )
+
+    assert achatado == [{"aa": "2024", "sq": None}, {"aa": None, "sq": "7"}]
