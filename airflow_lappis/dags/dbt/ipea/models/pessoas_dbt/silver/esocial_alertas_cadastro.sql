@@ -8,6 +8,10 @@
 -- órgão), 04 nomeado cargo comissionado, 08 ativo em outro órgão (cedido pelo IPEA),
 -- 15 instituidor de pensão, 18 exercício descentralizado de carreira (requisitado),
 -- 44 exercício art. 93 da Lei 8.112 (requisitado), 70 estagiário SIGEPE.
+-- Valores usados em mais de uma regra
+{% set situacao_estagiario = "'70'" %}
+{% set nome_situacao_estagiario = "'ESTAGIARIO SIGEPE'" %}
+{% set limite_estagio = "interval '2 years'" %}
 with
     vinculos as (
         select
@@ -123,15 +127,16 @@ with
         where
             (
                 (
-                    cod_situacao_funcional = '70'
-                    or nome_situacao_funcional = 'ESTAGIARIO SIGEPE'
+                    cod_situacao_funcional = {{ situacao_estagiario }}
+                    or nome_situacao_funcional = {{ nome_situacao_estagiario }}
                 )
                 and coalesce(nome_regime_juridico, '') <> 'CONVENIO/CONTRATO ESTAGIO'
             )
             or (
                 nome_regime_juridico = 'CONVENIO/CONTRATO ESTAGIO'
-                and coalesce(cod_situacao_funcional, '') <> '70'
-                and coalesce(nome_situacao_funcional, '') <> 'ESTAGIARIO SIGEPE'
+                and coalesce(cod_situacao_funcional, '') <> {{ situacao_estagiario }}
+                and coalesce(nome_situacao_funcional, '')
+                <> {{ nome_situacao_estagiario }}
             )
     ),
 
@@ -310,8 +315,8 @@ with
         from vinculos_ativos
         where
             (
-                cod_situacao_funcional = '70'
-                or nome_situacao_funcional = 'ESTAGIARIO SIGEPE'
+                cod_situacao_funcional = {{ situacao_estagiario }}
+                or nome_situacao_funcional = {{ nome_situacao_estagiario }}
             )
             and cod_deficiencia_fisica is null
     ),
@@ -326,20 +331,21 @@ with
             case
                 when dt_inicio_estagio is null
                 then 'início do estágio vazio'
-                when dt_inicio_estagio + interval '2 years' <= current_date
+                when dt_inicio_estagio + {{ limite_estagio }} <= current_date
                 then
                     'estágio passou de 2 anos (início em '
                     || to_char(dt_inicio_estagio, 'DD/MM/YYYY')
                     || ')'
                 else
                     'estágio completa 2 anos em '
-                    || to_char(dt_inicio_estagio + interval '2 years', 'DD/MM/YYYY')
+                    || to_char(dt_inicio_estagio + {{ limite_estagio }}, 'DD/MM/YYYY')
             end as valor_encontrado,
             dt_ingest
         from estagiarios
         where
             dt_inicio_estagio is null
-            or dt_inicio_estagio + interval '2 years' <= current_date + interval '60 days'
+            or dt_inicio_estagio + {{ limite_estagio }}
+            <= current_date + interval '60 days'
     )
 
 select *

@@ -28,15 +28,11 @@ with
 
 select
     id_registro,
-    regexp_replace(nullif(trim(cpf), ''), '[^0-9]', '', 'g') as cpf_instituidor,
-    regexp_replace(
-        nullif(trim(cpfpensionista), ''), '[^0-9]', '', 'g'
-    ) as cpf_pensionista,
+    {{ apenas_digitos("cpf") }} as cpf_instituidor,
+    {{ apenas_digitos("cpfpensionista") }} as cpf_pensionista,
     nullif(trim(nomepensionista), '') as nome_pensionista,
     nullif(trim(matriculapensionista), '') as matricula_pensionista,
-    regexp_replace(
-        nullif(trim(cpfrepresentantelegal), ''), '[^0-9]', '', 'g'
-    ) as cpf_representante_legal,
+    {{ apenas_digitos("cpfrepresentantelegal") }} as cpf_representante_legal,
     nullif(trim(nomerepresentantelegal), '') as nome_representante_legal,
     nullif(trim(codparentesco), '') as cod_parentesco,
     nullif(trim(nomeparentesco), '') as nome_parentesco,
@@ -46,7 +42,7 @@ select
     nullif(trim(cotapensao), '') as cota_pensao,
     nullif(trim(orgaopensionista), '') as orgao_pensionista,
     nullif(trim(banco), '') as banco,
-    regexp_replace(nullif(trim(agencia), ''), '[^0-9]', '', 'g') as agencia,
+    {{ apenas_digitos("agencia") }} as agencia,
     upper(regexp_replace(nullif(trim(conta), ''), '[^0-9A-Za-z]', '', 'g')) as conta,
     (dt_ingest || '-03:00')::timestamptz as dt_ingest
 from pensoes
