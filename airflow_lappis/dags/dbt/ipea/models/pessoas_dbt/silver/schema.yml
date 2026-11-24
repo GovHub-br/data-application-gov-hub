@@ -453,3 +453,63 @@ models:
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) de ingestão do registro na fonte `terceirizados`.
+
+
+  # Pré-validação eSocial
+  - name: esocial_alertas_cadastro
+    description: >
+      Alertas de pré-validação dos dados cadastrais de servidores ativos e aposentados
+      antes do envio ao eSocial (regras R01 a R10 e R16, exceto R04 e R06). Uma linha por vínculo e
+      problema encontrado. Considera apenas vínculos sem ocorrência de exclusão.
+    meta:
+      tags:
+        - silver
+        - esocial
+    columns: &esocial_alerta_cols
+      - name: regra_id
+        description: Regra de pré-validação que gerou o alerta. Ver seed esocial_regras.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('esocial_regras')
+              field: regra_id
+      - name: cpf
+        description: CPF do servidor, com apenas dígitos.
+      - name: matricula_siape
+        description: Matrícula SIAPE do vínculo, quando houver.
+      - name: sigla_uorg_exercicio
+        description: Sigla da unidade de exercício do vínculo, para encaminhar a correção.
+      - name: campo
+        description: Coluna com o problema.
+        tests:
+          - not_null
+      - name: valor_encontrado
+        description: Descrição do problema encontrado. Não repete o dado pessoal.
+        tests:
+          - not_null
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: esocial_alertas_beneficios
+    description: >
+      Alertas de pré-validação de pensões: pensão alimentícia (R11 e R12, a partir de
+      dados_pa), CPF de pensionista ou dependente zerado ou repetido (R13) e instituidor sem
+      pensionista (R14, a partir de pensoes_instituidas). Uma linha por servidor ou
+      instituidor, beneficiário e problema encontrado.
+    meta:
+      tags:
+        - silver
+        - esocial
+    columns: *esocial_alerta_cols
+
+  - name: esocial_alertas_folha
+    description: >
+      Alertas de pré-validação da folha (regra R18), a partir de dados_financeiros na
+      competência mais recente. Uma linha por servidor pago que tem alerta bloqueante de
+      cadastro. A R17 não roda: a ingestão só traz as rubricas genéricas 0000 e 9999.
+    meta:
+      tags:
+        - silver
+        - esocial
+    columns: *esocial_alerta_cols
