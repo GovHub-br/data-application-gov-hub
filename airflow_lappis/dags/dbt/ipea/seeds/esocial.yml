@@ -1,0 +1,50 @@
+version: 2
+
+seeds:
+  - name: esocial_regras
+    description: >
+      Catálogo das regras de pré-validação dos dados de pessoas antes do envio ao eSocial.
+      Cada regra liga um erro conhecido do eSocial às colunas dos modelos do domínio
+      Pessoas. Montado a partir do levantamento de ocorrências do eSocial e das
+      anotações da equipe do IPEA no dicionário de dados.
+    config:
+      column_types:
+        regra_id: text
+        regra: text
+        publico: text
+        evento: text
+        erro_esocial: text
+        tabelas_campos: text
+        verificacao: text
+        severidade: text
+        origem: text
+        disponibilidade: text
+    columns:
+      - name: regra_id
+        description: Identificador da regra (R01 a R18).
+        tests:
+          - unique
+          - not_null
+      - name: regra
+        description: Nome curto da regra.
+      - name: publico
+        description: Público afetado (servidores ativos, aposentados e pensionistas, estagiários ou folha).
+      - name: evento
+        description: Evento do eSocial que a regra protege (S-2200, S-2300, S-2400, S-2410, S-1200 etc.).
+      - name: erro_esocial
+        description: Erro ou validação do eSocial que a regra antecipa.
+      - name: tabelas_campos
+        description: Modelos e colunas usados pela regra.
+      - name: verificacao
+        description: O que a regra verifica, em linguagem simples.
+      - name: severidade
+        description: Bloqueante (rejeição certa), Alta (rejeição provável ou impacto no IRRF) ou Média (conferência).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Bloqueante', 'Alta', 'Média']
+      - name: origem
+        description: De onde a regra veio (levantamento de ocorrências, anotação do IPEA ou ambos).
+      - name: disponibilidade
+        description: Se a plataforma já tem o dado para rodar a regra.
+

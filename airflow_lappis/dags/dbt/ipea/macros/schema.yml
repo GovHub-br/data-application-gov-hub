@@ -40,3 +40,22 @@ macros:
         description: >
           Texto a ser convertido em data.
           O texto deve estar no formato MÊS(texto)/ANO(numero). Ex.: FEV/2024 -> 2024-02-01
+
+  - name: apenas_digitos
+    description: >
+      Limpa um texto e deixa só os dígitos, para CPF, CEP e números de agência ou
+      conta. Texto vazio vira nulo.
+    arguments:
+      - name: coluna
+        type: string
+        description: Coluna ou expressão de texto a limpar.
+
+  - name: esocial_cpf_valido
+    description: >
+      Expressão booleana que diz se a coluna traz um CPF válido: 11 dígitos, não
+      todos iguais e com os dois dígitos verificadores corretos. Nulo ou fora do
+      formato retorna `false`. Usada nas regras de pré-validação do eSocial.
+    arguments:
+      - name: coluna
+        type: string
+        description: Coluna com o CPF, só com dígitos.

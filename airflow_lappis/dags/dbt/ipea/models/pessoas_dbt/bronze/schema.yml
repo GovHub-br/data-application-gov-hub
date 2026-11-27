@@ -264,6 +264,12 @@ models:
       - name: cpf
         description: "CPF do servidor titular da matrícula, contendo apenas números."
 
+      - name: cpf_dependente
+        description: >
+          CPF do próprio dependente, contendo apenas números. Vem da tag cpf do XML do
+          SIAPE, que a DAG guarda em cpf_dependente antes de gravar o CPF do servidor em
+          cpf. Fica vazio nas linhas ingeridas antes dessa correção.
+
       - name: matricula
         description: "Número da matrícula funcional do servidor ao qual o dependente está associado."
 
@@ -644,6 +650,57 @@ models:
         description: "Nome do vínculo com o servidor."
       - name: dt_ingest
         description:  "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
+
+  - name: pensoes_instituidas
+    description: >
+      Tabela bronze com as pensões instituídas por servidores do IPEA (pensão por morte),
+      vindas da consulta consultaPensoesInstituidas do SIAPE. Uma linha por pensionista
+      de cada instituidor.
+    meta:
+      tags:
+        - bronze
+    columns:
+      - name: id_registro
+        description: "Identificador do registro, montado pela DAG com CPF do instituidor, posição, CPF e matrícula do pensionista."
+        tests:
+          - unique
+          - not_null
+      - name: cpf_instituidor
+        description: "CPF do servidor que instituiu a pensão, só dígitos (campo cpf da fonte)."
+        tests:
+          - not_null
+      - name: cpf_pensionista
+        description: "CPF do pensionista, só dígitos."
+      - name: nome_pensionista
+        description: "Nome do pensionista."
+      - name: matricula_pensionista
+        description: "Matrícula SIAPE do pensionista."
+      - name: cpf_representante_legal
+        description: "CPF do representante legal do pensionista, só dígitos."
+      - name: nome_representante_legal
+        description: "Nome do representante legal do pensionista."
+      - name: cod_parentesco
+        description: "Código do parentesco entre pensionista e instituidor."
+      - name: nome_parentesco
+        description: "Descrição do parentesco entre pensionista e instituidor."
+      - name: cod_tipo_pensao
+        description: "Código do tipo de pensão."
+      - name: nome_tipo_pensao
+        description: "Descrição do tipo de pensão."
+      - name: natureza_pensao
+        description: "Natureza da pensão."
+      - name: cota_pensao
+        description: "Cota da pensão destinada ao pensionista."
+      - name: orgao_pensionista
+        description: "Órgão do pensionista."
+      - name: banco
+        description: "Banco da conta do pensionista."
+      - name: agencia
+        description: "Agência da conta do pensionista, só dígitos."
+      - name: conta
+        description: "Conta do pensionista, só letras e dígitos."
+      - name: dt_ingest
+        description: "Data e hora (UTC-3 Brasília) em que os dados foram ingeridos da fonte original para a camada raw."
 
   - name: dados_pessoais
     description: >

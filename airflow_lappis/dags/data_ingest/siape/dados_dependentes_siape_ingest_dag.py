@@ -58,7 +58,17 @@ def siape_dados_dependentes_dag() -> None:
                     continue
 
                 for row in dados:
+                    # A tag cpf do XML é o CPF do dependente. Ela é guardada em
+                    # cpf_dependente antes de a coluna cpf receber o CPF do servidor,
+                    # que faz parte da chave da tabela.
+                    row["cpf_dependente"] = row.get("cpf")
                     row["cpf"] = cpf
+                    # Um dependente pode ter vários benefícios (IR, plano de saúde,
+                    # pré-escolar), e o mesmo benefício em períodos diferentes. Cada
+                    # par benefício + início é um registro. Vazio em vez de nulo para
+                    # o ON CONFLICT casar também os dependentes sem benefício.
+                    row["codBeneficio"] = row.get("codBeneficio") or ""
+                    row["dataInicio"] = row.get("dataInicio") or ""
                     row["dt_ingest"] = datetime.now().isoformat()
 
                 db.alter_table(
@@ -70,8 +80,8 @@ def siape_dados_dependentes_dag() -> None:
                 db.insert_data(
                     dados,
                     table_name="dados_dependentes",
-                    conflict_fields=["cpf", "nome"],
-                    primary_key=["cpf", "nome"],
+                    conflict_fields=["cpf", "nome", "codBeneficio", "dataInicio"],
+                    primary_key=["cpf", "nome", "codBeneficio", "dataInicio"],
                     schema="siape",
                 )
 

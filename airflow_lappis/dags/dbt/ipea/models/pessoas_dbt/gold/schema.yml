@@ -460,3 +460,93 @@ models:
       - name: dt_ingest
         description: >
           Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  # Pré-validação eSocial
+  - name: esocial_alertas
+    description: >
+      Fila de alertas de pré-validação dos dados de pessoas antes do envio ao eSocial.
+      Junta os alertas de cadastro, benefícios e folha com o catálogo de regras
+      (seed esocial_regras). Uma linha por alerta. Base do painel de pré-validação.
+    meta:
+      tags:
+        - gold
+        - esocial
+    columns:
+      - name: alerta_id
+        description: Identificador do alerta (hash de regra, CPF, matrícula, campo e valor).
+        tests:
+          - unique
+          - not_null
+      - name: regra_id
+        description: Regra que gerou o alerta.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('esocial_regras')
+              field: regra_id
+      - name: regra
+        description: Nome curto da regra.
+      - name: publico
+        description: Público afetado.
+      - name: evento
+        description: Evento do eSocial que seria rejeitado.
+      - name: erro_esocial
+        description: Erro do eSocial que a regra antecipa.
+      - name: severidade
+        description: Bloqueante, Alta ou Média.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Bloqueante', 'Alta', 'Média']
+      - name: cpf
+        description: CPF do servidor, com apenas dígitos.
+      - name: matricula_siape
+        description: Matrícula SIAPE do vínculo, quando houver.
+      - name: nome_pessoa
+        description: Nome do servidor, para a área de gestão de pessoas localizar o cadastro.
+      - name: sigla_uorg_exercicio
+        description: Sigla da unidade de exercício.
+      - name: campo
+        description: Coluna com o problema.
+      - name: valor_encontrado
+        description: Descrição do problema encontrado.
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos dados das tabelas fonte utilizadas neste modelo.
+
+  - name: esocial_resumo_regras
+    description: >
+      Resumo da pré-validação por regra: número de alertas e de CPFs afetados, com os
+      dados do catálogo. Inclui as regras sem alerta e as que ainda não rodam por falta
+      de dado. Uma linha por regra.
+    meta:
+      tags:
+        - gold
+        - esocial
+    columns:
+      - name: regra_id
+        description: Identificador da regra.
+        tests:
+          - unique
+          - not_null
+      - name: regra
+        description: Nome curto da regra.
+      - name: publico
+        description: Público afetado.
+      - name: evento
+        description: Evento do eSocial.
+      - name: severidade
+        description: Bloqueante, Alta ou Média.
+      - name: disponibilidade
+        description: Se a plataforma já tem o dado para rodar a regra.
+      - name: qtd_alertas
+        description: Número de alertas da regra.
+        tests:
+          - not_null
+      - name: qtd_cpfs
+        description: Número de CPFs distintos com alerta da regra.
+        tests:
+          - not_null
+      - name: dt_ingest
+        description: >
+          Data e hora (UTC-3 Brasília) mais recente de ingestão dos alertas.

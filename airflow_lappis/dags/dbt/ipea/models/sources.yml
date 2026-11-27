@@ -46,6 +46,7 @@ sources:
       - name: dados_uorg
       - name: dados_pessoais
       - name: dados_pa
+      - name: pensoes_instituidas
       - name: dados_funcionais
       - name: dados_financeiros
       - name: dados_escolares
